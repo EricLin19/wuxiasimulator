@@ -55,6 +55,7 @@ function render() {
 function fitMobileViewport() {
   const app = document.getElementById("app");
   const shell = document.getElementById("stage-shell");
+  const fit = document.getElementById("stage-fit");
   if (!app) return;
   const viewport = window.visualViewport;
   const widthCandidates = [window.innerWidth, document.documentElement.clientWidth, viewport?.width].filter(Boolean);
@@ -66,6 +67,14 @@ function fitMobileViewport() {
   document.body.classList.toggle("mobile-viewport", useMobileStage);
   shell?.classList.toggle("mobile-viewport", useMobileStage);
   if (!useMobileStage) {
+    if (fit) {
+      fit.style.width = "";
+      fit.style.height = "";
+      fit.style.position = "";
+      fit.style.left = "";
+      fit.style.top = "";
+      fit.style.transform = "";
+    }
     app.style.transform = "";
     app.style.left = "";
     app.style.top = "";
@@ -89,15 +98,23 @@ function fitMobileViewport() {
   document.documentElement.style.minHeight = "";
   document.body.style.minWidth = "";
   document.body.style.minHeight = "";
-  app.style.position = "fixed";
+  if (fit) {
+    fit.style.position = "fixed";
+    fit.style.left = "50%";
+    fit.style.top = "50%";
+    fit.style.width = portrait ? "560px" : "980px";
+    fit.style.height = portrait ? "980px" : "560px";
+    fit.style.transform = `translate(-50%, -50%) scale(${scale})`;
+  }
+  app.style.position = "absolute";
   app.style.left = "50%";
   app.style.top = "50%";
   app.style.right = "auto";
   app.style.bottom = "auto";
   app.style.transformOrigin = "center center";
   app.style.transform = portrait
-    ? `translate(-50%, -50%) rotate(90deg) scale(${scale})`
-    : `translate(-50%, -50%) scale(${scale})`;
+    ? "translate(-50%, -50%) rotate(90deg)"
+    : "translate(-50%, -50%)";
 }
 
 function startBattle(enemy, isBoss = false) {
