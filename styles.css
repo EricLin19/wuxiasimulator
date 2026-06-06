@@ -306,64 +306,99 @@ body.mobile-viewport .battle-log {
 }
 
 body.mobile-viewport .select-layout {
-  grid-template-columns: 1.14fr .86fr;
-  gap: 10px;
+  grid-template-columns: 570px 390px;
+  gap: 8px;
 }
 
 body.mobile-viewport .select-layout .panel {
-  padding: 10px !important;
+  padding: 8px !important;
+}
+
+body.mobile-viewport .select-layout .select-detail {
+  display: grid;
+  grid-template-rows: auto auto auto auto auto minmax(0, 1fr) auto;
+  overflow: hidden;
+}
+
+body.mobile-viewport .select-layout .select-detail > .portrait {
+  display: none;
+}
+
+body.mobile-viewport .select-layout .select-detail > .btn {
+  position: static;
+  margin-top: 4px !important;
+  min-height: 42px;
+  padding: 6px 10px;
+}
+
+body.mobile-viewport .select-layout h3 {
+  margin: 4px 0;
+  font-size: 17px;
 }
 
 body.mobile-viewport .select-layout .section-title {
-  margin-bottom: 8px;
-  font-size: 30px;
+  margin-bottom: 4px;
+  font-size: 26px;
 }
 
 body.mobile-viewport .select-layout .cards {
   grid-template-columns: repeat(5, minmax(0, 1fr));
-  gap: 7px;
+  gap: 6px;
 }
 
 body.mobile-viewport .select-layout .treasure-cards {
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(8, minmax(0, 1fr));
+  align-content: start;
+  gap: 4px;
+  overflow: hidden;
 }
 
 body.mobile-viewport .select-layout .card {
-  min-height: 108px;
-  padding: 6px;
+  min-height: 92px;
+  padding: 5px;
   border-width: 3px;
 }
 
+body.mobile-viewport .select-layout .treasure-cards .card {
+  min-height: 66px;
+  padding: 3px;
+}
+
+body.mobile-viewport .select-layout .treasure-cards .desc {
+  display: none;
+}
+
 body.mobile-viewport .select-layout .card.selected {
-  outline-width: 4px;
+  outline-width: 3px;
 }
 
 body.mobile-viewport .select-layout .portrait {
-  width: 54px;
-  height: 62px;
-  margin-bottom: 4px;
-  font-size: 34px;
+  width: 44px;
+  height: 50px;
+  margin-bottom: 3px;
+  font-size: 28px;
   border-width: 2px;
 }
 
 body.mobile-viewport .select-layout .name {
-  font-size: 17px;
+  font-size: 14px;
 }
 
 body.mobile-viewport .select-layout .desc {
-  margin-top: 4px;
-  font-size: 11px;
-  line-height: 1.25;
+  margin-top: 3px;
+  font-size: 10px;
+  line-height: 1.18;
 }
 
 body.mobile-viewport .select-layout .stats-grid {
-  gap: 4px;
-  margin-top: 6px;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 3px;
+  margin-top: 4px;
 }
 
 body.mobile-viewport .select-layout .stat-line {
-  padding: 3px 6px;
-  font-size: 13px;
+  padding: 2px 5px;
+  font-size: 12px;
 }
 
 button {
