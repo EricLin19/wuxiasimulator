@@ -26,11 +26,11 @@ export function createBattle(run, enemyTemplate, isBoss = false) {
     pStats.speed += 0.25;
     pStats.dodge += 4;
   }
+  pStats.hp = Math.floor(pStats.hp * 3);
   if (run.traits.includes("tough")) {
-    pStats.hp += 80;
     pStats.def += 10;
   }
-  if (run.traits.includes("hardBone")) pStats.hp += 60;
+  if (run.traits.includes("hardBone")) pStats.hp += 180;
   if (run.traits.includes("innerRoot")) pStats.qi += 80;
   if (run.traits.includes("critUp")) pStats.crit += 2;
   if (run.traits.includes("nightPoison")) pStats.crit += 8;
@@ -56,6 +56,7 @@ function scaleEnemyStats(stats) {
   for (const key of ["hp", "qi", "atk", "def", "combo", "hit", "dodge", "crit"]) {
     stats[key] = Math.floor((stats[key] || 0) * 2);
   }
+  stats.hp = Math.floor((stats.hp || 0) * 1.5);
   stats.speed = Number(((stats.speed || 1) * 1.35).toFixed(2));
   return stats;
 }

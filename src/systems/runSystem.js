@@ -66,6 +66,7 @@ export function createRun(characterId, treasureId, meta) {
   refreshMerchantStock(run);
   applyMonthStart(run);
   refreshEvents(run);
+  reconcileStyleMasteries(run);
   log(run, `第${run.year}年${run.month}月，${character.name}携带${treasure.name}踏入江湖。`);
   saveRun(run);
   return run;
@@ -240,7 +241,7 @@ export function spendAp(run, cost) {
 
 export function trainStat(run, kind) {
   if (!spendAp(run, 1)) return { ok: false, message: "行动力不足" };
-  const gains = { atk: 3, def: 3, hp: 20, qi: 20 };
+  const gains = { atk: 3, def: 3, hp: 60, qi: 20 };
   run.stats[kind] += gains[kind] || 0;
   if (kind === "hp") run.hp += gains[kind];
   if (kind === "qi") run.qi += gains[kind];
@@ -286,7 +287,7 @@ function applySkillCompletion(run, skill) {
     run.stats[key] = Number(((run.stats[key] || 0) + value).toFixed(2));
   }
   run.skillTraits ||= [];
-  unlockStyleMasteryTrait(run, skill.style);
+  reconcileStyleMasteries(run);
   if (!run.selectedSchool) {
     run.selectedSchool = skill.school;
     refreshManuals(run);
@@ -294,15 +295,18 @@ function applySkillCompletion(run, skill) {
   }
 }
 
-function unlockStyleMasteryTrait(run, style) {
-  const set = DATA.styleSkillSets?.[style];
-  const trait = DATA.styleTraits?.[style];
-  if (!set || !trait) return;
-  const required = ["basic", "advanced", "ultimate"].map(tier => set[tier]);
-  if (!required.every(id => id && run.skills.includes(id))) return;
-  if (run.skillTraits.some(t => t.id === trait.id)) return;
-  run.skillTraits.push(trait);
-  log(run, `${trait.name}贯通，习得路线特性：${trait.desc}`);
+function reconcileStyleMasteries(run) {
+  run.skillTraits ||= [];
+  for (const [style, set] of Object.entries(DATA.styleSkillSets || {})) {
+    const trait = DATA.styleTraits?.[style];
+    if (!trait) continue;
+    const required = ["basic", "advanced", "ultimate"].map(tier => set[tier]).filter(Boolean);
+    if (required.length !== 3) continue;
+    if (!required.every(id => run.skills.includes(id))) continue;
+    if (run.skillTraits.some(t => t.id === trait.id)) continue;
+    run.skillTraits.push(trait);
+    log(run, `${trait.name}贯通，习得路线特性：${trait.desc}`);
+  }
 }
 
 export function buyManual(run, skillId) {
@@ -329,13 +333,13 @@ export function gainExp(run, amount) {
     run.martialExp -= need;
     run.level++;
     run.rankStars++;
-    run.stats.hp += 30;
+    run.stats.hp += 90;
     run.stats.qi += 20;
     run.stats.atk += 3;
     run.stats.def += 2;
-    run.hp += 30;
+    run.hp += 90;
     run.qi += 20;
-    log(run, `地位提升为${getRankTitle(run)}，血量+30，内力+20，攻击+3，防御+2。`);
+    log(run, `地位提升为${getRankTitle(run)}，血量+90，内力+20，攻击+3，防御+2。`);
     leveled = true;
   }
   return leveled;
@@ -471,6 +475,7 @@ export function toggleActiveSkill(run, skillId) {
     const result = addActiveSkillInOrder(run, skillId);
     if (!result.ok) return result;
   }
+  reconcileStyleMasteries(run);
   saveRun(run);
   return { ok: true };
 }
@@ -530,7 +535,7 @@ export function settleRun(state, result, reason) {
 }
 
 function applyMetaAllocations(stats, allocations) {
-  stats.hp += (allocations.hp || 0) * 20;
+  stats.hp += (allocations.hp || 0) * 60;
   stats.qi += (allocations.qi || 0) * 15;
   stats.atk += (allocations.atk || 0) * 2;
   stats.def += (allocations.def || 0) * 2;
