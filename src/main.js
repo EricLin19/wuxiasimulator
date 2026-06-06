@@ -67,6 +67,8 @@ function fitMobileViewport() {
     app.style.transform = "";
     app.style.left = "";
     app.style.top = "";
+    app.style.right = "";
+    app.style.bottom = "";
     app.style.position = "relative";
     document.documentElement.style.minWidth = "";
     document.documentElement.style.minHeight = "";
@@ -82,13 +84,15 @@ function fitMobileViewport() {
   const scale = portrait ? Math.min(safeW / 560, safeH / 980) : Math.min(safeW / 980, safeH / 560);
   const stageW = portrait ? 560 * scale : 980 * scale;
   const stageH = portrait ? 980 * scale : 560 * scale;
-  document.documentElement.style.minWidth = `${Math.ceil(stageW)}px`;
-  document.documentElement.style.minHeight = `${Math.ceil(stageH + 24)}px`;
-  document.body.style.minWidth = `${Math.ceil(stageW)}px`;
-  document.body.style.minHeight = `${Math.ceil(stageH + 24)}px`;
-  app.style.position = "absolute";
-  app.style.left = `${offsetLeft + Math.max(0, (w - stageW) / 2)}px`;
-  app.style.top = `${offsetTop + Math.max(0, (h - stageH) / 2)}px`;
+  document.documentElement.style.minWidth = "";
+  document.documentElement.style.minHeight = "";
+  document.body.style.minWidth = "";
+  document.body.style.minHeight = "";
+  app.style.position = "fixed";
+  app.style.left = `${offsetLeft + (w - stageW) / 2}px`;
+  app.style.top = `${offsetTop + (h - stageH) / 2}px`;
+  app.style.right = "auto";
+  app.style.bottom = "auto";
   app.style.transform = portrait
     ? `scale(${scale}) rotate(90deg) translateY(-560px)`
     : `scale(${scale})`;
