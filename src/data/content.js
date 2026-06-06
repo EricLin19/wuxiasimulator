@@ -18,7 +18,22 @@ export const SCHOOLS = {
   blade: { id: "blade", name: "刀法", debuff: "流血", icon: "刀" },
   hidden: { id: "hidden", name: "暗器", debuff: "中毒", icon: "镖" },
   fist: { id: "fist", name: "拳掌", debuff: "内伤", icon: "拳" },
-  lightness: { id: "lightness", name: "轻功", debuff: "身法", icon: "靴" }
+  lightness: { id: "lightness", name: "腿法", debuff: "身法", icon: "腿" }
+};
+
+export const STYLE_LABELS = {
+  combo: "连击",
+  critPalm: "暴击",
+  qiBreak: "断脉",
+  bleed: "流血",
+  frost: "寒冰",
+  hamstring: "断筋",
+  gu: "下蛊",
+  poison: "淬毒",
+  coin: "金钱",
+  evasive: "高闪避",
+  lowKick: "下盘",
+  steal: "偷盗"
 };
 
 export const RARITIES = {
@@ -40,26 +55,25 @@ function skill(id, name, school, rarity, power, qi, cd, train, debuff, debuffSta
 }
 
 function qinggong(id, name, rarity, train, statGain, trait) {
-  return { id, name, icon: SCHOOLS.lightness.icon, school: "lightness", rarity, power: 0, qi: 0, cd: 0, train, debuff: null, debuffStacks: 0, tags: ["passive"], statGain, trait, desc: trait.desc, battle: false };
+  const power = rarity === "red" ? 170 : rarity === "orange" ? 110 : 62;
+  const qi = rarity === "red" ? 125 : rarity === "orange" ? 78 : 42;
+  const cd = rarity === "red" ? 3 : rarity === "orange" ? 2 : 1;
+  return { id, name, icon: SCHOOLS.lightness.icon, school: "lightness", rarity, power, qi, cd, train, debuff: null, debuffStacks: 0, tags: ["leg"], statGain, trait, desc: trait.desc, battle: true };
 }
 
 export const DATA = {
   characters: [
-    { id: "scholar", name: "林修涯", faction: "潜龙会", icon: "书", desc: "均衡成长，适合先观察秘籍池再定流派。", traitText: "鬼谋神算：开局获得一个计略。", stats: stats(210, 297, 52, 33, 4, 60, 1, 5, 1.4), traits: ["planner"], skills: ["mixedFist"] },
-    { id: "swordsman", name: "谢扶风", faction: "听雪楼", icon: "刀", desc: "速度和暴击较高，适合刀法爆发。", traitText: "迅影：出手速度+0.25，闪避+4。", stats: stats(230, 250, 58, 31, 3, 64, 6, 8, 1.75), traits: ["swift"], skills: ["quickSlash"] },
-    { id: "boxer", name: "铁山", faction: "铁掌帮", icon: "拳", desc: "血防扎实，适合拳掌连击。", traitText: "铜皮铁骨：血量+80，防御+10。", stats: stats(320, 210, 62, 48, 9, 56, 0, 4, 1.1), traits: ["tough"], skills: ["ironPalm"] },
-    { id: "healer", name: "苏青萍", faction: "药王谷", icon: "药", desc: "续航优秀，容错率高。", traitText: "青囊：治疗效果+25%。", stats: stats(240, 310, 46, 36, 4, 58, 3, 4, 1.3), traits: ["healer"], skills: ["springNeedle"] },
-    { id: "assassin", name: "燕无声", faction: "暗香阁", icon: "镖", desc: "命中和速度突出，适合暗器毒伤。", traitText: "夜行：暴击+8，毒伤更强。", stats: stats(200, 260, 64, 26, 5, 68, 7, 14, 1.8), traits: ["nightPoison"], skills: ["shadowSting"] }
+    { id: "wanderer", name: "沈孤云", faction: "江湖浪客", icon: "浪", portrait: "wanderer", desc: "走南闯北的散人，出手灵活，适合尝试各类构筑。", traitText: "浪游：战斗开始出手速度+0.12，胜利金钱+8%。", stats: stats(250, 275, 56, 34, 6, 62, 4, 7, 1.45), traits: ["wanderer"], skills: ["mixedFist"] },
+    { id: "constable", name: "陆惊尘", faction: "镇抚司", icon: "鹰", portrait: "constable", desc: "朝廷鹰犬，命中高、压制强，适合稳扎稳打。", traitText: "缉凶：命中+6，击败敌人额外获得经验。", stats: stats(270, 250, 60, 38, 4, 70, 2, 6, 1.35), traits: ["constable"], skills: ["quickSlash"] },
+    { id: "orthodox", name: "顾明昭", faction: "天衡剑派", icon: "正", portrait: "orthodox", desc: "名门正派弟子，根基厚实，成长稳定。", traitText: "正脉：最大血量+50，最大内力+40，修炼经验+8%。", stats: stats(300, 300, 54, 42, 5, 60, 3, 5, 1.25), traits: ["orthodox"], skills: ["ironPalm"] }
   ],
   treasures: [
-    { id: "goldFeather", name: "黄金羽", icon: "羽", desc: "初始金钱+300，战斗开始攻击+10。", effect: "moneyAtk" },
-    { id: "purpleCup", name: "紫金杯", icon: "杯", desc: "每月开始恢复30血量和30内力。", effect: "monthRecover" },
-    { id: "moonPearl", name: "万象珠", icon: "珠", desc: "获得计略时，有25%概率额外获得一个蓝色计略。", effect: "strategyLuck" },
-    { id: "jadeRing", name: "玲珑环", icon: "环", desc: "最大行动力+20，传武堂秘籍价格-10%。", effect: "moreAp" },
-    { id: "darkBag", name: "暗器袋", icon: "袋", desc: "每场战斗开始获得一个飞镖道具。", effect: "battleDart" },
-    { id: "herbBottle", name: "青岚瓶", icon: "瓶", desc: "治疗效果+20%，商人价格-5%。", effect: "healPlus" },
-    { id: "warDrum", name: "破阵鼓", icon: "鼓", desc: "Boss战开始时攻击+25，防御+10。", effect: "bossPower", locked: true },
-    { id: "cloudBoots", name: "云纹靴", icon: "靴", desc: "出手速度+0.15，随机事件闪避收益+1。", effect: "speedBoost", locked: true }
+    { id: "inkTally", name: "青玉功牌", icon: "牌", desc: "所有经验获取+12%。", effect: "expBoost" },
+    { id: "goldAbacus", name: "金错算盘", icon: "算", desc: "所有金钱获取+18%。", effect: "moneyBoost" },
+    { id: "springGourd", name: "回春葫芦", icon: "葫", desc: "每月开始恢复45血量和45内力。", effect: "monthRecover" },
+    { id: "dragonSeal", name: "龙纹令", icon: "令", desc: "通关后解锁。战斗开始攻击+18，命中+8，暴击+5。", effect: "battleSeal", locked: true },
+    { id: "starManual", name: "星斗秘匣", icon: "匣", desc: "通关后解锁。秘籍价格-18%，修炼秘籍额外获得30经验。", effect: "manualMastery", locked: true },
+    { id: "jadeArmor", name: "玄玉护心镜", icon: "镜", desc: "通关后解锁。最大血量+90，最大内力+70，每场战斗开始获得护体。", effect: "jadeGuard", locked: true }
   ],
   skills: {
     mixedFist: skill("mixedFist", "混混拳法", "fist", "blue", 60, 40, 1, 3, "inner", 1, ["combo"], gain(2, 0, 0, 1, 0), { id: "roughChain", name: "乱拳连环", desc: "连击+2，暴击+1。", effects: { combo: 2, crit: 1 } }),
@@ -84,13 +98,16 @@ export const DATA = {
     hidden_orange_2: skill("hidden_orange_2", "生死符", "hidden", "orange", 88, 90, 2, 4, "poison", 4, ["surehit"], gain(0, 5, 0, 1, 0.06), { id: "lifeTalisman", name: "符入骨髓", desc: "命中+5，暴击+1，速度+0.06。", effects: { hit: 5, crit: 1, speed: 0.06 } }),
     hidden_red_1: skill("hidden_red_1", "孔雀翎", "hidden", "red", 155, 130, 3, 5, "poison", 5, ["surehit"], gain(0, 10, 2, 2, 0.08), { id: "peacockPlume", name: "万羽齐发", desc: "命中+10，闪避+2，速度+0.08，中毒更深。", effects: { hit: 10, dodge: 2, crit: 2, speed: 0.08, poisonBonus: 1 } }),
 
-    fist_blue_1: skill("fist_blue_1", "化骨绵掌", "fist", "blue", 62, 45, 1, 3, "inner", 1, ["combo"], gain(4, 0, 0, 1, 0), { id: "softBone", name: "连绵不绝", desc: "连击+4，暴击+1。", effects: { combo: 4, crit: 1 } }),
+    fist_blue_1: skill("fist_blue_1", "绵掌", "fist", "blue", 62, 45, 1, 3, "inner", 1, ["combo", "threeWaves"], gain(4, 0, 0, 1, 0), { id: "softBone", name: "连绵不绝", desc: "连击+4，暴击+1。", effects: { combo: 4, crit: 1 } }),
     fist_blue_2: skill("fist_blue_2", "摧心掌", "fist", "blue", 70, 55, 2, 3, "inner", 2, ["combo"], gain(3, 0, 0, 2, 0), { id: "heartBreak", name: "摧心暗劲", desc: "连击+3，暴击+2。", effects: { combo: 3, crit: 2 } }),
     fist_blue_3: skill("fist_blue_3", "太祖长拳", "fist", "blue", 58, 35, 1, 3, "inner", 1, ["combo"], gain(5, 1, 0, 0, 0), { id: "founderFist", name: "拳路绵密", desc: "连击+5，命中+1。", effects: { combo: 5, hit: 1 } }),
     fist_blue_4: skill("fist_blue_4", "劈空掌", "fist", "blue", 75, 60, 2, 3, "inner", 1, ["combo"], gain(3, 1, 0, 1, 0), { id: "airPalm", name: "隔空透劲", desc: "连击+3，命中+1，暴击+1。", effects: { combo: 3, hit: 1, crit: 1 } }),
-    fist_orange_1: skill("fist_orange_1", "大力金刚掌", "fist", "orange", 120, 90, 2, 4, "inner", 2, ["combo"], gain(6, 1, 0, 3, 0), { id: "vajraPalm", name: "金刚伏魔", desc: "连击+6，暴击+3。", effects: { combo: 6, hit: 1, crit: 3 } }),
+    fist_orange_1: skill("fist_orange_1", "排云掌", "fist", "orange", 120, 90, 2, 4, "inner", 2, ["combo", "threeWaves"], gain(6, 1, 0, 3, 0), { id: "vajraPalm", name: "排云叠劲", desc: "连击+6，暴击+3。", effects: { combo: 6, hit: 1, crit: 3 } }),
     fist_orange_2: skill("fist_orange_2", "黯然销魂掌", "fist", "orange", 105, 85, 2, 4, "inner", 3, ["combo"], gain(7, 0, 1, 2, 0), { id: "sadPalm", name: "情至无声", desc: "连击+7，闪避+1，暴击+2。", effects: { combo: 7, dodge: 1, crit: 2 } }),
-    fist_red_1: skill("fist_red_1", "降龙十八掌", "fist", "red", 190, 145, 3, 5, "inner", 4, ["combo"], gain(9, 2, 0, 5, 0), { id: "dragonPalm", name: "龙吟九霄", desc: "连击+9，暴击+5，暴击倍率提高。", effects: { combo: 9, hit: 2, crit: 5, critPower: 0.35 } }),
+    fist_red_1: skill("fist_red_1", "惊涛掌", "fist", "red", 190, 145, 3, 5, "inner", 4, ["combo", "threeWaves"], gain(9, 2, 0, 5, 0), { id: "dragonPalm", name: "惊涛拍岸", desc: "连击+9，暴击+5，暴击倍率提高。", effects: { combo: 9, hit: 2, crit: 5, critPower: 0.35 } }),
+    fist_orange_3: skill("fist_orange_3", "截脉掌", "fist", "orange", 108, 82, 2, 4, "inner", 3, ["combo"], gain(5, 2, 0, 2, 0), { id: "cutMeridian", name: "截脉断息", desc: "连击+5，命中+2，暴击+2。", effects: { combo: 5, hit: 2, crit: 2 } }),
+    fist_red_2: skill("fist_red_2", "碎星拳", "fist", "red", 178, 135, 3, 5, "inner", 3, ["combo"], gain(6, 2, 0, 9, 0), { id: "starCrush", name: "碎星暴劲", desc: "暴击+9，命中+2，暴击倍率提高。", effects: { combo: 6, hit: 2, crit: 9, critPower: 0.3 } }),
+    fist_red_3: skill("fist_red_3", "断海掌", "fist", "red", 168, 130, 3, 5, "inner", 5, ["combo"], gain(8, 3, 0, 4, 0), { id: "seaBreak", name: "断海截息", desc: "连击+8，命中+3，暴击+4。", effects: { combo: 8, hit: 3, crit: 4 } }),
 
     light_blue_1: qinggong("light_blue_1", "草上飞", "blue", 3, gain(0, 0, 3, 0, 0.08), { id: "grassStep", name: "踏草无痕", desc: "闪避+3，出手速度+0.08。", effects: { dodge: 3, speed: 0.08 } }),
     light_blue_2: qinggong("light_blue_2", "燕子三抄水", "blue", 3, gain(0, 0, 4, 0, 0.06), { id: "swallowStep", name: "燕影回环", desc: "闪避+4，出手速度+0.06。", effects: { dodge: 4, speed: 0.06 } }),
@@ -98,10 +115,22 @@ export const DATA = {
     light_blue_4: qinggong("light_blue_4", "壁虎游墙功", "blue", 3, gain(0, 0, 5, 0, 0.03), { id: "wallWalk", name: "贴壁游身", desc: "闪避+5，出手速度+0.03。", effects: { dodge: 5, speed: 0.03 } }),
     light_orange_1: qinggong("light_orange_1", "神行百变", "orange", 4, gain(0, 1, 7, 0, 0.12), { id: "manySteps", name: "百变身法", desc: "命中+1，闪避+7，出手速度+0.12。", effects: { hit: 1, dodge: 7, speed: 0.12 } }),
     light_orange_2: qinggong("light_orange_2", "梯云纵", "orange", 4, gain(0, 0, 8, 0, 0.1), { id: "cloudLadder", name: "凌虚踏云", desc: "闪避+8，出手速度+0.10。", effects: { dodge: 8, speed: 0.1 } }),
-    light_red_1: qinggong("light_red_1", "凌波微步", "red", 5, gain(0, 2, 12, 0, 0.18), { id: "lingbo", name: "步生波纹", desc: "命中+2，闪避+12，出手速度+0.18。", effects: { hit: 2, dodge: 12, speed: 0.18 } })
+    light_red_1: qinggong("light_red_1", "凌波微步", "red", 5, gain(0, 2, 12, 0, 0.18), { id: "lingbo", name: "步生波纹", desc: "命中+2，闪避+12，出手速度+0.18。", effects: { hit: 2, dodge: 12, speed: 0.18 } }),
+    blade_orange_3: skill("blade_orange_3", "裂筋刀", "blade", "orange", 112, 78, 2, 4, "hamstring", 2, ["crit"], gain(0, 2, 0, 4, 0.03), { id: "sinewCut", name: "裂筋卸力", desc: "命中+2，暴击+4，速度+0.03。", effects: { hit: 2, crit: 4, speed: 0.03 } }),
+    blade_red_2: skill("blade_red_2", "玄冥寒刀", "blade", "red", 170, 132, 3, 5, "frost", 4, ["crit"], gain(0, 3, 0, 6, 0.06), { id: "deepFrost", name: "玄冥寒意", desc: "命中+3，暴击+6，速度+0.06。", effects: { hit: 3, crit: 6, speed: 0.06 } }),
+    blade_red_3: skill("blade_red_3", "天残断筋刀", "blade", "red", 166, 126, 3, 5, "hamstring", 4, ["crit"], gain(0, 4, 1, 5, 0.04), { id: "crippleBlade", name: "天残刀势", desc: "命中+4，闪避+1，暴击+5。", effects: { hit: 4, dodge: 1, crit: 5, speed: 0.04 } }),
+    hidden_orange_3: skill("hidden_orange_3", "金叶飞花", "hidden", "orange", 0, 0, 2, 4, "coin", 0, ["surehit", "coin"], gain(0, 6, 0, 2, 0.05), { id: "goldLeaf", name: "金叶破空", desc: "命中+6，暴击+2，速度+0.05。", effects: { hit: 6, crit: 2, speed: 0.05 } }, "钱"),
+    hidden_red_2: skill("hidden_red_2", "九窍蛊针", "hidden", "red", 145, 125, 3, 5, "gu", 5, ["surehit"], gain(0, 9, 2, 1, 0.07), { id: "nineGu", name: "九窍封息", desc: "命中+9，闪避+2，速度+0.07。", effects: { hit: 9, dodge: 2, crit: 1, speed: 0.07 } }),
+    hidden_red_3: skill("hidden_red_3", "漫天金雨", "hidden", "red", 0, 0, 3, 5, "coin", 0, ["surehit", "coin"], gain(0, 10, 1, 4, 0.08), { id: "goldRain", name: "金雨无空", desc: "命中+10，暴击+4，速度+0.08。", effects: { hit: 10, dodge: 1, crit: 4, speed: 0.08 } }, "钱"),
+    light_orange_3: qinggong("light_orange_3", "飞檐探云腿", "orange", 4, gain(0, 2, 4, 2, 0.16), { id: "cloudThief", name: "探云取利", desc: "命中+2，闪避+4，暴击+2，速度+0.16。" }),
+    light_red_2: qinggong("light_red_2", "碎岳沉桩腿", "red", 5, gain(0, 4, 3, 4, 0.08), { id: "mountainKick", name: "碎岳真劲", desc: "命中+4，闪避+3，暴击+4，速度+0.08。" }),
+    light_red_3: qinggong("light_red_3", "摘星无影腿", "red", 5, gain(0, 3, 8, 3, 0.22), { id: "starThief", name: "摘星掠影", desc: "命中+3，闪避+8，暴击+3，速度+0.22。" })
   },
   strategies: [],
   traits: [
+    { id: "wanderer", name: "浪游", desc: "战斗开始出手速度+0.12，金钱获取+8%。" },
+    { id: "constable", name: "缉凶", desc: "命中+6，获得经验时额外+8。" },
+    { id: "orthodox", name: "正脉", desc: "血量+50，内力+40，经验获取+8%。" },
     { id: "planner", name: "鬼谋", desc: "开局擅长计略，升级奖励更稳定。" },
     { id: "swift", name: "迅影", desc: "出手速度+0.25，闪避+4。" },
     { id: "tough", name: "铜皮铁骨", desc: "血量+80，防御+10。" },
@@ -134,6 +163,9 @@ export const DATA = {
   enemies: [
     { id: "rogue", name: "二流高手", icon: "贼", hp: 260, qi: 120, atk: 46, def: 22, combo: 2, hit: 55, dodge: 2, crit: 5, speed: 1.25, rank: 1 },
     { id: "blade", name: "快刀手", icon: "刀", hp: 330, qi: 180, atk: 62, def: 30, combo: 3, hit: 65, dodge: 3, crit: 8, speed: 1.55, rank: 2 },
+    { id: "highDodgeAssassin", name: "踏影刺客", icon: "影", hp: 300, qi: 220, atk: 66, def: 24, combo: 5, hit: 76, dodge: 42, crit: 14, speed: 1.85, rank: 2, trait: "evasive", traitName: "高闪避", traitDesc: "闪避极高，考验命中和必中招式。" },
+    { id: "armorBreakBlade", name: "裂甲刀客", icon: "破", hp: 390, qi: 210, atk: 74, def: 34, combo: 3, hit: 68, dodge: 2, crit: 9, speed: 1.42, rank: 3, trait: "armorBreak", traitName: "破防刀", traitDesc: "攻击会忽略部分防御，并削弱防御。" },
+    { id: "qiSuppressFist", name: "断脉拳师", icon: "拳", hp: 420, qi: 280, atk: 68, def: 38, combo: 7, hit: 70, dodge: 4, crit: 8, speed: 1.38, rank: 3, trait: "qiSuppress", traitName: "压制内力", traitDesc: "攻击会额外削减内力，逼迫调息节奏。" },
     { id: "witch", name: "毒娘子", icon: "毒", hp: 390, qi: 260, atk: 58, def: 32, combo: 4, hit: 66, dodge: 5, crit: 9, speed: 1.45, rank: 3 },
     { id: "demon", name: "心魔", icon: "魔", hp: 560, qi: 300, atk: 82, def: 42, combo: 6, hit: 66, dodge: 4, crit: 12, speed: 1.4, rank: 4 }
   ],
@@ -146,40 +178,137 @@ export const DATA = {
 
 DATA.manuals = Object.keys(DATA.skills).filter(id => !["mixedFist", "quickSlash", "ironPalm", "springNeedle", "shadowSting"].includes(id));
 
+const SKILL_STYLES = {
+  mixedFist: ["qiBreak", "断脉乱拳", "拳劲入脉，削减内力更强。"],
+  ironPalm: ["qiBreak", "铁掌断息", "以沉劲截断内息。"],
+  fist_blue_1: ["combo", "绵掌", "连击路线核心蓝掌。"],
+  fist_orange_1: ["combo", "排云掌", "连击路线核心橙掌。"],
+  fist_red_1: ["combo", "惊涛掌", "连击路线核心红掌。"],
+  fist_blue_2: ["critPalm", "摧心掌", "暴击拳掌，暴击时追加震伤。"],
+  fist_orange_2: ["critPalm", "黯然掌", "暴击拳掌，暴击收益更高。"],
+  fist_red_2: ["critPalm", "碎星拳", "暴击拳掌终式。"],
+  fist_blue_3: ["critPalm", "太祖长拳", "暴击拳掌入门，拳路正而力猛。"],
+  fist_blue_4: ["qiBreak", "劈空掌", "断脉拳掌入门，隔空透劲削内力。"],
+  fist_orange_3: ["qiBreak", "截脉掌", "内力削减拳掌进阶式。"],
+  fist_red_3: ["qiBreak", "断海掌", "内力削减拳掌终式。"],
+  quickSlash: ["bleed", "雁门快刀", "流血刀法入门。"],
+  blade_blue_1: ["bleed", "五虎断门刀", "流血刀法，叠加伤口。"],
+  blade_orange_1: ["bleed", "燃木刀法", "流血刀法进阶。"],
+  blade_red_1: ["bleed", "傲寒六诀", "流血刀法终式。"],
+  blade_blue_2: ["frost", "寒枝刀", "寒冰刀法，减速并削内力。"],
+  blade_orange_2: ["frost", "雪岭刀", "寒冰刀法进阶。"],
+  blade_red_2: ["frost", "玄冥寒刀", "寒冰刀法终式。"],
+  blade_blue_3: ["hamstring", "狂风断步刀", "断筋刀法，减速并削攻击。"],
+  blade_blue_4: ["hamstring", "雁行断筋刀", "断筋刀法。"],
+  blade_orange_3: ["hamstring", "裂筋刀", "断筋刀法进阶。"],
+  blade_red_3: ["hamstring", "天残断筋刀", "断筋刀法终式。"],
+  springNeedle: ["poison", "回春毒针", "淬毒暗器，扣血并扣内力。"],
+  shadowSting: ["gu", "影蛊刺", "下蛊暗器，提高目标冷却和内力消耗。"],
+  hidden_blue_1: ["gu", "缠心蛊镖", "下蛊暗器。"],
+  hidden_blue_2: ["poison", "淬毒飞石", "淬毒暗器。"],
+  hidden_blue_3: ["gu", "袖蛊针", "下蛊暗器。"],
+  hidden_blue_4: ["coin", "金钱镖", "金钱暗器，花钱固定必中。"],
+  hidden_orange_1: ["poison", "冰魄毒针", "淬毒暗器进阶。"],
+  hidden_orange_2: ["gu", "生死蛊符", "下蛊暗器进阶。"],
+  hidden_orange_3: ["coin", "金叶飞花", "金钱暗器进阶。"],
+  hidden_red_1: ["poison", "孔雀毒翎", "淬毒暗器终式。"],
+  hidden_red_2: ["gu", "九窍蛊针", "下蛊暗器终式。"],
+  hidden_red_3: ["coin", "漫天金雨", "金钱暗器终式。"],
+  light_blue_1: ["evasive", "燕回腿", "高闪避腿法，闪避后减冷却并调息。"],
+  light_orange_1: ["evasive", "游龙腿", "高闪避腿法进阶。"],
+  light_red_1: ["evasive", "凌波腿", "高闪避腿法终式。"],
+  light_blue_2: ["lowKick", "扫堂腿", "下盘腿法，忽略闪避和防御造成真伤。"],
+  light_orange_2: ["lowKick", "盘龙腿", "下盘腿法进阶。"],
+  light_red_2: ["lowKick", "碎岳沉桩腿", "下盘腿法终式。"],
+  light_blue_3: ["steal", "探囊腿", "偷盗型腿法，高出手且胜利额外得钱。"],
+  light_blue_4: ["steal", "游墙探云腿", "偷盗型腿法。"],
+  light_orange_3: ["steal", "飞檐探云腿", "偷盗型腿法进阶。"],
+  light_red_3: ["steal", "摘星无影腿", "偷盗型腿法终式。"]
+};
+
+for (const [id, [style, name, desc]] of Object.entries(SKILL_STYLES)) {
+  if (!DATA.skills[id]) continue;
+  DATA.skills[id].style = style;
+  DATA.skills[id].name = name;
+  DATA.skills[id].desc = desc;
+  DATA.skills[id].styleName = STYLE_LABELS[style];
+  DATA.skills[id].debuff = {
+    qiBreak: "inner",
+    bleed: "bleed",
+    frost: "frost",
+    hamstring: "hamstring",
+    gu: "gu",
+    poison: "poison",
+    coin: "coin"
+  }[style] || null;
+  if (style === "coin") DATA.skills[id].tags = [...new Set([...(DATA.skills[id].tags || []), "surehit", "coin"])];
+}
+
+Object.assign(DATA.weapons.fist_w_blue, { name: "缠丝护腕", style: "combo", comboBonus: 8, desc: "拳掌连击+8，连击掌伤害+8%。" });
+Object.assign(DATA.weapons.fist_w_orange, { name: "截脉臂甲", style: "qiBreak", qiBreakBonus: 18, debuffBonus: 2, desc: "断脉拳掌削内力+18，断脉层数+2。" });
+Object.assign(DATA.weapons.fist_w_red, { name: "碎星拳套", style: "critPalm", crit: 10, critPower: 0.25, desc: "暴击拳掌暴击+10，暴击倍率提高。" });
+Object.assign(DATA.weapons.blade_w_blue, { name: "饮血雁翎刀", style: "bleed", debuffBonus: 2, desc: "流血刀层数+2，刀法伤害+8%。" });
+Object.assign(DATA.weapons.blade_w_orange, { name: "玄霜刀", style: "frost", frostBonus: 2, qiBreakBonus: 20, desc: "寒冰刀寒气+2，额外削内力。" });
+Object.assign(DATA.weapons.blade_w_red, { name: "断岳残刀", style: "hamstring", hamstringBonus: 3, atkBreakBonus: 4, desc: "断筋刀断筋+3，额外削攻击。" });
+Object.assign(DATA.weapons.hidden_w_blue, { name: "蛊针匣", style: "gu", guBonus: 1, desc: "下蛊暗器蛊层+1，暗器伤害+8%。" });
+Object.assign(DATA.weapons.hidden_w_orange, { name: "淬毒镖囊", style: "poison", poisonBonus: 2, qiBreakBonus: 18, desc: "淬毒暗器毒层+2，额外削内力。" });
+Object.assign(DATA.weapons.hidden_w_red, { name: "金雨机括", style: "coin", coinDamageBonus: 55, desc: "金钱暗器固定伤害+55，仍然必中。" });
+
 DATA.strategies = [
-  ...makeStrategies("blade", ["血引", "追创", "刀势", "伤口撕裂", "血路", "斩脉", "饮血归元"]),
-  ...makeStrategies("hidden", ["淬毒", "封喉", "暗劲", "毒入经脉", "百步穿杨", "腐骨散", "万毒归宗"]),
-  ...makeStrategies("fist", ["震脉", "透劲", "连环", "暗劲伤腑", "刚柔并济", "寸劲", "龙吟九霄"]),
-  ...makeStrategies("lightness", ["抢步", "腾挪", "借风", "移形换影", "踏雪无痕", "流云身法", "凌波化境"])
+  ...makeStrategies("fist", "combo", ["缠丝", "叠劲", "追掌", "浪涌", "三叠劲", "借势连环", "长江无尽"]),
+  ...makeStrategies("fist", "critPalm", ["崩拳", "摧心", "震胆", "碎骨", "破星劲", "雷音入骨", "星陨掌意"]),
+  ...makeStrategies("fist", "qiBreak", ["截息", "封脉", "断气", "逆脉", "沉劲截流", "闭关锁脉", "沧海断息"]),
+  ...makeStrategies("blade", "bleed", ["血引", "追创", "伤口", "血路", "断门势", "饮血归元", "千创百孔"]),
+  ...makeStrategies("blade", "frost", ["寒枝", "冷刃", "霜气", "凝脉", "雪岭刀势", "玄霜入骨", "玄冥冰河"]),
+  ...makeStrategies("blade", "hamstring", ["断步", "裂筋", "卸力", "挑脉", "残步刀势", "断岳伤筋", "天残绝路"]),
+  ...makeStrategies("hidden", "gu", ["蛊引", "缠心", "扰息", "封窍", "百蛊入络", "生死符令", "九窍蛊王"]),
+  ...makeStrategies("hidden", "poison", ["淬毒", "入血", "腐骨", "蚀气", "冰魄毒意", "毒入经脉", "孔雀毒雨"]),
+  ...makeStrategies("hidden", "coin", ["听钱", "掷金", "破空", "买命", "金叶飞花", "铜臭杀机", "漫天金雨"]),
+  ...makeStrategies("lightness", "evasive", ["侧身", "燕回", "避锋", "借步", "游龙身", "踏浪回息", "凌波无形"]),
+  ...makeStrategies("lightness", "lowKick", ["扫堂", "沉桩", "击膝", "碎踝", "盘龙下势", "碎岳真劲", "地裂无声"]),
+  ...makeStrategies("lightness", "steal", ["探囊", "掠影", "飞檐", "顺手", "探云取利", "过墙留财", "摘星夺魄"])
 ];
 
-function makeStrategies(school, names) {
+function makeStrategies(school, style, names) {
   const rarities = ["blue", "blue", "blue", "blue", "orange", "orange", "red"];
   return names.map((name, index) => {
     const rarity = rarities[index];
     const rank = RARITIES[rarity].rank;
-    const effects = school === "blade"
-      ? { bleedBonus: rank, crit: rank * 2 }
-      : school === "hidden"
-        ? { poisonBonus: rank, hit: rank * 3 }
-        : school === "fist"
-          ? { innerBonus: rank, combo: rank * 3 }
-          : { dodge: rank * 3, speed: Number((rank * 0.04).toFixed(2)) };
+    const effects = styleEffects(style, rank);
     return {
-      id: `${school}_strat_${index + 1}`,
+      id: `${school}_${style}_strat_${index + 1}`,
       name,
       school,
+      style,
       rarity,
       effects,
-      desc: `${SCHOOLS[school].name}计略，强化${SCHOOLS[school].debuff}与本流派节奏。`,
+      desc: `${SCHOOLS[school].name}计略，强化${STYLE_LABELS[style]}路线。`,
       effectsText: describeEffects(effects)
     };
   });
 }
 
+function styleEffects(style, rank) {
+  const map = {
+    combo: { combo: rank * 4 },
+    critPalm: { crit: rank * 3, critPower: Number((rank * 0.08).toFixed(2)) },
+    qiBreak: { qiBreakBonus: rank * 12 },
+    bleed: { bleedBonus: rank, crit: rank * 2 },
+    frost: { frostBonus: rank, qiBreakBonus: rank * 10 },
+    hamstring: { hamstringBonus: rank, atkBreakBonus: rank * 2 },
+    gu: { guBonus: rank },
+    poison: { poisonBonus: rank, qiBreakBonus: rank * 8 },
+    coin: { coinDamageBonus: rank * 24 },
+    evasive: { dodge: rank * 4, cooldownOnDodge: rank },
+    lowKick: { trueDamageBonus: rank * 18 },
+    steal: { speed: Number((rank * 0.06).toFixed(2)), moneyBonus: rank * 8 }
+  };
+  return map[style] || {};
+}
+
 function describeEffects(effects) {
   return Object.entries(effects).map(([key, value]) => {
-    const map = { bleedBonus: "流血层数", poisonBonus: "中毒层数", innerBonus: "内伤层数", crit: "暴击", hit: "命中", combo: "连击", dodge: "闪避", speed: "出手速度" };
+    const map = { bleedBonus: "流血层数", poisonBonus: "淬毒层数", innerBonus: "内伤层数", frostBonus: "寒气层数", hamstringBonus: "断筋层数", guBonus: "蛊层数", qiBreakBonus: "削内力", atkBreakBonus: "削攻击", coinDamageBonus: "金钱伤害", trueDamageBonus: "真伤", cooldownOnDodge: "闪避减CD", moneyBonus: "额外金钱", critPower: "暴击倍率", crit: "暴击", hit: "命中", combo: "连击", dodge: "闪避", speed: "出手速度" };
     return `${map[key] || key}+${value}`;
   }).join("，");
 }
@@ -191,6 +320,6 @@ export const META_DEFAULT = {
   bestMonth: 1,
   metaPoints: 0,
   allocations: { hp: 0, qi: 0, atk: 0, def: 0, combo: 0, hit: 0, dodge: 0, crit: 0, speed: 0 },
-  unlockedTreasures: ["goldFeather", "purpleCup", "moonPearl", "jadeRing", "darkBag", "herbBottle"],
+  unlockedTreasures: ["inkTally", "goldAbacus", "springGourd"],
   endlessUnlocked: false
 };

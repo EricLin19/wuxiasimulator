@@ -2,9 +2,9 @@ import { DATA, RARITIES, STAT_LABELS, STAT_KEYS } from "../data/content.js";
 import { clone, rand, sample, monthAbs } from "../core/utils.js";
 import { saveRun, saveMeta, clearRun } from "../core/save.js";
 
-const COMBAT_SCHOOLS = ["blade", "hidden", "fist"];
+const COMBAT_SCHOOLS = ["blade", "hidden", "fist", "lightness"];
 const ALL_SCHOOLS = ["blade", "hidden", "fist", "lightness"];
-export const RANK_TITLES = ["喽啰", "外门弟子", "内门弟子", "精英弟子", "堂主", "护法", "副掌门", "掌门"];
+export const RANK_TITLES = ["喽啰", "外门弟子", "内门弟子", "精英弟子", "香主", "堂主", "护法", "长老", "副掌门", "代掌门", "掌门"];
 
 export function createRun(characterId, treasureId, meta) {
   const character = DATA.characters.find(x => x.id === characterId);
@@ -13,9 +13,14 @@ export function createRun(characterId, treasureId, meta) {
   let money = 300 + meta.metaPoints * 20;
   let maxAp = 4;
 
-  if (treasure.effect === "moneyAtk") money += 300;
-  if (treasure.effect === "moreAp") maxAp += 1;
-  if (treasure.effect === "speedBoost") stats.speed += 0.15;
+  if (treasure.effect === "jadeGuard") {
+    stats.hp += 90;
+    stats.qi += 70;
+  }
+  if (character.traits.includes("orthodox")) {
+    stats.hp += 50;
+    stats.qi += 40;
+  }
   applyMetaAllocations(stats, meta.allocations || {});
 
   const run = {
@@ -75,8 +80,9 @@ export function applyMonthStart(run) {
   run.ap = run.maxAp;
   if (run.traits.includes("clearMind")) run.ap += 1;
   if (run.treasure.effect === "monthRecover" || run.traits.includes("healer")) {
-    run.hp = Math.min(run.stats.hp, run.hp + 30);
-    run.qi = Math.min(run.stats.qi, run.qi + 30);
+    const amount = run.treasure.effect === "monthRecover" ? 45 : 30;
+    run.hp = Math.min(run.stats.hp, run.hp + amount);
+    run.qi = Math.min(run.stats.qi, run.qi + amount);
   }
 }
 
@@ -135,7 +141,7 @@ export function refillOneEvent(run) {
 export function makeEventPool(run) {
   const maxRank = Math.min(4, 1 + Math.floor(monthAbs(run) / 8));
   const enemies = DATA.enemies.filter(e => e.rank <= maxRank);
-  const moneyGain = run.traits.includes("lucky") ? 192 : 160;
+  const moneyGain = scaleMoney(run, 160);
   const events = [
     eventStat("trainHp", "增强体质", "血量上限提升25。", "hp", 25),
     eventStat("trainQi", "练习吐纳", "内力上限提升25。", "qi", 25),
@@ -143,14 +149,14 @@ export function makeEventPool(run) {
     eventStat("trainDef", "扎马步", "防御提升3。", "def", 3),
     eventStat("trainCombo", "连环拆招", "连击提升2。", "combo", 2),
     eventStat("trainHit", "明目辨穴", "命中提升3。", "hit", 3),
-    eventStat("trainDodge", "敏捷训练", `闪避提升${run.treasure.effect === "speedBoost" ? 2 : 1}。`, "dodge", run.treasure.effect === "speedBoost" ? 2 : 1),
+    eventStat("trainDodge", "敏捷训练", "闪避提升1。", "dodge", 1),
     eventStat("trainCrit", "破绽观察", "暴击提升2。", "crit", 2),
     eventStat("trainSpeed", "轻身赶路", "出手速度提升0.04。", "speed", 0.04),
     { id: "money", name: "押镖", type: "reward", icon: "镖", desc: `获得${moneyGain}金钱。`, apply: ({ run }) => { run.money += moneyGain; log(run, `完成押镖，获得${moneyGain}金钱。`); } },
-    { id: "escort", name: "护送商队", type: "reward", icon: "银", desc: `获得${moneyGain + 80}金钱。`, apply: ({ run }) => { run.money += moneyGain + 80; log(run, `护送商队，获得${moneyGain + 80}金钱。`); } },
-    { id: "bounty", name: "揭榜缉盗", type: "reward", icon: "榜", desc: `获得${moneyGain + 40}金钱和40经验。`, apply: ({ run }) => { run.money += moneyGain + 40; gainExp(run, 40); log(run, `揭榜缉盗，获得${moneyGain + 40}金钱和40经验。`); } },
+    { id: "escort", name: "护送商队", type: "reward", icon: "银", desc: `获得${scaleMoney(run, 240)}金钱。`, apply: ({ run }) => { const got = scaleMoney(run, 240); run.money += got; log(run, `护送商队，获得${got}金钱。`); } },
+    { id: "bounty", name: "揭榜缉盗", type: "reward", icon: "榜", desc: `获得${scaleMoney(run, 200)}金钱和40经验。`, apply: ({ run }) => { const got = scaleMoney(run, 200); run.money += got; gainExp(run, 40); log(run, `揭榜缉盗，获得${got}金钱和40经验。`); } },
     { id: "ambush", name: "林中伏击", type: "battle", icon: "伏", desc: "遭遇埋伏，胜利后获得额外金钱。", apply: ({ startBattle }) => startBattle(rand(enemies)) },
-    { id: "escortSave", name: "救下镖队", type: "reward", icon: "救", desc: `获得${moneyGain + 100}金钱和60经验。`, apply: ({ run }) => { run.money += moneyGain + 100; gainExp(run, 60); log(run, `救下镖队，获得${moneyGain + 100}金钱和60经验。`); } },
+    { id: "escortSave", name: "救下镖队", type: "reward", icon: "救", desc: `获得${scaleMoney(run, 260)}金钱和60经验。`, apply: ({ run }) => { const got = scaleMoney(run, 260); run.money += got; gainExp(run, 60); log(run, `救下镖队，获得${got}金钱和60经验。`); } },
     { id: "duelHall", name: "擂台切磋", type: "battle", icon: "擂", desc: "同道切磋，胜利后可获得更高经验。", apply: ({ startBattle }) => startBattle(rand(enemies)) },
     { id: "meditate", name: "吐纳疗伤", type: "reward", icon: "息", desc: "恢复30血量和30内力。", apply: ({ run }) => { run.hp = Math.min(run.stats.hp, run.hp + 30); run.qi = Math.min(run.stats.qi, run.qi + 30); log(run, "吐纳疗伤，恢复少量状态。"); } },
     { id: "duel", name: rand(enemies).name, type: "battle", icon: "战", desc: "遭遇敌人，胜利后获得金钱和武学阅历。", apply: ({ startBattle }) => startBattle(rand(enemies)) }
@@ -172,6 +178,13 @@ function eventStat(id, name, desc, key, value) {
       log(run, `${name}，${STAT_LABELS[key]}提升${value}。`);
     }
   };
+}
+
+export function scaleMoney(run, amount) {
+  let value = amount;
+  if (run.treasure?.effect === "moneyBoost") value *= 1.18;
+  if (run.traits?.includes("wanderer")) value *= 1.08;
+  return Math.floor(value);
 }
 
 export function resolveEvent(run, eventId, actions) {
@@ -249,7 +262,7 @@ export function trainSkill(run, skillId) {
     run.trainingSkills = run.trainingSkills.filter(id => id !== skillId);
     log(run, `秘籍修成：《${skill.name}》。获得特性「${skill.trait.name}」。`);
   }
-  gainExp(run, 50);
+  gainExp(run, run.treasure.effect === "manualMastery" ? 80 : 50);
   saveRun(run);
   return { ok: true };
 }
@@ -274,16 +287,29 @@ function applySkillCompletion(run, skill) {
   }
   run.skillTraits ||= [];
   if (!run.skillTraits.some(t => t.id === skill.trait.id)) run.skillTraits.push(skill.trait);
-  if (!run.selectedSchool && skill.school !== "lightness") {
+  unlockPalmComboTrait(run);
+  if (!run.selectedSchool) {
     run.selectedSchool = skill.school;
     refreshManuals(run);
     log(run, `流派确定：${DATA.skills[skill.id].school}。武林商人开始出售对应装备。`);
   }
 }
 
+function unlockPalmComboTrait(run) {
+  const palmSet = ["fist_blue_1", "fist_orange_1", "fist_red_1"];
+  if (!palmSet.every(id => run.skills.includes(id))) return;
+  if (run.skillTraits.some(t => t.id === "threeWaves")) return;
+  run.skillTraits.push({
+    id: "threeWaves",
+    name: "长江三叠浪",
+    desc: "绵掌、排云掌、惊涛掌任一掌法触发连击时，另外两掌冷却-1；若有掌法就绪，可立即继续出掌。"
+  });
+  log(run, "三掌贯通，习得特性：长江三叠浪。");
+}
+
 export function buyManual(run, skillId) {
   const skill = DATA.skills[skillId];
-  const price = Math.floor((skill.rarity === "red" ? 900 : skill.rarity === "orange" ? 520 : 300) * (run.treasure.effect === "moreAp" ? 0.9 : 1));
+  const price = Math.floor((skill.rarity === "red" ? 900 : skill.rarity === "orange" ? 520 : 300) * (run.treasure.effect === "manualMastery" ? 0.82 : 1));
   if (run.money < price) return { ok: false, message: "金钱不足" };
   if (run.trainingSkills.includes(skillId) || run.skills.includes(skillId)) return { ok: false, message: "已经拥有" };
   run.money -= price;
@@ -294,7 +320,11 @@ export function buyManual(run, skillId) {
 }
 
 export function gainExp(run, amount) {
-  run.martialExp += amount;
+  let gained = amount;
+  if (run.treasure?.effect === "expBoost") gained = Math.floor(gained * 1.12);
+  if (run.traits?.includes("orthodox")) gained = Math.floor(gained * 1.08);
+  if (run.traits?.includes("constable")) gained += 8;
+  run.martialExp += gained;
   let leveled = false;
   while (run.martialExp >= expNeed(run.level)) {
     const need = expNeed(run.level);
@@ -314,7 +344,7 @@ export function gainExp(run, amount) {
 }
 
 export function expNeed(level) {
-  return level * 140;
+  return Math.floor(120 + level * level * 42 + level * 38);
 }
 
 export function getRankTitle(run) {
@@ -472,8 +502,9 @@ export function settleRun(state, result, reason) {
   if (result === "win") {
     meta.wins++;
     meta.endlessUnlocked = true;
-    if (!meta.unlockedTreasures.includes("warDrum")) meta.unlockedTreasures.push("warDrum");
-    if (!meta.unlockedTreasures.includes("cloudBoots")) meta.unlockedTreasures.push("cloudBoots");
+    for (const id of ["dragonSeal", "starManual", "jadeArmor"]) {
+      if (!meta.unlockedTreasures.includes(id)) meta.unlockedTreasures.push(id);
+    }
   }
   const reached = monthAbs(run);
   const best = (meta.bestYear - 1) * 12 + meta.bestMonth;

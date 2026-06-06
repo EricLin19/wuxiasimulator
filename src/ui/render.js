@@ -52,7 +52,7 @@ function renderSelect(state, actions) {
   left.innerHTML = `<h2 class="section-title">选择你的角色</h2><div class="cards"></div>`;
   DATA.characters.forEach(c => {
     const card = el("div", `card ${state.selectedCharacter === c.id ? "selected" : ""}`);
-    card.innerHTML = `<div class="portrait">${c.icon}</div><div class="name">${c.name}</div><div class="desc">${c.desc}</div>`;
+    card.innerHTML = `<div class="portrait character-portrait ${c.portrait || ""}"><span>${c.icon}</span></div><div class="name">${c.name}</div><div class="desc">${c.faction}<br>${c.desc}</div>`;
     card.onclick = () => actions.selectCharacter(c.id);
     left.querySelector(".cards").appendChild(card);
   });
@@ -62,12 +62,14 @@ function renderSelect(state, actions) {
   right.style.padding = "18px";
   right.innerHTML = `
     <h2 class="section-title">${selected.name}</h2>
-    <div class="portrait">${selected.icon}</div>
+    <div class="portrait character-portrait large ${selected.portrait || ""}"><span>${selected.icon}</span></div>
     <div class="desc">${selected.traitText}</div>
     <div class="stats-grid">${STAT_KEYS.map(k => statLine(k, selected.stats[k])).join("")}</div>
-    <h3>携带宝物</h3>
-    <div class="cards treasure-cards"></div>
-    <button class="btn green" style="width:100%;margin-top:14px">开始</button>`;
+    <div class="treasure-head">携带宝物</div>
+    <div class="treasure-select-area">
+      <div class="cards treasure-cards"></div>
+      <button class="btn green start-run-btn">确定</button>
+    </div>`;
   DATA.treasures.forEach(t => {
     const locked = t.locked && !state.meta.unlockedTreasures.includes(t.id);
     const card = el("div", `card ${state.selectedTreasure === t.id ? "selected" : ""}`);
@@ -75,7 +77,7 @@ function renderSelect(state, actions) {
     if (!locked) card.onclick = () => actions.selectTreasure(t.id);
     right.querySelector(".treasure-cards").appendChild(card);
   });
-  right.querySelector("button").onclick = actions.startRun;
+  right.querySelector(".start-run-btn").onclick = actions.startRun;
   screen.append(left, right);
   return screen;
 }
@@ -323,8 +325,14 @@ function renderBattle(state, actions) {
   b.player.skills.forEach(id => {
     const s = DATA.skills[id];
     const btn = el("button", "skill-btn");
-    btn.disabled = b.phase !== "waitPlayer" || b.player.qi <= 0 || b.player.qi < s.qi || (b.player.cooldowns[id] || 0) > 0;
-    btn.innerHTML = `<strong>${s.name}</strong><span>威力:${s.power} 内力:${s.qi}</span><br><span>CD:${b.player.cooldowns[id] || 0}</span>`;
+    const moneyCost = s.tags?.includes("coin") ? (s.rarity === "red" ? 180 : s.rarity === "orange" ? 105 : 55) : 0;
+    const qiCost = s.tags?.includes("coin") ? 0 : s.qi + (b.player.gu || 0) * 8;
+    btn.disabled = b.phase !== "waitPlayer" || b.player.qi <= 0 && qiCost > 0 || b.player.qi < qiCost || state.run.money < moneyCost || (b.player.cooldowns[id] || 0) > 0;
+    const comboHint = s.tags?.includes("threeWaves") && b.player.skills.includes("fist_blue_1") && b.player.skills.includes("fist_orange_1") && b.player.skills.includes("fist_red_1")
+      ? "｜三叠浪"
+      : "";
+    const costText = moneyCost ? `金钱:${moneyCost}` : `内力:${qiCost}`;
+    btn.innerHTML = `<strong>${s.name}</strong><span>${s.styleName || ""} 威力:${s.power || "固定"} ${costText}</span><br><span>CD:${b.player.cooldowns[id] || 0}${comboHint}</span>`;
     btn.onclick = () => actions.useSkill(id);
     skillRow.appendChild(btn);
   });
@@ -351,9 +359,13 @@ function fighterPanel(unit) {
 
 function debuffBadges(unit) {
   const badges = [];
+  if (unit.stats.traitName) badges.push(`<span class="debuff-badge enemy-trait" title="${escapeHtml(unit.stats.traitDesc || "")}">${unit.stats.traitName}</span>`);
   if (unit.bleed) badges.push(`<span class="debuff-badge" title="流血：行动开始时受到层数x12的伤害。">流血 ${unit.bleed}</span>`);
   if (unit.poison) badges.push(`<span class="debuff-badge" title="中毒：降低攻击、防御、命中、闪避、出手速度。">中毒 ${unit.poison}</span>`);
   if (unit.inner) badges.push(`<span class="debuff-badge" title="内伤：行动开始时失去层数x14的内力。内力归零时只能调息或普通攻击。">内伤 ${unit.inner}</span>`);
+  if (unit.frost) badges.push(`<span class="debuff-badge" title="寒气：降低速度，行动开始时失去内力。">寒气 ${unit.frost}</span>`);
+  if (unit.hamstring) badges.push(`<span class="debuff-badge" title="断筋：降低速度，并在命中时削弱攻击。">断筋 ${unit.hamstring}</span>`);
+  if (unit.gu) badges.push(`<span class="debuff-badge" title="蛊：提高招式内力消耗，并扰乱气息。">蛊 ${unit.gu}</span>`);
   return badges.join("");
 }
 

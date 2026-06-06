@@ -335,21 +335,16 @@ body.mobile-viewport .select-layout .select-detail > .portrait {
   display: none;
 }
 
-body.mobile-viewport .select-layout .select-detail > button.btn.green {
-  display: block !important;
-  position: absolute;
-  right: 8px;
-  top: 232px;
-  bottom: auto;
-  z-index: 5;
-  margin-top: 4px !important;
-  width: 132px !important;
-  height: 34px !important;
-  max-height: 34px !important;
-  min-height: 34px !important;
-  padding: 4px 8px;
-  font-size: 15px;
-  line-height: 1;
+body.mobile-viewport .treasure-select-area {
+  grid-template-columns: 1fr 118px;
+  gap: 6px;
+}
+
+body.mobile-viewport .start-run-btn {
+  width: 106px;
+  min-height: 42px;
+  padding: 5px 8px;
+  font-size: 18px;
 }
 
 body.mobile-viewport .select-layout h3 {
@@ -368,9 +363,9 @@ body.mobile-viewport .select-layout .cards {
 }
 
 body.mobile-viewport .select-layout .treasure-cards {
-  grid-template-columns: repeat(8, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   align-content: start;
-  gap: 4px;
+  gap: 5px;
   overflow: hidden;
 }
 
@@ -381,12 +376,14 @@ body.mobile-viewport .select-layout .card {
 }
 
 body.mobile-viewport .select-layout .treasure-cards .card {
-  min-height: 66px;
+  min-height: 72px;
   padding: 3px;
 }
 
 body.mobile-viewport .select-layout .treasure-cards .desc {
-  display: none;
+  display: block;
+  font-size: 9px;
+  line-height: 1.1;
 }
 
 body.mobile-viewport .select-layout .card.selected {
@@ -609,6 +606,34 @@ button {
   z-index: 2;
 }
 
+.treasure-head {
+  margin: 6px 0;
+  font-size: 22px;
+  font-weight: 900;
+}
+
+.treasure-select-area {
+  display: grid;
+  grid-template-columns: 1fr 150px;
+  gap: 14px;
+  align-items: center;
+}
+
+.treasure-cards {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.treasure-cards .card {
+  min-height: 128px;
+}
+
+.start-run-btn {
+  justify-self: center;
+  align-self: center;
+  width: 132px;
+  min-height: 58px;
+}
+
 .section-title {
   margin: 0 0 14px;
   font-size: 42px;
@@ -642,6 +667,59 @@ button {
   background: #d9e6df;
   border: 3px solid #6a4b40;
   font-size: 56px;
+}
+
+.character-portrait {
+  position: relative;
+  overflow: hidden;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.6), rgba(255,255,255,0)),
+    #d9e6df;
+}
+
+.character-portrait::before {
+  content: "";
+  position: absolute;
+  inset: 16% 30% 52%;
+  border-radius: 50%;
+  background: #f2c89f;
+  border: 3px solid #5b352e;
+}
+
+.character-portrait::after {
+  content: "";
+  position: absolute;
+  left: 22%;
+  right: 22%;
+  bottom: 8%;
+  height: 50%;
+  border: 3px solid #5b352e;
+  border-radius: 34px 34px 8px 8px;
+  background: #587f9f;
+}
+
+.character-portrait span {
+  position: relative;
+  z-index: 2;
+  align-self: end;
+  margin-bottom: 7px;
+  color: #fff7e5;
+  font-size: .72em;
+  font-weight: 900;
+  text-shadow: 0 2px 0 #2a211b;
+}
+
+.character-portrait.constable::after {
+  background: #6f3d34;
+}
+
+.character-portrait.orthodox::after {
+  background: #5f8f67;
+}
+
+.character-portrait.large {
+  width: 130px;
+  height: 158px;
 }
 
 .name {
@@ -1120,6 +1198,11 @@ button {
   color: #2a211b;
   font-size: 13px;
   font-weight: 900;
+}
+
+.debuff-badge.enemy-trait {
+  background: #4d3425;
+  color: #fff8ef;
 }
 
 .battle-tools {

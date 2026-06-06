@@ -17,6 +17,7 @@ import {
   useBagItem,
   equipWeapon,
   gainExp,
+  scaleMoney,
   log,
   spendAp,
   settleRun,
@@ -148,9 +149,10 @@ function resolveBattleResult(result) {
         saveRun(state.run);
       }
     } else {
-      state.run.money += 180;
+      const money = scaleMoney(state.run, 180);
+      state.run.money += money;
       const leveled = gainExp(state.run, 120);
-      log(state.run, `击败${battle.enemy.name}，获得180金钱和120武学阅历。`);
+      log(state.run, `击败${battle.enemy.name}，获得${money}金钱和120武学阅历。`);
       state.screen = "run";
       state.battle = null;
       finishDeferredEvent(state.run);
@@ -169,7 +171,7 @@ const actions = {
   gotoSelect: () => {
     state.screen = "select";
     state.selectedCharacter = DATA.characters[0].id;
-    state.selectedTreasure = state.meta.unlockedTreasures[0];
+    state.selectedTreasure = DATA.treasures.find(t => !t.locked || state.meta.unlockedTreasures.includes(t.id))?.id;
     render();
   },
   continueRun: () => {
