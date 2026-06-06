@@ -1,8 +1,8 @@
 import { META_DEFAULT } from "../data/content.js";
 import { clone } from "./utils.js";
 
-const RUN_KEY = "wuxia_rogue_run_v17";
-const META_KEY = "wuxia_rogue_meta_v17";
+const RUN_KEY = "wuxia_rogue_run_v18";
+const META_KEY = "wuxia_rogue_meta_v18";
 
 export function loadMeta() {
   try {

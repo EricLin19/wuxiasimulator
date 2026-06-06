@@ -84,10 +84,184 @@ body.mobile-viewport .action-card {
 body.mobile-viewport .modal {
   width: 910px;
   max-height: 450px;
+  padding: 12px;
 }
 
 body.mobile-viewport .modal-backdrop {
   inset: 60px 0 0 0;
+}
+
+body.mobile-viewport .modal-head {
+  margin-bottom: 8px;
+}
+
+body.mobile-viewport .modal-title {
+  font-size: 34px;
+}
+
+body.mobile-viewport .event-count {
+  font-size: 22px;
+  margin-bottom: 6px;
+}
+
+body.mobile-viewport .event-grid,
+body.mobile-viewport .reward-grid {
+  gap: 10px;
+}
+
+body.mobile-viewport .event-card {
+  min-height: 238px;
+  padding: 10px;
+  border-width: 4px;
+  gap: 7px;
+}
+
+body.mobile-viewport .event-card h3,
+body.mobile-viewport .shop-card h3 {
+  padding: 6px;
+  font-size: 20px;
+}
+
+body.mobile-viewport .event-card p {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.35;
+}
+
+body.mobile-viewport .event-art {
+  min-height: 82px;
+  font-size: 42px;
+}
+
+body.mobile-viewport .row-card {
+  grid-template-columns: 58px 1fr auto;
+  gap: 8px;
+  padding: 7px;
+}
+
+body.mobile-viewport .icon-box {
+  width: 52px;
+  height: 52px;
+  font-size: 28px;
+}
+
+body.mobile-viewport .row-title {
+  font-size: 20px;
+}
+
+body.mobile-viewport .row-meta {
+  font-size: 14px;
+}
+
+body.mobile-viewport .btn.small {
+  min-width: 76px;
+  padding: 5px 8px;
+  font-size: 17px;
+}
+
+body.mobile-viewport .battle-top {
+  inset: 8px 12px auto 12px;
+  grid-template-columns: 310px 1fr 310px;
+  gap: 12px;
+}
+
+body.mobile-viewport .fighter-panel {
+  padding: 7px;
+  border-width: 3px;
+}
+
+body.mobile-viewport .fighter-name {
+  font-size: 23px;
+}
+
+body.mobile-viewport .gauge-lane {
+  height: 48px;
+  border-width: 3px;
+}
+
+body.mobile-viewport .gauge-dot {
+  top: 5px;
+  width: 34px;
+  height: 34px;
+  font-size: 20px;
+}
+
+body.mobile-viewport .speed-label {
+  top: 52px;
+  font-size: 28px;
+}
+
+body.mobile-viewport .fighter {
+  bottom: 200px;
+  width: 150px;
+  height: 180px;
+  font-size: 86px;
+}
+
+body.mobile-viewport .fighter.player {
+  left: 128px;
+}
+
+body.mobile-viewport .fighter.enemy {
+  right: 128px;
+}
+
+body.mobile-viewport .combat-floater {
+  bottom: 350px;
+  min-width: 96px;
+  font-size: 28px;
+}
+
+body.mobile-viewport .combat-floater.player {
+  left: 155px;
+}
+
+body.mobile-viewport .combat-floater.enemy {
+  right: 155px;
+}
+
+body.mobile-viewport .battle-bottom {
+  height: 198px;
+  grid-template-columns: 126px 1fr 160px;
+  gap: 8px;
+  padding: 7px 10px 10px;
+  border-top-width: 4px;
+}
+
+body.mobile-viewport .battle-tools {
+  gap: 5px;
+}
+
+body.mobile-viewport .battle-tools .btn {
+  min-width: 0;
+  padding: 6px 7px;
+  font-size: 17px;
+}
+
+body.mobile-viewport .skill-row {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 6px;
+}
+
+body.mobile-viewport .skill-btn {
+  min-height: 76px;
+  padding: 5px;
+  border-width: 3px;
+}
+
+body.mobile-viewport .skill-btn strong {
+  font-size: 15px;
+}
+
+body.mobile-viewport .skill-btn span {
+  font-size: 12px;
+  line-height: 1.18;
+}
+
+body.mobile-viewport .battle-log {
+  padding: 6px;
+  font-size: 12px;
+  max-height: 174px;
 }
 
 body.mobile-viewport .select-layout {

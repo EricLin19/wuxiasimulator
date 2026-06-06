@@ -75,8 +75,10 @@ function fitMobileViewport() {
     return;
   }
   const portrait = h > w;
-  const safeW = Math.max(1, w - 32);
-  const safeH = Math.max(1, h - 32);
+  const marginX = portrait ? 72 : 64;
+  const marginY = portrait ? 36 : 30;
+  const safeW = Math.max(1, w - marginX);
+  const safeH = Math.max(1, h - marginY);
   const scale = portrait ? Math.min(safeW / 560, safeH / 980) : Math.min(safeW / 980, safeH / 560);
   const stageW = portrait ? 560 * scale : 980 * scale;
   const stageH = portrait ? 980 * scale : 560 * scale;
