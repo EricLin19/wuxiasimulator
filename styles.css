@@ -90,17 +90,17 @@ body.mobile-viewport .app {
 
 body.mobile-viewport .run-layout {
   height: auto;
-  grid-template-columns: 160px 1fr 300px;
-  gap: 10px;
+  grid-template-columns: 160px 1fr 265px;
+  gap: 8px;
   align-items: stretch;
 }
 
 body.mobile-viewport .screen {
-  padding: 8px 10px 0;
+  padding: 8px 16px 12px 10px;
 }
 
 body.mobile-viewport .topbar {
-  padding-right: 18px;
+  padding-right: 22px;
 }
 
 body.mobile-viewport .left-nav {
@@ -124,6 +124,11 @@ body.mobile-viewport .bottom-actions {
 
 body.mobile-viewport .action-card {
   min-height: 80px;
+}
+
+body.mobile-viewport .side-panel {
+  margin-bottom: 12px;
+  margin-right: 12px;
 }
 
 body.mobile-viewport .modal {
@@ -322,20 +327,29 @@ body.mobile-viewport .select-layout .select-detail {
   display: grid;
   grid-template-rows: auto auto auto auto auto minmax(0, 1fr) auto;
   overflow: hidden;
+  position: relative;
+  padding-bottom: 48px !important;
 }
 
 body.mobile-viewport .select-layout .select-detail > .portrait {
   display: none;
 }
 
-body.mobile-viewport .select-layout .select-detail > .btn {
-  position: static;
+body.mobile-viewport .select-layout .select-detail > button.btn.green {
+  display: block !important;
+  position: absolute;
+  right: 8px;
+  top: 232px;
+  bottom: auto;
+  z-index: 5;
   margin-top: 4px !important;
-  width: 168px !important;
-  justify-self: end;
-  min-height: 42px;
-  padding: 6px 10px;
-  font-size: 18px;
+  width: 132px !important;
+  height: 34px !important;
+  max-height: 34px !important;
+  min-height: 34px !important;
+  padding: 4px 8px;
+  font-size: 15px;
+  line-height: 1;
 }
 
 body.mobile-viewport .select-layout h3 {
