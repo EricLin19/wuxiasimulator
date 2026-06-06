@@ -60,6 +60,67 @@ body.mobile-viewport .modal-backdrop {
   inset: 60px 0 0 0;
 }
 
+body.mobile-viewport .select-layout {
+  grid-template-columns: 1.14fr .86fr;
+  gap: 10px;
+}
+
+body.mobile-viewport .select-layout .panel {
+  padding: 10px !important;
+}
+
+body.mobile-viewport .select-layout .section-title {
+  margin-bottom: 8px;
+  font-size: 30px;
+}
+
+body.mobile-viewport .select-layout .cards {
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 7px;
+}
+
+body.mobile-viewport .select-layout .treasure-cards {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+body.mobile-viewport .select-layout .card {
+  min-height: 108px;
+  padding: 6px;
+  border-width: 3px;
+}
+
+body.mobile-viewport .select-layout .card.selected {
+  outline-width: 4px;
+}
+
+body.mobile-viewport .select-layout .portrait {
+  width: 54px;
+  height: 62px;
+  margin-bottom: 4px;
+  font-size: 34px;
+  border-width: 2px;
+}
+
+body.mobile-viewport .select-layout .name {
+  font-size: 17px;
+}
+
+body.mobile-viewport .select-layout .desc {
+  margin-top: 4px;
+  font-size: 11px;
+  line-height: 1.25;
+}
+
+body.mobile-viewport .select-layout .stats-grid {
+  gap: 4px;
+  margin-top: 6px;
+}
+
+body.mobile-viewport .select-layout .stat-line {
+  padding: 3px 6px;
+  font-size: 13px;
+}
+
 button {
   font: inherit;
 }
@@ -81,7 +142,7 @@ button {
   inset: 0 0 auto 0;
   height: 60px;
   display: grid;
-  grid-template-columns: 260px 1fr 260px;
+  grid-template-columns: 330px 1fr 220px;
   align-items: center;
   padding: 8px 22px;
   background: #f2dab0;
@@ -92,6 +153,7 @@ button {
 .date {
   font-size: 30px;
   font-weight: 900;
+  white-space: nowrap;
 }
 
 .resource-row {
@@ -349,7 +411,7 @@ button {
   align-content: end;
   gap: 12px;
   min-height: 0;
-  padding-bottom: 18px;
+  padding-bottom: 4px;
 }
 
 .hero-status {
@@ -380,7 +442,7 @@ button {
   display: grid;
   grid-template-columns: repeat(5, minmax(100px, 1fr));
   gap: 10px;
-  padding-bottom: 28px;
+  padding-bottom: 0;
 }
 
 .action-card {
