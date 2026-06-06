@@ -65,7 +65,7 @@ export const DATA = {
   characters: [
     { id: "wanderer", name: "沈孤云", faction: "江湖浪客", icon: "浪", portrait: "wanderer", desc: "走南闯北的散人，出手灵活，适合尝试各类构筑。", traitText: "浪游：战斗开始出手速度+0.12，胜利金钱+8%。", stats: stats(250, 275, 56, 34, 6, 62, 4, 7, 1.45), traits: ["wanderer"], skills: ["mixedFist"] },
     { id: "constable", name: "陆惊尘", faction: "镇抚司", icon: "鹰", portrait: "constable", desc: "朝廷鹰犬，命中高、压制强，适合稳扎稳打。", traitText: "缉凶：命中+6，击败敌人额外获得经验。", stats: stats(270, 250, 60, 38, 4, 70, 2, 6, 1.35), traits: ["constable"], skills: ["quickSlash"] },
-    { id: "orthodox", name: "顾明昭", faction: "天衡剑派", icon: "正", portrait: "orthodox", desc: "名门正派弟子，根基厚实，成长稳定。", traitText: "正脉：最大血量+50，最大内力+40，修炼经验+8%。", stats: stats(300, 300, 54, 42, 5, 60, 3, 5, 1.25), traits: ["orthodox"], skills: ["ironPalm"] }
+    { id: "orthodox", name: "顾明昭", faction: "天衡剑派", icon: "正", portrait: "orthodox", desc: "名门正派弟子，根基厚实，成长稳定。", traitText: "正脉：最大血量+50，最大内力+40，修炼经验+8%。", stats: stats(300, 300, 54, 42, 5, 60, 3, 5, 1.25), traits: ["orthodox"], skills: ["fist_blue_1"] }
   ],
   treasures: [
     { id: "inkTally", name: "青玉功牌", icon: "牌", desc: "所有经验获取+12%。", effect: "expBoost" },
@@ -176,62 +176,75 @@ export const DATA = {
   ]
 };
 
-DATA.manuals = Object.keys(DATA.skills).filter(id => !["mixedFist", "quickSlash", "ironPalm", "springNeedle", "shadowSting"].includes(id));
-
-const SKILL_STYLES = {
-  mixedFist: ["qiBreak", "断脉乱拳", "拳劲入脉，削减内力更强。"],
-  ironPalm: ["qiBreak", "铁掌断息", "以沉劲截断内息。"],
-  fist_blue_1: ["combo", "绵掌", "连击路线核心蓝掌。"],
-  fist_orange_1: ["combo", "排云掌", "连击路线核心橙掌。"],
-  fist_red_1: ["combo", "惊涛掌", "连击路线核心红掌。"],
-  fist_blue_2: ["critPalm", "摧心掌", "暴击拳掌，暴击时追加震伤。"],
-  fist_orange_2: ["critPalm", "黯然掌", "暴击拳掌，暴击收益更高。"],
-  fist_red_2: ["critPalm", "碎星拳", "暴击拳掌终式。"],
-  fist_blue_3: ["critPalm", "太祖长拳", "暴击拳掌入门，拳路正而力猛。"],
-  fist_blue_4: ["qiBreak", "劈空掌", "断脉拳掌入门，隔空透劲削内力。"],
-  fist_orange_3: ["qiBreak", "截脉掌", "内力削减拳掌进阶式。"],
-  fist_red_3: ["qiBreak", "断海掌", "内力削减拳掌终式。"],
-  quickSlash: ["bleed", "雁门快刀", "流血刀法入门。"],
-  blade_blue_1: ["bleed", "五虎断门刀", "流血刀法，叠加伤口。"],
-  blade_orange_1: ["bleed", "燃木刀法", "流血刀法进阶。"],
-  blade_red_1: ["bleed", "傲寒六诀", "流血刀法终式。"],
-  blade_blue_2: ["frost", "寒枝刀", "寒冰刀法，减速并削内力。"],
-  blade_orange_2: ["frost", "雪岭刀", "寒冰刀法进阶。"],
-  blade_red_2: ["frost", "玄冥寒刀", "寒冰刀法终式。"],
-  blade_blue_3: ["hamstring", "狂风断步刀", "断筋刀法，减速并削攻击。"],
-  blade_blue_4: ["hamstring", "雁行断筋刀", "断筋刀法。"],
-  blade_orange_3: ["hamstring", "裂筋刀", "断筋刀法进阶。"],
-  blade_red_3: ["hamstring", "天残断筋刀", "断筋刀法终式。"],
-  springNeedle: ["poison", "回春毒针", "淬毒暗器，扣血并扣内力。"],
-  shadowSting: ["gu", "影蛊刺", "下蛊暗器，提高目标冷却和内力消耗。"],
-  hidden_blue_1: ["gu", "缠心蛊镖", "下蛊暗器。"],
-  hidden_blue_2: ["poison", "淬毒飞石", "淬毒暗器。"],
-  hidden_blue_3: ["gu", "袖蛊针", "下蛊暗器。"],
-  hidden_blue_4: ["coin", "金钱镖", "金钱暗器，花钱固定必中。"],
-  hidden_orange_1: ["poison", "冰魄毒针", "淬毒暗器进阶。"],
-  hidden_orange_2: ["gu", "生死蛊符", "下蛊暗器进阶。"],
-  hidden_orange_3: ["coin", "金叶飞花", "金钱暗器进阶。"],
-  hidden_red_1: ["poison", "孔雀毒翎", "淬毒暗器终式。"],
-  hidden_red_2: ["gu", "九窍蛊针", "下蛊暗器终式。"],
-  hidden_red_3: ["coin", "漫天金雨", "金钱暗器终式。"],
-  light_blue_1: ["evasive", "燕回腿", "高闪避腿法，闪避后减冷却并调息。"],
-  light_orange_1: ["evasive", "游龙腿", "高闪避腿法进阶。"],
-  light_red_1: ["evasive", "凌波腿", "高闪避腿法终式。"],
-  light_blue_2: ["lowKick", "扫堂腿", "下盘腿法，忽略闪避和防御造成真伤。"],
-  light_orange_2: ["lowKick", "盘龙腿", "下盘腿法进阶。"],
-  light_red_2: ["lowKick", "碎岳沉桩腿", "下盘腿法终式。"],
-  light_blue_3: ["steal", "探囊腿", "偷盗型腿法，高出手且胜利额外得钱。"],
-  light_blue_4: ["steal", "游墙探云腿", "偷盗型腿法。"],
-  light_orange_3: ["steal", "飞檐探云腿", "偷盗型腿法进阶。"],
-  light_red_3: ["steal", "摘星无影腿", "偷盗型腿法终式。"]
+const SKILL_TIER_LABELS = {
+  basic: "基础",
+  advanced: "进阶",
+  ultimate: "终极"
 };
 
-for (const [id, [style, name, desc]] of Object.entries(SKILL_STYLES)) {
+export const STYLE_TRAITS = {
+  combo: { id: "comboMastery", name: "长江三叠浪", desc: "连击掌触发连击时，其他连击掌冷却-1；若有掌法就绪，可立即继续出掌。" },
+  critPalm: { id: "critPalmMastery", name: "碎星连震", desc: "暴击拳掌暴击率提高，暴击倍率提高。" },
+  qiBreak: { id: "qiBreakMastery", name: "断脉归元", desc: "断脉拳掌削内力提高，目标内力归零时额外受伤。" },
+  bleed: { id: "bleedBladeMastery", name: "百创刀势", desc: "流血刀造成流血时额外+1层，流血伤害提高。" },
+  frost: { id: "frostBladeMastery", name: "玄冥寒河", desc: "寒冰刀附加更多寒气，并进一步削减内力。" },
+  hamstring: { id: "hamstringBladeMastery", name: "天残绝路", desc: "断筋刀额外削攻击，断筋目标速度更低。" },
+  gu: { id: "guMastery", name: "九窍蛊王", desc: "下蛊暗器附加更多蛊，并提高目标招式消耗。" },
+  poison: { id: "poisonMastery", name: "孔雀毒雨", desc: "淬毒暗器中毒更深，并额外削减内力。" },
+  coin: { id: "coinMastery", name: "漫天金雨", desc: "金钱暗器固定伤害提高，终极金钱暗器花费降低。" },
+  evasive: { id: "evasiveLegMastery", name: "凌波回息", desc: "闪避后减冷却与调息效果提高。" },
+  lowKick: { id: "lowKickMastery", name: "地裂无声", desc: "下盘腿法真伤提高，并额外压低目标速度。" },
+  steal: { id: "stealLegMastery", name: "摘星夺魄", desc: "偷盗型腿法获得更多金钱，并提高出手速度。" }
+};
+
+const SKILL_STYLES = {
+  fist_blue_1: ["combo", "basic", "绵掌", "连击掌基础式。CD短，靠连击抢节奏。"],
+  fist_orange_1: ["combo", "advanced", "排云掌", "连击掌进阶式。威力更高，配合三叠浪循环出掌。"],
+  fist_red_1: ["combo", "ultimate", "惊涛掌", "连击掌终极式。高威力长冷却，连击后带动整套掌法。"],
+  fist_blue_3: ["critPalm", "basic", "太祖长拳", "暴击拳掌基础式。拳路正而力猛。"],
+  fist_orange_2: ["critPalm", "advanced", "黯然掌", "暴击拳掌进阶式。暴击收益更高。"],
+  fist_red_2: ["critPalm", "ultimate", "碎星拳", "暴击拳掌终极式。重拳碎星，暴击倍率提高。"],
+  mixedFist: ["qiBreak", "basic", "断脉乱拳", "断脉拳掌基础式。拳劲入脉，削减内力。"],
+  fist_orange_3: ["qiBreak", "advanced", "截脉掌", "断脉拳掌进阶式。以掌截息，削内力更强。"],
+  fist_red_3: ["qiBreak", "ultimate", "断海掌", "断脉拳掌终极式。断海截息，压垮内力。"],
+  quickSlash: ["bleed", "basic", "雁门快刀", "流血刀基础式。制造伤口并持续流血。"],
+  blade_orange_1: ["bleed", "advanced", "燃木刀法", "流血刀进阶式。刀势焦灼，伤口更深。"],
+  blade_red_1: ["bleed", "ultimate", "傲寒六诀", "流血刀终极式。寒刃封喉，重创见血。"],
+  blade_blue_2: ["frost", "basic", "寒枝刀", "寒冰刀基础式。减速并削内力。"],
+  blade_orange_2: ["frost", "advanced", "雪岭刀", "寒冰刀进阶式。寒气入脉，压低速度。"],
+  blade_red_2: ["frost", "ultimate", "玄冥寒刀", "寒冰刀终极式。玄冥寒意，冻气断息。"],
+  blade_blue_3: ["hamstring", "basic", "断步刀", "断筋刀基础式。减速并削攻击。"],
+  blade_orange_3: ["hamstring", "advanced", "裂筋刀", "断筋刀进阶式。裂筋卸力。"],
+  blade_red_3: ["hamstring", "ultimate", "天残断筋刀", "断筋刀终极式。断岳残步，攻势尽折。"],
+  shadowSting: ["gu", "basic", "影蛊刺", "下蛊暗器基础式。提高目标冷却和内力消耗。"],
+  hidden_orange_2: ["gu", "advanced", "生死蛊符", "下蛊暗器进阶式。蛊入经络，扰乱出招。"],
+  hidden_red_2: ["gu", "ultimate", "九窍蛊针", "下蛊暗器终极式。九窍封息。"],
+  springNeedle: ["poison", "basic", "回春毒针", "淬毒暗器基础式。扣血并扣内力。"],
+  hidden_orange_1: ["poison", "advanced", "冰魄毒针", "淬毒暗器进阶式。寒毒入脉。"],
+  hidden_red_1: ["poison", "ultimate", "孔雀毒翎", "淬毒暗器终极式。毒雨齐发。"],
+  hidden_blue_4: ["coin", "basic", "金钱镖", "金钱暗器基础式。消耗金钱，固定伤害且必中。"],
+  hidden_orange_3: ["coin", "advanced", "金叶飞花", "金钱暗器进阶式。以钱开路，伤害稳定。"],
+  hidden_red_3: ["coin", "ultimate", "漫天金雨", "金钱暗器终极式。金雨无空。"],
+  light_blue_1: ["evasive", "basic", "燕回腿", "高闪避腿法基础式。闪避后减冷却并调息。"],
+  light_orange_1: ["evasive", "advanced", "游龙腿", "高闪避腿法进阶式。游身避锋。"],
+  light_red_1: ["evasive", "ultimate", "凌波腿", "高闪避腿法终极式。步生波纹。"],
+  light_blue_2: ["lowKick", "basic", "扫堂腿", "下盘腿法基础式。忽略闪避和防御造成真伤。"],
+  light_orange_2: ["lowKick", "advanced", "盘龙腿", "下盘腿法进阶式。盘根折势。"],
+  light_red_2: ["lowKick", "ultimate", "碎岳沉桩腿", "下盘腿法终极式。碎岳真劲。"],
+  light_blue_3: ["steal", "basic", "探囊腿", "偷盗型腿法基础式。高出手且能获取额外金钱。"],
+  light_orange_3: ["steal", "advanced", "飞檐探云腿", "偷盗型腿法进阶式。出手更快。"],
+  light_red_3: ["steal", "ultimate", "摘星无影腿", "偷盗型腿法终极式。摘星取利。"]
+};
+
+for (const [id, [style, tier, name, desc]] of Object.entries(SKILL_STYLES)) {
   if (!DATA.skills[id]) continue;
   DATA.skills[id].style = style;
+  DATA.skills[id].tier = tier;
+  DATA.skills[id].tierName = SKILL_TIER_LABELS[tier];
   DATA.skills[id].name = name;
-  DATA.skills[id].desc = desc;
+  DATA.skills[id].desc = `【${SKILL_TIER_LABELS[tier]}】${desc}`;
   DATA.skills[id].styleName = STYLE_LABELS[style];
+  DATA.skills[id].trait = STYLE_TRAITS[style];
   DATA.skills[id].debuff = {
     qiBreak: "inner",
     bleed: "bleed",
@@ -243,6 +256,15 @@ for (const [id, [style, name, desc]] of Object.entries(SKILL_STYLES)) {
   }[style] || null;
   if (style === "coin") DATA.skills[id].tags = [...new Set([...(DATA.skills[id].tags || []), "surehit", "coin"])];
 }
+
+DATA.styleSkillSets = Object.entries(SKILL_STYLES).reduce((sets, [id, [style, tier]]) => {
+  sets[style] ||= {};
+  sets[style][tier] = id;
+  return sets;
+}, {});
+DATA.styleTraits = STYLE_TRAITS;
+
+DATA.manuals = Object.keys(SKILL_STYLES);
 
 Object.assign(DATA.weapons.fist_w_blue, { name: "缠丝护腕", style: "combo", comboBonus: 8, desc: "拳掌连击+8，连击掌伤害+8%。" });
 Object.assign(DATA.weapons.fist_w_orange, { name: "截脉臂甲", style: "qiBreak", qiBreakBonus: 18, debuffBonus: 2, desc: "断脉拳掌削内力+18，断脉层数+2。" });

@@ -327,7 +327,7 @@ const actions = {
   },
   debugMoney: () => { state.run.money += 1000; saveRun(state.run); render(); },
   debugSkills: () => {
-    state.run.skills = Object.keys(DATA.skills);
+    state.run.skills = Object.keys(DATA.skills).filter(id => DATA.skills[id]?.style);
     state.run.activeSkills = state.run.skills.filter(id => DATA.skills[id]?.battle !== false).slice(0, 4);
     saveRun(state.run);
     render();
@@ -360,7 +360,7 @@ window.__wuxiaDebug = {
   addMoney: value => { state.run.money += value; saveRun(state.run); render(); },
   addStrategy: id => { addStrategy(state.run, id); render(); },
   addSkills: () => {
-    state.run.skills = Object.keys(DATA.skills);
+    state.run.skills = Object.keys(DATA.skills).filter(id => DATA.skills[id]?.style);
     state.run.activeSkills = state.run.skills.filter(id => DATA.skills[id]?.battle !== false).slice(0, 4);
     saveRun(state.run);
     render();

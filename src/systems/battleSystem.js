@@ -183,7 +183,7 @@ function triggerThreeWaves(run, battle, actor, usedSkillId) {
 
 function hasThreeWaves(run, actor) {
   if (!THREE_WAVES_PALMS.every(id => actor.skills.includes(id))) return false;
-  return run.skillTraits?.some(t => t.id === "threeWaves") || THREE_WAVES_PALMS.every(id => run.skills.includes(id));
+  return run.skillTraits?.some(t => t.id === "comboMastery") || THREE_WAVES_PALMS.every(id => run.skills.includes(id));
 }
 
 export function useItem(run, battle, itemId) {
@@ -238,7 +238,7 @@ export function enemyAction(run, battle) {
       e.hp = Math.min(e.stats.hp, e.hp + 30);
       battleLog(battle, `${e.name}内力枯竭，只能调息。`);
     } else {
-      enemyBasicAttack(battle, e, p);
+      enemyBasicAttack(run, battle, e, p);
     }
     return endActorTurn(run, battle, e);
   }
@@ -246,7 +246,7 @@ export function enemyAction(run, battle) {
   if (Math.random() * 100 > hitChance(e, p)) {
     battleLog(battle, `${e.name}的攻击被闪开了。`);
     addFloater(battle, "player", "miss");
-    triggerEvasiveLeg(battle, p);
+    triggerEvasiveLeg(run, battle, p);
   } else {
     let dmg = enemySkillDamage(e, p);
     if (p.guard) dmg = Math.floor(dmg * 0.55);
@@ -262,11 +262,11 @@ export function enemyAction(run, battle) {
   return endActorTurn(run, battle, e);
 }
 
-function enemyBasicAttack(battle, e, p) {
+function enemyBasicAttack(run, battle, e, p) {
   if (Math.random() * 100 > hitChance(e, p)) {
     battleLog(battle, `${e.name}勉强挥击，被闪开。`);
     addFloater(battle, "player", "miss");
-    triggerEvasiveLeg(battle, p);
+    triggerEvasiveLeg(run, battle, p);
     return;
   }
   const dmg = Math.max(1, Math.floor(effectiveAtk(e) * 0.3 + 8 - enemyEffectiveDef(e, p) * 0.25));
@@ -300,12 +300,13 @@ function drainPlayerQi(battle, e, p, amount) {
   addFloater(battle, "player", "内力压制");
 }
 
-function triggerEvasiveLeg(battle, unit) {
+function triggerEvasiveLeg(run, battle, unit) {
   const hasEvasiveLeg = unit.skills.some(id => DATA.skills[id]?.style === "evasive");
   if (!hasEvasiveLeg) return;
   for (const id of Object.keys(unit.cooldowns)) unit.cooldowns[id] = Math.max(0, unit.cooldowns[id] - 1);
-  unit.hp = Math.min(unit.stats.hp, unit.hp + 24);
-  unit.qi = Math.min(unit.stats.qi, unit.qi + 32);
+  const mastered = battle.player === unit && hasStyleMastery(run, "evasive");
+  unit.hp = Math.min(unit.stats.hp, unit.hp + (mastered ? 34 : 24));
+  unit.qi = Math.min(unit.stats.qi, unit.qi + (mastered ? 46 : 32));
   battleLog(battle, `${unit.name}身法回旋，闪避后冷却-1并调息。`);
   addFloater(battle, "player", "回身调息");
 }
@@ -346,6 +347,7 @@ function applySkillEffects(run, battle, actor, target, skill, damage) {
   for (const strategy of getStrategies(run, skill.school, skill.style)) {
     stacks += strategy.effects.bleedBonus || strategy.effects.poisonBonus || strategy.effects.innerBonus || strategy.effects.frostBonus || strategy.effects.hamstringBonus || strategy.effects.guBonus || 0;
   }
+  if (hasStyleMastery(run, skill.style) && ["bleed", "frost", "hamstring", "gu", "poison"].includes(skill.style)) stacks += 1;
   if (run.traits.includes("nightPoison") && skill.debuff === "poison") stacks += 1;
   for (const trait of run.skillTraits || []) {
     if (skill.style === "poison") stacks += trait.effects?.poisonBonus || 0;
@@ -369,6 +371,11 @@ function applySkillEffects(run, battle, actor, target, skill, damage) {
   }
   if (skill.style === "qiBreak") drainQiByStyle(run, target, skill, 28 + stacks * 10);
   if (skill.style === "poison") drainQiByStyle(run, target, skill, 12 + stacks * 6);
+  if (skill.style === "qiBreak" && hasStyleMastery(run, skill.style) && target.qi <= 0) {
+    const collapse = Math.max(18, Math.floor(damage * 0.22));
+    target.hp = Math.max(0, target.hp - collapse);
+    battleLog(battle, `${target.name}内息崩散，额外受到${collapse}伤害。`);
+  }
   if (skill.style === "steal" && actor === battle.player) {
     const got = stealMoneyValue(run, skill);
     run.money += got;
@@ -433,12 +440,14 @@ function coinDamageBonus(run, skill) {
   const weapon = run.equippedWeapon ? DATA.weapons[run.equippedWeapon] : null;
   if (weapon && weapon.school === skill.school && weapon.style === skill.style) value += weapon.coinDamageBonus || 0;
   for (const strategy of getStrategies(run, skill.school, skill.style)) value += strategy.effects.coinDamageBonus || 0;
+  if (hasStyleMastery(run, skill.style)) value += 40;
   return value;
 }
 
 function trueDamageBonus(run, skill) {
   let value = 0;
   for (const strategy of getStrategies(run, skill.school, skill.style)) value += strategy.effects.trueDamageBonus || 0;
+  if (hasStyleMastery(run, skill.style)) value += 30;
   return value;
 }
 
@@ -447,6 +456,7 @@ function drainQiByStyle(run, target, skill, amount) {
   const weapon = run.equippedWeapon ? DATA.weapons[run.equippedWeapon] : null;
   if (weapon && weapon.school === skill.school && weapon.style === skill.style) value += weapon.qiBreakBonus || 0;
   for (const strategy of getStrategies(run, skill.school, skill.style)) value += strategy.effects.qiBreakBonus || 0;
+  if (hasStyleMastery(run, skill.style)) value += 20;
   target.qi = Math.max(0, target.qi - value);
 }
 
@@ -461,6 +471,7 @@ function atkBreakValue(run, skill, stacks) {
 function stealMoneyValue(run, skill) {
   let value = skill.rarity === "red" ? 72 : skill.rarity === "orange" ? 42 : 24;
   for (const strategy of getStrategies(run, skill.school, skill.style)) value += strategy.effects.moneyBonus || 0;
+  if (hasStyleMastery(run, skill.style)) value += 30;
   return value;
 }
 
@@ -485,6 +496,7 @@ function critChance(run, actor, skill) {
   const weapon = run.equippedWeapon ? DATA.weapons[run.equippedWeapon] : null;
   if (weapon && weapon.school === skill.school && weapon.style === skill.style) value += weapon.crit || 0;
   for (const strategy of getStrategies(run, skill.school, skill.style)) value += strategy.effects.crit || 0;
+  if (hasStyleMastery(run, skill.style) && skill.style === "critPalm") value += 8;
   return clamp(value, 0, 95);
 }
 
@@ -494,6 +506,7 @@ function critMultiplier(run, skill) {
   const weapon = run.equippedWeapon ? DATA.weapons[run.equippedWeapon] : null;
   if (weapon && weapon.school === skill.school && weapon.style === skill.style) value += weapon.critPower || 0;
   for (const strategy of getStrategies(run, skill.school, skill.style)) value += strategy.effects.critPower || 0;
+  if (hasStyleMastery(run, skill.style) && skill.style === "critPalm") value += 0.2;
   if (skill.school === "blade") value += 0.1;
   return value;
 }
@@ -510,6 +523,11 @@ function getStrategies(run, school, style = null) {
   return (run.activeStrategies || [])
     .map(index => DATA.strategies.find(s => s.id === run.strategies[index]))
     .filter(s => s?.school === school && (!style || s.style === style));
+}
+
+function hasStyleMastery(run, style) {
+  const trait = DATA.styleTraits?.[style];
+  return !!trait && (run.skillTraits || []).some(t => t.id === trait.id);
 }
 
 function battleLog(battle, text) {

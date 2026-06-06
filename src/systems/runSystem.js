@@ -258,9 +258,9 @@ export function trainSkill(run, skillId) {
   if (run.skillProgress[skillId] >= skill.train && !run.skills.includes(skillId)) {
     run.skills.push(skillId);
     applySkillCompletion(run, skill);
-    if (skill.battle !== false && run.activeSkills.length < 4) run.activeSkills.push(skillId);
+    if (skill.battle !== false) addActiveSkillInOrder(run, skillId);
     run.trainingSkills = run.trainingSkills.filter(id => id !== skillId);
-    log(run, `秘籍修成：《${skill.name}》。获得特性「${skill.trait.name}」。`);
+    log(run, `秘籍修成：《${skill.name}》。`);
   }
   gainExp(run, run.treasure.effect === "manualMastery" ? 80 : 50);
   saveRun(run);
@@ -286,8 +286,7 @@ function applySkillCompletion(run, skill) {
     run.stats[key] = Number(((run.stats[key] || 0) + value).toFixed(2));
   }
   run.skillTraits ||= [];
-  if (!run.skillTraits.some(t => t.id === skill.trait.id)) run.skillTraits.push(skill.trait);
-  unlockPalmComboTrait(run);
+  unlockStyleMasteryTrait(run, skill.style);
   if (!run.selectedSchool) {
     run.selectedSchool = skill.school;
     refreshManuals(run);
@@ -295,16 +294,15 @@ function applySkillCompletion(run, skill) {
   }
 }
 
-function unlockPalmComboTrait(run) {
-  const palmSet = ["fist_blue_1", "fist_orange_1", "fist_red_1"];
-  if (!palmSet.every(id => run.skills.includes(id))) return;
-  if (run.skillTraits.some(t => t.id === "threeWaves")) return;
-  run.skillTraits.push({
-    id: "threeWaves",
-    name: "长江三叠浪",
-    desc: "绵掌、排云掌、惊涛掌任一掌法触发连击时，另外两掌冷却-1；若有掌法就绪，可立即继续出掌。"
-  });
-  log(run, "三掌贯通，习得特性：长江三叠浪。");
+function unlockStyleMasteryTrait(run, style) {
+  const set = DATA.styleSkillSets?.[style];
+  const trait = DATA.styleTraits?.[style];
+  if (!set || !trait) return;
+  const required = ["basic", "advanced", "ultimate"].map(tier => set[tier]);
+  if (!required.every(id => id && run.skills.includes(id))) return;
+  if (run.skillTraits.some(t => t.id === trait.id)) return;
+  run.skillTraits.push(trait);
+  log(run, `${trait.name}贯通，习得路线特性：${trait.desc}`);
 }
 
 export function buyManual(run, skillId) {
@@ -470,10 +468,18 @@ export function toggleActiveSkill(run, skillId) {
     if (run.activeSkills.length <= 1) return { ok: false, message: "至少保留一个上场招式" };
     run.activeSkills = run.activeSkills.filter(id => id !== skillId);
   } else {
-    if (run.activeSkills.length >= 4) return { ok: false, message: "最多上场4个招式" };
-    run.activeSkills.push(skillId);
+    const result = addActiveSkillInOrder(run, skillId);
+    if (!result.ok) return result;
   }
   saveRun(run);
+  return { ok: true };
+}
+
+function addActiveSkillInOrder(run, skillId) {
+  run.activeSkills ||= run.skills.filter(id => DATA.skills[id]?.battle !== false).slice(0, 4);
+  if (run.activeSkills.includes(skillId)) return { ok: true };
+  if (run.activeSkills.length >= 4) return { ok: false, message: "最多上场4个招式" };
+  run.activeSkills.push(skillId);
   return { ok: true };
 }
 

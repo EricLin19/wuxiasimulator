@@ -182,7 +182,7 @@ function renderTrainingModal(modal, run, actions, close) {
   run.trainingSkills.forEach(id => {
     const s = DATA.skills[id];
     const statText = Object.entries(s.statGain || {}).map(([k, v]) => `${STAT_LABELS[k]}+${v}`).join("，");
-    modal.querySelector(".list").appendChild(rowCard(s.icon, s.name, `${schoolName(s.school)}。${s.desc} 完成：${statText}。进度 ${run.skillProgress[id] || 0}/${s.train}`, "修炼", () => actions.trainSkill(id)));
+    modal.querySelector(".list").appendChild(rowCard(s.icon, skillDisplayName(s), `${schoolName(s.school)}｜${s.styleName || ""}｜${s.desc} 完成：${statText}。进度 ${run.skillProgress[id] || 0}/${s.train}`, "修炼", () => actions.trainSkill(id)));
   });
 }
 
@@ -190,8 +190,9 @@ function renderHallModal(modal, run, actions, close) {
   modal.innerHTML = `<div class="modal-head"><h2 class="modal-title">武林商人</h2>${close}</div><h3>秘籍</h3><div class="list manual-list"></div><h3>丹药与装备</h3><div class="list shop-list"></div><p class="desc">每三个月刷新秘籍。第一本秘籍学成并确定流派后，商人开始出售对应装备。</p>`;
   run.manuals.forEach(id => {
     const s = DATA.skills[id];
-    const price = Math.floor((s.rarity === "red" ? 900 : s.rarity === "orange" ? 520 : 300) * (run.treasure.effect === "moreAp" ? 0.9 : 1));
-    modal.querySelector(".manual-list").appendChild(rowCard(s.icon || SCHOOLS[s.school]?.icon || "秘", `【${rarityName(s.rarity)}】《${s.name}》`, `${schoolName(s.school)}｜${s.desc}｜完成特性：${s.trait.name}`, `${price}◎`, () => actions.buyManual(id)));
+    if (!s) return;
+    const price = Math.floor((s.rarity === "red" ? 900 : s.rarity === "orange" ? 520 : 300) * (run.treasure.effect === "manualMastery" ? 0.82 : 1));
+    modal.querySelector(".manual-list").appendChild(rowCard(s.icon || SCHOOLS[s.school]?.icon || "秘", `【${rarityName(s.rarity)}】《${skillDisplayName(s)}》`, `${schoolName(s.school)}｜${s.styleName || ""}路线｜${s.desc}｜三式学成：${s.trait.name}`, `${price}◎`, () => actions.buyManual(id)));
   });
   run.merchantStock.forEach(entry => {
     const obj = entry.kind === "weapon" ? DATA.weapons[entry.id] : DATA.items[entry.id];
@@ -271,10 +272,15 @@ function renderCharacterModal(modal, run, actions, close) {
       </div>
     </div>`;
   const list = modal.querySelector(".skill-select-list");
-  run.skills.forEach(id => {
+  const orderedSkills = [
+    ...(run.activeSkills || []).filter(id => run.skills.includes(id)),
+    ...run.skills.filter(id => !(run.activeSkills || []).includes(id))
+  ];
+  orderedSkills.forEach(id => {
     const skill = DATA.skills[id];
+    if (!skill) return;
     const active = run.activeSkills.includes(id);
-    list.appendChild(rowCard(skill.icon, `${active ? "✓ " : ""}${skill.name}`, `${schoolName(skill.school)}｜${skill.battle === false ? "被动轻功，不占上场位" : skill.desc}`, active ? "下场" : "上场", () => actions.toggleActiveSkill(id)));
+    list.appendChild(rowCard(skill.icon, `${active ? "✓ " : ""}${skillDisplayName(skill)}`, `${schoolName(skill.school)}｜${skill.styleName || ""}｜${skill.desc}`, active ? "下场" : "上场", () => actions.toggleActiveSkill(id)));
   });
 }
 
@@ -410,6 +416,10 @@ function rarityName(id) {
 
 function schoolName(id) {
   return SCHOOLS[id]?.name || id;
+}
+
+function skillDisplayName(skill) {
+  return `${skill.tierName ? `${skill.tierName}·` : ""}${skill.name}`;
 }
 
 function countIds(ids) {
