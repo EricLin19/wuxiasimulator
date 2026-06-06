@@ -54,15 +54,17 @@ function render() {
 
 function fitMobileViewport() {
   const app = document.getElementById("app");
+  const shell = document.getElementById("stage-shell");
   if (!app) return;
   const viewport = window.visualViewport;
-  const w = Math.floor(viewport?.width || window.innerWidth);
-  const h = Math.floor(viewport?.height || window.innerHeight);
-  const offsetLeft = Math.floor(viewport?.offsetLeft || 0);
-  const offsetTop = Math.floor(viewport?.offsetTop || 0);
+  const widthCandidates = [window.innerWidth, document.documentElement.clientWidth, viewport?.width].filter(Boolean);
+  const heightCandidates = [window.innerHeight, document.documentElement.clientHeight, viewport?.height].filter(Boolean);
+  const w = Math.floor(Math.min(...widthCandidates));
+  const h = Math.floor(Math.min(...heightCandidates));
   const useMobileStage = w < 980 || h < 560 || /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent);
   document.documentElement.classList.toggle("mobile-viewport", useMobileStage);
   document.body.classList.toggle("mobile-viewport", useMobileStage);
+  shell?.classList.toggle("mobile-viewport", useMobileStage);
   if (!useMobileStage) {
     app.style.transform = "";
     app.style.left = "";
@@ -70,6 +72,7 @@ function fitMobileViewport() {
     app.style.right = "";
     app.style.bottom = "";
     app.style.position = "relative";
+    app.style.transformOrigin = "";
     document.documentElement.style.minWidth = "";
     document.documentElement.style.minHeight = "";
     document.body.style.minWidth = "";
@@ -82,20 +85,19 @@ function fitMobileViewport() {
   const safeW = Math.max(1, w - marginX);
   const safeH = Math.max(1, h - marginY);
   const scale = portrait ? Math.min(safeW / 560, safeH / 980) : Math.min(safeW / 980, safeH / 560);
-  const stageW = portrait ? 560 * scale : 980 * scale;
-  const stageH = portrait ? 980 * scale : 560 * scale;
   document.documentElement.style.minWidth = "";
   document.documentElement.style.minHeight = "";
   document.body.style.minWidth = "";
   document.body.style.minHeight = "";
   app.style.position = "fixed";
-  app.style.left = `${offsetLeft + (w - stageW) / 2}px`;
-  app.style.top = `${offsetTop + (h - stageH) / 2}px`;
+  app.style.left = "50%";
+  app.style.top = "50%";
   app.style.right = "auto";
   app.style.bottom = "auto";
+  app.style.transformOrigin = "center center";
   app.style.transform = portrait
-    ? `scale(${scale}) rotate(90deg) translateY(-560px)`
-    : `scale(${scale})`;
+    ? `translate(-50%, -50%) rotate(90deg) scale(${scale})`
+    : `translate(-50%, -50%) scale(${scale})`;
 }
 
 function startBattle(enemy, isBoss = false) {
