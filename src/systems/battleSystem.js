@@ -209,11 +209,11 @@ export function useItem(run, battle, itemId) {
 
 export function restAction(run, battle) {
   const p = battle.player;
-  let hp = 40;
-  let qi = 60;
+  let hp = 120;
+  let qi = 180;
   if (run.traits.includes("breath")) {
-    hp += 80;
-    qi += 80;
+    hp += 160;
+    qi += 160;
   }
   heal(run, p, hp);
   p.qi = Math.min(p.stats.qi, p.qi + qi);
@@ -235,8 +235,8 @@ export function enemyAction(run, battle) {
   const p = battle.player;
   if (e.qi <= 0) {
     if (Math.random() < 0.65) {
-      e.qi = Math.min(e.stats.qi, e.qi + 50);
-      e.hp = Math.min(e.stats.hp, e.hp + 30);
+      e.qi = Math.min(e.stats.qi, e.qi + 150);
+      e.hp = Math.min(e.stats.hp, e.hp + 90);
       battleLog(battle, `${e.name}内力枯竭，只能调息。`);
     } else {
       enemyBasicAttack(run, battle, e, p);
@@ -306,7 +306,7 @@ function triggerEvasiveLeg(run, battle, unit) {
   if (!hasEvasiveLeg) return;
   for (const id of Object.keys(unit.cooldowns)) unit.cooldowns[id] = Math.max(0, unit.cooldowns[id] - 1);
   const mastered = battle.player === unit && hasStyleMastery(run, "evasive");
-  unit.hp = Math.min(unit.stats.hp, unit.hp + (mastered ? 34 : 24));
+  unit.hp = Math.min(unit.stats.hp, unit.hp + (mastered ? 102 : 72));
   unit.qi = Math.min(unit.stats.qi, unit.qi + (mastered ? 46 : 32));
   battleLog(battle, `${unit.name}身法回旋，闪避后冷却-1并调息。`);
   addFloater(battle, "player", "回身调息");

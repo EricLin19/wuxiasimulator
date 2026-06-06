@@ -70,7 +70,7 @@ export const DATA = {
   treasures: [
     { id: "inkTally", name: "青玉功牌", icon: "牌", desc: "所有经验获取+12%。", effect: "expBoost" },
     { id: "goldAbacus", name: "金错算盘", icon: "算", desc: "所有金钱获取+18%。", effect: "moneyBoost" },
-    { id: "springGourd", name: "回春葫芦", icon: "葫", desc: "每月开始恢复45血量和45内力。", effect: "monthRecover" },
+    { id: "springGourd", name: "回春葫芦", icon: "葫", desc: "每月开始恢复135血量和135内力。", effect: "monthRecover" },
     { id: "dragonSeal", name: "龙纹令", icon: "令", desc: "通关后解锁。战斗开始攻击+18，命中+8，暴击+5。", effect: "battleSeal", locked: true },
     { id: "starManual", name: "星斗秘匣", icon: "匣", desc: "通关后解锁。秘籍价格-18%，修炼秘籍额外获得30经验。", effect: "manualMastery", locked: true },
     { id: "jadeArmor", name: "玄玉护心镜", icon: "镜", desc: "通关后解锁。最大血量+90，最大内力+70，每场战斗开始获得护体。", effect: "jadeGuard", locked: true }
@@ -145,8 +145,8 @@ export const DATA = {
     { id: "innerRoot", name: "内息深长", desc: "最大内力+80。" }
   ],
   items: {
-    pill: { id: "pill", name: "金疮药", icon: "药", type: "heal", price: 90, desc: "恢复120血量。", hp: 120 },
-    qiWine: { id: "qiWine", name: "回气酒", icon: "酒", type: "qi", price: 80, desc: "恢复120内力。", qi: 120 },
+    pill: { id: "pill", name: "金疮药", icon: "药", type: "heal", price: 90, desc: "恢复360血量。", hp: 360 },
+    qiWine: { id: "qiWine", name: "回气酒", icon: "酒", type: "qi", price: 80, desc: "恢复360内力。", qi: 360 },
     statPill: { id: "statPill", name: "小还丹", icon: "丹", type: "stat", price: 150, desc: "永久攻击+3，防御+2，命中+1。", atk: 3, def: 2, hit: 1 }
   },
   weapons: {

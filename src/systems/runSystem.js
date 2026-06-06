@@ -81,7 +81,7 @@ export function applyMonthStart(run) {
   run.ap = run.maxAp;
   if (run.traits.includes("clearMind")) run.ap += 1;
   if (run.treasure.effect === "monthRecover" || run.traits.includes("healer")) {
-    const amount = run.treasure.effect === "monthRecover" ? 45 : 30;
+    const amount = run.treasure.effect === "monthRecover" ? 135 : 90;
     run.hp = Math.min(run.stats.hp, run.hp + amount);
     run.qi = Math.min(run.stats.qi, run.qi + amount);
   }
@@ -159,7 +159,7 @@ export function makeEventPool(run) {
     { id: "ambush", name: "林中伏击", type: "battle", icon: "伏", desc: "遭遇埋伏，胜利后获得额外金钱。", apply: ({ startBattle }) => startBattle(rand(enemies)) },
     { id: "escortSave", name: "救下镖队", type: "reward", icon: "救", desc: `获得${scaleMoney(run, 260)}金钱和60经验。`, apply: ({ run }) => { const got = scaleMoney(run, 260); run.money += got; gainExp(run, 60); log(run, `救下镖队，获得${got}金钱和60经验。`); } },
     { id: "duelHall", name: "擂台切磋", type: "battle", icon: "擂", desc: "同道切磋，胜利后可获得更高经验。", apply: ({ startBattle }) => startBattle(rand(enemies)) },
-    { id: "meditate", name: "吐纳疗伤", type: "reward", icon: "息", desc: "恢复30血量和30内力。", apply: ({ run }) => { run.hp = Math.min(run.stats.hp, run.hp + 30); run.qi = Math.min(run.stats.qi, run.qi + 30); log(run, "吐纳疗伤，恢复少量状态。"); } },
+    { id: "meditate", name: "吐纳疗伤", type: "reward", icon: "息", desc: "恢复90血量和90内力。", apply: ({ run }) => { run.hp = Math.min(run.stats.hp, run.hp + 90); run.qi = Math.min(run.stats.qi, run.qi + 90); log(run, "吐纳疗伤，恢复一大段状态。"); } },
     { id: "duel", name: rand(enemies).name, type: "battle", icon: "战", desc: "遭遇敌人，胜利后获得金钱和武学阅历。", apply: ({ startBattle }) => startBattle(rand(enemies)) }
   ];
   return events;
@@ -241,7 +241,7 @@ export function spendAp(run, cost) {
 
 export function trainStat(run, kind) {
   if (!spendAp(run, 1)) return { ok: false, message: "行动力不足" };
-  const gains = { atk: 3, def: 3, hp: 60, qi: 20 };
+  const gains = { atk: 3, def: 3, hp: 90, qi: 20 };
   run.stats[kind] += gains[kind] || 0;
   if (kind === "hp") run.hp += gains[kind];
   if (kind === "qi") run.qi += gains[kind];
@@ -333,13 +333,13 @@ export function gainExp(run, amount) {
     run.martialExp -= need;
     run.level++;
     run.rankStars++;
-    run.stats.hp += 90;
+    run.stats.hp += 120;
     run.stats.qi += 20;
     run.stats.atk += 3;
     run.stats.def += 2;
-    run.hp += 90;
+    run.hp += 120;
     run.qi += 20;
-    log(run, `地位提升为${getRankTitle(run)}，血量+90，内力+20，攻击+3，防御+2。`);
+    log(run, `地位提升为${getRankTitle(run)}，血量+120，内力+20，攻击+3，防御+2。`);
     leveled = true;
   }
   return leveled;
