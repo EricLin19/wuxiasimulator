@@ -176,6 +176,7 @@ function renderTrainingModal(modal, run, actions, close) {
     { title: "运筹", meta: `消耗1行动，进度 ${run.strategyProgress || 0}/3，满3次获得三选一计略`, icon: "策", action: actions.chooseStrategy }
   ];
   rows.forEach(x => modal.querySelector(".list").appendChild(rowCard(x.icon, x.title, x.meta, "修炼", x.action)));
+  modal.querySelector(".list").appendChild(rowCard("气", "内力吐纳", "内力上限+20，经验+35，消耗1行动", "修炼", () => actions.trainStat("qi")));
   run.trainingSkills.forEach(id => {
     const s = DATA.skills[id];
     const statText = Object.entries(s.statGain || {}).map(([k, v]) => `${STAT_LABELS[k]}+${v}`).join("，");
@@ -247,6 +248,8 @@ function renderCharacterModal(modal, run, actions, close) {
     }),
     ...(run.skillTraits || []).map(t => traitChip(t.name, t.desc || ""))
   ].join("") || "无";
+  const equippedWeapon = run.equippedWeapon ? DATA.weapons[run.equippedWeapon] : null;
+  const equippedWeaponText = equippedWeapon ? traitChip(equippedWeapon.name, weaponTitle(equippedWeapon)) : "未装备";
   modal.innerHTML = `
     <div class="modal-head"><h2 class="modal-title">角色属性</h2>${close}</div>
     <div class="character-sheet">
@@ -256,7 +259,7 @@ function renderCharacterModal(modal, run, actions, close) {
         <h3>上场招式（最多4个）</h3><div class="list skill-select-list"></div>
         <h3>特性</h3><p>${traitNames}</p>
         <h3>当前流派</h3><p>${run.selectedSchool ? schoolName(run.selectedSchool) : "尚未确定"}</p>
-        <h3>装备武器</h3><p>${run.equippedWeapon ? DATA.weapons[run.equippedWeapon].name : "未装备"}</p>
+        <h3>装备武器</h3><p>${equippedWeaponText}</p>
       </div>
     </div>`;
   const list = modal.querySelector(".skill-select-list");
@@ -369,6 +372,10 @@ function statLine(key, value) {
 
 function traitChip(name, title) {
   return `<span class="trait-chip" title="${escapeHtml(title)}">${name}</span>`;
+}
+
+function weaponTitle(weapon) {
+  return `${schoolName(weapon.school)}｜攻击+${weapon.atk || 0}，流派伤害+${weapon.damagePct || 0}%，debuff层数+${weapon.debuffBonus || 0}。${weapon.desc}`;
 }
 
 function effectText(effects) {

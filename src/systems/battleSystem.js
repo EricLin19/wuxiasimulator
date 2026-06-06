@@ -43,7 +43,7 @@ function scaleEnemyStats(stats) {
   for (const key of ["hp", "qi", "atk", "def", "combo", "hit", "dodge", "crit"]) {
     stats[key] = Math.floor((stats[key] || 0) * 2);
   }
-  stats.speed = Number(((stats.speed || 1) * 2).toFixed(2));
+  stats.speed = Number(((stats.speed || 1) * 1.35).toFixed(2));
   return stats;
 }
 

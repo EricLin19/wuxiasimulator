@@ -95,7 +95,10 @@ export function refreshManuals(run) {
       if (one) manuals.push(one);
     }
   } else {
-    manuals.push(...sample(available, 4));
+    for (const school of ALL_SCHOOLS) {
+      const one = sample(available.filter(id => DATA.skills[id].school === school && !manuals.includes(id)), 1)[0];
+      if (one) manuals.push(one);
+    }
   }
   while (manuals.length < 4) {
     const one = sample(available.filter(id => !manuals.includes(id)), 1)[0];
@@ -223,9 +226,10 @@ export function spendAp(run, cost) {
 
 export function trainStat(run, kind) {
   if (!spendAp(run, 1)) return { ok: false, message: "行动力不足" };
-  const gains = { atk: 3, def: 3, hp: 20 };
+  const gains = { atk: 3, def: 3, hp: 20, qi: 20 };
   run.stats[kind] += gains[kind] || 0;
   if (kind === "hp") run.hp += gains[kind];
+  if (kind === "qi") run.qi += gains[kind];
   log(run, `修炼基础功，${STAT_LABELS[kind]}提升${gains[kind]}。`);
   gainExp(run, 35);
   saveRun(run);
