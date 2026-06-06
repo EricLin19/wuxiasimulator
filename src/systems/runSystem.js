@@ -41,6 +41,7 @@ export function createRun(characterId, treasureId, meta) {
     skillProgress: {},
     strategyProgress: 0,
     strategies: [],
+    activeStrategies: [],
     traits: [...character.traits],
     skillTraits: [],
     items: ["pill", "pill"],
@@ -340,6 +341,23 @@ export function addStrategy(run, strategyId) {
   saveRun(run);
 }
 
+export function toggleActiveStrategy(run, index) {
+  run.activeStrategies ||= [];
+  const strategyId = run.strategies[index];
+  const strategy = DATA.strategies.find(s => s.id === strategyId);
+  if (!strategy) return { ok: false, message: "计略选择无效" };
+  if (run.activeStrategies.includes(index)) {
+    applyStrategyStats(run, strategy, -1);
+    run.activeStrategies = run.activeStrategies.filter(i => i !== index);
+  } else {
+    if (run.activeStrategies.length >= 2) return { ok: false, message: "最多上场两个计略" };
+    run.activeStrategies.push(index);
+    applyStrategyStats(run, strategy, 1);
+  }
+  saveRun(run);
+  return { ok: true };
+}
+
 export function mergeStrategies(run, indices = []) {
   const selected = [...new Set(indices.map(Number))].sort((a, b) => b - a);
   if (selected.length !== 2) return { ok: false, message: "请选择两个计略合成" };
@@ -351,6 +369,7 @@ export function mergeStrategies(run, indices = []) {
   if (!first || !second) return { ok: false, message: "计略选择无效" };
   if (first.rarity !== second.rarity) return { ok: false, message: "需要两个品质相同的计略" };
   if (first.rarity === "red") return { ok: false, message: "红色计略无法继续合成" };
+  clearActiveStrategies(run);
   for (const index of selected) run.strategies.splice(index, 1);
   const next = first.rarity === "blue" ? "orange" : "red";
   const pool = DATA.strategies.filter(s => s.rarity === next && (s.school === first.school || s.school === second.school));
@@ -426,6 +445,24 @@ export function toggleActiveSkill(run, skillId) {
   }
   saveRun(run);
   return { ok: true };
+}
+
+function clearActiveStrategies(run) {
+  run.activeStrategies ||= [];
+  for (const index of run.activeStrategies) {
+    const strategy = DATA.strategies.find(s => s.id === run.strategies[index]);
+    if (strategy) applyStrategyStats(run, strategy, -1);
+  }
+  run.activeStrategies = [];
+}
+
+function applyStrategyStats(run, strategy, direction) {
+  for (const [key, value] of Object.entries(strategy.effects || {})) {
+    if (!STAT_KEYS.includes(key)) continue;
+    run.stats[key] = Number(((run.stats[key] || 0) + value * direction).toFixed(2));
+  }
+  run.hp = Math.min(run.hp, run.stats.hp);
+  run.qi = Math.min(run.qi, run.stats.qi);
 }
 
 export function settleRun(state, result, reason) {

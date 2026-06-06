@@ -31,7 +31,7 @@ function renderMenu(state, actions) {
   root.innerHTML = `
     <div>
       <div class="title">小小侠客</div>
-      <div class="subtitle">构筑原型 v0.10</div>
+      <div class="subtitle">构筑原型 v0.11</div>
       <div class="menu-panel">
         <button class="btn" data-act="start">开始新局</button>
         <button class="btn secondary" data-act="continue" ${actions.hasSavedRun() ? "" : "disabled"}>继续存档</button>
@@ -199,13 +199,19 @@ function renderHallModal(modal, run, actions, close) {
 
 function renderStrategyModal(modal, run, state, actions, close) {
   state.modal.selectedIndices ||= [];
-  modal.innerHTML = `<div class="modal-head"><h2 class="modal-title">谋划</h2>${close}</div><div class="list"></div><button class="btn green" style="margin-top:14px" data-merge>融合已选两个计略</button>`;
+  run.activeStrategies ||= [];
+  modal.innerHTML = `<div class="modal-head"><h2 class="modal-title">谋划</h2>${close}</div><div class="inventory-summary"><div class="inventory-chip">上场计略：${run.activeStrategies.length}/2</div></div><div class="list"></div><button class="btn green" style="margin-top:14px" data-merge>融合已选两个计略</button>`;
   const list = modal.querySelector(".list");
   if (!run.strategies.length) list.innerHTML = `<p>暂无计略。可通过修炼“运筹”或突破奖励获得。</p>`;
   run.strategies.forEach((id, index) => {
     const s = DATA.strategies.find(x => x.id === id);
     const selected = state.modal.selectedIndices.includes(index);
-    list.appendChild(rowCard("策", `${selected ? "✓ " : ""}【${rarityName(s.rarity)}】${s.name}`, `${schoolName(s.school)}｜${s.effectsText}｜${s.desc}`, selected ? "取消" : "选择", () => actions.toggleStrategySelect(index)));
+    const active = run.activeStrategies.includes(index);
+    const row = el("div", `row-card strategy-row ${active ? "active" : ""}`);
+    row.innerHTML = `<div class="icon-box">策</div><div><div class="row-title">${active ? "✓ " : ""}${selected ? "◆ " : ""}【${rarityName(s.rarity)}】${s.name}</div><div class="row-meta">${schoolName(s.school)}｜${s.effectsText}｜${s.desc}</div></div><div class="row-actions"><button class="btn green small" data-active>${active ? "下场" : "上场"}</button><button class="btn secondary small" data-select>${selected ? "取消" : "选择"}</button></div>`;
+    row.querySelector("[data-active]").onclick = () => actions.toggleActiveStrategy(index);
+    row.querySelector("[data-select]").onclick = () => actions.toggleStrategySelect(index);
+    list.appendChild(row);
   });
   modal.querySelector("[data-merge]").onclick = actions.mergeStrategies;
 }

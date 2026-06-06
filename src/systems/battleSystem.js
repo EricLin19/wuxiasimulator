@@ -322,7 +322,9 @@ function comboChance(run, skill, actor) {
 }
 
 function getStrategies(run, school) {
-  return run.strategies.map(id => DATA.strategies.find(s => s.id === id)).filter(s => s?.school === school);
+  return (run.activeStrategies || [])
+    .map(index => DATA.strategies.find(s => s.id === run.strategies[index]))
+    .filter(s => s?.school === school);
 }
 
 function battleLog(battle, text) {

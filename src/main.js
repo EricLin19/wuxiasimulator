@@ -21,7 +21,8 @@ import {
   spendAp,
   settleRun,
   buildStrategyChoices,
-  toggleActiveSkill
+  toggleActiveSkill,
+  toggleActiveStrategy
 } from "./systems/runSystem.js";
 import { buildRewardChoices, takeReward } from "./systems/rewardSystem.js";
 import {
@@ -49,6 +50,30 @@ function showToast(text) {
 
 function render() {
   renderApp(state, actions);
+}
+
+function fitMobileViewport() {
+  const app = document.getElementById("app");
+  if (!app) return;
+  const w = window.innerWidth;
+  const h = window.innerHeight;
+  const useMobileStage = w < 980 || h < 560 || /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent);
+  document.body.classList.toggle("mobile-viewport", useMobileStage);
+  if (!useMobileStage) {
+    app.style.transform = "";
+    app.style.left = "";
+    app.style.top = "";
+    app.style.position = "relative";
+    return;
+  }
+  const portrait = h > w;
+  const scale = portrait ? Math.min(w / 560, h / 980) : Math.min(w / 980, h / 560);
+  app.style.position = "absolute";
+  app.style.left = portrait ? `${(w - 560 * scale) / 2}px` : `${(w - 980 * scale) / 2}px`;
+  app.style.top = portrait ? `${(h - 980 * scale) / 2}px` : `${(h - 560 * scale) / 2}px`;
+  app.style.transform = portrait
+    ? `scale(${scale}) rotate(90deg) translateY(-560px)`
+    : `scale(${scale})`;
 }
 
 function startBattle(enemy, isBoss = false) {
@@ -106,6 +131,7 @@ const actions = {
     if (!saved) return showToast("没有存档");
     state.run = saved;
     state.run.activeSkills ||= state.run.skills.filter(id => DATA.skills[id]?.battle !== false).slice(0, 4);
+    state.run.activeStrategies ||= [];
     state.run.skillTraits ||= [];
     state.screen = "run";
     state.modal = null;
@@ -183,6 +209,11 @@ const actions = {
     } else {
       showToast("最多选择两个计略");
     }
+    render();
+  },
+  toggleActiveStrategy: index => {
+    const result = toggleActiveStrategy(state.run, index);
+    if (!result.ok) return showToast(result.message);
     render();
   },
   buyShopEntry: entry => {
@@ -290,4 +321,7 @@ window.__wuxiaDebug = {
 };
 
 ensureBattleTimer();
+fitMobileViewport();
+window.addEventListener("resize", fitMobileViewport);
+window.addEventListener("orientationchange", () => setTimeout(fitMobileViewport, 120));
 render();
