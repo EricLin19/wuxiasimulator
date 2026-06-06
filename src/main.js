@@ -55,8 +55,11 @@ function render() {
 function fitMobileViewport() {
   const app = document.getElementById("app");
   if (!app) return;
-  const w = window.innerWidth;
-  const h = window.innerHeight;
+  const viewport = window.visualViewport;
+  const w = Math.floor(viewport?.width || window.innerWidth);
+  const h = Math.floor(viewport?.height || window.innerHeight);
+  const offsetLeft = Math.floor(viewport?.offsetLeft || 0);
+  const offsetTop = Math.floor(viewport?.offsetTop || 0);
   const useMobileStage = w < 980 || h < 560 || /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent);
   document.documentElement.classList.toggle("mobile-viewport", useMobileStage);
   document.body.classList.toggle("mobile-viewport", useMobileStage);
@@ -72,8 +75,8 @@ function fitMobileViewport() {
     return;
   }
   const portrait = h > w;
-  const safeW = Math.max(1, w - 8);
-  const safeH = Math.max(1, h - 8);
+  const safeW = Math.max(1, w - 32);
+  const safeH = Math.max(1, h - 32);
   const scale = portrait ? Math.min(safeW / 560, safeH / 980) : Math.min(safeW / 980, safeH / 560);
   const stageW = portrait ? 560 * scale : 980 * scale;
   const stageH = portrait ? 980 * scale : 560 * scale;
@@ -82,8 +85,8 @@ function fitMobileViewport() {
   document.body.style.minWidth = `${Math.ceil(stageW)}px`;
   document.body.style.minHeight = `${Math.ceil(stageH + 24)}px`;
   app.style.position = "absolute";
-  app.style.left = `${Math.max(0, (w - stageW) / 2)}px`;
-  app.style.top = "0";
+  app.style.left = `${offsetLeft + Math.max(0, (w - stageW) / 2)}px`;
+  app.style.top = `${offsetTop + Math.max(0, (h - stageH) / 2)}px`;
   app.style.transform = portrait
     ? `scale(${scale}) rotate(90deg) translateY(-560px)`
     : `scale(${scale})`;

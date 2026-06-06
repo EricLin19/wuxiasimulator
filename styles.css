@@ -31,9 +31,9 @@ body {
 
 html.mobile-viewport,
 body.mobile-viewport {
-  height: auto;
-  min-height: 100%;
-  overflow: auto;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
   overscroll-behavior: none;
   -webkit-overflow-scrolling: touch;
 }
@@ -48,7 +48,37 @@ body.mobile-viewport .app {
 }
 
 body.mobile-viewport .run-layout {
-  height: 500px;
+  height: auto;
+  grid-template-columns: 170px 1fr 330px;
+  gap: 10px;
+  align-items: stretch;
+}
+
+body.mobile-viewport .screen {
+  padding: 8px 10px 0;
+}
+
+body.mobile-viewport .left-nav {
+  align-self: end;
+}
+
+body.mobile-viewport .nav-tile {
+  min-height: 110px;
+  padding: 6px 3px;
+}
+
+body.mobile-viewport .center-stage {
+  align-content: end;
+  padding-bottom: 0;
+}
+
+body.mobile-viewport .bottom-actions {
+  padding-bottom: 0;
+  gap: 8px;
+}
+
+body.mobile-viewport .action-card {
+  min-height: 80px;
 }
 
 body.mobile-viewport .modal {
