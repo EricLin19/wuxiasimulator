@@ -58,8 +58,8 @@ function fitMobileViewport() {
   const fit = document.getElementById("stage-fit");
   if (!app) return;
   const viewport = window.visualViewport;
-  const widthCandidates = [window.innerWidth, document.documentElement.clientWidth, viewport?.width].filter(Boolean);
-  const heightCandidates = [window.innerHeight, document.documentElement.clientHeight, viewport?.height].filter(Boolean);
+  const widthCandidates = [window.outerWidth, window.innerWidth, document.documentElement.clientWidth, viewport?.width].filter(Boolean);
+  const heightCandidates = [window.outerHeight, window.innerHeight, document.documentElement.clientHeight, viewport?.height].filter(Boolean);
   const w = Math.floor(Math.min(...widthCandidates));
   const h = Math.floor(Math.min(...heightCandidates));
   const useMobileStage = w < 980 || h < 560 || /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent);
@@ -89,22 +89,27 @@ function fitMobileViewport() {
     return;
   }
   const portrait = h > w;
-  const marginX = portrait ? 18 : 16;
+  const marginX = portrait ? 52 : 28;
   const marginY = portrait ? 9 : 8;
   const safeW = Math.max(1, w - marginX);
   const safeH = Math.max(1, h - marginY);
   const scale = portrait ? Math.min(safeW / 560, safeH / 980) : Math.min(safeW / 980, safeH / 560);
+  const fitW = portrait ? 560 : 980;
+  const fitH = portrait ? 980 : 560;
+  const stageW = fitW * scale;
+  const stageH = fitH * scale;
   document.documentElement.style.minWidth = "";
   document.documentElement.style.minHeight = "";
   document.body.style.minWidth = "";
   document.body.style.minHeight = "";
   if (fit) {
     fit.style.position = "fixed";
-    fit.style.left = "50%";
-    fit.style.top = "50%";
-    fit.style.width = portrait ? "560px" : "980px";
-    fit.style.height = portrait ? "980px" : "560px";
-    fit.style.transform = `translate(-50%, -50%) scale(${scale})`;
+    fit.style.left = `${Math.max(0, (w - stageW) / 2)}px`;
+    fit.style.top = `${Math.max(0, (h - stageH) / 2)}px`;
+    fit.style.width = `${fitW}px`;
+    fit.style.height = `${fitH}px`;
+    fit.style.transformOrigin = "top left";
+    fit.style.transform = `scale(${scale})`;
   }
   app.style.position = "absolute";
   app.style.left = "50%";
