@@ -31,7 +31,7 @@ function renderMenu(state, actions) {
   root.innerHTML = `
     <div>
       <div class="title">小小侠客</div>
-      <div class="subtitle">构筑原型 v0.22</div>
+      <div class="subtitle">构筑原型 v0.24</div>
       <div class="menu-panel">
         <button class="btn" data-act="start">开始新局</button>
         <button class="btn secondary" data-act="continue" ${actions.hasSavedRun() ? "" : "disabled"}>继续存档</button>
@@ -58,7 +58,7 @@ function renderSelect(state, actions) {
   });
 
   const selected = DATA.characters.find(c => c.id === state.selectedCharacter);
-  const right = el("div", "panel");
+  const right = el("div", "panel select-detail");
   right.style.padding = "18px";
   right.innerHTML = `
     <h2 class="section-title">${selected.name}</h2>
@@ -76,7 +76,9 @@ function renderSelect(state, actions) {
     right.querySelector(".treasure-cards").appendChild(card);
   });
   right.querySelector("button").onclick = actions.startRun;
-  screen.append(left, right);
+  const mobileStart = el("button", "btn green mobile-select-start", "开始");
+  mobileStart.onclick = actions.startRun;
+  screen.append(left, right, mobileStart);
   return screen;
 }
 

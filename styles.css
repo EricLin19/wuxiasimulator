@@ -314,9 +314,34 @@ body.mobile-viewport .select-layout .panel {
   padding: 10px !important;
 }
 
+body.mobile-viewport .select-layout .select-detail {
+  display: grid;
+  grid-template-rows: auto auto auto auto auto minmax(0, 1fr) auto;
+  overflow: hidden;
+}
+
+body.mobile-viewport .select-layout .select-detail > .btn {
+  position: static;
+  margin-top: 6px !important;
+  min-height: 42px;
+  padding: 6px 10px;
+}
+
+body.mobile-viewport .mobile-select-start {
+  display: block;
+  position: absolute;
+  right: 18px;
+  bottom: 12px;
+  z-index: 8;
+  width: 180px;
+  min-height: 48px;
+  padding: 7px 12px;
+  box-shadow: 0 4px 0 rgba(42, 33, 27, .28);
+}
+
 body.mobile-viewport .select-layout .section-title {
-  margin-bottom: 8px;
-  font-size: 30px;
+  margin-bottom: 5px;
+  font-size: 28px;
 }
 
 body.mobile-viewport .select-layout .cards {
@@ -326,11 +351,13 @@ body.mobile-viewport .select-layout .cards {
 
 body.mobile-viewport .select-layout .treasure-cards {
   grid-template-columns: repeat(4, minmax(0, 1fr));
+  align-content: start;
+  overflow: hidden;
 }
 
 body.mobile-viewport .select-layout .card {
-  min-height: 108px;
-  padding: 6px;
+  min-height: 92px;
+  padding: 5px;
   border-width: 3px;
 }
 
@@ -339,10 +366,10 @@ body.mobile-viewport .select-layout .card.selected {
 }
 
 body.mobile-viewport .select-layout .portrait {
-  width: 54px;
-  height: 62px;
+  width: 48px;
+  height: 54px;
   margin-bottom: 4px;
-  font-size: 34px;
+  font-size: 30px;
   border-width: 2px;
 }
 
@@ -351,19 +378,19 @@ body.mobile-viewport .select-layout .name {
 }
 
 body.mobile-viewport .select-layout .desc {
-  margin-top: 4px;
-  font-size: 11px;
-  line-height: 1.25;
+  margin-top: 3px;
+  font-size: 10px;
+  line-height: 1.18;
 }
 
 body.mobile-viewport .select-layout .stats-grid {
-  gap: 4px;
-  margin-top: 6px;
+  gap: 3px;
+  margin-top: 4px;
 }
 
 body.mobile-viewport .select-layout .stat-line {
-  padding: 3px 6px;
-  font-size: 13px;
+  padding: 2px 5px;
+  font-size: 12px;
 }
 
 button {
@@ -551,6 +578,10 @@ button {
   position: sticky;
   bottom: 0;
   z-index: 2;
+}
+
+.mobile-select-start {
+  display: none;
 }
 
 .section-title {
