@@ -235,6 +235,17 @@ button {
   height: 100%;
 }
 
+.select-layout .panel {
+  min-height: 0;
+  overflow: auto;
+}
+
+.select-layout .panel > .btn {
+  position: sticky;
+  bottom: 0;
+  z-index: 2;
+}
+
 .section-title {
   margin: 0 0 14px;
   font-size: 42px;

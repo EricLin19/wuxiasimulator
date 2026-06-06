@@ -74,9 +74,9 @@ function fitMobileViewport() {
   const portrait = h > w;
   const safeW = Math.max(1, w - 8);
   const safeH = Math.max(1, h - 8);
-  const scale = portrait ? safeW / 560 : Math.min(safeW / 980, safeH / 560);
-  const stageW = portrait ? 560 * scale : 980 * scale;
-  const stageH = portrait ? 980 * scale : 560 * scale;
+  const scale = portrait ? safeW / 980 : Math.min(safeW / 980, safeH / 560);
+  const stageW = 980 * scale;
+  const stageH = 560 * scale;
   document.documentElement.style.minWidth = `${Math.ceil(stageW)}px`;
   document.documentElement.style.minHeight = `${Math.ceil(stageH + 24)}px`;
   document.body.style.minWidth = `${Math.ceil(stageW)}px`;
@@ -84,9 +84,7 @@ function fitMobileViewport() {
   app.style.position = "absolute";
   app.style.left = `${Math.max(0, (w - stageW) / 2)}px`;
   app.style.top = "0";
-  app.style.transform = portrait
-    ? `scale(${scale}) rotate(90deg) translateY(-560px)`
-    : `scale(${scale})`;
+  app.style.transform = `scale(${scale})`;
 }
 
 function startBattle(enemy, isBoss = false) {
