@@ -420,8 +420,8 @@ DATA.storylines = {
 
 // 小Boss池
 DATA.miniBosses = [
-  { id: "mini_bleed_blade", name: "血刀客", icon: "刀", yearMin: 1, hp: 1400, qi: 420, atk: 85, def: 45, combo: 4, hit: 72, dodge: 6, crit: 10, speed: 1.42, boss: true, bossTrait: "miniBleed", bossTraitDesc: "流血+2，上限10", rank: 3 },
-  { id: "mini_frost_assassin", name: "寒衣刺客", icon: "影", yearMin: 1, hp: 1200, qi: 500, atk: 78, def: 38, combo: 5, hit: 80, dodge: 28, crit: 12, speed: 1.70, boss: true, bossTrait: "miniFrost", bossTraitDesc: "高闪避，寒气+1", rank: 3 },
+  { id: "mini_bleed_blade", name: "血刀客", icon: "刀", yearMin: 2, hp: 1400, qi: 420, atk: 85, def: 45, combo: 4, hit: 72, dodge: 6, crit: 10, speed: 1.42, boss: true, bossTrait: "miniBleed", bossTraitDesc: "流血+2，上限10", rank: 3 },
+  { id: "mini_frost_assassin", name: "寒衣刺客", icon: "影", yearMin: 2, hp: 1200, qi: 500, atk: 78, def: 38, combo: 5, hit: 80, dodge: 28, crit: 12, speed: 1.70, boss: true, bossTrait: "miniFrost", bossTraitDesc: "高闪避，寒气+1", rank: 3 },
   { id: "mini_hamstring_blade", name: "断筋刀师", icon: "刀", yearMin: 2, hp: 2400, qi: 760, atk: 120, def: 70, combo: 5, hit: 80, dodge: 10, crit: 12, speed: 1.50, boss: true, bossTrait: "miniHamstring", bossTraitDesc: "断筋+2，削攻", rank: 4 },
   { id: "mini_gu_priest", name: "蛊道人", icon: "毒", yearMin: 2, hp: 2200, qi: 900, atk: 105, def: 60, combo: 4, hit: 78, dodge: 14, crit: 10, speed: 1.48, boss: true, bossTrait: "miniGu", bossTraitDesc: "蛊+2，增加耗内", rank: 4 },
   { id: "mini_coin_dart", name: "金钱镖客", icon: "镖", yearMin: 2, hp: 2000, qi: 600, atk: 110, def: 55, combo: 5, hit: 88, dodge: 12, crit: 12, speed: 1.62, boss: true, bossTrait: "miniCoin", bossTraitDesc: "每2回合一次必中固定伤害", rank: 4 },

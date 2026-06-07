@@ -101,7 +101,7 @@ export function refreshEvents(run) {
   const riskPool = makeRiskEventPool(run);
   const events = [];
 
-  // 槽位1：主线奇遇（必从当前角色主线池抽取）
+  // 槽位1：主线奇遇（每月固定1次）
   if (storyPool.length) {
     events.push(sample(storyPool, 1)[0]);
   }
@@ -114,12 +114,12 @@ export function refreshEvents(run) {
     events.push(sample(riskPool, 1)[0]);
   }
 
-  // 去重
+  // 去重（仅在槽位冲突时从成长+风险池补充，不引入额外主线事件）
   const seen = new Set(events.map(e => e.id));
-  while (events.length < 3 && seen.size < storyPool.length + growthPool.length + riskPool.length) {
-    const allPools = [...storyPool, ...growthPool, ...riskPool].filter(e => !seen.has(e.id));
-    if (!allPools.length) break;
-    const extra = sample(allPools, 1)[0];
+  while (events.length < 3 && seen.size < growthPool.length + riskPool.length) {
+    const fillPools = [...growthPool, ...riskPool].filter(e => !seen.has(e.id));
+    if (!fillPools.length) break;
+    const extra = sample(fillPools, 1)[0];
     seen.add(extra.id);
     events.push(extra);
   }
@@ -341,11 +341,10 @@ export function refreshMerchantStock(run) {
 }
 
 export function refillOneEvent(run) {
-  // 三槽系统：从三个池中组合取
-  const storyPool = makeStoryEventPool(run);
+  // 三槽系统：从成长+风险池补充，不引入额外主线事件（主线每月固定1次）
   const growthPool = makeGrowthEventPool(run);
   const riskPool = makeRiskEventPool(run);
-  const allPools = [...storyPool, ...growthPool, ...riskPool];
+  const allPools = [...growthPool, ...riskPool];
   const existingIds = new Set(run.events.map(e => e.id));
   for (let i = 0; i < 15; i++) {
     const newEvent = allPools[Math.floor(Math.random() * allPools.length)];
@@ -557,11 +556,9 @@ export function resolveEvent(run, eventId, actions) {
   if (!event || run.eventRemaining <= 0) return false;
   run.eventRemaining--;
   run.events = run.events.filter(e => e.id !== eventId);
-  // 有 apply 函数则调用，否则执行默认故事事件处理
+  // 有 apply 函数则调用，否则为纯故事事件（不应走这里，走 resolveStoryChoice）
   if (event.apply) {
     event.apply({ run, ...actions });
-  } else {
-    resolveStoryEvent(run, event);
   }
   if (event.type !== "merchant" && event.type !== "battle") {
     if (run.eventRemaining > 0) refillOneEvent(run);
@@ -571,36 +568,148 @@ export function resolveEvent(run, eventId, actions) {
   return true;
 }
 
-// 默认故事事件处理（根据事件ID映射效果）
-function resolveStoryEvent(run, event) {
+// 主线事件选择处理：顺应/抗争
+export function resolveStoryChoice(run, eventId, choice, actions) {
+  const event = run.events.find(e => e.id === eventId);
+  if (!event || run.eventRemaining <= 0) return false;
+  run.eventRemaining--;
+  run.events = run.events.filter(e => e.id !== eventId);
+
   const handlers = {
     // wanderer
-    "wanderer_notice": { threat: 1, log: "你看完武盟征帖，心中不忿——凭何散人便需听命于人？" },
-    "wanderer_rescue": { threat: 2, log: "你出手救下被围捕的散人，武盟的爪牙记住了你的面孔。" },
-    "wanderer_order": { threat: 1, log: "密令中记载的计划令人心寒，武盟的手段远比江湖传闻更狠。" },
-    "wanderer_friend": { threat: 2, log: "旧友受审的消息让你握紧拳头。武盟执法堂，这笔账记下了。" },
-    "wanderer_purge": { threat: 3, log: "围剿名单在手，你明白再不能袖手旁观。武盟的清算已经开始。" },
+    "wanderer_notice": {
+      accept: { threat: 1, log: "你假意接受武盟入册，暗中打探情报。", reward: (r) => { r.money += scaleMoney(r, 120); gainExp(r, 60); }, rewardText: "金钱+120，经验+60" },
+      resist: { threat: 0, log: "你当众撕毁武盟征帖，引来一场恶战。", type: "battle" }
+    },
+    "wanderer_rescue": {
+      accept: { threat: 2, log: "你冒着被武盟标记的风险救下几位散人，他们在暗处为你通风报信。", reward: (r) => { r.stats.atk += 2; gainExp(r, 180); }, rewardText: "经验+180，攻击+2" },
+      resist: { threat: 0, log: "你花重金打通关节，悄悄放走了散人。", type: "pay", cost: 180 }
+    },
+    "wanderer_order": {
+      accept: { threat: 1, log: "你仔细研读武盟的密令，从中窥见了对付他们的策略。", reward: (r) => {
+        if (r.trainingSkills.length) { const id = r.trainingSkills[Math.floor(Math.random() * r.trainingSkills.length)]; r.skillProgress[id] = (r.skillProgress[id] || 0) + 2; }
+        gainExp(r, 80);
+      }, rewardText: "随机秘籍进度+2，经验+80" },
+      resist: { threat: 0, log: "你匿名将密令透露给江湖各方，花钱买通传递渠道。", type: "pay", cost: 100 }
+    },
+    "wanderer_friend": {
+      accept: { threat: 2, log: "你孤身闯入执法堂，击退守卫救出旧友。武盟对你恨之入骨。", reward: (r) => { r.stats.def += 3; gainExp(r, 150); }, rewardText: "防御+3，经验+150" },
+      resist: { threat: 0, log: "你花重金买通狱卒，旧友得以脱身。", type: "pay", cost: 280 }
+    },
+    "wanderer_purge": {
+      accept: { threat: 3, log: "你直面武盟围剿，以战止战。江湖散人视你为旗帜。", reward: (r) => {
+        r.stats.hp += 200; r.stats.qi += 100; r.stats.atk += 3; r.stats.def += 3;
+        r.hp += 200; r.qi += 100;
+        gainExp(r, 300);
+      }, rewardText: "全属性+3，血量+200，内力+100" },
+      resist: { threat: 0, log: "你策划了一场小型战役，带领散人们击退围剿。", type: "battle_mini" }
+    },
     // constable
-    "constable_edict": { threat: 1, log: "密诏到手，内廷的棋局远比你想象的更大。你决心查个水落石出。" },
-    "constable_file": { threat: 2, log: "案卷中灭口的证据让你心惊——厂卫的手伸得比谁都长。" },
-    "constable_test": { threat: 1, log: "你故意露了破绽，让几个厂卫以为你不足为虑。但暗中的调查已经开始。" },
-    "constable_oldcase": { threat: 2, log: "宫中旧案牵连甚广，掌印太监与江湖势力勾结的证据逐渐清晰。" },
-    "constable_witness": { threat: 3, log: "你保住了证人，但追杀者的反噬来得更猛烈。内廷的阴影笼罩着你。" },
+    "constable_edict": {
+      accept: { threat: 1, log: "你接下密诏，表面听从内廷调遣，暗中搜集证据。", reward: (r) => { r.money += scaleMoney(r, 150); gainExp(r, 80); }, rewardText: "金钱+150，经验+80" },
+      resist: { threat: 0, log: "你表面领旨，实则花钱暗中转移证人。", type: "pay", cost: 120 }
+    },
+    "constable_file": {
+      accept: { threat: 2, log: "你顺着卷宗线索顺藤摸瓜，掌握了厂卫的布局。", reward: (r) => { r.stats.hit += 3; gainExp(r, 140); }, rewardText: "命中+3，经验+140" },
+      resist: { threat: 0, log: "你赶在厂卫到来前焚毁卷宗，造成混乱。", type: "battle" }
+    },
+    "constable_test": {
+      accept: { threat: 1, log: "你故意示弱，让厂卫以为你不足为虑。暗中调查得以继续。", reward: (r) => { r.stats.dodge += 2; gainExp(r, 60); }, rewardText: "闪避+2，经验+60" },
+      resist: { threat: 0, log: "你强势击退来访厂卫，表明立场。但也暴露了自己。", type: "battle" }
+    },
+    "constable_oldcase": {
+      accept: { threat: 2, log: "你深入调查宫中旧案，揭开了掌印太监的罪证。", reward: (r) => { r.stats.atk += 3; r.stats.def += 2; gainExp(r, 180); }, rewardText: "攻击+3，防御+2，经验+180" },
+      resist: { threat: 0, log: "你花重金买通关键证人，暂时压制此事。", type: "pay", cost: 350 }
+    },
+    "constable_witness": {
+      accept: { threat: 3, log: "你亲自护送江湖证人突出重围，与厂卫刺客正面交锋。", reward: (r) => {
+        r.stats.atk += 2; r.stats.def += 2; r.stats.hp += 150; r.stats.qi += 80;
+        r.hp += 150; r.qi += 80;
+        gainExp(r, 200);
+      }, rewardText: "全属性+2，经验+200" },
+      resist: { threat: 0, log: "你设下埋伏引追杀者入瓮，一网打尽。", type: "battle_mini" }
+    },
     // orthodox
-    "orthodox_plague": { threat: 1, log: "蛊毒作祟，你协助村民驱除疫病。鬼教的手段阴毒，必须阻止蔓延。" },
-    "orthodox_lotus": { threat: 1, log: "黑莲符印出现在城墙上，鬼教的势力正在渗透。你暗暗记下所有位置。" },
-    "orthodox_missing": { threat: 2, log: "打斗痕迹指向鬼教的秘道，失踪的同门生死未卜。你加快了追踪。" },
-    "orthodox_ruin": { threat: 2, log: "祭坛上的新鲜血迹让你心中一凛——仪式正在进行，时间不多了。" },
-    "orthodox_bell": { threat: 3, log: "钟声回荡山谷，鬼教的祭仪已经开始。你必须尽快找到他们。" }
+    "orthodox_plague": {
+      accept: { threat: 1, log: "你冒着被传染的风险为村民解蛊，获得了村民的感激。", reward: (r) => { r.stats.hp += 150; r.hp += 150; r.items.push("pill", "pill"); }, rewardText: "血量+150，金疮药x2" },
+      resist: { threat: 0, log: "你花钱组织人手隔离焚烧，阻止疫情扩散。", type: "pay", cost: 100 }
+    },
+    "orthodox_lotus": {
+      accept: { threat: 1, log: "你记下了所有符印的位置，追寻鬼教渗透的线索。", reward: (r) => { r.stats.hit += 2; gainExp(r, 80); }, rewardText: "经验+80，命中+2" },
+      resist: { threat: 0, log: "你当众抹除符印，引来鬼教信徒的袭击。", type: "battle" }
+    },
+    "orthodox_missing": {
+      accept: { threat: 2, log: "你顺着打斗痕迹找到鬼教秘道，救出被困的同门。", reward: (r) => { r.stats.atk += 2; r.stats.def += 2; gainExp(r, 120); }, rewardText: "攻击+2，防御+2，经验+120" },
+      resist: { threat: 0, log: "你花钱从江湖情报贩子口中打探出秘道入口。", type: "pay", cost: 220 }
+    },
+    "orthodox_ruin": {
+      accept: { threat: 2, log: "你闯入祭坛打乱仪式，与鬼教教徒正面交锋。", reward: (r) => { r.stats.crit += 3; gainExp(r, 150); }, rewardText: "暴击+3，经验+150" },
+      resist: { threat: 0, log: "你花钱组织同门力量，围剿祭坛。", type: "pay", cost: 300 }
+    },
+    "orthodox_bell": {
+      accept: { threat: 3, log: "你独自闯入鬼教总坛，以钟声为号发起最后一战。", reward: (r) => {
+        r.stats.atk += 3; r.stats.def += 3; r.stats.hp += 200; r.stats.qi += 100;
+        r.hp += 200; r.qi += 100;
+        gainExp(r, 250);
+      }, rewardText: "全属性+3，经验+250" },
+      resist: { threat: 0, log: "你召集天衡剑阵同门联合发动剑阵反击鬼教。", type: "battle_mini" }
+    }
   };
-  const h = handlers[event.id];
-  if (h) {
-    run.mainThreat = (run.mainThreat || 0) + h.threat;
-    run.storyFlags[event.id] = true;
-    log(run, h.log + ` 威胁值+${h.threat}。`);
-  } else {
+  const h = handlers[eventId];
+  if (!h) {
     log(run, `${event.name}——江湖的故事翻开了新的一页。`);
+  } else {
+    const result = choice === "accept" ? h.accept : h.resist;
+    if (choice === "accept") {
+      run.mainThreat = (run.mainThreat || 0) + result.threat;
+      if (result.reward) result.reward(run);
+      log(run, `【顺应】${result.log}（${result.rewardText || ""}）。威胁值+${result.threat}。`);
+    } else {
+      // 抗争
+      if (result.type === "battle") {
+        // 触发普通战斗
+        const enemies = (DATA.enemies || []).filter(e => e.rank <= 2 + run.year);
+        const enemy = enemies[Math.floor(Math.random() * enemies.length)];
+        if (enemy && actions.startBattle) {
+          log(run, `【抗争】${result.log}你选择了正面交锋。`);
+          run.storyFlags[eventId + "_resist"] = true;
+          actions.startBattle(enemy);
+          saveRun(run);
+          return true; // 战斗触发，不继续处理
+        }
+        log(run, `【抗争】${result.log}但并无敌手可战。`);
+      } else if (result.type === "battle_mini") {
+        // 触发小Boss级别战斗
+        const miniPool = (DATA.miniBosses || []).filter(b => run.year >= (b.yearMin || 1));
+        const boss = miniPool[Math.floor(Math.random() * miniPool.length)];
+        if (boss && actions.startBattle) {
+          log(run, `【抗争】${result.log}你迎战强敌。`);
+          run.storyFlags[eventId + "_resist"] = true;
+          const template = { ...boss, id: "mini_" + boss.id };
+          actions.startBattle(template);
+          saveRun(run);
+          return true; // 战斗触发
+        }
+        log(run, `【抗争】${result.log}但并无强敌可战。`);
+      } else if (result.type === "pay") {
+        const cost = result.cost || 100;
+        if (run.money >= cost) {
+          run.money -= cost;
+          log(run, `【抗争】${result.log}花费${cost}金钱。威胁值不变。`);
+        } else {
+          // 钱不够，只能接受一半效果
+          run.mainThreat = (run.mainThreat || 0) + Math.ceil(h.accept.threat / 2);
+          log(run, `【抗争】钱财不足，只能部分周旋。威胁值+${Math.ceil(h.accept.threat / 2)}。`);
+        }
+      }
+    }
+    run.storyFlags[eventId] = true;
   }
+
+  if (run.eventRemaining > 0) refillOneEvent(run);
+  if (run.eventRemaining === 0) log(run, "本月随机事件已处理完。");
+  saveRun(run);
+  return true;
 }
 
 export function finishDeferredEvent(run) {

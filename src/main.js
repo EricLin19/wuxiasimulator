@@ -5,6 +5,7 @@ import { renderApp } from "./ui/render.js";
 import {
   createRun,
   resolveEvent,
+  resolveStoryChoice,
   finishDeferredEvent,
   endMonth,
   trainStat,
@@ -34,7 +35,9 @@ import {
   basicAttack as battleBasicAttack,
   autoPlayerAction,
   enemyAction,
-  toggleAuto as battleToggleAuto
+  toggleAuto as battleToggleAuto,
+  toggleSpeed as battleToggleSpeed,
+  fleeAction as battleFleeAction
 } from "./systems/battleSystem.js";
 
 function showToast(text) {
@@ -208,6 +211,13 @@ const actions = {
     });
     render();
   },
+  chooseStoryEvent: (eventId, choice) => {
+    resolveStoryChoice(state.run, eventId, choice, {
+      startBattle: enemy => startBattle(enemy, false)
+    });
+    state.modal = null;
+    render();
+  },
   closeMerchant: () => {
     finishDeferredEvent(state.run);
     state.modal = null;
@@ -315,6 +325,28 @@ const actions = {
     render();
   },
   toggleAuto: () => { battleToggleAuto(state.battle); render(); },
+  toggleSpeed: () => { battleToggleSpeed(state.battle); render(); },
+  openItemMenu: () => {
+    state.modal = { type: "battleItems" };
+    render();
+  },
+  fleeAction: () => {
+    const result = battleFleeAction(state.run, state.battle);
+    if (result.fled) {
+      state.run.hp = Math.max(1, state.battle.player.hp);
+      state.run.qi = Math.max(0, state.battle.player.qi);
+      state.run.items = state.battle.player.items;
+      state.screen = "run";
+      state.battle = null;
+      state.modal = null;
+      log(state.run, result.message);
+      finishDeferredEvent(state.run);
+      saveRun(state.run);
+    } else {
+      showToast(result.message || "逃跑失败");
+    }
+    render();
+  },
   backToMenu: () => {
     state.screen = "menu";
     state.settlement = null;
@@ -346,11 +378,12 @@ function ensureBattleTimer() {
   if (battleTimer) return;
   battleTimer = setInterval(() => {
     if (state.screen !== "battle" || !state.battle || state.battle.phase !== "running") return;
-    const phase = tickBattle(state.battle, 0.08);
+    const speedMult = state.battle.speed || 1;
+    const phase = tickBattle(state.battle, 0.08 * speedMult);
     render();
     if (phase === "ended") resolveBattleResult({ ended: true, winner: state.battle.enemy.hp <= 0 ? "player" : "enemy" });
-    if (phase === "enemyAction") setTimeout(() => resolveBattleResult(enemyAction(state.run, state.battle)), 260);
-    if (phase === "autoPlayer") setTimeout(() => resolveBattleResult(autoPlayerAction(state.run, state.battle)), 240);
+    if (phase === "enemyAction") setTimeout(() => resolveBattleResult(enemyAction(state.run, state.battle)), 260 / speedMult);
+    if (phase === "autoPlayer") setTimeout(() => resolveBattleResult(autoPlayerAction(state.run, state.battle)), 240 / speedMult);
   }, 80);
 }
 

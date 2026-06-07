@@ -111,7 +111,7 @@ export function createBattle(run, enemyTemplate, isBoss = false) {
     actor: null,
     log: [`${run.character.name}遭遇${enemyTemplate.name}。`],
     floaters: [],
-    speed: 3,
+    speed: 1,
     run,
     // Per-turn trackers
     turnTrackers: { comboChains: 0, evasiveTriggers: 0, coinThrows: 0, guDisrupts: 0, frostHits: 0, stealTriggers: 0 },
@@ -538,6 +538,28 @@ function triggerEvasiveLeg(run, battle, unit) {
 
 export function toggleAuto(battle) {
   battle.player.auto = !battle.player.auto;
+}
+
+export function toggleSpeed(battle) {
+  // 速度循环：1x → 2x → 3x → 1x
+  battle.speed = (battle.speed || 1) >= 3 ? 1 : (battle.speed || 1) + 1;
+}
+
+export function fleeAction(run, battle) {
+  if (battle.phase !== "waitPlayer") return { fled: false, message: "现在无法逃跑" };
+  // Boss战不可逃跑
+  if (battle.isBoss) return { fled: false, message: "面对Boss，无处可逃！" };
+  // 50%概率成功
+  const success = Math.random() < 0.5;
+  if (success) {
+    // 逃跑消耗行动力
+    const hpLoss = Math.floor(battle.player.stats.hp * 0.1);
+    battle.player.hp = Math.max(1, battle.player.hp - hpLoss);
+    return { fled: true, message: `你狼狈逃出战斗，受到${hpLoss}伤害。` };
+  }
+  // 逃跑失败，消耗一回合
+  endActorTurn(run, battle, battle.player);
+  return { fled: false, message: "逃跑失败！消耗一回合。" };
 }
 
 function applyTurnStart(battle, unit) {

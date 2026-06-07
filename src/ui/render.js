@@ -44,7 +44,7 @@ export function renderApp(state, actions) {
   if (state.screen === "run") app.appendChild(renderRun(state, actions));
   if (state.screen === "battle") app.appendChild(renderBattle(state, actions));
   if (state.screen === "settlement") app.appendChild(renderSettlement(state, actions));
-  if (state.modal && state.screen !== "battle") {
+  if (state.modal && (state.screen !== "battle" || state.modal.type === "battleItems")) {
     app.appendChild(renderModal(state, actions));
     const newModal = app.querySelector(".modal");
     if (newModal) newModal.scrollTop = savedScrollTop;
@@ -57,7 +57,7 @@ function renderMenu(state, actions) {
   root.innerHTML = `
     <div>
       <div class="title">小小侠客</div>
-      <div class="subtitle">构筑原型 v0.32</div>
+      <div class="subtitle">构筑原型 v0.34</div>
       <div class="menu-panel">
         <button class="btn" data-act="start">开始新局</button>
         <button class="btn secondary" data-act="continue" ${actions.hasSavedRun() ? "" : "disabled"}>继续存档</button>
@@ -78,7 +78,7 @@ function renderSelect(state, actions) {
   left.innerHTML = `<h2 class="section-title">选择你的角色</h2><div class="cards"></div>`;
   DATA.characters.forEach(c => {
     const card = el("div", `card ${state.selectedCharacter === c.id ? "selected" : ""}`);
-    card.innerHTML = `<div class="portrait character-portrait">${c.portraitImage ? `<img src="${c.portraitImage}" alt="${c.name}">` : `<span>${c.icon}</span>`}</div><div class="name">${c.name}</div><div class="desc">${c.faction}<br>${c.desc}</div>`;
+    card.innerHTML = `<div class="portrait character-portrait">${c.portraitImage ? `<img src="${c.portraitImage}" alt="${c.name}" loading="lazy" decoding="async">` : `<span>${c.icon}</span>`}</div><div class="name">${c.name}</div><div class="desc">${c.faction}<br>${c.desc}</div>`;
     card.onclick = () => actions.selectCharacter(c.id);
     left.querySelector(".cards").appendChild(card);
   });
@@ -88,7 +88,7 @@ function renderSelect(state, actions) {
   right.style.padding = "18px";
   right.innerHTML = `
     <h2 class="section-title">${selected.name}</h2>
-    <div class="portrait character-portrait large">${selected.portraitImage ? `<img src="${selected.portraitImage}" alt="${selected.name}">` : `<span>${selected.icon}</span>`}</div>
+    <div class="portrait character-portrait large">${selected.portraitImage ? `<img src="${selected.portraitImage}" alt="${selected.name}" loading="lazy" decoding="async">` : `<span>${selected.icon}</span>`}</div>
     <div class="desc">${selected.traitText}</div>
     <div class="stats-grid">${STAT_KEYS.map(k => statLine(k, selected.stats[k])).join("")}</div>
     <div class="treasure-head">携带宝物</div>
@@ -116,9 +116,9 @@ function renderTopbar(run) {
   const threatText = run.mainThreat > 0 ? `<span style="color:${threatColor};font-size:13px;margin-left:6px">${threatName}：${run.mainThreat}</span>` : "";
   const top = el("div", "topbar");
   top.innerHTML = `
-    <div class="date">第${run.year}年·${run.month}月　${storylineName}${threatText}　行动 ${run.ap}/${run.maxAp}</div>
-    <div class="ap-wrap"><div class="bolt">⚡</div>${bar(run.ap, run.maxAp, `${run.ap}/${run.maxAp}`)}</div>
-    <div class="resource-row"><span>◎${run.money}</span><span>⚙</span></div>`;
+    <div class="date">第${run.year}年·${run.month}月　${storylineName}${threatText}</div>
+    <div class="ap-wrap">行动力 ${run.ap}/${run.maxAp}</div>
+    <div class="resource-row"><span>◎${run.money}</span></div>`;
   return top;
 }
 
@@ -171,7 +171,8 @@ function renderModal(state, actions) {
     character: () => renderCharacterModal(modal, run, actions, close),
     backpack: () => renderBackpackModal(modal, run, actions, close),
     goals: () => renderGoalsModal(modal, run, close),
-    debug: () => renderDebugModal(modal, actions, close)
+    debug: () => renderDebugModal(modal, actions, close),
+    battleItems: () => renderBattleItemsModal(modal, run, state.battle, actions)
   };
   renderers[state.modal.type]?.();
   const closeBtn = modal.querySelector("[data-close]");
@@ -188,14 +189,52 @@ function renderMetaModal(modal, state, actions, close) {
 
 function renderEventsModal(modal, run, actions, close) {
   const CATEGORY_COLORS = { "主线": "#c0392b", "高手传功": "#d4a056", "高手遗物": "#a855f7", "切磋": "#e74c3c", "维度增加": "#2ecc71", "金钱代价": "#f39c12", "小Boss": "#8e44ad" };
+  // 主线事件威胁值 + 两条路线文案
+  const STORY_CHOICES = {
+    // wanderer
+    "wanderer_notice": { threat: 1, acceptName: "接帖入册", acceptLog: "你假意接受武盟入册，暗中打探情报。", acceptReward: "金钱+120，经验+60", rejectName: "撕帖拒命", rejectLog: "你当众撕毁武盟征帖，引来一场恶战。", rejectType: "battle" },
+    "wanderer_rescue": { threat: 2, acceptName: "见义勇为", acceptLog: "你冒着被武盟标记的风险救下几位散人，他们在暗处为你通风报信。", acceptReward: "经验+180，攻击+2", rejectName: "明哲保身", rejectLog: "你选择用金钱打通关节，悄悄放走散人。", rejectType: "pay", rejectCost: 180 },
+    "wanderer_order": { threat: 1, acceptName: "研读密令", acceptLog: "你仔细研读武盟的密令，从中窥见了对付他们的策略。", acceptReward: "随机修炼笔记进度+2，经验+80", rejectName: "匿名举报", rejectLog: "你匿名将密令透露给江湖各方，花钱买通传递渠道。", rejectType: "pay", rejectCost: 100 },
+    "wanderer_friend": { threat: 2, acceptName: "劫狱救人", acceptLog: "你孤身闯入执法堂，击退守卫救出旧友。武盟对你恨之入骨。", acceptReward: "防御+3，经验+150", rejectName: "买通狱卒", rejectLog: "你花重金买通狱卒，旧友得以脱身。", rejectType: "pay", rejectCost: 280 },
+    "wanderer_purge": { threat: 3, acceptName: "正面对抗", acceptLog: "你直面武盟围剿，以战止战。江湖散人视你为旗帜。", acceptReward: "全属性+3，获得强力武器", rejectName: "集结散人", rejectLog: "你策划了一场小型战役，带领散人们击退围剿。", rejectType: "battle_mini" },
+    // constable
+    "constable_edict": { threat: 1, acceptName: "接旨暗查", acceptLog: "你接下密诏，表面听从内廷调遣，暗中搜集证据。", acceptReward: "金钱+150，经验+80", rejectName: "阳奉阴违", rejectLog: "你表面领旨，实则花钱暗中转移证人。", rejectType: "pay", rejectCost: 120 },
+    "constable_file": { threat: 2, acceptName: "深入追查", acceptLog: "你顺着卷宗线索顺藤摸瓜，掌握了厂卫的布局。", acceptReward: "命中+3，经验+140", rejectName: "紧急焚毁", rejectLog: "你赶在厂卫到来前焚毁卷宗，造成一场混乱的遭遇战。", rejectType: "battle" },
+    "constable_test": { threat: 1, acceptName: "虚与委蛇", acceptLog: "你故意示弱，让厂卫以为你不足为虑。暗中调查得以继续。", acceptReward: "闪避+2，经验+60", rejectName: "强势还击", rejectLog: "你击退来访厂卫，表明立场。但也暴露了自己。", rejectType: "battle" },
+    "constable_oldcase": { threat: 2, acceptName: "彻查真相", acceptLog: "你深入调查宫中旧案，揭开了掌印太监的罪证。", acceptReward: "攻击+3，防御+2，经验+180", rejectName: "花钱封口", rejectLog: "你花重金买通关键证人，暂时压制此事。", rejectType: "pay", rejectCost: 350 },
+    "constable_witness": { threat: 3, acceptName: "护送证人", acceptLog: "你亲自护送江湖证人突出重围，与厂卫刺客正面交锋。", acceptReward: "全属性+2，经验+200", rejectName: "设伏反击", rejectLog: "你设下埋伏引追杀者入瓮，一网打尽。", rejectType: "battle_mini" },
+    // orthodox
+    "orthodox_plague": { threat: 1, acceptName: "救治村民", acceptLog: "你冒着被传染的风险为村民解蛊，获得了村民的感激。", acceptReward: "血量+150，获得金疮药x2", rejectName: "焚烧疫区", rejectLog: "你花钱组织人手隔离焚烧，阻止疫情扩散。", rejectType: "pay", rejectCost: 100 },
+    "orthodox_lotus": { threat: 1, acceptName: "暗中调查", acceptLog: "你记下了所有符印的位置，追寻鬼教渗透的线索。", acceptReward: "经验+80，命中+2", rejectName: "当众清除", rejectLog: "你当众抹除符印，引来鬼教信徒的袭击。", rejectType: "battle" },
+    "orthodox_missing": { threat: 2, acceptName: "追踪秘道", acceptLog: "你顺着打斗痕迹找到鬼教秘道，救出被困的同门。", acceptReward: "攻击+2，防御+2，经验+120", rejectName: "花钱买消息", rejectLog: "你花钱从江湖情报贩子口中打探出秘道入口。", rejectType: "pay", rejectCost: 220 },
+    "orthodox_ruin": { threat: 2, acceptName: "闯入祭坛", acceptLog: "你闯入祭坛打乱仪式，与鬼教教徒正面交锋。", acceptReward: "暴击+3，经验+150", rejectName: "集结同门", rejectLog: "你花钱组织同门力量，围剿祭坛。", rejectType: "pay", rejectCost: 300 },
+    "orthodox_bell": { threat: 3, acceptName: "破阵灭鬼", acceptLog: "你独自闯入鬼教总坛，以钟声为号发起最后一战。", acceptReward: "全属性+3，经验+250", rejectName: "天衡剑阵", rejectLog: "你召集天衡剑阵同门联合发动剑阵反击鬼教。", rejectType: "battle_mini" }
+  };
   modal.innerHTML = `<div class="modal-head"><h2 class="modal-title">江湖奇遇</h2>${close}</div><div class="event-count">可参与事件数：${run.eventRemaining}</div><div class="event-grid"></div>`;
   run.events.forEach(e => {
     const card = el("div", "event-card");
     const catColor = CATEGORY_COLORS[e.category] || "#888";
     const storyTag = e.type === "story" ? ` <span style="font-size:10px;color:#c0392b;margin-left:4px">【主线】</span>` : "";
-    card.innerHTML = `<span class="event-cat-tag" style="background:${catColor}">${e.category || "事件"}</span><h3>${e.name}${storyTag}</h3><div class="event-art">${e.icon}</div><p>${e.desc}</p><button class="btn green">选择</button>`;
-    card.querySelector("button").disabled = run.eventRemaining <= 0;
-    card.querySelector("button").onclick = () => actions.chooseEvent(e.id);
+    const sc = STORY_CHOICES[e.id];
+    // 主线威胁值标注
+    const threatNote = sc ? `<p style="color:#e74c3c;font-weight:700;margin:6px 0 0 0">武盟威视+${sc.threat}（顺应）</p>` : "";
+    // 战斗难度标注
+    let diffNote = "";
+    if (e.category === "小Boss") diffNote = `<p style="color:#e74c3c;font-weight:900;margin:6px 0 0 0">战斗难度：极难</p>`;
+    else if (e.category === "切磋" && e.id && e.id.startsWith("mini_")) diffNote = `<p style="color:#e74c3c;font-weight:900;margin:6px 0 0 0">战斗难度：极难</p>`;
+    else if (e.category === "切磋") diffNote = `<p style="color:#f39c12;font-weight:700;margin:6px 0 0 0">战斗难度：困难</p>`;
+    if (e.type === "story") {
+      // 主线事件：双按钮
+      card.innerHTML = `<span class="event-cat-tag" style="background:${catColor}">${e.category || "事件"}</span><h3>${e.name}${storyTag}</h3><div class="event-art">${e.icon}</div><p>${e.desc}</p>${threatNote}<div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:6px"><button class="btn green small" data-accept>顺应</button><button class="btn red small" data-resist>抗争</button></div>`;
+      card.querySelector("[data-accept]").disabled = run.eventRemaining <= 0;
+      card.querySelector("[data-resist]").disabled = run.eventRemaining <= 0;
+      card.querySelector("[data-accept]").onclick = () => actions.chooseStoryEvent(e.id, "accept");
+      card.querySelector("[data-resist]").onclick = () => actions.chooseStoryEvent(e.id, "resist");
+    } else {
+      card.innerHTML = `<span class="event-cat-tag" style="background:${catColor}">${e.category || "事件"}</span><h3>${e.name}${storyTag}</h3><div class="event-art">${e.icon}</div><p>${e.desc}</p>${threatNote}${diffNote}<button class="btn green">选择</button>`;
+      card.querySelector("button").disabled = run.eventRemaining <= 0;
+      card.querySelector("button").onclick = () => actions.chooseEvent(e.id);
+    }
     modal.querySelector(".event-grid").appendChild(card);
   });
 }
@@ -353,7 +392,7 @@ function renderCharacterModal(modal, run, actions, close) {
   modal.innerHTML = `
     <div class="modal-head"><h2 class="modal-title">角色属性</h2>${close}</div>
     <div class="character-sheet">
-      <div><div class="portrait">${run.character.portraitImage ? `<img src="${run.character.portraitImage}" alt="${run.character.name}">` : run.character.icon}</div><div class="name">${run.character.name}</div><div class="desc">${run.character.faction}｜${"★".repeat(Math.min(8, run.rankStars))}</div></div>
+      <div><div class="portrait">${run.character.portraitImage ? `<img src="${run.character.portraitImage}" alt="${run.character.name}" loading="lazy" decoding="async">` : run.character.icon}</div><div class="name">${run.character.name}</div><div class="desc">${run.character.faction}｜${"★".repeat(Math.min(8, run.rankStars))}</div></div>
       <div>
         <div class="stats-grid">${STAT_KEYS.map(k => statLine(k, k === "hp" ? `${run.hp}/${run.stats.hp}` : k === "qi" ? `${run.qi}/${run.stats.qi}` : run.stats[k])).join("")}</div>
         <h3>上场招式（最多4个）</h3><div class="list skill-select-list"></div>
@@ -417,9 +456,13 @@ function renderGoalsModal(modal, run, close) {
   const progress = Math.min(100, Math.floor(currentMonth / totalMonths * 100));
   // 威胁值威胁度
   const threatLevel = threatVal >= 9 ? "【威势压人】Boss全面增强" : threatVal >= 6 ? "【暗流涌动】Boss明显变强" : threatVal >= 3 ? "【山雨欲来】Boss略微增强" : "";
-  modal.innerHTML = `<div class="modal-head"><h2 class="modal-title">本局目标</h2>${close}</div><div class="goal-panel"><div class="boss-portrait">${bossPortraitImg ? `<img src="${bossPortraitImg}" alt="${bossName}">` : bossIcon}</div><div>
+  modal.innerHTML = `<div class="modal-head"><h2 class="modal-title">本局目标</h2>${close}</div><div class="goal-panel"><div class="boss-portrait">${bossPortraitImg ? `<img src="${bossPortraitImg}" alt="${bossName}" loading="lazy" decoding="async">` : bossIcon}</div><div>
     <h2>主线：${storylineName}</h2>
     <p style="color:${threatColor};margin:6px 0">${threatName}：${threatVal} ${threatLevel}</p>
+    <div style="background:#f5e6d3;padding:8px;margin:8px 0;border-left:3px solid #c0392b;font-size:13px;line-height:1.5">
+      <b>威胁值说明：</b>每月主线事件可选择<b>"顺应"</b>（获得奖励但威胁+1~3）或<b>"抗争"</b>（战斗/付钱换取威胁不增）。<br>
+      威胁值越高，年末Boss越强：<span style="color:#f39c12">3-5山雨欲来</span>→<span style="color:#e67e22">6-8暗流涌动</span>→<span style="color:#e74c3c">9+威势压人</span>。
+    </div>
     <h3>今年Boss：${bossName}</h3>
     ${bossTraitDesc ? `<p style="color:#e74c3c;font-style:italic">特性：${bossTraitDesc}</p>` : ""}
     <div class="stats-grid">${["hp", "qi", "atk", "def", "hit", "dodge", "crit", "speed"].map(k => statLine(k, k === "speed" ? bossStats[k] : Math.floor(bossStats[k] * 2))).join("")}</div>
@@ -444,11 +487,11 @@ function renderBattle(state, actions) {
   const b = state.battle;
   const root = el("div", "battle-screen");
   root.innerHTML = `
-    <div class="battle-top">${fighterPanel(b.player)}<div class="gauge-lane"><div class="gauge-dot" style="left:${b.player.gauge}%">${b.player.icon}</div><div class="gauge-dot" style="left:${b.enemy.gauge}%">${b.enemy.icon}</div><div class="speed-label">速度x${b.speed}</div></div>${fighterPanel(b.enemy)}</div>
-    <div class="fighter player">${b.playerPortrait ? `<img src="${b.playerPortrait}" alt="${b.player.name}">` : b.player.icon}</div><div class="fighter enemy">${b.enemyPortrait ? `<img src="${b.enemyPortrait}" alt="${b.enemy.name}">` : b.enemy.icon}</div>
+    <div class="battle-top">${fighterPanel(b.player)}<div class="gauge-lane"><div class="gauge-dot" style="left:${b.player.gauge}%">${b.player.icon}</div><div class="gauge-dot" style="left:${b.enemy.gauge}%">${b.enemy.icon}</div><div class="speed-label speed-toggle" data-speedbtn>速度x${b.speed || 1}</div></div>${fighterPanel(b.enemy)}</div>
+    <div class="fighter player">${b.playerPortrait ? `<img src="${b.playerPortrait}" alt="${b.player.name}" loading="lazy" decoding="async">` : b.player.icon}</div><div class="fighter enemy">${b.enemyPortrait ? `<img src="${b.enemyPortrait}" alt="${b.enemy.name}" loading="lazy" decoding="async">` : b.enemy.icon}</div>
     ${b.bossTrait ? `<div class="boss-trait-bar"><span class="debuff-badge enemy-trait" title="${escapeHtml(b.enemy.stats.traitDesc || b.bossTrait)}">Boss特性：${b.bossTrait}</span>${b.bossShield > 0 ? `<span class="debuff-badge" title="护体">护体 ${b.bossShield}</span>` : ""}${b.bossImmuneTurns > 0 ? `<span class="debuff-badge" title="免疫负面">免疫 ${b.bossImmuneTurns}回合</span>` : ""}</div>` : ""}
     ${(b.floaters || []).map(f => `<div class="combat-floater ${f.side}">${f.text}</div>`).join("")}
-    <div class="battle-bottom"><div class="battle-tools"><button class="btn ${b.player.auto ? "green" : "secondary"}" data-auto>自动战斗</button><button class="btn secondary" data-basic>普攻</button><button class="btn secondary" data-rest>调息</button></div><div class="skill-row"></div><div class="battle-log">${b.log.map(x => `<div>${x}</div>`).join("")}</div></div>`;
+    <div class="battle-bottom"><div class="battle-tools"><button class="btn secondary" data-basic>普攻</button><button class="btn secondary" data-rest>调息</button><button class="btn secondary" data-itemmenu>道具</button><button class="btn red" data-flee>逃跑</button></div><div class="skill-row"></div><div class="battle-log">${b.log.map(x => `<div>${x}</div>`).join("")}</div></div>`;
   const skillRow = root.querySelector(".skill-row");
   b.player.skills.forEach(id => {
     const s = DATA.skills[id];
@@ -464,20 +507,16 @@ function renderBattle(state, actions) {
     btn.onclick = () => actions.useSkill(id);
     skillRow.appendChild(btn);
   });
-  b.player.items.slice(0, 5).forEach(id => {
-    const item = DATA.items[id];
-    if (!item || item.type === "stat") return;
-    const btn = el("button", "skill-btn");
-    btn.disabled = b.phase !== "waitPlayer";
-    btn.innerHTML = `<strong>${item.name}</strong><span>${item.desc}</span>`;
-    btn.onclick = () => actions.useItem(id);
-    skillRow.appendChild(btn);
-  });
-  root.querySelector("[data-auto]").onclick = actions.toggleAuto;
+  // 药品不再在招式栏出现
+  root.querySelector("[data-speedbtn]").onclick = actions.toggleSpeed;
   root.querySelector("[data-basic]").disabled = b.phase !== "waitPlayer";
   root.querySelector("[data-basic]").onclick = actions.basicAttack;
   root.querySelector("[data-rest]").disabled = b.phase !== "waitPlayer";
   root.querySelector("[data-rest]").onclick = actions.restAction;
+  root.querySelector("[data-itemmenu]").disabled = b.phase !== "waitPlayer";
+  root.querySelector("[data-itemmenu]").onclick = actions.openItemMenu;
+  root.querySelector("[data-flee]").disabled = b.phase !== "waitPlayer";
+  root.querySelector("[data-flee]").onclick = actions.fleeAction;
   return root;
 }
 
@@ -495,6 +534,29 @@ function debuffBadges(unit) {
   if (unit.hamstring) badges.push(`<span class="debuff-badge" title="断筋：降低速度，并在命中时削弱攻击。">断筋 ${unit.hamstring}</span>`);
   if (unit.gu) badges.push(`<span class="debuff-badge" title="蛊：提高招式内力消耗，并扰乱气息。">蛊 ${unit.gu}</span>`);
   return badges.join("");
+}
+
+function renderBattleItemsModal(modal, run, battle, actions) {
+  const close = `<button class="btn red small" data-close>关闭</button>`;
+  const items = battle.player.items.filter(id => {
+    const item = DATA.items[id];
+    return item && (item.type === "heal" || item.type === "qi");
+  });
+  modal.innerHTML = `<div class="modal-head"><h2 class="modal-title">使用道具</h2>${close}</div><div class="list"></div>`;
+  const list = modal.querySelector(".list");
+  if (!items.length) {
+    list.innerHTML = "<p>没有可用的战斗道具。恢复类丹药请在背包中使用。</p>";
+  } else {
+    items.forEach(id => {
+      const item = DATA.items[id];
+      list.appendChild(rowCard(item.icon, item.name, item.desc, "使用", () => {
+        actions.useItem(id);
+        modal.parentElement.remove();
+      }));
+    });
+  }
+  const closeBtn = modal.querySelector("[data-close]");
+  if (closeBtn) closeBtn.onclick = () => modal.parentElement.remove();
 }
 
 function renderSettlement(state, actions) {
