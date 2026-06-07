@@ -296,6 +296,7 @@ export const INTERNAL_ARTS = {
   art_blue_7: { id: "art_blue_7", name: "先天功", rarity: "blue", icon: "先", desc: "王重阳绝学。内力上限+50，命中+5，内力恢复+15/回合。", statGain: { qi: 50, hit: 5 }, combatEffect: "qiRegen", combatDesc: "每回合恢复15点内力" },
   art_blue_8: { id: "art_blue_8", name: "葵花宝典残卷", rarity: "blue", icon: "葵", desc: "残卷仅有速功心法。出手速度+0.18，闪避+6。", statGain: { dodge: 6, speed: 0.18 } }
 };
+DATA.internalArts = INTERNAL_ARTS;
 
 export const META_DEFAULT = {
   runs: 0,
