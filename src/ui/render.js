@@ -44,7 +44,7 @@ export function renderApp(state, actions) {
   if (state.screen === "run") app.appendChild(renderRun(state, actions));
   if (state.screen === "battle") app.appendChild(renderBattle(state, actions));
   if (state.screen === "settlement") app.appendChild(renderSettlement(state, actions));
-  if (state.modal && (state.screen !== "battle" || state.modal.type === "battleItems")) {
+  if (state.modal) {
     app.appendChild(renderModal(state, actions));
     const newModal = app.querySelector(".modal");
     if (newModal) newModal.scrollTop = savedScrollTop;
@@ -500,6 +500,10 @@ function debuffBadges(unit) {
 }
 
 function renderBattleItemsModal(modal, run, battle, actions) {
+  if (!battle) {
+    modal.innerHTML = `<div class="modal-head"><h2 class="modal-title">使用道具</h2></div><div class="list"><p>战斗数据异常，请重试。</p></div>`;
+    return;
+  }
   const close = `<button class="btn red small" data-close>关闭</button>`;
   const items = battle.player.items.filter(id => {
     const item = DATA.items[id];
