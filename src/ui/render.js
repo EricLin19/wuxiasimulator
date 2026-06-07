@@ -57,7 +57,7 @@ function renderMenu(state, actions) {
   root.innerHTML = `
     <div>
       <div class="title">小小侠客</div>
-      <div class="subtitle">构筑原型 v0.34</div>
+      <div class="subtitle">构筑原型 v0.36</div>
       <div class="menu-panel">
         <button class="btn" data-act="start">开始新局</button>
         <button class="btn secondary" data-act="continue" ${actions.hasSavedRun() ? "" : "disabled"}>继续存档</button>
