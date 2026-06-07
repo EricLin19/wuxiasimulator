@@ -338,6 +338,7 @@ const actions = {
   toggleAuto: () => { battleToggleAuto(state.battle); render(); },
   toggleSpeed: () => { battleToggleSpeed(state.battle); render(); },
   openItemMenu: () => {
+    console.log("[道具] 打开战斗道具弹窗, state.battle:", !!state.battle);
     state.modal = { type: "battleItems" };
     render();
   },
