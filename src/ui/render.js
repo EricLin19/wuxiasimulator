@@ -57,7 +57,7 @@ function renderMenu(state, actions) {
   root.innerHTML = `
     <div>
       <div class="title">小小侠客</div>
-      <div class="subtitle">构筑原型 v0.30</div>
+      <div class="subtitle">构筑原型 v0.32</div>
       <div class="menu-panel">
         <button class="btn" data-act="start">开始新局</button>
         <button class="btn secondary" data-act="continue" ${actions.hasSavedRun() ? "" : "disabled"}>继续存档</button>
@@ -109,9 +109,14 @@ function renderSelect(state, actions) {
 }
 
 function renderTopbar(run) {
+  const sl = DATA.storylines?.[run.storylineId];
+  const storylineName = sl?.name || "江湖";
+  const threatName = sl?.threatName || "";
+  const threatColor = (run.mainThreat || 0) >= 6 ? "#e74c3c" : (run.mainThreat || 0) >= 3 ? "#f39c12" : "#888";
+  const threatText = run.mainThreat > 0 ? `<span style="color:${threatColor};font-size:13px;margin-left:6px">${threatName}：${run.mainThreat}</span>` : "";
   const top = el("div", "topbar");
   top.innerHTML = `
-    <div class="date">第${run.year}年·${run.month}月　行动 ${run.ap}/${run.maxAp}</div>
+    <div class="date">第${run.year}年·${run.month}月　${storylineName}${threatText}　行动 ${run.ap}/${run.maxAp}</div>
     <div class="ap-wrap"><div class="bolt">⚡</div>${bar(run.ap, run.maxAp, `${run.ap}/${run.maxAp}`)}</div>
     <div class="resource-row"><span>◎${run.money}</span><span>⚙</span></div>`;
   return top;
@@ -182,12 +187,13 @@ function renderMetaModal(modal, state, actions, close) {
 }
 
 function renderEventsModal(modal, run, actions, close) {
-  const CATEGORY_COLORS = { "高手传功": "#d4a056", "高手遗物": "#a855f7", "切磋": "#e74c3c", "维度增加": "#2ecc71", "金钱代价": "#f39c12" };
+  const CATEGORY_COLORS = { "主线": "#c0392b", "高手传功": "#d4a056", "高手遗物": "#a855f7", "切磋": "#e74c3c", "维度增加": "#2ecc71", "金钱代价": "#f39c12", "小Boss": "#8e44ad" };
   modal.innerHTML = `<div class="modal-head"><h2 class="modal-title">江湖奇遇</h2>${close}</div><div class="event-count">可参与事件数：${run.eventRemaining}</div><div class="event-grid"></div>`;
   run.events.forEach(e => {
     const card = el("div", "event-card");
     const catColor = CATEGORY_COLORS[e.category] || "#888";
-    card.innerHTML = `<span class="event-cat-tag" style="background:${catColor}">${e.category || "事件"}</span><h3>${e.name}</h3><div class="event-art">${e.icon}</div><p>${e.desc}</p><button class="btn green">选择</button>`;
+    const storyTag = e.type === "story" ? ` <span style="font-size:10px;color:#c0392b;margin-left:4px">【主线】</span>` : "";
+    card.innerHTML = `<span class="event-cat-tag" style="background:${catColor}">${e.category || "事件"}</span><h3>${e.name}${storyTag}</h3><div class="event-art">${e.icon}</div><p>${e.desc}</p><button class="btn green">选择</button>`;
     card.querySelector("button").disabled = run.eventRemaining <= 0;
     card.querySelector("button").onclick = () => actions.chooseEvent(e.id);
     modal.querySelector(".event-grid").appendChild(card);
@@ -209,10 +215,10 @@ function renderTrainingModal(modal, run, actions, close) {
   const rows = [
     { title: "举铁", meta: "攻击+3，经验+35，消耗1行动", icon: "拳", action: () => actions.trainStat("atk") },
     { title: "站桩功", meta: "防御+3，经验+35，消耗1行动", icon: "桩", action: () => actions.trainStat("def") },
-    { title: "扎马步", meta: "血量上限+120，经验+35，消耗1行动", icon: "马", action: () => actions.trainStat("hp") }
+    { title: "扎马步", meta: "血量上限+90，经验+35，消耗1行动", icon: "马", action: () => actions.trainStat("hp") }
   ];
   rows.forEach(x => modal.querySelector(".list").appendChild(rowCard(x.icon, x.title, x.meta, "修炼", x.action)));
-  modal.querySelector(".list").appendChild(rowCard("气", "内力吐纳", "内力上限+20，经验+35，消耗1行动", "修炼", () => actions.trainStat("qi")));
+  modal.querySelector(".list").appendChild(rowCard("气", "内力吐纳", "内力上限+30，经验+35，消耗1行动", "修炼", () => actions.trainStat("qi")));
 }
 
 function renderHallModal(modal, run, actions, close) {
@@ -245,13 +251,37 @@ function renderHallModal(modal, run, actions, close) {
     const obj = DATA.weapons[entry.id];
     modal.querySelectorAll(".merchant-col .list")[3].appendChild(rowCard(obj.icon, `【${rarityName(obj.rarity)}】${obj.name}`, obj.desc, `${obj.price}◎`, () => actions.buyShopEntry(entry)));
   });
+  // 防具（新增）
+  const armorSection = el("div", "merchant-col");
+  armorSection.innerHTML = `<h3>防具</h3><div class="list"></div>`;
+  const armorCol = armorSection.querySelector(".list");
+  run.merchantStock.filter(e => e.kind === "armor").forEach(entry => {
+    const obj = DATA.armors[entry.id];
+    const label = run.armors.includes(entry.id) ? "已拥有" : `${obj.price}◎`;
+    armorCol.appendChild(rowCard(obj.icon, `【${rarityName(obj.rarity)}】${obj.name}`, obj.desc, label, () => actions.buyShopEntry(entry)));
+  });
+  if (armorCol.children.length) modal.querySelector(".merchant-layout").appendChild(armorSection);
 }
 
 function renderRewardModal(modal, state, actions) {
   modal.innerHTML = `<h2 class="section-title">请选择突破奖励</h2><div class="reward-grid"></div>`;
+  const TYPE_COLORS = {
+    "特性": "#b9372e",
+    "武学秘籍": "#1e73ad",
+    "武器": "#d56a12",
+    "防具": "#607d4a",
+    "内功心法": "#8e44ad",
+    "丹药": "#c0392b"
+  };
   state.modal.options.forEach((opt, index) => {
     const card = el("div", "event-card");
-    card.innerHTML = `<h3>${opt.data.name}</h3><div class="event-art">特</div><p>${opt.data.desc}</p><button class="btn green">选择</button>`;
+    const typeColor = TYPE_COLORS[opt.type] || "#888";
+    card.innerHTML = `
+      <span class="event-cat-tag" style="background:${typeColor}">${opt.type}</span>
+      <h3>${opt.name}</h3>
+      <div class="event-art">${opt.icon}</div>
+      <p>${opt.desc}</p>
+      <button class="btn green">选择</button>`;
     card.querySelector("button").onclick = () => actions.takeReward(index);
     modal.querySelector(".reward-grid").appendChild(card);
   });
@@ -288,6 +318,17 @@ function renderMerchantModal(modal, run, actions) {
     modal.querySelectorAll(".merchant-col .list")[3].appendChild(rowCard(obj.icon, `【${rarityName(obj.rarity)}】${obj.name}`, obj.desc, `${obj.price}◎`, () => actions.buyShopEntry(entry)));
   });
 
+  // 防具
+  const armorSection2 = el("div", "merchant-col");
+  armorSection2.innerHTML = `<h3>防具</h3><div class="list"></div>`;
+  const armorCol2 = armorSection2.querySelector(".list");
+  run.merchantStock.filter(e => e.kind === "armor").forEach(entry => {
+    const obj = DATA.armors[entry.id];
+    const label = run.armors.includes(entry.id) ? "已拥有" : `${obj.price}◎`;
+    armorCol2.appendChild(rowCard(obj.icon, `【${rarityName(obj.rarity)}】${obj.name}`, obj.desc, label, () => actions.buyShopEntry(entry)));
+  });
+  if (armorCol2.children.length) modal.querySelector(".merchant-layout").appendChild(armorSection2);
+
   modal.querySelector("[data-done]").onclick = actions.closeMerchant;
 }
 
@@ -302,6 +343,13 @@ function renderCharacterModal(modal, run, actions, close) {
   ].join("") || "无";
   const equippedWeapon = run.equippedWeapon ? DATA.weapons[run.equippedWeapon] : null;
   const equippedWeaponText = equippedWeapon ? traitChip(equippedWeapon.name, weaponTitle(equippedWeapon)) : "未装备";
+  const equippedArmor = run.equippedArmor ? DATA.armors[run.equippedArmor] : null;
+  const equippedArmorText = equippedArmor ? traitChip(equippedArmor.name, armorTitle(equippedArmor)) : "未装备";
+
+  // 三主线信息
+  const sl = DATA.storylines?.[run.storylineId];
+  const storylineInfo = sl ? `<h3>主线剧情</h3><p>${sl.name}　<span style="color:#f39c12">${sl.threatName}：${run.mainThreat || 0}</span></p><p style="font-size:12px;color:#999">${sl.threatDesc}</p>` : "";
+
   modal.innerHTML = `
     <div class="modal-head"><h2 class="modal-title">角色属性</h2>${close}</div>
     <div class="character-sheet">
@@ -311,7 +359,9 @@ function renderCharacterModal(modal, run, actions, close) {
         <h3>上场招式（最多4个）</h3><div class="list skill-select-list"></div>
         <h3>特性</h3><p>${traitNames}</p>
         <h3>当前流派</h3><p>${run.selectedSchool ? schoolName(run.selectedSchool) : "尚未确定"}</p>
+        ${storylineInfo}
         <h3>装备武器</h3><p>${equippedWeaponText}</p>
+        <h3>装备防具</h3><p>${equippedArmorText}</p>
         <h3>已装备内功</h3><p>${run.activeInternalArt ? traitChip(DATA.internalArts[run.activeInternalArt].name, DATA.internalArts[run.activeInternalArt].desc) : "未装备"}</p>
       </div>
     </div>`;
@@ -331,23 +381,49 @@ function renderCharacterModal(modal, run, actions, close) {
 function renderBackpackModal(modal, run, actions, close) {
   const counts = countIds(run.items);
   const weaponCounts = countIds(run.weapons);
-  modal.innerHTML = `<div class="modal-head"><h2 class="modal-title">背包</h2>${close}</div><div class="inventory-summary"><div class="inventory-chip">金钱：${run.money}◎</div><div class="inventory-chip">道具：${run.items.length}</div><div class="inventory-chip">武器：${run.weapons.length}</div></div><div class="list"></div>`;
+  const armorCounts = countIds(run.armors);
+  modal.innerHTML = `<div class="modal-head"><h2 class="modal-title">背包</h2>${close}</div><div class="inventory-summary"><div class="inventory-chip">金钱：${run.money}◎</div><div class="inventory-chip">道具：${run.items.length}</div><div class="inventory-chip">武器：${run.weapons.length}</div><div class="inventory-chip">防具：${run.armors.length}</div></div><div class="list"></div>`;
   const list = modal.querySelector(".list");
-  if (!run.items.length && !run.weapons.length) list.innerHTML = "<p>背包里暂时没有道具。</p>";
+  if (!run.items.length && !run.weapons.length && !run.armors.length) list.innerHTML = "<p>背包里暂时没有道具。</p>";
   Object.entries(counts).forEach(([id, count]) => {
     const item = DATA.items[id];
     list.appendChild(rowCard(item.icon, `${item.name} x${count}`, item.desc, "使用", () => actions.useBagItem(id)));
   });
   Object.entries(weaponCounts).forEach(([id, count]) => {
     const weapon = DATA.weapons[id];
-    list.appendChild(rowCard(weapon.icon, `【${rarityName(weapon.rarity)}】${weapon.name} x${count}`, `${schoolName(weapon.school)}｜${weapon.desc}`, run.equippedWeapon === id ? "已装备" : "装备", () => actions.equipWeapon(id)));
+    list.appendChild(rowCard(weapon.icon, `【${rarityName(weapon.rarity)}】${weapon.name} x${count}`, weaponTitle(weapon), run.equippedWeapon === id ? "已装备" : "装备", () => actions.equipWeapon(id)));
+  });
+  Object.entries(armorCounts).forEach(([id, count]) => {
+    const armor = DATA.armors[id];
+    list.appendChild(rowCard(armor.icon, `【${rarityName(armor.rarity)}】${armor.name} x${count}`, armorTitle(armor), run.equippedArmor === id ? "已装备" : "装备", () => actions.equipArmor(id)));
   });
 }
 
 function renderGoalsModal(modal, run, close) {
   const currentMonth = monthAbs(run);
-  const progress = Math.min(100, Math.floor(currentMonth / run.finalBossMonth * 100));
-  modal.innerHTML = `<div class="modal-head"><h2 class="modal-title">本局目标</h2>${close}</div><div class="goal-panel"><div class="boss-portrait">${run.finalBoss.icon}</div><div><h2>最终目标：击败${run.finalBoss.name}</h2><p>每年12月会遭遇一次强力Boss。第3年Boss为最终决战。</p><div class="stats-grid">${["hp", "qi", "atk", "def", "hit", "dodge", "crit", "speed"].map(k => statLine(k, k === "speed" ? (run.finalBoss[k] * 2).toFixed(2) : run.finalBoss[k] * 2)).join("")}</div><div class="goal-progress">${bar(currentMonth, run.finalBossMonth, `江湖进度 ${progress}%`)}</div></div></div>`;
+  const sl = DATA.storylines?.[run.storylineId];
+  const storylineName = sl?.name || "江湖";
+  const threatName = sl?.threatName || "";
+  const threatVal = run.mainThreat || 0;
+  const threatColor = threatVal >= 6 ? "#e74c3c" : threatVal >= 3 ? "#f39c12" : "#888";
+  // 获取当前年份Boss
+  const yearBoss = sl?.bosses?.[run.year];
+  const bossName = yearBoss?.name || "未知强敌";
+  const bossIcon = yearBoss?.icon || "魔";
+  const bossStats = yearBoss || { hp: 2000, qi: 600, atk: 100, def: 50, hit: 75, dodge: 8, crit: 12, speed: 1.5 };
+  const bossTraitDesc = yearBoss?.bossTraitDesc || "";
+  const totalMonths = 36; // 3年
+  const progress = Math.min(100, Math.floor(currentMonth / totalMonths * 100));
+  // 威胁值威胁度
+  const threatLevel = threatVal >= 9 ? "【威势压人】Boss全面增强" : threatVal >= 6 ? "【暗流涌动】Boss明显变强" : threatVal >= 3 ? "【山雨欲来】Boss略微增强" : "";
+  modal.innerHTML = `<div class="modal-head"><h2 class="modal-title">本局目标</h2>${close}</div><div class="goal-panel"><div class="boss-portrait">${bossIcon}</div><div>
+    <h2>主线：${storylineName}</h2>
+    <p style="color:${threatColor};margin:6px 0">${threatName}：${threatVal} ${threatLevel}</p>
+    <h3>今年Boss：${bossName}</h3>
+    ${bossTraitDesc ? `<p style="color:#e74c3c;font-style:italic">特性：${bossTraitDesc}</p>` : ""}
+    <div class="stats-grid">${["hp", "qi", "atk", "def", "hit", "dodge", "crit", "speed"].map(k => statLine(k, k === "speed" ? bossStats[k] : Math.floor(bossStats[k] * 2))).join("")}</div>
+    <div class="goal-progress">${bar(currentMonth, totalMonths, `江湖进度 ${progress}%`)}</div>
+  </div></div>`;
 }
 
 function renderDebugModal(modal, actions, close) {
@@ -369,6 +445,7 @@ function renderBattle(state, actions) {
   root.innerHTML = `
     <div class="battle-top">${fighterPanel(b.player)}<div class="gauge-lane"><div class="gauge-dot" style="left:${b.player.gauge}%">${b.player.icon}</div><div class="gauge-dot" style="left:${b.enemy.gauge}%">${b.enemy.icon}</div><div class="speed-label">速度x${b.speed}</div></div>${fighterPanel(b.enemy)}</div>
     <div class="fighter player">${b.player.icon}</div><div class="fighter enemy">${b.enemy.icon}</div>
+    ${b.bossTrait ? `<div class="boss-trait-bar"><span class="debuff-badge enemy-trait" title="${escapeHtml(b.enemy.stats.traitDesc || b.bossTrait)}">Boss特性：${b.bossTrait}</span>${b.bossShield > 0 ? `<span class="debuff-badge" title="护体">护体 ${b.bossShield}</span>` : ""}${b.bossImmuneTurns > 0 ? `<span class="debuff-badge" title="免疫负面">免疫 ${b.bossImmuneTurns}回合</span>` : ""}</div>` : ""}
     ${(b.floaters || []).map(f => `<div class="combat-floater ${f.side}">${f.text}</div>`).join("")}
     <div class="battle-bottom"><div class="battle-tools"><button class="btn ${b.player.auto ? "green" : "secondary"}" data-auto>自动战斗</button><button class="btn secondary" data-basic>普攻</button><button class="btn secondary" data-rest>调息</button></div><div class="skill-row"></div><div class="battle-log">${b.log.map(x => `<div>${x}</div>`).join("")}</div></div>`;
   const skillRow = root.querySelector(".skill-row");
@@ -444,7 +521,11 @@ function traitChip(name, title, desc) {
 }
 
 function weaponTitle(weapon) {
-  return `${schoolName(weapon.school)}｜攻击+${weapon.atk || 0}，流派伤害+${weapon.damagePct || 0}%，debuff层数+${weapon.debuffBonus || 0}。${weapon.desc}`;
+  return `攻击+${weapon.atk || 0}，${weapon.desc || ""}`;
+}
+
+function armorTitle(armor) {
+  return `血量+${armor.hp || 0}，防御+${armor.def || 0}。${armor.desc || ""}`;
 }
 
 function effectText(effects) {

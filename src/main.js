@@ -15,6 +15,8 @@ import {
   buyShopEntry,
   useBagItem,
   equipWeapon,
+  buyArmor,
+  equipArmor,
   gainExp,
   scaleMoney,
   log,
@@ -178,6 +180,9 @@ const actions = {
     state.run.activeSkills ||= state.run.skills.filter(id => DATA.skills[id]?.battle !== false).slice(0, 4);
     state.run.internalArts ||= [];
     state.run.activeInternalArt = state.run.activeInternalArt || null;
+    state.run.armors ||= [];
+    state.run.equippedArmor = state.run.equippedArmor || null;
+    state.run.apUsedThisMonth = state.run.apUsedThisMonth || false;
     state.run.skillTraits ||= [];
     state.screen = "run";
     state.modal = null;
@@ -216,11 +221,17 @@ const actions = {
   trainStat: kind => {
     const result = trainStat(state.run, kind);
     if (!result.ok) return showToast(result.message);
+    if (result.leveled) {
+      state.modal = { type: "reward", options: buildRewardChoices(state.run) };
+    }
     render();
   },
   trainSkill: id => {
     const result = trainSkill(state.run, id);
     if (!result.ok) return showToast(result.message);
+    if (result.leveled) {
+      state.modal = { type: "reward", options: buildRewardChoices(state.run) };
+    }
     render();
   },
   buyManual: id => {
@@ -240,6 +251,16 @@ const actions = {
   },
   equipWeapon: id => {
     const result = equipWeapon(state.run, id);
+    if (!result.ok) return showToast(result.message);
+    render();
+  },
+  buyArmor: id => {
+    const result = buyArmor(state.run, id);
+    if (!result.ok) return showToast(result.message);
+    render();
+  },
+  equipArmor: id => {
+    const result = equipArmor(state.run, id);
     if (!result.ok) return showToast(result.message);
     render();
   },
@@ -312,7 +333,12 @@ const actions = {
     saveRun(state.run);
     render();
   },
-  debugBoss: () => startBattle(state.run.finalBoss, true)
+  debugBoss: () => {
+    // 三主线：使用当前年Boss
+    const sl = DATA.storylines?.[state.run.storylineId];
+    const bossTemplate = sl?.bosses?.[state.run.year];
+    if (bossTemplate) startBattle(bossTemplate, true);
+  }
 };
 
 let battleTimer = null;
@@ -330,7 +356,11 @@ function ensureBattleTimer() {
 
 window.__wuxiaDebug = {
   state,
-  startBoss: () => startBattle(state.run.finalBoss, true),
+  startBoss: () => {
+    const sl = DATA.storylines?.[state.run.storylineId];
+    const bossTemplate = sl?.bosses?.[state.run.year];
+    if (bossTemplate) startBattle(bossTemplate, true);
+  },
   addMoney: value => { state.run.money += value; saveRun(state.run); render(); },
   addSkills: () => {
     state.run.skills = Object.keys(DATA.skills).filter(id => DATA.skills[id]?.style);
