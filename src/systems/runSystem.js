@@ -308,7 +308,7 @@ export function refreshMerchantStock(run) {
   // 武器：选当前流派对应路线的同品质武器
   const weapons = [];
   if (run.selectedSchool && COMBAT_SCHOOLS.includes(run.selectedSchool)) {
-    const schoolWeapons = Object.entries(DATA.weapons).filter(([id, w]) => w.school === run.selectedSchool && w.rarity === rarity);
+    const schoolWeapons = Object.keys(DATA.weapons).filter(id => { const w = DATA.weapons[id]; return w.school === run.selectedSchool && w.rarity === rarity; });
     // 最多2把
     for (let i = 0; i < 2 && schoolWeapons.length; i++) {
       const idx = Math.floor(Math.random() * schoolWeapons.length);

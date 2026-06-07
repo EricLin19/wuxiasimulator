@@ -149,7 +149,7 @@ function renderRun(state, actions) {
         <div class="action-card" data-action="next">下回合</div>
       </div>
     </div>
-    <div class="panel side-panel"><button class="btn secondary small" data-modal="debug" style="width:100%;margin-bottom:8px">调试</button><div class="log">${run.log.join("")}</div></div>`;
+    <div class="panel side-panel"><button class="btn secondary small" data-modal="journal" style="width:100%;margin-bottom:8px">江湖纪要</button><div class="log">${run.log.join("")}</div></div>`;
   screen.querySelectorAll("[data-modal]").forEach(node => { node.onclick = () => actions.openModal(node.dataset.modal); });
   screen.querySelector("[data-action=next]").onclick = actions.endMonth;
   root.appendChild(screen);
@@ -165,13 +165,13 @@ function renderModal(state, actions) {
     meta: () => renderMetaModal(modal, state, actions, close),
     events: () => renderEventsModal(modal, run, actions, close),
     training: () => renderTrainingModal(modal, run, actions, close),
-    hall: () => renderHallModal(modal, run, actions, close),
+    hall: () => renderMerchantModal(modal, run, actions, true, close),
     reward: () => renderRewardModal(modal, state, actions),
-    merchant: () => renderMerchantModal(modal, run, actions),
+    merchant: () => renderMerchantModal(modal, run, actions, false),
     character: () => renderCharacterModal(modal, run, actions, close),
     backpack: () => renderBackpackModal(modal, run, actions, close),
     goals: () => renderGoalsModal(modal, run, close),
-    debug: () => renderDebugModal(modal, actions, close),
+    journal: () => renderJournalModal(modal, run, close),
     battleItems: () => renderBattleItemsModal(modal, run, state.battle, actions)
   };
   renderers[state.modal.type]?.();
@@ -260,47 +260,7 @@ function renderTrainingModal(modal, run, actions, close) {
   modal.querySelector(".list").appendChild(rowCard("气", "内力吐纳", "内力上限+30，经验+35，消耗1行动", "修炼", () => actions.trainStat("qi")));
 }
 
-function renderHallModal(modal, run, actions, close) {
-  modal.innerHTML = `<div class="modal-head"><h2 class="modal-title">武林商人</h2>${close}</div><div class="merchant-layout"><div class="merchant-col"><h3>外功秘籍</h3><div class="list"></div><h3>内功秘籍</h3><div class="list"></div></div><div class="merchant-col"><h3>丹药</h3><div class="list"></div><h3>装备</h3><div class="list"></div></div></div>`;
-
-  // 外功秘籍
-  run.manuals.forEach(id => {
-    const s = DATA.skills[id];
-    if (!s) return;
-    const price = Math.floor((s.rarity === "red" ? 900 : s.rarity === "orange" ? 520 : 300) * (run.treasure.effect === "manualMastery" ? 0.82 : 1));
-    modal.querySelectorAll(".merchant-col .list")[0].appendChild(rowCard(s.icon || SCHOOLS[s.school]?.icon || "秘", `【${rarityName(s.rarity)}】《${skillDisplayName(s)}》`, `${schoolName(s.school)}｜${s.styleName || ""}路线｜${s.desc}｜三式学成：${s.trait.name}`, `${price}◎`, () => actions.buyManual(id)));
-  });
-
-  // 内功秘籍
-  run.merchantStock.filter(e => e.kind === "internalArt").forEach(entry => {
-    const art = DATA.internalArts[entry.id];
-    if (!art) return;
-    const label = run.internalArts.includes(entry.id) ? "已拥有" : `${art.rarity === "red" ? 1200 : art.rarity === "orange" ? 680 : 360}◎`;
-    modal.querySelectorAll(".merchant-col .list")[1].appendChild(rowCard(art.icon, `【${rarityName(art.rarity)}】${art.name}`, art.desc, label, () => actions.buyInternalArt(entry.id)));
-  });
-
-  // 丹药
-  run.merchantStock.filter(e => e.kind === "item").forEach(entry => {
-    const obj = DATA.items[entry.id];
-    modal.querySelectorAll(".merchant-col .list")[2].appendChild(rowCard(obj.icon, obj.name, obj.desc, `${obj.price}◎`, () => actions.buyShopEntry(entry)));
-  });
-
-  // 装备（武器）
-  run.merchantStock.filter(e => e.kind === "weapon").forEach(entry => {
-    const obj = DATA.weapons[entry.id];
-    modal.querySelectorAll(".merchant-col .list")[3].appendChild(rowCard(obj.icon, `【${rarityName(obj.rarity)}】${obj.name}`, obj.desc, `${obj.price}◎`, () => actions.buyShopEntry(entry)));
-  });
-  // 防具（新增）
-  const armorSection = el("div", "merchant-col");
-  armorSection.innerHTML = `<h3>防具</h3><div class="list"></div>`;
-  const armorCol = armorSection.querySelector(".list");
-  run.merchantStock.filter(e => e.kind === "armor").forEach(entry => {
-    const obj = DATA.armors[entry.id];
-    const label = run.armors.includes(entry.id) ? "已拥有" : `${obj.price}◎`;
-    armorCol.appendChild(rowCard(obj.icon, `【${rarityName(obj.rarity)}】${obj.name}`, obj.desc, label, () => actions.buyShopEntry(entry)));
-  });
-  if (armorCol.children.length) modal.querySelector(".merchant-layout").appendChild(armorSection);
-}
+// renderHallModal 已合并至 renderMerchantModal
 
 function renderRewardModal(modal, state, actions) {
   modal.innerHTML = `<h2 class="section-title">请选择突破奖励</h2><div class="reward-grid"></div>`;
@@ -326,8 +286,9 @@ function renderRewardModal(modal, state, actions) {
   });
 }
 
-function renderMerchantModal(modal, run, actions) {
-  modal.innerHTML = `<div class="modal-head"><h2 class="modal-title">武林商人</h2><button class="btn red small" data-done>离开</button></div><div class="merchant-layout"><div class="merchant-col"><h3>外功秘籍</h3><div class="list"></div><h3>内功秘籍</h3><div class="list"></div></div><div class="merchant-col"><h3>丹药</h3><div class="list"></div><h3>装备</h3><div class="list"></div></div></div>`;
+function renderMerchantModal(modal, run, actions, isHall = false, close = "") {
+  const closeBtnHtml = isHall && close ? close : `<button class="btn red small" data-done>离开</button>`;
+  modal.innerHTML = `<div class="modal-head"><h2 class="modal-title">武林商人</h2>${closeBtnHtml}</div><div class="merchant-layout"><div class="merchant-col"><h3>外功秘籍</h3><div class="list"></div><h3>内功秘籍</h3><div class="list"></div></div><div class="merchant-col"><h3>丹药</h3><div class="list"></div><h3>装备</h3><div class="list"></div></div></div>`;
 
   // 外功秘籍
   run.manuals.forEach(id => {
@@ -368,7 +329,7 @@ function renderMerchantModal(modal, run, actions) {
   });
   if (armorCol2.children.length) modal.querySelector(".merchant-layout").appendChild(armorSection2);
 
-  modal.querySelector("[data-done]").onclick = actions.closeMerchant;
+  if (!isHall) modal.querySelector("[data-done]").onclick = actions.closeMerchant;
 }
 
 function renderCharacterModal(modal, run, actions, close) {
@@ -557,6 +518,10 @@ function renderBattleItemsModal(modal, run, battle, actions) {
   }
   const closeBtn = modal.querySelector("[data-close]");
   if (closeBtn) closeBtn.onclick = () => modal.parentElement.remove();
+}
+
+function renderJournalModal(modal, run, close) {
+  modal.innerHTML = `<div class="modal-head"><h2 class="modal-title">江湖纪要</h2>${close}</div><div class="journal-scroll">${run.log.join("")}</div>`;
 }
 
 function renderSettlement(state, actions) {
