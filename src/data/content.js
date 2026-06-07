@@ -46,7 +46,7 @@ function stats(hp, qi, atk, def, combo, hit, dodge, crit, speed) {
   return { hp, qi, atk, def, combo, hit, dodge, crit, speed };
 }
 
-function gain(combo, hit, dodge, crit, speed, atk, def, hp, qi) {
+function gain(combo=0, hit=0, dodge=0, crit=0, speed=0, atk=0, def=0, hp=0, qi=0) {
   return { combo, hit, dodge, crit, speed, atk, def, hp, qi };
 }
 

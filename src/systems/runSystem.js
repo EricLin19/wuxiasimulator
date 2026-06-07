@@ -803,6 +803,7 @@ export function trainSkill(run, skillId) {
 
 function applySkillCompletion(run, skill) {
   for (const [key, value] of Object.entries(skill.statGain || {})) {
+    if (value == null) continue;
     run.stats[key] = Number(((run.stats[key] || 0) + value).toFixed(2));
   }
   run.skillTraits ||= [];
