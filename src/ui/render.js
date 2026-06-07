@@ -5,7 +5,7 @@ import { expNeed, getRankTitle } from "../systems/runSystem.js";
 // 特性描述弹窗（替代 alert，避免手机横屏旋转）
 window.__showTraitDesc = function (el) {
   const name = el.dataset.traitName || "";
-  const desc = (el.dataset.traitDesc || "").replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&quot;/g, "\"");
+  const desc = el.dataset.traitDesc || "";
   const app = document.getElementById("app");
   if (app.querySelector(".trait-desc-backdrop")) return;
   const backdrop = document.createElement("div");
