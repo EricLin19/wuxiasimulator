@@ -78,7 +78,7 @@ function renderSelect(state, actions) {
   left.innerHTML = `<h2 class="section-title">选择你的角色</h2><div class="cards"></div>`;
   DATA.characters.forEach(c => {
     const card = el("div", `card ${state.selectedCharacter === c.id ? "selected" : ""}`);
-    card.innerHTML = `<div class="portrait character-portrait ${c.portrait || ""}"><span>${c.icon}</span></div><div class="name">${c.name}</div><div class="desc">${c.faction}<br>${c.desc}</div>`;
+    card.innerHTML = `<div class="portrait character-portrait">${c.portraitImage ? `<img src="${c.portraitImage}" alt="${c.name}">` : `<span>${c.icon}</span>`}</div><div class="name">${c.name}</div><div class="desc">${c.faction}<br>${c.desc}</div>`;
     card.onclick = () => actions.selectCharacter(c.id);
     left.querySelector(".cards").appendChild(card);
   });
@@ -88,7 +88,7 @@ function renderSelect(state, actions) {
   right.style.padding = "18px";
   right.innerHTML = `
     <h2 class="section-title">${selected.name}</h2>
-    <div class="portrait character-portrait large ${selected.portrait || ""}"><span>${selected.icon}</span></div>
+    <div class="portrait character-portrait large">${selected.portraitImage ? `<img src="${selected.portraitImage}" alt="${selected.name}">` : `<span>${selected.icon}</span>`}</div>
     <div class="desc">${selected.traitText}</div>
     <div class="stats-grid">${STAT_KEYS.map(k => statLine(k, selected.stats[k])).join("")}</div>
     <div class="treasure-head">携带宝物</div>
@@ -353,7 +353,7 @@ function renderCharacterModal(modal, run, actions, close) {
   modal.innerHTML = `
     <div class="modal-head"><h2 class="modal-title">角色属性</h2>${close}</div>
     <div class="character-sheet">
-      <div><div class="portrait">${run.character.icon}</div><div class="name">${run.character.name}</div><div class="desc">${run.character.faction}｜${"★".repeat(Math.min(8, run.rankStars))}</div></div>
+      <div><div class="portrait">${run.character.portraitImage ? `<img src="${run.character.portraitImage}" alt="${run.character.name}">` : run.character.icon}</div><div class="name">${run.character.name}</div><div class="desc">${run.character.faction}｜${"★".repeat(Math.min(8, run.rankStars))}</div></div>
       <div>
         <div class="stats-grid">${STAT_KEYS.map(k => statLine(k, k === "hp" ? `${run.hp}/${run.stats.hp}` : k === "qi" ? `${run.qi}/${run.stats.qi}` : run.stats[k])).join("")}</div>
         <h3>上场招式（最多4个）</h3><div class="list skill-select-list"></div>
@@ -409,6 +409,7 @@ function renderGoalsModal(modal, run, close) {
   // 获取当前年份Boss
   const yearBoss = sl?.bosses?.[run.year];
   const bossName = yearBoss?.name || "未知强敌";
+  const bossPortraitImg = yearBoss?.portraitImage || null;
   const bossIcon = yearBoss?.icon || "魔";
   const bossStats = yearBoss || { hp: 2000, qi: 600, atk: 100, def: 50, hit: 75, dodge: 8, crit: 12, speed: 1.5 };
   const bossTraitDesc = yearBoss?.bossTraitDesc || "";
@@ -416,7 +417,7 @@ function renderGoalsModal(modal, run, close) {
   const progress = Math.min(100, Math.floor(currentMonth / totalMonths * 100));
   // 威胁值威胁度
   const threatLevel = threatVal >= 9 ? "【威势压人】Boss全面增强" : threatVal >= 6 ? "【暗流涌动】Boss明显变强" : threatVal >= 3 ? "【山雨欲来】Boss略微增强" : "";
-  modal.innerHTML = `<div class="modal-head"><h2 class="modal-title">本局目标</h2>${close}</div><div class="goal-panel"><div class="boss-portrait">${bossIcon}</div><div>
+  modal.innerHTML = `<div class="modal-head"><h2 class="modal-title">本局目标</h2>${close}</div><div class="goal-panel"><div class="boss-portrait">${bossPortraitImg ? `<img src="${bossPortraitImg}" alt="${bossName}">` : bossIcon}</div><div>
     <h2>主线：${storylineName}</h2>
     <p style="color:${threatColor};margin:6px 0">${threatName}：${threatVal} ${threatLevel}</p>
     <h3>今年Boss：${bossName}</h3>
@@ -444,7 +445,7 @@ function renderBattle(state, actions) {
   const root = el("div", "battle-screen");
   root.innerHTML = `
     <div class="battle-top">${fighterPanel(b.player)}<div class="gauge-lane"><div class="gauge-dot" style="left:${b.player.gauge}%">${b.player.icon}</div><div class="gauge-dot" style="left:${b.enemy.gauge}%">${b.enemy.icon}</div><div class="speed-label">速度x${b.speed}</div></div>${fighterPanel(b.enemy)}</div>
-    <div class="fighter player">${b.player.icon}</div><div class="fighter enemy">${b.enemy.icon}</div>
+    <div class="fighter player">${b.playerPortrait ? `<img src="${b.playerPortrait}" alt="${b.player.name}">` : b.player.icon}</div><div class="fighter enemy">${b.enemyPortrait ? `<img src="${b.enemyPortrait}" alt="${b.enemy.name}">` : b.enemy.icon}</div>
     ${b.bossTrait ? `<div class="boss-trait-bar"><span class="debuff-badge enemy-trait" title="${escapeHtml(b.enemy.stats.traitDesc || b.bossTrait)}">Boss特性：${b.bossTrait}</span>${b.bossShield > 0 ? `<span class="debuff-badge" title="护体">护体 ${b.bossShield}</span>` : ""}${b.bossImmuneTurns > 0 ? `<span class="debuff-badge" title="免疫负面">免疫 ${b.bossImmuneTurns}回合</span>` : ""}</div>` : ""}
     ${(b.floaters || []).map(f => `<div class="combat-floater ${f.side}">${f.text}</div>`).join("")}
     <div class="battle-bottom"><div class="battle-tools"><button class="btn ${b.player.auto ? "green" : "secondary"}" data-auto>自动战斗</button><button class="btn secondary" data-basic>普攻</button><button class="btn secondary" data-rest>调息</button></div><div class="skill-row"></div><div class="battle-log">${b.log.map(x => `<div>${x}</div>`).join("")}</div></div>`;

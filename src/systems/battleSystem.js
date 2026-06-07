@@ -124,7 +124,10 @@ export function createBattle(run, enemyTemplate, isBoss = false) {
     bossTurnCounter: 0,
     bossPhaseTriggered: {},
     bossShield: 0,
-    bossImmuneTurns: 0
+    bossImmuneTurns: 0,
+    // 角色立绘
+    playerPortrait: run.character.portraitImage || null,
+    enemyPortrait: enemyTemplate.portraitImage || null
   };
 
   // 无相秘甲：前3己方回合免疫新负面
