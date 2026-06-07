@@ -468,20 +468,20 @@ button {
   white-space: nowrap;
 }
 
-.resource-row {
+.topbar-right {
   display: flex;
   justify-content: flex-end;
   align-items: center;
-  gap: 18px;
+  gap: 14px;
   font-size: 30px;
   font-weight: 900;
 }
 
-.settings-wrap {
-  display: flex;
-  justify-content: flex-end;
-  align-items: center;
+.money-display {
+  color: #b8860b;
+  white-space: nowrap;
 }
+
 .settings-btn {
   background: none;
   border: 1px solid #555;
@@ -495,6 +495,7 @@ button {
   align-items: center;
   justify-content: center;
   transition: border-color 0.2s, color 0.2s;
+  flex-shrink: 0;
 }
 .settings-btn:hover { border-color: #f0c060; color: #f0c060; }
 .settings-body { padding: 16px 20px; }
@@ -516,7 +517,8 @@ button {
   align-items: center;
   justify-content: center;
   gap: 10px;
-  font-size: 24px;
+  font-size: 30px;
+  font-weight: 700;
   font-weight: 900;
 }
 
@@ -1416,7 +1418,8 @@ button {
   }
 
   body:not(.mobile-viewport) .date,
-  body:not(.mobile-viewport) .resource-row {
+  body:not(.mobile-viewport) .topbar-right,
+  body:not(.mobile-viewport) .ap-wrap {
     font-size: 22px;
   }
 

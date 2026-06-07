@@ -116,9 +116,9 @@ function renderTopbar(run, actions) {
   const threatText = run.mainThreat > 0 ? `<span style="color:${threatColor};font-size:13px;margin-left:6px">${threatName}：${run.mainThreat}</span>` : "";
   const top = el("div", "topbar");
   top.innerHTML = `
-    <div class="date"><span>◎${run.money}</span>　第${run.year}年·${run.month}月　${storylineName}${threatText}</div>
+    <div class="date">第${run.year}年·${run.month}月　${storylineName}${threatText}</div>
     <div class="ap-wrap">行动力 ${run.ap}/${run.maxAp}</div>
-    <div class="settings-wrap"><button class="settings-btn" data-act="settings" title="设置">⚙</button></div>`;
+    <div class="topbar-right"><span class="money-display">◎${run.money}</span><button class="settings-btn" data-act="settings" title="设置">⚙</button></div>`;
   top.querySelector("[data-act=settings]").onclick = actions.openSettings;
   return top;
 }
@@ -512,14 +512,11 @@ function renderBattleItemsModal(modal, run, battle, actions) {
   } else {
     items.forEach(id => {
       const item = DATA.items[id];
-      list.appendChild(rowCard(item.icon, item.name, item.desc, "使用", () => {
-        actions.useItem(id);
-        modal.parentElement.remove();
-      }));
+      list.appendChild(rowCard(item.icon, item.name, item.desc, "使用", () => actions.useItem(id)));
     });
   }
   const closeBtn = modal.querySelector("[data-close]");
-  if (closeBtn) closeBtn.onclick = () => modal.parentElement.remove();
+  if (closeBtn) closeBtn.onclick = actions.closeModal;
 }
 
 function renderJournalModal(modal, run, close) {

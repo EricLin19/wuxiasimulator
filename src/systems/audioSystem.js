@@ -12,6 +12,32 @@ const TRACKS = {
 const players = {};
 let currentKey = "none";
 let _globalVolume = 0.5;
+let _userInteracted = false;
+
+// 全局首次交互后恢复所有暂停的音频
+function onFirstInteraction() {
+  if (_userInteracted) return;
+  _userInteracted = true;
+  Object.values(players).forEach(a => {
+    if (a.paused || a.readyState >= 2) {
+      // 如果是当前音轨且暂停中，尝试播放
+      a.play().catch(() => {});
+    }
+  });
+  // 确保当前音轨在播放
+  const current = getPlayer(currentKey);
+  if (current && current.paused) {
+    current.currentTime ||= 0;
+    current.play().catch(() => {});
+  }
+  document.removeEventListener("click", onFirstInteraction, true);
+  document.removeEventListener("touchstart", onFirstInteraction, true);
+  document.removeEventListener("keydown", onFirstInteraction, true);
+}
+
+document.addEventListener("click", onFirstInteraction, true);
+document.addEventListener("touchstart", onFirstInteraction, true);
+document.addEventListener("keydown", onFirstInteraction, true);
 
 export function getVolume() { return _globalVolume; }
 export function setVolume(v) {
