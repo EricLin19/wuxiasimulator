@@ -95,7 +95,7 @@ export function applyMonthStart(run) {
 }
 
 export function refreshEvents(run) {
-  // 三槽事件系统（v0.32三主线）
+  // 三槽事件系统（v0.34三主线）
   const storyPool = makeStoryEventPool(run);
   const growthPool = makeGrowthEventPool(run);
   const riskPool = makeRiskEventPool(run);
