@@ -31,7 +31,7 @@ function renderMenu(state, actions) {
   root.innerHTML = `
     <div>
       <div class="title">小小侠客</div>
-      <div class="subtitle">构筑原型 v0.28</div>
+      <div class="subtitle">构筑原型 v0.29</div>
       <div class="menu-panel">
         <button class="btn" data-act="start">开始新局</button>
         <button class="btn secondary" data-act="continue" ${actions.hasSavedRun() ? "" : "disabled"}>继续存档</button>
@@ -174,7 +174,7 @@ function renderTrainingModal(modal, run, actions, close) {
   const rows = [
     { title: "俯卧撑", meta: "攻击+3，经验+35，消耗1行动", icon: "拳", action: () => actions.trainStat("atk") },
     { title: "站桩功", meta: "防御+3，经验+35，消耗1行动", icon: "桩", action: () => actions.trainStat("def") },
-    { title: "扎马步", meta: "血量上限+20，经验+35，消耗1行动", icon: "马", action: () => actions.trainStat("hp") },
+    { title: "扎马步", meta: "血量上限+90，经验+35，消耗1行动", icon: "马", action: () => actions.trainStat("hp") },
     { title: "运筹", meta: `消耗1行动，进度 ${run.strategyProgress || 0}/3，满3次获得三选一计略`, icon: "策", action: actions.chooseStrategy }
   ];
   rows.forEach(x => modal.querySelector(".list").appendChild(rowCard(x.icon, x.title, x.meta, "修炼", x.action)));

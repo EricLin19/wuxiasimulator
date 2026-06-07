@@ -134,7 +134,7 @@ export const DATA = {
     { id: "planner", name: "鬼谋", desc: "开局擅长计略，升级奖励更稳定。" },
     { id: "swift", name: "迅影", desc: "出手速度+0.25，闪避+4。" },
     { id: "tough", name: "铜皮铁骨", desc: "血量+80，防御+10。" },
-    { id: "healer", name: "青囊", desc: "治疗效果+25%。" },
+    { id: "healer", name: "青囊", desc: "治疗效果+25%，每月开始额外恢复90血量和内力。" },
     { id: "nightPoison", name: "夜行", desc: "暴击+8，中毒层数更高。" },
     { id: "critUp", name: "战意", desc: "暴击+2。" },
     { id: "breath", name: "龟息", desc: "调息额外恢复80血量和内力。" },

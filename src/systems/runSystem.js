@@ -144,8 +144,8 @@ export function makeEventPool(run) {
   const enemies = DATA.enemies.filter(e => e.rank <= maxRank);
   const moneyGain = scaleMoney(run, 160);
   const events = [
-    eventStat("trainHp", "增强体质", "血量上限提升25。", "hp", 25),
-    eventStat("trainQi", "练习吐纳", "内力上限提升25。", "qi", 25),
+    eventStat("trainHp", "增强体质", "血量上限提升90。", "hp", 90),
+    eventStat("trainQi", "练习吐纳", "内力上限提升20。", "qi", 20),
     eventStat("trainAtk", "木桩苦练", "攻击提升3。", "atk", 3),
     eventStat("trainDef", "扎马步", "防御提升3。", "def", 3),
     eventStat("trainCombo", "连环拆招", "连击提升2。", "combo", 2),
@@ -159,7 +159,7 @@ export function makeEventPool(run) {
     { id: "ambush", name: "林中伏击", type: "battle", icon: "伏", desc: "遭遇埋伏，胜利后获得额外金钱。", apply: ({ startBattle }) => startBattle(rand(enemies)) },
     { id: "escortSave", name: "救下镖队", type: "reward", icon: "救", desc: `获得${scaleMoney(run, 260)}金钱和60经验。`, apply: ({ run }) => { const got = scaleMoney(run, 260); run.money += got; gainExp(run, 60); log(run, `救下镖队，获得${got}金钱和60经验。`); } },
     { id: "duelHall", name: "擂台切磋", type: "battle", icon: "擂", desc: "同道切磋，胜利后可获得更高经验。", apply: ({ startBattle }) => startBattle(rand(enemies)) },
-    { id: "meditate", name: "吐纳疗伤", type: "reward", icon: "息", desc: "恢复90血量和90内力。", apply: ({ run }) => { run.hp = Math.min(run.stats.hp, run.hp + 90); run.qi = Math.min(run.stats.qi, run.qi + 90); log(run, "吐纳疗伤，恢复一大段状态。"); } },
+    { id: "meditate", name: "吐纳疗伤", type: "reward", icon: "息", desc: "恢复120血量和120内力。", apply: ({ run }) => { run.hp = Math.min(run.stats.hp, run.hp + 120); run.qi = Math.min(run.stats.qi, run.qi + 120); log(run, "吐纳疗伤，恢复一大段状态。"); } },
     { id: "duel", name: rand(enemies).name, type: "battle", icon: "战", desc: "遭遇敌人，胜利后获得金钱和武学阅历。", apply: ({ startBattle }) => startBattle(rand(enemies)) }
   ];
   return events;
