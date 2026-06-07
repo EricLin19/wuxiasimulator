@@ -63,9 +63,9 @@ function qinggong(id, name, rarity, train, statGain, trait) {
 
 export const DATA = {
   characters: [
-    { id: "wanderer", name: "沈孤云", faction: "江湖浪客", icon: "浪", portrait: "wanderer", desc: "走南闯北的散人，出手灵活，适合尝试各类构筑。", traitText: "浪游：战斗开始出手速度+0.12，胜利金钱+8%。", stats: stats(250, 275, 56, 34, 6, 62, 4, 7, 1.45), traits: ["wanderer"], skills: ["mixedFist"] },
-    { id: "constable", name: "陆惊尘", faction: "镇抚司", icon: "鹰", portrait: "constable", desc: "朝廷鹰犬，命中高、压制强，适合稳扎稳打。", traitText: "缉凶：命中+6，击败敌人额外获得经验。", stats: stats(270, 250, 60, 38, 4, 70, 2, 6, 1.35), traits: ["constable"], skills: ["quickSlash"] },
-    { id: "orthodox", name: "顾明昭", faction: "天衡剑派", icon: "正", portrait: "orthodox", desc: "名门正派弟子，根基厚实，成长稳定。", traitText: "正脉：最大血量+50，最大内力+40，修炼经验+8%。", stats: stats(300, 300, 54, 42, 5, 60, 3, 5, 1.25), traits: ["orthodox"], skills: ["fist_blue_1"] }
+    { id: "wanderer", name: "沈孤云", faction: "江湖浪客", icon: "浪", portrait: "wanderer", desc: "走南闯北的散人，出手灵活，适合尝试各类构筑。", traitText: "浪游：战斗开始出手速度+0.12，胜利金钱+8%。", stats: stats(500, 275, 56, 34, 6, 62, 4, 7, 1.45), traits: ["wanderer"], skills: ["mixedFist"] },
+    { id: "constable", name: "陆惊尘", faction: "镇抚司", icon: "鹰", portrait: "constable", desc: "朝廷鹰犬，命中高、压制强，适合稳扎稳打。", traitText: "缉凶：命中+6，击败敌人额外获得经验。", stats: stats(540, 250, 60, 38, 4, 70, 2, 6, 1.35), traits: ["constable"], skills: ["quickSlash"] },
+    { id: "orthodox", name: "顾明昭", faction: "天衡剑派", icon: "正", portrait: "orthodox", desc: "名门正派弟子，根基厚实，成长稳定。", traitText: "正脉：最大血量+50，最大内力+40，修炼经验+8%。", stats: stats(600, 300, 54, 42, 5, 60, 3, 5, 1.25), traits: ["orthodox"], skills: ["fist_blue_1"] }
   ],
   treasures: [
     { id: "inkTally", name: "青玉功牌", icon: "牌", desc: "所有经验获取+12%。", effect: "expBoost" },
@@ -131,7 +131,6 @@ export const DATA = {
     { id: "wanderer", name: "浪游", desc: "战斗开始出手速度+0.12，金钱获取+8%。" },
     { id: "constable", name: "缉凶", desc: "命中+6，获得经验时额外+8。" },
     { id: "orthodox", name: "正脉", desc: "血量+50，内力+40，经验获取+8%。" },
-    { id: "planner", name: "鬼谋", desc: "开局擅长计略，升级奖励更稳定。" },
     { id: "swift", name: "迅影", desc: "出手速度+0.25，闪避+4。" },
     { id: "tough", name: "铜皮铁骨", desc: "血量+80，防御+10。" },
     { id: "healer", name: "青囊", desc: "治疗效果+25%，每月开始额外恢复90血量和内力。" },
@@ -276,64 +275,27 @@ Object.assign(DATA.weapons.hidden_w_blue, { name: "蛊针匣", style: "gu", guBo
 Object.assign(DATA.weapons.hidden_w_orange, { name: "淬毒镖囊", style: "poison", poisonBonus: 2, qiBreakBonus: 18, desc: "淬毒暗器毒层+2，额外削内力。" });
 Object.assign(DATA.weapons.hidden_w_red, { name: "金雨机括", style: "coin", coinDamageBonus: 55, desc: "金钱暗器固定伤害+55，仍然必中。" });
 
-DATA.strategies = [
-  ...makeStrategies("fist", "combo", ["缠丝", "叠劲", "追掌", "浪涌", "三叠劲", "借势连环", "长江无尽"]),
-  ...makeStrategies("fist", "critPalm", ["崩拳", "摧心", "震胆", "碎骨", "破星劲", "雷音入骨", "星陨掌意"]),
-  ...makeStrategies("fist", "qiBreak", ["截息", "封脉", "断气", "逆脉", "沉劲截流", "闭关锁脉", "沧海断息"]),
-  ...makeStrategies("blade", "bleed", ["血引", "追创", "伤口", "血路", "断门势", "饮血归元", "千创百孔"]),
-  ...makeStrategies("blade", "frost", ["寒枝", "冷刃", "霜气", "凝脉", "雪岭刀势", "玄霜入骨", "玄冥冰河"]),
-  ...makeStrategies("blade", "hamstring", ["断步", "裂筋", "卸力", "挑脉", "残步刀势", "断岳伤筋", "天残绝路"]),
-  ...makeStrategies("hidden", "gu", ["蛊引", "缠心", "扰息", "封窍", "百蛊入络", "生死符令", "九窍蛊王"]),
-  ...makeStrategies("hidden", "poison", ["淬毒", "入血", "腐骨", "蚀气", "冰魄毒意", "毒入经脉", "孔雀毒雨"]),
-  ...makeStrategies("hidden", "coin", ["听钱", "掷金", "破空", "买命", "金叶飞花", "铜臭杀机", "漫天金雨"]),
-  ...makeStrategies("lightness", "evasive", ["侧身", "燕回", "避锋", "借步", "游龙身", "踏浪回息", "凌波无形"]),
-  ...makeStrategies("lightness", "lowKick", ["扫堂", "沉桩", "击膝", "碎踝", "盘龙下势", "碎岳真劲", "地裂无声"]),
-  ...makeStrategies("lightness", "steal", ["探囊", "掠影", "飞檐", "顺手", "探云取利", "过墙留财", "摘星夺魄"])
-];
+export const INTERNAL_ARTS = {
+  // 红色2本
+  art_red_1: { id: "art_red_1", name: "九阳神功", rarity: "red", icon: "阳", desc: "至阳内功，气血生生不息。血量上限+300，内力上限+60，每回合恢复血量+15%。", statGain: { hp: 300, qi: 60 }, combatEffect: "healOnTurn", combatDesc: "每回合开始恢复15%血量" },
+  art_red_2: { id: "art_red_2", name: "易筋经", rarity: "red", icon: "筋", desc: "少林至宝，脱胎换骨。所有属性+5，清除所有负面状态抗+30%。", statGain: { hp: 150, qi: 40, atk: 5, def: 5, hit: 5, dodge: 5, crit: 5, speed: 0.08 }, combatEffect: "cleanse", combatDesc: "战斗开始清除所有debuff，每回合清除一层debuff" },
 
-function makeStrategies(school, style, names) {
-  const rarities = ["blue", "blue", "blue", "blue", "orange", "orange", "red"];
-  return names.map((name, index) => {
-    const rarity = rarities[index];
-    const rank = RARITIES[rarity].rank;
-    const effects = styleEffects(style, rank);
-    return {
-      id: `${school}_${style}_strat_${index + 1}`,
-      name,
-      school,
-      style,
-      rarity,
-      effects,
-      desc: `${SCHOOLS[school].name}计略，强化${STYLE_LABELS[style]}路线。`,
-      effectsText: describeEffects(effects)
-    };
-  });
-}
+  // 橙色4本
+  art_orange_1: { id: "art_orange_1", name: "小无相功", rarity: "orange", icon: "相", desc: "道家无为之功。内力上限+60，连击+5，所有招式内力消耗-10%。", statGain: { qi: 60, combo: 5 }, combatEffect: "qiReduce", combatDesc: "所有招式内力消耗-10%" },
+  art_orange_2: { id: "art_orange_2", name: "纯阳无极功", rarity: "orange", icon: "阳", desc: "纯阳内功，刚猛无俦。攻击+8，血量上限+120，暴击+3。", statGain: { hp: 120, atk: 8, crit: 3 }, combatEffect: "atkUp", combatDesc: "暴击伤害倍率+15%" },
+  art_orange_3: { id: "art_orange_3", name: "寒冰真气", rarity: "orange", icon: "冰", desc: "极寒内功，寒气逼人。内力上限+50，攻击时附加寒气层数。", statGain: { qi: 50 }, combatEffect: "frostOnHit", combatDesc: "每次攻击/招式附加1层寒气" },
+  art_orange_4: { id: "art_orange_4", name: "吸星大法", rarity: "orange", icon: "星", desc: "魔教绝学，夺人内力。每次攻击汲取对方内力8点。", statGain: { hp: 80, qi: 30 }, combatEffect: "drainQi", combatDesc: "攻击时汲取目标8点内力" },
 
-function styleEffects(style, rank) {
-  const map = {
-    combo: { combo: rank * 4 },
-    critPalm: { crit: rank * 3, critPower: Number((rank * 0.08).toFixed(2)) },
-    qiBreak: { qiBreakBonus: rank * 12 },
-    bleed: { bleedBonus: rank, crit: rank * 2 },
-    frost: { frostBonus: rank, qiBreakBonus: rank * 10 },
-    hamstring: { hamstringBonus: rank, atkBreakBonus: rank * 2 },
-    gu: { guBonus: rank },
-    poison: { poisonBonus: rank, qiBreakBonus: rank * 8 },
-    coin: { coinDamageBonus: rank * 24 },
-    evasive: { dodge: rank * 4, cooldownOnDodge: rank },
-    lowKick: { trueDamageBonus: rank * 18 },
-    steal: { speed: Number((rank * 0.06).toFixed(2)), moneyBonus: rank * 8 }
-  };
-  return map[style] || {};
-}
-
-function describeEffects(effects) {
-  return Object.entries(effects).map(([key, value]) => {
-    const map = { bleedBonus: "流血层数", poisonBonus: "淬毒层数", innerBonus: "内伤层数", frostBonus: "寒气层数", hamstringBonus: "断筋层数", guBonus: "蛊层数", qiBreakBonus: "削内力", atkBreakBonus: "削攻击", coinDamageBonus: "金钱伤害", trueDamageBonus: "真伤", cooldownOnDodge: "闪避减CD", moneyBonus: "额外金钱", critPower: "暴击倍率", crit: "暴击", hit: "命中", combo: "连击", dodge: "闪避", speed: "出手速度" };
-    return `${map[key] || key}+${value}`;
-  }).join("，");
-}
+  // 蓝色8本
+  art_blue_1: { id: "art_blue_1", name: "紫霞神功", rarity: "blue", icon: "霞", desc: "华山气宗心法。血量上限+100，内力上限+30，防御+3。", statGain: { hp: 100, qi: 30, def: 3 } },
+  art_blue_2: { id: "art_blue_2", name: "混元功", rarity: "blue", icon: "混", desc: "武当基础内功。所有属性小幅提升，根基扎实。", statGain: { hp: 60, qi: 20, atk: 2, def: 2, hit: 2, dodge: 1, crit: 2, speed: 0.03 } },
+  art_blue_3: { id: "art_blue_3", name: "罗汉伏魔功", rarity: "blue", icon: "罗汉", desc: "少林外功根基。血量上限+120，防御+5。", statGain: { hp: 120, def: 5 } },
+  art_blue_4: { id: "art_blue_4", name: "神照经", rarity: "blue", icon: "照", desc: "起死回生之功。血量上限+80，战斗开始时恢复血量20%。", statGain: { hp: 80 }, combatEffect: "healOnStart", combatDesc: "战斗开始时恢复20%血量" },
+  art_blue_5: { id: "art_blue_5", name: "太玄经", rarity: "blue", icon: "玄", desc: "道家玄门心法。内力上限+40，暴击+4。", statGain: { qi: 40, crit: 4 } },
+  art_blue_6: { id: "art_blue_6", name: "龙象般若功", rarity: "blue", icon: "象", desc: "密宗护法神功。攻击+6，血量上限+100。", statGain: { hp: 100, atk: 6 } },
+  art_blue_7: { id: "art_blue_7", name: "先天功", rarity: "blue", icon: "先", desc: "王重阳绝学。内力上限+50，命中+5，内力恢复+15/回合。", statGain: { qi: 50, hit: 5 }, combatEffect: "qiRegen", combatDesc: "每回合恢复15点内力" },
+  art_blue_8: { id: "art_blue_8", name: "葵花宝典残卷", rarity: "blue", icon: "葵", desc: "残卷仅有速功心法。出手速度+0.18，闪避+6。", statGain: { dodge: 6, speed: 0.18 } }
+};
 
 export const META_DEFAULT = {
   runs: 0,

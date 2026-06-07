@@ -9,10 +9,9 @@ import {
   endMonth,
   trainStat,
   trainSkill,
-  trainStrategy,
   buyManual,
-  addStrategy,
-  mergeStrategies,
+  buyInternalArt,
+  equipInternalArt,
   buyShopEntry,
   useBagItem,
   equipWeapon,
@@ -21,9 +20,7 @@ import {
   log,
   spendAp,
   settleRun,
-  buildStrategyChoices,
-  toggleActiveSkill,
-  toggleActiveStrategy
+  toggleActiveSkill
 } from "./systems/runSystem.js";
 import { buildRewardChoices, takeReward } from "./systems/rewardSystem.js";
 import {
@@ -179,7 +176,8 @@ const actions = {
     if (!saved) return showToast("没有存档");
     state.run = saved;
     state.run.activeSkills ||= state.run.skills.filter(id => DATA.skills[id]?.battle !== false).slice(0, 4);
-    state.run.activeStrategies ||= [];
+    state.run.internalArts ||= [];
+    state.run.activeInternalArt = state.run.activeInternalArt || null;
     state.run.skillTraits ||= [];
     state.screen = "run";
     state.modal = null;
@@ -195,7 +193,6 @@ const actions = {
   },
   openModal: type => {
     state.modal = { type };
-    if (type === "strategy") state.modal.selectedIndices = [];
     render();
   },
   closeModal: () => { state.modal = null; render(); },
@@ -221,12 +218,6 @@ const actions = {
     if (!result.ok) return showToast(result.message);
     render();
   },
-  chooseStrategy: () => {
-    const result = trainStrategy(state.run);
-    if (!result.ok) return showToast(result.message);
-    if (result.ready) state.modal = { type: "strategyChoice", options: buildStrategyChoices(state.run) };
-    render();
-  },
   trainSkill: id => {
     const result = trainSkill(state.run, id);
     if (!result.ok) return showToast(result.message);
@@ -234,33 +225,6 @@ const actions = {
   },
   buyManual: id => {
     const result = buyManual(state.run, id);
-    if (!result.ok) return showToast(result.message);
-    render();
-  },
-  takeStrategy: id => {
-    addStrategy(state.run, id);
-    state.modal = null;
-    render();
-  },
-  mergeStrategies: () => {
-    const result = mergeStrategies(state.run, state.modal?.selectedIndices || []);
-    if (!result.ok) return showToast(result.message);
-    state.modal = { type: "strategy", selectedIndices: [] };
-    render();
-  },
-  toggleStrategySelect: index => {
-    state.modal.selectedIndices ||= [];
-    if (state.modal.selectedIndices.includes(index)) {
-      state.modal.selectedIndices = state.modal.selectedIndices.filter(x => x !== index);
-    } else if (state.modal.selectedIndices.length < 2) {
-      state.modal.selectedIndices.push(index);
-    } else {
-      showToast("最多选择两个计略");
-    }
-    render();
-  },
-  toggleActiveStrategy: index => {
-    const result = toggleActiveStrategy(state.run, index);
     if (!result.ok) return showToast(result.message);
     render();
   },
@@ -276,6 +240,16 @@ const actions = {
   },
   equipWeapon: id => {
     const result = equipWeapon(state.run, id);
+    if (!result.ok) return showToast(result.message);
+    render();
+  },
+  buyInternalArt: id => {
+    const result = buyInternalArt(state.run, id);
+    if (!result.ok) return showToast(result.message);
+    render();
+  },
+  equipInternalArt: id => {
+    const result = equipInternalArt(state.run, id);
     if (!result.ok) return showToast(result.message);
     render();
   },
@@ -358,7 +332,6 @@ window.__wuxiaDebug = {
   state,
   startBoss: () => startBattle(state.run.finalBoss, true),
   addMoney: value => { state.run.money += value; saveRun(state.run); render(); },
-  addStrategy: id => { addStrategy(state.run, id); render(); },
   addSkills: () => {
     state.run.skills = Object.keys(DATA.skills).filter(id => DATA.skills[id]?.style);
     state.run.activeSkills = state.run.skills.filter(id => DATA.skills[id]?.battle !== false).slice(0, 4);

@@ -26,7 +26,6 @@ export function createBattle(run, enemyTemplate, isBoss = false) {
     pStats.speed += 0.25;
     pStats.dodge += 4;
   }
-  pStats.hp = Math.floor(pStats.hp * 3);
   if (run.traits.includes("tough")) {
     pStats.def += 10;
   }
@@ -37,16 +36,27 @@ export function createBattle(run, enemyTemplate, isBoss = false) {
   if (run.traits.includes("wanderer")) pStats.speed = Number((pStats.speed + 0.12).toFixed(2));
   if (run.traits.includes("constable")) pStats.hit += 6;
 
+  // 内功效果：战斗开始
+  let pHp = Math.min(run.hp, pStats.hp);
+  let pQi = Math.min(run.qi, pStats.qi);
+  if (run.activeInternalArt) {
+    const art = DATA.internalArts[run.activeInternalArt];
+    if (art?.combatEffect === "healOnStart") {
+      pHp = Math.min(pStats.hp, pHp + Math.floor(pStats.hp * 0.2));
+    }
+  }
+
   const battle = {
     isBoss,
     bossYear: enemyTemplate.year,
-    player: makeUnit(run.character.name, run.character.icon, pStats, Math.min(run.hp, pStats.hp), Math.min(run.qi, pStats.qi), [...(run.activeSkills || run.skills.slice(0, 4))], items),
+    player: makeUnit(run.character.name, run.character.icon, pStats, pHp, pQi, [...(run.activeSkills || run.skills.slice(0, 4))], items),
     enemy: makeUnit(enemyTemplate.name, enemyTemplate.icon, enemyStats, enemyStats.hp, enemyStats.qi, [], []),
     phase: "running",
     actor: null,
     log: [`${run.character.name}遭遇${enemyTemplate.name}。`],
     floaters: [],
-    speed: 3
+    speed: 3,
+    run
   };
   if (enemyStats.traitName) battle.log.unshift(`${enemyTemplate.name}特性：${enemyStats.traitName}。${enemyStats.traitDesc || ""}`);
   return battle;
@@ -56,7 +66,6 @@ function scaleEnemyStats(stats) {
   for (const key of ["hp", "qi", "atk", "def", "combo", "hit", "dodge", "crit"]) {
     stats[key] = Math.floor((stats[key] || 0) * 2);
   }
-  stats.hp = Math.floor((stats.hp || 0) * 1.5);
   stats.speed = Number(((stats.speed || 1) * 1.35).toFixed(2));
   return stats;
 }
@@ -337,6 +346,29 @@ function applyTurnStart(battle, unit) {
     unit.qi = Math.max(0, unit.qi - loss);
     battleLog(battle, `${unit.name}蛊息扰动，失去${loss}内力。`);
   }
+  // 内功效果：玩家回合开始
+  if (unit === battle.player && battle.run?.activeInternalArt) {
+    const art = DATA.internalArts[battle.run.activeInternalArt];
+    if (art?.combatEffect === "healOnTurn") {
+      const healAmt = Math.floor(unit.stats.hp * 0.15);
+      unit.hp = Math.min(unit.stats.hp, unit.hp + healAmt);
+      battleLog(battle, `【${art.name}】${unit.name}恢复${healAmt}血量。`);
+    }
+    if (art?.combatEffect === "qiRegen") {
+      unit.qi = Math.min(unit.stats.qi, unit.qi + 15);
+      battleLog(battle, `【${art.name}】${unit.name}恢复15内力。`);
+    }
+    if (art?.combatEffect === "cleanse" && Math.random() < 0.3) {
+      const cleaned = [];
+      if (unit.bleed > 0) { cleaned.push("流血"); unit.bleed = 0; }
+      if (unit.poison > 0) { cleaned.push("中毒"); unit.poison = 0; }
+      if (unit.inner > 0) { cleaned.push("内伤"); unit.inner = 0; }
+      if (unit.frost > 0) { cleaned.push("寒气"); unit.frost = 0; }
+      if (unit.hamstring > 0) { cleaned.push("断筋"); unit.hamstring = 0; }
+      if (unit.gu > 0) { cleaned.push("蛊"); unit.gu = 0; }
+      if (cleaned.length) battleLog(battle, `【${art.name}】清除：${cleaned.join("、")}。`);
+    }
+  }
 }
 
 function applySkillEffects(run, battle, actor, target, skill, damage) {
@@ -382,6 +414,20 @@ function applySkillEffects(run, battle, actor, target, skill, damage) {
     run.money += got;
     battleLog(battle, `${actor.name}顺势取利，获得${got}金钱。`);
     addFloater(battle, "player", `+${got}钱`);
+  }
+  // 内功效果：命中时
+  if (actor === battle.player && battle.run?.activeInternalArt) {
+    const art = DATA.internalArts[battle.run.activeInternalArt];
+    if (art?.combatEffect === "frostOnHit") {
+      target.frost += 1;
+      battleLog(battle, `【${art.name}】${target.name}被附加1层寒气！`);
+    }
+    if (art?.combatEffect === "drainQi") {
+      const drain = Math.min(target.qi, 8);
+      target.qi -= drain;
+      actor.qi = Math.min(actor.stats.qi, actor.qi + drain);
+      if (drain > 0) battleLog(battle, `【${art.name}】汲取${target.name}${drain}点内力！`);
+    }
   }
 }
 
@@ -521,9 +567,7 @@ function comboChance(run, skill, actor) {
 }
 
 function getStrategies(run, school, style = null) {
-  return (run.activeStrategies || [])
-    .map(index => DATA.strategies.find(s => s.id === run.strategies[index]))
-    .filter(s => s?.school === school && (!style || s.style === style));
+  return [];
 }
 
 function hasStyleMastery(run, style) {

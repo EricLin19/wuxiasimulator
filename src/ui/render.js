@@ -16,13 +16,22 @@ const STAT_HELP = {
 
 export function renderApp(state, actions) {
   const app = document.getElementById("app");
+  let savedScrollTop = 0;
+  if (state.modal && state.screen !== "battle") {
+    const oldModal = app.querySelector(".modal");
+    if (oldModal) savedScrollTop = oldModal.scrollTop;
+  }
   app.innerHTML = "";
   if (state.screen === "menu") app.appendChild(renderMenu(state, actions));
   if (state.screen === "select") app.appendChild(renderSelect(state, actions));
   if (state.screen === "run") app.appendChild(renderRun(state, actions));
   if (state.screen === "battle") app.appendChild(renderBattle(state, actions));
   if (state.screen === "settlement") app.appendChild(renderSettlement(state, actions));
-  if (state.modal && state.screen !== "battle") app.appendChild(renderModal(state, actions));
+  if (state.modal && state.screen !== "battle") {
+    app.appendChild(renderModal(state, actions));
+    const newModal = app.querySelector(".modal");
+    if (newModal) newModal.scrollTop = savedScrollTop;
+  }
   if (state.toast) app.appendChild(el("div", "toast", state.toast));
 }
 
@@ -115,7 +124,6 @@ function renderRun(state, actions) {
         <div class="action-card" data-modal="events">奇遇<br>${run.eventRemaining}/3</div>
         <div class="action-card" data-modal="training">修炼</div>
         <div class="action-card" data-modal="hall">武林商人</div>
-        <div class="action-card" data-modal="strategy">谋划</div>
         <div class="action-card" data-action="next">下回合</div>
       </div>
     </div>
@@ -136,8 +144,6 @@ function renderModal(state, actions) {
     events: () => renderEventsModal(modal, run, actions, close),
     training: () => renderTrainingModal(modal, run, actions, close),
     hall: () => renderHallModal(modal, run, actions, close),
-    strategy: () => renderStrategyModal(modal, run, state, actions, close),
-    strategyChoice: () => renderStrategyChoiceModal(modal, state, actions),
     reward: () => renderRewardModal(modal, state, actions),
     merchant: () => renderMerchantModal(modal, run, actions),
     character: () => renderCharacterModal(modal, run, actions, close),
@@ -159,10 +165,12 @@ function renderMetaModal(modal, state, actions, close) {
 }
 
 function renderEventsModal(modal, run, actions, close) {
-  modal.innerHTML = `<div class="modal-head"><h2 class="modal-title">每月随机事件</h2>${close}</div><div class="event-count">可参与事件数：${run.eventRemaining}</div><div class="event-grid"></div>`;
+  const CATEGORY_COLORS = { "高手传功": "#d4a056", "高手遗物": "#a855f7", "切磋": "#e74c3c", "维度增加": "#2ecc71", "金钱代价": "#f39c12" };
+  modal.innerHTML = `<div class="modal-head"><h2 class="modal-title">江湖奇遇</h2>${close}</div><div class="event-count">可参与事件数：${run.eventRemaining}</div><div class="event-grid"></div>`;
   run.events.forEach(e => {
     const card = el("div", "event-card");
-    card.innerHTML = `<h3>${e.name}</h3><div class="event-art">${e.icon}</div><p>${e.desc}</p><button class="btn green">选择</button>`;
+    const catColor = CATEGORY_COLORS[e.category] || "#888";
+    card.innerHTML = `<span class="event-cat-tag" style="background:${catColor}">${e.category || "事件"}</span><h3>${e.name}</h3><div class="event-art">${e.icon}</div><p>${e.desc}</p><button class="btn green">选择</button>`;
     card.querySelector("button").disabled = run.eventRemaining <= 0;
     card.querySelector("button").onclick = () => actions.chooseEvent(e.id);
     modal.querySelector(".event-grid").appendChild(card);
@@ -171,61 +179,54 @@ function renderEventsModal(modal, run, actions, close) {
 
 function renderTrainingModal(modal, run, actions, close) {
   modal.innerHTML = `<div class="modal-head"><h2 class="modal-title">修炼技能</h2>${close}</div><div class="list"></div>`;
+  if (run.trainingSkills.length) {
+    const header = el("div", "row-card section-header");
+    header.innerHTML = `<div class="row-title" style="grid-column:1/-1;text-align:center;color:#d4a056">— 未修炼秘籍（${run.trainingSkills.length}本）—</div>`;
+    modal.querySelector(".list").appendChild(header);
+    run.trainingSkills.forEach(id => {
+      const s = DATA.skills[id];
+      const statText = Object.entries(s.statGain || {}).map(([k, v]) => `${STAT_LABELS[k]}+${v}`).join("，");
+      modal.querySelector(".list").appendChild(rowCard(s.icon, skillDisplayName(s), `${schoolName(s.school)}｜${s.styleName || ""}｜${s.desc} 完成：${statText}。进度 ${run.skillProgress[id] || 0}/${s.train}`, "修炼", () => actions.trainSkill(id)));
+    });
+  }
   const rows = [
-    { title: "俯卧撑", meta: "攻击+3，经验+35，消耗1行动", icon: "拳", action: () => actions.trainStat("atk") },
+    { title: "举铁", meta: "攻击+3，经验+35，消耗1行动", icon: "拳", action: () => actions.trainStat("atk") },
     { title: "站桩功", meta: "防御+3，经验+35，消耗1行动", icon: "桩", action: () => actions.trainStat("def") },
-    { title: "扎马步", meta: "血量上限+90，经验+35，消耗1行动", icon: "马", action: () => actions.trainStat("hp") },
-    { title: "运筹", meta: `消耗1行动，进度 ${run.strategyProgress || 0}/3，满3次获得三选一计略`, icon: "策", action: actions.chooseStrategy }
+    { title: "扎马步", meta: "血量上限+120，经验+35，消耗1行动", icon: "马", action: () => actions.trainStat("hp") }
   ];
   rows.forEach(x => modal.querySelector(".list").appendChild(rowCard(x.icon, x.title, x.meta, "修炼", x.action)));
   modal.querySelector(".list").appendChild(rowCard("气", "内力吐纳", "内力上限+20，经验+35，消耗1行动", "修炼", () => actions.trainStat("qi")));
-  run.trainingSkills.forEach(id => {
-    const s = DATA.skills[id];
-    const statText = Object.entries(s.statGain || {}).map(([k, v]) => `${STAT_LABELS[k]}+${v}`).join("，");
-    modal.querySelector(".list").appendChild(rowCard(s.icon, skillDisplayName(s), `${schoolName(s.school)}｜${s.styleName || ""}｜${s.desc} 完成：${statText}。进度 ${run.skillProgress[id] || 0}/${s.train}`, "修炼", () => actions.trainSkill(id)));
-  });
 }
 
 function renderHallModal(modal, run, actions, close) {
-  modal.innerHTML = `<div class="modal-head"><h2 class="modal-title">武林商人</h2>${close}</div><h3>秘籍</h3><div class="list manual-list"></div><h3>丹药与装备</h3><div class="list shop-list"></div><p class="desc">每三个月刷新秘籍。第一本秘籍学成并确定流派后，商人开始出售对应装备。</p>`;
+  modal.innerHTML = `<div class="modal-head"><h2 class="modal-title">武林商人</h2>${close}</div><div class="merchant-layout"><div class="merchant-col"><h3>外功秘籍</h3><div class="list"></div><h3>内功秘籍</h3><div class="list"></div></div><div class="merchant-col"><h3>丹药</h3><div class="list"></div><h3>装备</h3><div class="list"></div></div></div>`;
+
+  // 外功秘籍
   run.manuals.forEach(id => {
     const s = DATA.skills[id];
     if (!s) return;
     const price = Math.floor((s.rarity === "red" ? 900 : s.rarity === "orange" ? 520 : 300) * (run.treasure.effect === "manualMastery" ? 0.82 : 1));
-    modal.querySelector(".manual-list").appendChild(rowCard(s.icon || SCHOOLS[s.school]?.icon || "秘", `【${rarityName(s.rarity)}】《${skillDisplayName(s)}》`, `${schoolName(s.school)}｜${s.styleName || ""}路线｜${s.desc}｜三式学成：${s.trait.name}`, `${price}◎`, () => actions.buyManual(id)));
+    modal.querySelectorAll(".merchant-col .list")[0].appendChild(rowCard(s.icon || SCHOOLS[s.school]?.icon || "秘", `【${rarityName(s.rarity)}】《${skillDisplayName(s)}》`, `${schoolName(s.school)}｜${s.styleName || ""}路线｜${s.desc}｜三式学成：${s.trait.name}`, `${price}◎`, () => actions.buyManual(id)));
   });
-  run.merchantStock.forEach(entry => {
-    const obj = entry.kind === "weapon" ? DATA.weapons[entry.id] : DATA.items[entry.id];
-    modal.querySelector(".shop-list").appendChild(rowCard(obj.icon, entry.kind === "weapon" ? `【${rarityName(obj.rarity)}】${obj.name}` : obj.name, obj.desc, `${obj.price}◎`, () => actions.buyShopEntry(entry)));
-  });
-}
 
-function renderStrategyModal(modal, run, state, actions, close) {
-  state.modal.selectedIndices ||= [];
-  run.activeStrategies ||= [];
-  modal.innerHTML = `<div class="modal-head"><h2 class="modal-title">谋划</h2>${close}</div><div class="inventory-summary"><div class="inventory-chip">上场计略：${run.activeStrategies.length}/2</div></div><div class="list"></div><button class="btn green" style="margin-top:14px" data-merge>融合已选两个计略</button>`;
-  const list = modal.querySelector(".list");
-  if (!run.strategies.length) list.innerHTML = `<p>暂无计略。可通过修炼“运筹”或突破奖励获得。</p>`;
-  run.strategies.forEach((id, index) => {
-    const s = DATA.strategies.find(x => x.id === id);
-    const selected = state.modal.selectedIndices.includes(index);
-    const active = run.activeStrategies.includes(index);
-    const row = el("div", `row-card strategy-row ${active ? "active" : ""}`);
-    row.innerHTML = `<div class="icon-box">策</div><div><div class="row-title">${active ? "✓ " : ""}${selected ? "◆ " : ""}【${rarityName(s.rarity)}】${s.name}</div><div class="row-meta">${schoolName(s.school)}｜${s.effectsText}｜${s.desc}</div></div><div class="row-actions"><button class="btn green small" data-active>${active ? "下场" : "上场"}</button><button class="btn secondary small" data-select>${selected ? "取消" : "选择"}</button></div>`;
-    row.querySelector("[data-active]").onclick = () => actions.toggleActiveStrategy(index);
-    row.querySelector("[data-select]").onclick = () => actions.toggleStrategySelect(index);
-    list.appendChild(row);
+  // 内功秘籍
+  run.merchantStock.filter(e => e.kind === "internalArt").forEach(entry => {
+    const art = DATA.internalArts[entry.id];
+    if (!art) return;
+    const label = run.internalArts.includes(entry.id) ? "已拥有" : `${art.rarity === "red" ? 1200 : art.rarity === "orange" ? 680 : 360}◎`;
+    modal.querySelectorAll(".merchant-col .list")[1].appendChild(rowCard(art.icon, `【${rarityName(art.rarity)}】${art.name}`, art.desc, label, () => actions.buyInternalArt(entry.id)));
   });
-  modal.querySelector("[data-merge]").onclick = actions.mergeStrategies;
-}
 
-function renderStrategyChoiceModal(modal, state, actions) {
-  modal.innerHTML = `<h2 class="section-title">选择你的计略</h2><div class="reward-grid"></div>`;
-  state.modal.options.forEach(s => {
-    const card = el("div", "event-card");
-    card.innerHTML = `<h3>【${rarityName(s.rarity)}】${s.name}</h3><div class="event-art">策</div><p>${schoolName(s.school)}｜${s.effectsText}<br>${s.desc}</p><button class="btn green">选择</button>`;
-    card.querySelector("button").onclick = () => actions.takeStrategy(s.id);
-    modal.querySelector(".reward-grid").appendChild(card);
+  // 丹药
+  run.merchantStock.filter(e => e.kind === "item").forEach(entry => {
+    const obj = DATA.items[entry.id];
+    modal.querySelectorAll(".merchant-col .list")[2].appendChild(rowCard(obj.icon, obj.name, obj.desc, `${obj.price}◎`, () => actions.buyShopEntry(entry)));
+  });
+
+  // 装备（武器）
+  run.merchantStock.filter(e => e.kind === "weapon").forEach(entry => {
+    const obj = DATA.weapons[entry.id];
+    modal.querySelectorAll(".merchant-col .list")[3].appendChild(rowCard(obj.icon, `【${rarityName(obj.rarity)}】${obj.name}`, obj.desc, `${obj.price}◎`, () => actions.buyShopEntry(entry)));
   });
 }
 
@@ -233,18 +234,43 @@ function renderRewardModal(modal, state, actions) {
   modal.innerHTML = `<h2 class="section-title">请选择突破奖励</h2><div class="reward-grid"></div>`;
   state.modal.options.forEach((opt, index) => {
     const card = el("div", "event-card");
-    card.innerHTML = `<h3>${opt.data.name}</h3><div class="event-art">${opt.kind === "trait" ? "特" : "策"}</div><p>${opt.data.desc || opt.data.effectsText}</p><button class="btn green">选择</button>`;
+    card.innerHTML = `<h3>${opt.data.name}</h3><div class="event-art">特</div><p>${opt.data.desc}</p><button class="btn green">选择</button>`;
     card.querySelector("button").onclick = () => actions.takeReward(index);
     modal.querySelector(".reward-grid").appendChild(card);
   });
 }
 
 function renderMerchantModal(modal, run, actions) {
-  modal.innerHTML = `<div class="modal-head"><h2 class="modal-title">武林商人</h2><button class="btn red small" data-done>离开</button></div><div class="list"></div>`;
-  run.merchantStock.forEach(entry => {
-    const obj = entry.kind === "weapon" ? DATA.weapons[entry.id] : DATA.items[entry.id];
-    modal.querySelector(".list").appendChild(rowCard(obj.icon, entry.kind === "weapon" ? `【${rarityName(obj.rarity)}】${obj.name}` : obj.name, obj.desc, `${obj.price}◎`, () => actions.buyShopEntry(entry)));
+  modal.innerHTML = `<div class="modal-head"><h2 class="modal-title">武林商人</h2><button class="btn red small" data-done>离开</button></div><div class="merchant-layout"><div class="merchant-col"><h3>外功秘籍</h3><div class="list"></div><h3>内功秘籍</h3><div class="list"></div></div><div class="merchant-col"><h3>丹药</h3><div class="list"></div><h3>装备</h3><div class="list"></div></div></div>`;
+
+  // 外功秘籍
+  run.manuals.forEach(id => {
+    const s = DATA.skills[id];
+    if (!s) return;
+    const price = Math.floor((s.rarity === "red" ? 900 : s.rarity === "orange" ? 520 : 300) * (run.treasure.effect === "manualMastery" ? 0.82 : 1));
+    modal.querySelectorAll(".merchant-col .list")[0].appendChild(rowCard(s.icon || SCHOOLS[s.school]?.icon || "秘", `【${rarityName(s.rarity)}】《${skillDisplayName(s)}》`, `${schoolName(s.school)}｜${s.styleName || ""}路线｜${s.desc}｜三式学成：${s.trait.name}`, `${price}◎`, () => actions.buyManual(id)));
   });
+
+  // 内功秘籍
+  run.merchantStock.filter(e => e.kind === "internalArt").forEach(entry => {
+    const art = DATA.internalArts[entry.id];
+    if (!art) return;
+    const label = !run.internalArts.includes(entry.id) ? `${art.rarity === "red" ? 1200 : art.rarity === "orange" ? 680 : 360}◎` : "已拥有";
+    modal.querySelectorAll(".merchant-col .list")[1].appendChild(rowCard(art.icon, `【${rarityName(art.rarity)}】${art.name}`, art.desc, label, () => actions.buyInternalArt(entry.id)));
+  });
+
+  // 丹药
+  run.merchantStock.filter(e => e.kind === "item").forEach(entry => {
+    const obj = DATA.items[entry.id];
+    modal.querySelectorAll(".merchant-col .list")[2].appendChild(rowCard(obj.icon, obj.name, obj.desc, `${obj.price}◎`, () => actions.buyShopEntry(entry)));
+  });
+
+  // 装备（武器）
+  run.merchantStock.filter(e => e.kind === "weapon").forEach(entry => {
+    const obj = DATA.weapons[entry.id];
+    modal.querySelectorAll(".merchant-col .list")[3].appendChild(rowCard(obj.icon, `【${rarityName(obj.rarity)}】${obj.name}`, obj.desc, `${obj.price}◎`, () => actions.buyShopEntry(entry)));
+  });
+
   modal.querySelector("[data-done]").onclick = actions.closeMerchant;
 }
 
@@ -269,6 +295,7 @@ function renderCharacterModal(modal, run, actions, close) {
         <h3>特性</h3><p>${traitNames}</p>
         <h3>当前流派</h3><p>${run.selectedSchool ? schoolName(run.selectedSchool) : "尚未确定"}</p>
         <h3>装备武器</h3><p>${equippedWeaponText}</p>
+        <h3>已装备内功</h3><p>${run.activeInternalArt ? traitChip(DATA.internalArts[run.activeInternalArt].name, DATA.internalArts[run.activeInternalArt].desc) : "未装备"}</p>
       </div>
     </div>`;
   const list = modal.querySelector(".skill-select-list");
@@ -394,8 +421,9 @@ function statLine(key, value) {
   return `<div class="stat-line"><span>${STAT_LABELS[key]}</span><b>${value}</b></div>`;
 }
 
-function traitChip(name, title) {
-  return `<span class="trait-chip" title="${escapeHtml(title)}">${name}</span>`;
+function traitChip(name, title, desc) {
+  const d = escapeHtml(desc || title || "");
+  return `<span class="trait-chip" title="${escapeHtml(title || "")}" data-desc="${d}" onclick="alert(this.dataset.desc || this.title)">${name}</span>`;
 }
 
 function weaponTitle(weapon) {

@@ -44,9 +44,6 @@ export function createRun(characterId, treasureId, meta) {
     activeSkills: character.skills.filter(id => DATA.skills[id]?.battle !== false).slice(0, 4),
     trainingSkills: [],
     skillProgress: {},
-    strategyProgress: 0,
-    strategies: [],
-    activeStrategies: [],
     traits: [...character.traits],
     skillTraits: [],
     items: ["pill", "pill"],
@@ -55,6 +52,8 @@ export function createRun(characterId, treasureId, meta) {
     events: [],
     manuals: [],
     merchantStock: [],
+    internalArts: [],
+    activeInternalArt: null,
     finalBoss: DATA.bosses.find(b => b.id === "finalBoss"),
     finalBossMonth: 36,
     yearlyBossDefeated: {},
@@ -123,7 +122,15 @@ export function getAvailableManuals(run) {
 
 export function refreshMerchantStock(run) {
   const rarity = run.year >= 3 ? "red" : run.year >= 2 ? "orange" : "blue";
+  // 内功：随机2本同稀有度
+  const artPool = Object.values(DATA.internalArts).filter(a => a.rarity === rarity && !run.internalArts.includes(a.id));
+  const arts = [];
+  for (let i = 0; i < 2 && artPool.length; i++) {
+    const idx = Math.floor(Math.random() * artPool.length);
+    arts.push({ kind: "internalArt", id: artPool.splice(idx, 1)[0].id });
+  }
   run.merchantStock = [
+    ...arts,
     { kind: "item", id: "qiWine" },
     { kind: "item", id: "pill" },
     { kind: "item", id: "statPill" }
@@ -135,43 +142,194 @@ export function refreshMerchantStock(run) {
 }
 
 export function refillOneEvent(run) {
-  const pool = makeEventPool(run).filter(e => !run.events.some(x => x.id === e.id));
-  if (pool.length) run.events.push(rand(pool));
+  // 直接调用 makeEventPool 用加权随机重新生成，确保不重复
+  const existingIds = new Set(run.events.map(e => e.id));
+  for (let i = 0; i < 15; i++) {
+    const events = makeEventPool(run);
+    const newEvent = events.find(e => !existingIds.has(e.id));
+    if (newEvent) { run.events.push(newEvent); return; }
+  }
+  // fallback: 就算重复也加入
+  run.events.push(makeEventPool(run)[0]);
 }
 
 export function makeEventPool(run) {
   const maxRank = Math.min(4, 1 + Math.floor(monthAbs(run) / 8));
   const enemies = DATA.enemies.filter(e => e.rank <= maxRank);
   const moneyGain = scaleMoney(run, 160);
-  const events = [
-    eventStat("trainHp", "增强体质", "血量上限提升90。", "hp", 90),
-    eventStat("trainQi", "练习吐纳", "内力上限提升20。", "qi", 20),
-    eventStat("trainAtk", "木桩苦练", "攻击提升3。", "atk", 3),
-    eventStat("trainDef", "扎马步", "防御提升3。", "def", 3),
-    eventStat("trainCombo", "连环拆招", "连击提升2。", "combo", 2),
-    eventStat("trainHit", "明目辨穴", "命中提升3。", "hit", 3),
-    eventStat("trainDodge", "敏捷训练", "闪避提升1。", "dodge", 1),
-    eventStat("trainCrit", "破绽观察", "暴击提升2。", "crit", 2),
-    eventStat("trainSpeed", "轻身赶路", "出手速度提升0.04。", "speed", 0.04),
-    { id: "money", name: "押镖", type: "reward", icon: "镖", desc: `获得${moneyGain}金钱。`, apply: ({ run }) => { run.money += moneyGain; log(run, `完成押镖，获得${moneyGain}金钱。`); } },
-    { id: "escort", name: "护送商队", type: "reward", icon: "银", desc: `获得${scaleMoney(run, 240)}金钱。`, apply: ({ run }) => { const got = scaleMoney(run, 240); run.money += got; log(run, `护送商队，获得${got}金钱。`); } },
-    { id: "bounty", name: "揭榜缉盗", type: "reward", icon: "榜", desc: `获得${scaleMoney(run, 200)}金钱和40经验。`, apply: ({ run }) => { const got = scaleMoney(run, 200); run.money += got; gainExp(run, 40); log(run, `揭榜缉盗，获得${got}金钱和40经验。`); } },
-    { id: "ambush", name: "林中伏击", type: "battle", icon: "伏", desc: "遭遇埋伏，胜利后获得额外金钱。", apply: ({ startBattle }) => startBattle(rand(enemies)) },
-    { id: "escortSave", name: "救下镖队", type: "reward", icon: "救", desc: `获得${scaleMoney(run, 260)}金钱和60经验。`, apply: ({ run }) => { const got = scaleMoney(run, 260); run.money += got; gainExp(run, 60); log(run, `救下镖队，获得${got}金钱和60经验。`); } },
-    { id: "duelHall", name: "擂台切磋", type: "battle", icon: "擂", desc: "同道切磋，胜利后可获得更高经验。", apply: ({ startBattle }) => startBattle(rand(enemies)) },
-    { id: "meditate", name: "吐纳疗伤", type: "reward", icon: "息", desc: "恢复120血量和120内力。", apply: ({ run }) => { run.hp = Math.min(run.stats.hp, run.hp + 120); run.qi = Math.min(run.stats.qi, run.qi + 120); log(run, "吐纳疗伤，恢复一大段状态。"); } },
-    { id: "duel", name: rand(enemies).name, type: "battle", icon: "战", desc: "遭遇敌人，胜利后获得金钱和武学阅历。", apply: ({ startBattle }) => startBattle(rand(enemies)) }
+
+  // 高手传功 (5%)：江湖高人指点，属性/特性大幅提升
+  const heritage = [
+    { id: "masterTeach", name: "隐世高手传功", category: "高手传功", icon: "传", desc: "路遇隐世高人，见你资质不凡，传你一套吐纳心法。内力上限+60，血量上限+200。", apply: ({ run }) => {
+      run.stats.qi += 60; run.stats.hp += 200; run.qi += 60; run.hp += 200;
+      log(run, "隐世高手传功！内力上限+60，血量上限+200。");
+    }},
+    { id: "zenMaster", name: "禅师灌顶", category: "高手传功", icon: "禅", desc: "古刹老禅师以毕生修为为你灌顶，打通奇经八脉。获得一个随机特性。", apply: ({ run }) => {
+      const pool = DATA.traits.filter(t => !run.traits.includes(t.id) && !run.skillTraits.some(st => st.id === t.id));
+      if (pool.length) {
+        const t = pool[Math.floor(Math.random() * pool.length)];
+        run.traits.push(t.id);
+        log(run, `禅师灌顶，领悟特性「${t.name}」：${t.desc}。`);
+      } else {
+        gainExp(run, 200);
+        log(run, "禅师灌顶，武学阅历+200。");
+      }
+    }},
+    { id: "hermitPoint", name: "山间奇人点拨", category: "高手传功", icon: "点", desc: "采药时遇山间奇人，点拨你武功关窍。所有未修秘籍进度+1，经验+100。", apply: ({ run }) => {
+      for (const id of run.trainingSkills) run.skillProgress[id] = (run.skillProgress[id] || 0) + 1;
+      gainExp(run, 100);
+      log(run, "山间奇人点拨，所有修炼中秘籍进度+1，经验+100。");
+    }}
   ];
+
+  // 高手遗物 (5%)：发现前人遗宝，获得秘籍/武器/财物
+  const relic = [
+    { id: "caveManual", name: "洞府遗刻", category: "高手遗物", icon: "刻", desc: "悬崖下发现前辈洞府，石壁上刻有一套完整秘籍。获得一本本流派秘籍。", apply: ({ run }) => {
+      const pool = Object.keys(DATA.skills).filter(id => {
+        const s = DATA.skills[id];
+        return s && s.school === (run.selectedSchool || "fist") && RARITIES[s.rarity].year <= run.year && !run.skills.includes(id) && !run.trainingSkills.includes(id);
+      });
+      if (pool.length) {
+        const id = pool[Math.floor(Math.random() * pool.length)];
+        run.trainingSkills.push(id);
+        log(run, `发现洞府遗刻，获得秘籍《${DATA.skills[id].name}》。`);
+      } else {
+        run.money += scaleMoney(run, 300);
+        log(run, "洞府中只有些散碎银两，获得金钱。");
+      }
+    }},
+    { id: "ancientWeapon", name: "古战场遗兵", category: "高手遗物", icon: "兵", desc: "途经古战场，发现一柄埋藏多年的神兵利器。获得当前流派对应武器。", apply: ({ run }) => {
+      if (run.selectedSchool) {
+        const weapon = Object.values(DATA.weapons).find(w => w.school === run.selectedSchool);
+        if (weapon) {
+          run.weapons.push(weapon.id);
+          log(run, `古战场中寻得${weapon.name}！`);
+          return;
+        }
+      }
+      const w = Object.values(DATA.weapons)[Math.floor(Math.random() * Object.values(DATA.weapons).length)];
+      run.weapons.push(w.id);
+      log(run, `古战场中寻得${w.name}！`);
+    }},
+    { id: "templeTreasure", name: "破庙藏珍", category: "高手遗物", icon: "藏", desc: "破庙神像后藏有前人的包裹。获得3枚丹药和200金钱。", apply: ({ run }) => {
+      run.items.push("pill", "pill", "statPill");
+      run.money += scaleMoney(run, 200);
+      log(run, "破庙藏珍，获得金疮药x2、小还丹x1和金钱。");
+    }}
+  ];
+
+  // 切磋 (30%)：与江湖人士战斗
+  const duel = [
+    { id: "ambush", name: "林中伏击", category: "切磋", icon: "伏", desc: "密林中遭遇埋伏，来者不善。胜利后获得额外金钱。", apply: ({ startBattle }) => startBattle(rand(enemies)) },
+    { id: "duelHall", name: "擂台切磋", category: "切磋", icon: "擂", desc: "城中摆下擂台，以武会友。胜利后获得丰厚武学阅历。", apply: ({ startBattle }) => startBattle(rand(enemies)) },
+    { id: "roadBlock", name: "拦路强人", category: "切磋", icon: "拦", desc: "官道上撞见拦路强人，唯有手中兵刃说话。", apply: ({ startBattle }) => startBattle(rand(enemies)) },
+    { id: "justice", name: "路见不平", category: "切磋", icon: "侠", desc: "见恶霸欺压百姓，拔刀相助。胜利后名利双收。", apply: ({ startBattle }) => startBattle(rand(enemies)) },
+    { id: "wanted", name: "悬赏缉拿", category: "切磋", icon: "赏", desc: "官府悬赏通缉悍匪，擒下可得重赏。", apply: ({ startBattle }) => startBattle(rand(enemies)) }
+  ];
+
+  // 维度增加 (30%)：修炼提升属性
+  const training = [
+    eventStat("trainHp", "铁布衫苦修", "维度增加", "hp", 120),
+    eventStat("trainQi", "吐纳天地", "维度增加", "qi", 20),
+    eventStat("trainAtk", "击石碎碑", "维度增加", "atk", 3),
+    eventStat("trainDef", "金钟罩初成", "维度增加", "def", 3),
+    eventStat("trainCombo", "连打木人桩", "维度增加", "combo", 2),
+    eventStat("trainHit", "针眼穿线", "维度增加", "hit", 3),
+    eventStat("trainDodge", "凌波步法", "维度增加", "dodge", 1),
+    eventStat("trainCrit", "观敌破绽", "维度增加", "crit", 2),
+    eventStat("trainSpeed", "踏雪无痕", "维度增加", "speed", 0.04)
+  ];
+
+  // 金钱代价 (30%)：花费金钱换取好处
+  const price = [
+    { id: "doctor", name: "江湖郎中", category: "金钱代价", icon: "医", desc: `江湖郎中兜售秘药，花费${scaleMoney(run, 80)}金钱永久提升攻击+2、防御+2。`, apply: ({ run }) => {
+      const cost = scaleMoney(run, 80);
+      if (run.money < cost) { log(run, `江湖郎中见你囊中羞涩，摇头离去。`); return; }
+      run.money -= cost;
+      run.stats.atk += 2; run.stats.def += 2;
+      log(run, `花费${cost}金钱服用秘药，攻击+2，防御+2。`);
+    }},
+    { id: "blackMarket", name: "黑市秘商", category: "金钱代价", icon: "黑", desc: `黑市商人有货出手，花费${scaleMoney(run, 150)}金钱获得一枚小还丹和200经验。`, apply: ({ run }) => {
+      const cost = scaleMoney(run, 150);
+      if (run.money < cost) { log(run, "黑市商人见你钱不够，转身便走。"); return; }
+      run.money -= cost;
+      run.items.push("statPill");
+      gainExp(run, 200);
+      log(run, `花费${cost}金钱，获得小还丹和200武学阅历。`);
+    }},
+    { id: "bribeGuard", name: "贿赂守卫", category: "金钱代价", icon: "贿", desc: `守卫禁地的老兵见钱眼开，花费${scaleMoney(run, 60)}金钱偷偷放你入内修炼。血量+80，内力+30，经验+60。`, apply: ({ run }) => {
+      const cost = scaleMoney(run, 60);
+      if (run.money < cost) { log(run, "守卫冷哼一声，不予理睬。"); return; }
+      run.money -= cost;
+      run.stats.hp += 80; run.stats.qi += 30;
+      run.hp += 80; run.qi += 30;
+      gainExp(run, 60);
+      log(run, `花费${cost}金钱进入禁地修炼，血量+80，内力+30，经验+60。`);
+    }},
+    { id: "infoBroker", name: "情报贩子", category: "金钱代价", icon: "情", desc: `一位情报贩子愿出售武学心得，花费${scaleMoney(run, 120)}金钱随机秘籍进度+2且经验+80。`, apply: ({ run }) => {
+      const cost = scaleMoney(run, 120);
+      if (run.money < cost) { log(run, "情报贩子耸耸肩，不做赔本买卖。"); return; }
+      run.money -= cost;
+      if (run.trainingSkills.length) {
+        const id = run.trainingSkills[Math.floor(Math.random() * run.trainingSkills.length)];
+        run.skillProgress[id] = (run.skillProgress[id] || 0) + 2;
+        log(run, `花费${cost}金钱，${DATA.skills[id].name}修炼进度+2，经验+80。`);
+      } else {
+        log(run, `花费${cost}金钱，经验+80（暂无修炼中的秘籍）。`);
+      }
+      gainExp(run, 80);
+    }}
+  ];
+
+  // 加权随机生成事件
+  const categories = [
+    { weight: 5, pool: heritage },
+    { weight: 5, pool: relic },
+    { weight: 30, pool: duel },
+    { weight: 30, pool: training },
+    { weight: 30, pool: price }
+  ];
+  const totalWeight = categories.reduce((s, c) => s + c.weight, 0);
+
+  function weightedPick() {
+    let r = Math.random() * totalWeight;
+    for (const cat of categories) {
+      r -= cat.weight;
+      if (r <= 0) return rand(cat.pool);
+    }
+    return rand(categories[categories.length - 1].pool);
+  }
+
+  // 生成3个不重复的事件
+  const events = [];
+  const usedIds = new Set();
+  for (let i = 0; i < 3 && events.length < 3; i++) {
+    const maxAttempts = 20;
+    for (let attempt = 0; attempt < maxAttempts; attempt++) {
+      const evt = weightedPick();
+      if (!usedIds.has(evt.id)) {
+        usedIds.add(evt.id);
+        events.push(evt);
+        break;
+      }
+    }
+    // 如果实在找不到不重复的，也加入
+    if (events.length <= i) {
+      const evt = weightedPick();
+      events.push(evt);
+    }
+  }
   return events;
 }
 
-function eventStat(id, name, desc, key, value) {
+function eventStat(id, name, category, key, value) {
   return {
     id,
     name,
+    category,
     type: "training",
     icon: STAT_LABELS[key][0],
-    desc,
+    desc: `${STAT_LABELS[key]}提升${value}。`,
     apply: ({ run }) => {
       run.stats[key] = Number(((run.stats[key] || 0) + value).toFixed(2));
       if (key === "hp") run.hp += value;
@@ -241,7 +399,7 @@ export function spendAp(run, cost) {
 
 export function trainStat(run, kind) {
   if (!spendAp(run, 1)) return { ok: false, message: "行动力不足" };
-  const gains = { atk: 3, def: 3, hp: 90, qi: 20 };
+  const gains = { atk: 3, def: 3, hp: 120, qi: 20 };
   run.stats[kind] += gains[kind] || 0;
   if (kind === "hp") run.hp += gains[kind];
   if (kind === "qi") run.qi += gains[kind];
@@ -266,20 +424,6 @@ export function trainSkill(run, skillId) {
   gainExp(run, run.treasure.effect === "manualMastery" ? 80 : 50);
   saveRun(run);
   return { ok: true };
-}
-
-export function trainStrategy(run) {
-  if (!spendAp(run, 1)) return { ok: false, message: "行动力不足" };
-  run.strategyProgress = (run.strategyProgress || 0) + 1;
-  gainExp(run, 25);
-  log(run, `推演计略，进度 ${run.strategyProgress}/3。`);
-  if (run.strategyProgress >= 3) {
-    run.strategyProgress = 0;
-    saveRun(run);
-    return { ok: true, ready: true };
-  }
-  saveRun(run);
-  return { ok: true, ready: false };
 }
 
 function applySkillCompletion(run, skill) {
@@ -333,11 +477,11 @@ export function gainExp(run, amount) {
     run.martialExp -= need;
     run.level++;
     run.rankStars++;
-    run.stats.hp += 120;
+    run.stats.hp += 180;
     run.stats.qi += 20;
     run.stats.atk += 3;
     run.stats.def += 2;
-    run.hp += 120;
+    run.hp += 180;
     run.qi += 20;
     log(run, `地位提升为${getRankTitle(run)}，血量+120，内力+20，攻击+3，防御+2。`);
     leveled = true;
@@ -351,65 +495,6 @@ export function expNeed(level) {
 
 export function getRankTitle(run) {
   return RANK_TITLES[Math.min(RANK_TITLES.length - 1, Math.max(0, run.level - 1))];
-}
-
-export function buildStrategyChoices(run) {
-  const available = DATA.strategies.filter(s => RARITIES[s.rarity].year <= run.year);
-  if (!run.selectedSchool) return sample(available, 3);
-  const locked = sample(available.filter(s => s.school === run.selectedSchool), 1);
-  const others = sample(available.filter(s => s.school !== run.selectedSchool), 2);
-  return [...locked, ...others].slice(0, 3);
-}
-
-export function addStrategy(run, strategyId) {
-  run.strategies.push(strategyId);
-  const strategy = DATA.strategies.find(s => s.id === strategyId);
-  log(run, `获得计略：${strategy.name}（${strategy.effectsText}）。`);
-  if (run.treasure.effect === "moonPearl" && Math.random() < 0.25) {
-    const extra = rand(DATA.strategies.filter(s => s.rarity === "blue"));
-    run.strategies.push(extra.id);
-    log(run, `万象珠生效，额外获得计略：${extra.name}。`);
-  }
-  saveRun(run);
-}
-
-export function toggleActiveStrategy(run, index) {
-  run.activeStrategies ||= [];
-  const strategyId = run.strategies[index];
-  const strategy = DATA.strategies.find(s => s.id === strategyId);
-  if (!strategy) return { ok: false, message: "计略选择无效" };
-  if (run.activeStrategies.includes(index)) {
-    applyStrategyStats(run, strategy, -1);
-    run.activeStrategies = run.activeStrategies.filter(i => i !== index);
-  } else {
-    if (run.activeStrategies.length >= 2) return { ok: false, message: "最多上场两个计略" };
-    run.activeStrategies.push(index);
-    applyStrategyStats(run, strategy, 1);
-  }
-  saveRun(run);
-  return { ok: true };
-}
-
-export function mergeStrategies(run, indices = []) {
-  const selected = [...new Set(indices.map(Number))].sort((a, b) => b - a);
-  if (selected.length !== 2) return { ok: false, message: "请选择两个计略合成" };
-  const [aIndex, bIndex] = selected;
-  const aId = run.strategies[aIndex];
-  const bId = run.strategies[bIndex];
-  const first = DATA.strategies.find(s => s.id === aId);
-  const second = DATA.strategies.find(s => s.id === bId);
-  if (!first || !second) return { ok: false, message: "计略选择无效" };
-  if (first.rarity !== second.rarity) return { ok: false, message: "需要两个品质相同的计略" };
-  if (first.rarity === "red") return { ok: false, message: "红色计略无法继续合成" };
-  clearActiveStrategies(run);
-  for (const index of selected) run.strategies.splice(index, 1);
-  const next = first.rarity === "blue" ? "orange" : "red";
-  const pool = DATA.strategies.filter(s => s.rarity === next && (s.school === first.school || s.school === second.school));
-  const got = rand(pool.length ? pool : DATA.strategies.filter(s => s.rarity === next));
-  run.strategies.push(got.id);
-  log(run, `融合计略，获得${got.name}（${got.effectsText}）。`);
-  saveRun(run);
-  return { ok: true };
 }
 
 export function buyShopEntry(run, entry) {
@@ -436,6 +521,34 @@ export function buyWeapon(run, weaponId) {
   run.money -= weapon.price;
   run.weapons.push(weaponId);
   log(run, `购买武器：${weapon.name}。`);
+  saveRun(run);
+  return { ok: true };
+}
+
+export function buyInternalArt(run, artId) {
+  const art = DATA.internalArts[artId];
+  if (!art) return { ok: false, message: "不存在该内功" };
+  const price = art.rarity === "red" ? 1200 : art.rarity === "orange" ? 680 : 360;
+  if (run.money < price) return { ok: false, message: "金钱不足" };
+  if (run.internalArts.includes(artId)) return { ok: false, message: "已经拥有" };
+  run.money -= price;
+  run.internalArts.push(artId);
+  // 立即获得属性加成
+  for (const [key, value] of Object.entries(art.statGain || {})) {
+    run.stats[key] = Number(((run.stats[key] || 0) + value).toFixed(2));
+  }
+  run.hp = Math.min(run.hp + (art.statGain?.hp || 0), run.stats.hp);
+  run.qi = Math.min(run.qi + (art.statGain?.qi || 0), run.stats.qi);
+  log(run, `购买内功秘籍：《${art.name}》。${art.desc}`);
+  saveRun(run);
+  return { ok: true };
+}
+
+export function equipInternalArt(run, artId) {
+  if (!run.internalArts.includes(artId)) return { ok: false, message: "尚未获得该内功" };
+  // 切换装备：先移除旧效果（这里简化，直接换）
+  run.activeInternalArt = artId;
+  log(run, `装备内功：《${DATA.internalArts[artId].name}》。`);
   saveRun(run);
   return { ok: true };
 }
@@ -486,24 +599,6 @@ function addActiveSkillInOrder(run, skillId) {
   if (run.activeSkills.length >= 4) return { ok: false, message: "最多上场4个招式" };
   run.activeSkills.push(skillId);
   return { ok: true };
-}
-
-function clearActiveStrategies(run) {
-  run.activeStrategies ||= [];
-  for (const index of run.activeStrategies) {
-    const strategy = DATA.strategies.find(s => s.id === run.strategies[index]);
-    if (strategy) applyStrategyStats(run, strategy, -1);
-  }
-  run.activeStrategies = [];
-}
-
-function applyStrategyStats(run, strategy, direction) {
-  for (const [key, value] of Object.entries(strategy.effects || {})) {
-    if (!STAT_KEYS.includes(key)) continue;
-    run.stats[key] = Number(((run.stats[key] || 0) + value * direction).toFixed(2));
-  }
-  run.hp = Math.min(run.hp, run.stats.hp);
-  run.qi = Math.min(run.qi, run.stats.qi);
 }
 
 export function settleRun(state, result, reason) {

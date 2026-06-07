@@ -921,6 +921,25 @@ button {
   overflow: auto;
 }
 
+.merchant-layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+}
+
+.merchant-col {
+  display: grid;
+  gap: 8px;
+}
+
+.merchant-col h3 {
+  margin: 8px 0 4px 0;
+  font-size: 18px;
+  color: var(--brown);
+  border-bottom: 2px solid var(--line-soft);
+  padding-bottom: 4px;
+}
+
 .modal-head {
   display: flex;
   justify-content: space-between;
@@ -955,6 +974,20 @@ button {
   display: grid;
   grid-template-rows: auto 1fr auto;
   gap: 10px;
+  position: relative;
+  overflow: hidden;
+}
+
+.event-cat-tag {
+  position: absolute;
+  top: 0;
+  right: 0;
+  padding: 3px 12px;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 700;
+  border-radius: 0 0 0 8px;
+  z-index: 1;
 }
 
 .event-card h3,
