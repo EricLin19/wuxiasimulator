@@ -2,6 +2,23 @@ import { DATA, STAT_LABELS, STAT_KEYS, SCHOOLS, RARITIES } from "../data/content
 import { monthAbs } from "../core/utils.js";
 import { expNeed, getRankTitle } from "../systems/runSystem.js";
 
+// 特性描述弹窗（替代 alert，避免手机横屏旋转）
+window.__showTraitDesc = function (el) {
+  const name = el.dataset.traitName || "";
+  const desc = (el.dataset.traitDesc || "").replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&quot;/g, "\"");
+  const app = document.getElementById("app");
+  if (app.querySelector(".trait-desc-backdrop")) return;
+  const backdrop = document.createElement("div");
+  backdrop.className = "modal-backdrop trait-desc-backdrop";
+  backdrop.onclick = (e) => { if (e.target === backdrop) backdrop.remove(); };
+  const modal = document.createElement("div");
+  modal.className = "modal";
+  modal.innerHTML = `<div class="modal-head"><h2 class="modal-title">${name}</h2><button class="btn red small">关闭</button></div><div style="padding:16px;color:#e0d5c0;line-height:1.8">${desc || "暂无描述"}</div>`;
+  modal.querySelector("button").onclick = () => backdrop.remove();
+  backdrop.appendChild(modal);
+  app.appendChild(backdrop);
+};
+
 const STAT_HELP = {
   hp: "局外每点：新局血量+20",
   qi: "局外每点：新局内力+15",
@@ -423,7 +440,7 @@ function statLine(key, value) {
 
 function traitChip(name, title, desc) {
   const d = escapeHtml(desc || title || "");
-  return `<span class="trait-chip" title="${escapeHtml(title || "")}" data-desc="${d}" onclick="alert(this.dataset.desc || this.title)">${name}</span>`;
+  return `<span class="trait-chip" title="${escapeHtml(title || "")}" data-trait-name="${escapeHtml(name)}" data-trait-desc="${d}" onclick="if(window.__showTraitDesc)window.__showTraitDesc(this)">${name}</span>`;
 }
 
 function weaponTitle(weapon) {
