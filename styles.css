@@ -477,6 +477,40 @@ button {
   font-weight: 900;
 }
 
+.settings-wrap {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+}
+.settings-btn {
+  background: none;
+  border: 1px solid #555;
+  color: #c0b094;
+  font-size: 26px;
+  width: 42px;
+  height: 42px;
+  border-radius: 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: border-color 0.2s, color 0.2s;
+}
+.settings-btn:hover { border-color: #f0c060; color: #f0c060; }
+.settings-body { padding: 16px 20px; }
+.setting-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  font-size: 18px;
+  color: #d4c8a8;
+}
+.vol-slider {
+  flex: 1;
+  accent-color: #c0a060;
+  height: 8px;
+}
+
 .ap-wrap {
   display: flex;
   align-items: center;

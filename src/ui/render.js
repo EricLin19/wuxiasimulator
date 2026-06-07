@@ -108,7 +108,7 @@ function renderSelect(state, actions) {
   return screen;
 }
 
-function renderTopbar(run) {
+function renderTopbar(run, actions) {
   const sl = DATA.storylines?.[run.storylineId];
   const storylineName = sl?.name || "江湖";
   const threatName = sl?.threatName || "";
@@ -116,16 +116,17 @@ function renderTopbar(run) {
   const threatText = run.mainThreat > 0 ? `<span style="color:${threatColor};font-size:13px;margin-left:6px">${threatName}：${run.mainThreat}</span>` : "";
   const top = el("div", "topbar");
   top.innerHTML = `
-    <div class="date">第${run.year}年·${run.month}月　${storylineName}${threatText}</div>
+    <div class="date"><span>◎${run.money}</span>　第${run.year}年·${run.month}月　${storylineName}${threatText}</div>
     <div class="ap-wrap">行动力 ${run.ap}/${run.maxAp}</div>
-    <div class="resource-row"><span>◎${run.money}</span></div>`;
+    <div class="settings-wrap"><button class="settings-btn" data-act="settings" title="设置">⚙</button></div>`;
+  top.querySelector("[data-act=settings]").onclick = actions.openSettings;
   return top;
 }
 
 function renderRun(state, actions) {
   const run = state.run;
   const root = el("div");
-  root.appendChild(renderTopbar(run));
+  root.appendChild(renderTopbar(run, actions));
   const screen = el("div", "screen run-layout");
   screen.innerHTML = `
     <div class="left-nav">
@@ -172,7 +173,8 @@ function renderModal(state, actions) {
     backpack: () => renderBackpackModal(modal, run, actions, close),
     goals: () => renderGoalsModal(modal, run, close),
     journal: () => renderJournalModal(modal, run, close),
-    battleItems: () => renderBattleItemsModal(modal, run, state.battle, actions)
+    battleItems: () => renderBattleItemsModal(modal, run, state.battle, actions),
+    settings: () => renderSettingsModal(modal, state, actions, close)
   };
   renderers[state.modal.type]?.();
   const closeBtn = modal.querySelector("[data-close]");
@@ -522,6 +524,17 @@ function renderBattleItemsModal(modal, run, battle, actions) {
 
 function renderJournalModal(modal, run, close) {
   modal.innerHTML = `<div class="modal-head"><h2 class="modal-title">江湖纪要</h2>${close}</div><div class="journal-scroll">${run.log.join("")}</div>`;
+}
+
+function renderSettingsModal(modal, state, actions, close) {
+  modal.innerHTML = `<div class="modal-head"><h2 class="modal-title">设置</h2>${close}</div><div class="settings-body"><div class="setting-row"><span>音乐音量</span><input type="range" min="0" max="100" value="${Math.round((state.musicVolume ?? 0.5) * 100)}" data-vol-slider class="vol-slider"><span data-vol-label>${Math.round((state.musicVolume ?? 0.5) * 100)}%</span></div></div>`;
+  const slider = modal.querySelector("[data-vol-slider]");
+  const label = modal.querySelector("[data-vol-label]");
+  slider.oninput = () => {
+    const v = parseInt(slider.value) / 100;
+    label.textContent = slider.value + "%";
+    actions.setMusicVolume(v);
+  };
 }
 
 function renderSettlement(state, actions) {

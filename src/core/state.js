@@ -9,5 +9,6 @@ export const state = {
   modal: null,
   toast: "",
   meta: loadMeta(),
-  settlement: null
+  settlement: null,
+  musicVolume: 0.5
 };

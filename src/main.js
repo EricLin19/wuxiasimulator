@@ -26,6 +26,7 @@ import {
   toggleActiveSkill
 } from "./systems/runSystem.js";
 import { buildRewardChoices, takeReward } from "./systems/rewardSystem.js";
+import { syncMusicForState, setVolume as audioSetVolume } from "./systems/audioSystem.js";
 import {
   createBattle,
   tickBattle,
@@ -53,6 +54,7 @@ function showToast(text) {
 
 function render() {
   renderApp(state, actions);
+  syncMusicForState(state);
 }
 
 function fitMobileViewport() {
@@ -204,6 +206,14 @@ const actions = {
     render();
   },
   closeModal: () => { state.modal = null; render(); },
+  openSettings: () => {
+    state.modal = { type: "settings" };
+    render();
+  },
+  setMusicVolume: v => {
+    state.musicVolume = v;
+    audioSetVolume(v);
+  },
   chooseEvent: id => {
     resolveEvent(state.run, id, {
       openMerchant: () => { state.modal = { type: "merchant" }; },
@@ -313,6 +323,7 @@ const actions = {
   useItem: id => {
     const result = battleUseItem(state.run, state.battle, id);
     if (result.message) return showToast(result.message);
+    state.modal = null;
     resolveBattleResult(result);
     render();
   },
