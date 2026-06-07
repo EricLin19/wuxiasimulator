@@ -63,9 +63,9 @@ function qinggong(id, name, rarity, train, statGain, trait) {
 
 export const DATA = {
   characters: [
-    { id: "wanderer", name: "沈孤云", faction: "江湖浪客", icon: "浪", portrait: "wanderer", portraitImage: "assets/portraits/shen_guyun.png", desc: "走南闯北的散人，出手灵活，适合尝试各类构筑。", traitText: "浪游：战斗开始出手速度+0.12，胜利金钱+8%。", stats: stats(500, 275, 56, 34, 6, 62, 4, 7, 1.45), traits: ["wanderer"], skills: ["mixedFist"] },
-    { id: "constable", name: "陆惊尘", faction: "镇抚司", icon: "鹰", portrait: "constable", portraitImage: "assets/portraits/lu_jingchen.png", desc: "朝廷鹰犬，命中高、压制强，适合稳扎稳打。", traitText: "缉凶：命中+6，击败敌人额外获得经验。", stats: stats(540, 250, 60, 38, 4, 70, 2, 6, 1.35), traits: ["constable"], skills: ["quickSlash"] },
-    { id: "orthodox", name: "顾明昭", faction: "天衡剑派", icon: "正", portrait: "orthodox", portraitImage: "assets/portraits/gu_mingzhao.png", desc: "名门正派弟子，根基厚实，成长稳定。", traitText: "正脉：最大血量+50，最大内力+40，修炼经验+8%。", stats: stats(600, 300, 54, 42, 5, 60, 3, 5, 1.25), traits: ["orthodox"], skills: ["fist_blue_1"] }
+    { id: "wanderer", name: "沈孤云", faction: "江湖浪客", icon: "浪", portrait: "wanderer", portraitImage: "assets/portraits_pixel/shen_guyun_pixel_320.webp", desc: "走南闯北的散人，出手灵活，适合尝试各类构筑。", traitText: "浪游：战斗开始出手速度+0.12，胜利金钱+8%。", stats: stats(500, 275, 56, 34, 6, 62, 4, 7, 1.45), traits: ["wanderer"], skills: ["mixedFist"] },
+    { id: "constable", name: "陆惊尘", faction: "镇抚司", icon: "鹰", portrait: "constable", portraitImage: "assets/portraits_pixel/lu_jingchen_pixel_320.webp", desc: "朝廷鹰犬，命中高、压制强，适合稳扎稳打。", traitText: "缉凶：命中+6，击败敌人额外获得经验。", stats: stats(540, 250, 60, 38, 4, 70, 2, 6, 1.35), traits: ["constable"], skills: ["quickSlash"] },
+    { id: "orthodox", name: "顾明昭", faction: "天衡剑派", icon: "正", portrait: "orthodox", portraitImage: "assets/portraits_pixel/gu_mingzhao_pixel_320.webp", desc: "名门正派弟子，根基厚实，成长稳定。", traitText: "正脉：最大血量+50，最大内力+40，修炼经验+8%。", stats: stats(600, 300, 54, 42, 5, 60, 3, 5, 1.25), traits: ["orthodox"], skills: ["fist_blue_1"] }
   ],
   treasures: [
     { id: "inkTally", name: "青玉功牌", icon: "牌", desc: "所有经验获取+12%。", effect: "expBoost" },
@@ -230,13 +230,13 @@ export const DATA = {
     armor_tianheng_red: { id: "armor_tianheng_red", name: "天衡御心甲", icon: "甲", rarity: "red", price: 960, hp: 900, def: 22, desc: "御心之力。低于25%血时直接伤害-50%，持续伤害-25%。", lowHpGuard: 0.5, dotReduce: 0.25, lowHpThreshold: 0.25 }
   },
   enemies: [
-    { id: "rogue", name: "二流高手", icon: "贼", hp: 260, qi: 120, atk: 46, def: 22, combo: 2, hit: 55, dodge: 2, crit: 5, speed: 1.25, rank: 1 },
-    { id: "blade", name: "快刀手", icon: "刀", hp: 330, qi: 180, atk: 62, def: 30, combo: 3, hit: 65, dodge: 3, crit: 8, speed: 1.55, rank: 2 },
-    { id: "highDodgeAssassin", name: "踏影刺客", icon: "影", hp: 300, qi: 220, atk: 66, def: 24, combo: 5, hit: 76, dodge: 42, crit: 14, speed: 1.85, rank: 2, trait: "evasive", traitName: "高闪避", traitDesc: "闪避极高，考验命中和必中招式。" },
-    { id: "armorBreakBlade", name: "裂甲刀客", icon: "破", hp: 390, qi: 210, atk: 74, def: 34, combo: 3, hit: 68, dodge: 2, crit: 9, speed: 1.42, rank: 3, trait: "armorBreak", traitName: "破防刀", traitDesc: "攻击会忽略部分防御，并削弱防御。" },
-    { id: "qiSuppressFist", name: "断脉拳师", icon: "拳", hp: 420, qi: 280, atk: 68, def: 38, combo: 7, hit: 70, dodge: 4, crit: 8, speed: 1.38, rank: 3, trait: "qiSuppress", traitName: "压制内力", traitDesc: "攻击会额外削减内力，逼迫调息节奏。" },
-    { id: "witch", name: "毒娘子", icon: "毒", hp: 390, qi: 260, atk: 58, def: 32, combo: 4, hit: 66, dodge: 5, crit: 9, speed: 1.45, rank: 3 },
-    { id: "demon", name: "心魔", icon: "魔", hp: 560, qi: 300, atk: 82, def: 42, combo: 6, hit: 66, dodge: 4, crit: 12, speed: 1.4, rank: 4 }
+    { id: "rogue", name: "二流高手", icon: "贼", portraitImage: "assets/portraits_pixel/rogue_pixel_320.webp", hp: 260, qi: 120, atk: 46, def: 22, combo: 2, hit: 55, dodge: 2, crit: 5, speed: 1.25, rank: 1 },
+    { id: "blade", name: "快刀手", icon: "刀", portraitImage: "assets/portraits_pixel/blade_pixel_320.webp", hp: 330, qi: 180, atk: 62, def: 30, combo: 3, hit: 65, dodge: 3, crit: 8, speed: 1.55, rank: 2 },
+    { id: "highDodgeAssassin", name: "踏影刺客", icon: "影", portraitImage: "assets/portraits_pixel/highDodgeAssassin_pixel_320.webp", hp: 300, qi: 220, atk: 66, def: 24, combo: 5, hit: 76, dodge: 42, crit: 14, speed: 1.85, rank: 2, trait: "evasive", traitName: "高闪避", traitDesc: "闪避极高，考验命中和必中招式。" },
+    { id: "armorBreakBlade", name: "裂甲刀客", icon: "破", portraitImage: "assets/portraits_pixel/armorBreakBlade_pixel_320.webp", hp: 390, qi: 210, atk: 74, def: 34, combo: 3, hit: 68, dodge: 2, crit: 9, speed: 1.42, rank: 3, trait: "armorBreak", traitName: "破防刀", traitDesc: "攻击会忽略部分防御，并削弱防御。" },
+    { id: "qiSuppressFist", name: "断脉拳师", icon: "拳", portraitImage: "assets/portraits_pixel/qiSuppressFist_pixel_320.webp", hp: 420, qi: 280, atk: 68, def: 38, combo: 7, hit: 70, dodge: 4, crit: 8, speed: 1.38, rank: 3, trait: "qiSuppress", traitName: "压制内力", traitDesc: "攻击会额外削减内力，逼迫调息节奏。" },
+    { id: "witch", name: "毒娘子", icon: "毒", portraitImage: "assets/portraits_pixel/witch_pixel_320.webp", hp: 390, qi: 260, atk: 58, def: 32, combo: 4, hit: 66, dodge: 5, crit: 9, speed: 1.45, rank: 3 },
+    { id: "demon", name: "心魔", icon: "魔", portraitImage: "assets/portraits_pixel/demon_pixel_320.webp", hp: 560, qi: 300, atk: 82, def: 42, combo: 6, hit: 66, dodge: 4, crit: 12, speed: 1.4, rank: 4 }
   ],
   bosses: [
     { id: "boss_y1", name: "青竹寨主", icon: "刀", year: 1, hp: 560, qi: 260, atk: 78, def: 42, combo: 4, hit: 68, dodge: 4, crit: 10, speed: 1.35, boss: true },
@@ -365,9 +365,9 @@ DATA.storylines = {
     threatName: "武盟威势",
     threatDesc: "武盟对散人的压迫日增",
     bosses: {
-      1: { id: "wanderer_boss_y1", name: "青旗堂主·陆闻川", icon: "刀", portraitImage: "assets/portraits/lu_wenchuan.png", year: 1, hp: 2000, qi: 620, atk: 108, def: 64, combo: 4, hit: 76, dodge: 8, crit: 12, speed: 1.48, boss: true, bossTrait: "bleedPer3", bossTraitDesc: "每3回合对玩家叠加2层流血；直接伤害附带轻破防" },
-      2: { id: "wanderer_boss_y2", name: "执法长老·孟天衡", icon: "掌", portraitImage: "assets/portraits/meng_tianheng.png", year: 2, hp: 3800, qi: 1050, atk: 150, def: 105, combo: 5, hit: 84, dodge: 10, crit: 14, speed: 1.58, boss: true, bossTrait: "hamstringCap", bossTraitDesc: "断筋上限+2；玩家速度最低可被压到70%" },
-      3: { id: "wanderer_final", name: "武盟帮主·岳宗玄", icon: "魔", portraitImage: "assets/portraits/yue_zongxuan.png", year: 3, hp: 7600, qi: 2100, atk: 225, def: 165, combo: 8, hit: 92, dodge: 16, crit: 22, speed: 1.72, boss: true, bossTrait: "shieldCleanCounter", bossTraitDesc: "开场25%护体；50%血净化一次；低血反击" }
+      1: { id: "wanderer_boss_y1", name: "青旗堂主·陆闻川", icon: "刀", portraitImage: "assets/portraits_pixel/lu_wenchuan_pixel_320.webp", year: 1, hp: 2000, qi: 620, atk: 108, def: 64, combo: 4, hit: 76, dodge: 8, crit: 12, speed: 1.48, boss: true, bossTrait: "bleedPer3", bossTraitDesc: "每3回合对玩家叠加2层流血；直接伤害附带轻破防" },
+      2: { id: "wanderer_boss_y2", name: "执法长老·孟天衡", icon: "掌", portraitImage: "assets/portraits_pixel/meng_tianheng_pixel_320.webp", year: 2, hp: 3800, qi: 1050, atk: 150, def: 105, combo: 5, hit: 84, dodge: 10, crit: 14, speed: 1.58, boss: true, bossTrait: "hamstringCap", bossTraitDesc: "断筋上限+2；玩家速度最低可被压到70%" },
+      3: { id: "wanderer_final", name: "武盟帮主·岳宗玄", icon: "魔", portraitImage: "assets/portraits_pixel/yue_zongxuan_pixel_320.webp", year: 3, hp: 7600, qi: 2100, atk: 225, def: 165, combo: 8, hit: 92, dodge: 16, crit: 22, speed: 1.72, boss: true, bossTrait: "shieldCleanCounter", bossTraitDesc: "开场25%护体；50%血净化一次；低血反击" }
     },
     events: [
       { id: "wanderer_notice", name: "武盟征帖", category: "主线", icon: "帖", desc: "武盟命散人入册听调，不从者视为武林公敌。", type: "story", yearMin: 1, yearMax: 3 },
@@ -383,9 +383,9 @@ DATA.storylines = {
     threatName: "内廷疑云",
     threatDesc: "内廷爪牙渗透日深",
     bosses: {
-      1: { id: "constable_boss_y1", name: "东厂档头·韩玉阙", icon: "镖", portraitImage: "assets/portraits/han_yuque.png", year: 1, hp: 1850, qi: 700, atk: 100, def: 58, combo: 5, hit: 86, dodge: 10, crit: 10, speed: 1.60, boss: true, bossTrait: "highHitPoison", bossTraitDesc: "暗器命中高；毒层结算后自然衰减" },
-      2: { id: "constable_boss_y2", name: "锦衣指挥使·沈镇岳", icon: "刀", portraitImage: "assets/portraits/shen_zhenyue.png", year: 2, hp: 3600, qi: 980, atk: 165, def: 92, combo: 6, hit: 88, dodge: 12, crit: 20, speed: 1.62, boss: true, bossTrait: "critBreakDef", bossTraitDesc: "暴击破防；玩家防御最多被压到75%" },
-      3: { id: "constable_final", name: "司礼监掌印·魏承恩", icon: "魔", portraitImage: "assets/portraits/wei_chengen.png", year: 3, hp: 7200, qi: 2300, atk: 210, def: 145, combo: 7, hit: 95, dodge: 20, crit: 18, speed: 1.82, boss: true, bossTrait: "drainQiImmuneBurst", bossTraitDesc: "每回合吸内；前3回合免疫负面；内力低时爆发" }
+      1: { id: "constable_boss_y1", name: "东厂档头·韩玉阙", icon: "镖", portraitImage: "assets/portraits_pixel/han_yuque_pixel_320.webp", year: 1, hp: 1850, qi: 700, atk: 100, def: 58, combo: 5, hit: 86, dodge: 10, crit: 10, speed: 1.60, boss: true, bossTrait: "highHitPoison", bossTraitDesc: "暗器命中高；毒层结算后自然衰减" },
+      2: { id: "constable_boss_y2", name: "锦衣指挥使·沈镇岳", icon: "刀", portraitImage: "assets/portraits_pixel/shen_zhenyue_pixel_320.webp", year: 2, hp: 3600, qi: 980, atk: 165, def: 92, combo: 6, hit: 88, dodge: 12, crit: 20, speed: 1.62, boss: true, bossTrait: "critBreakDef", bossTraitDesc: "暴击破防；玩家防御最多被压到75%" },
+      3: { id: "constable_final", name: "司礼监掌印·魏承恩", icon: "魔", portraitImage: "assets/portraits_pixel/wei_chengen_pixel_320.webp", year: 3, hp: 7200, qi: 2300, atk: 210, def: 145, combo: 7, hit: 95, dodge: 20, crit: 18, speed: 1.82, boss: true, bossTrait: "drainQiImmuneBurst", bossTraitDesc: "每回合吸内；前3回合免疫负面；内力低时爆发" }
     },
     events: [
       { id: "constable_edict", name: "密诏夜传", category: "主线", icon: "诏", desc: "内廷密使深夜造访，传了一道密诏：要你秘密调查锦衣卫中的叛党。", type: "story", yearMin: 1, yearMax: 3 },
@@ -401,9 +401,9 @@ DATA.storylines = {
     threatName: "鬼教阴影",
     threatDesc: "鬼教势力暗中蔓延",
     bosses: {
-      1: { id: "orthodox_boss_y1", name: "鬼教香主·白无咎", icon: "毒", portraitImage: "assets/portraits/bai_wujiu.png", year: 1, hp: 1900, qi: 760, atk: 96, def: 60, combo: 5, hit: 78, dodge: 12, crit: 10, speed: 1.52, boss: true, bossTrait: "poisonGuPerTurn", bossTraitDesc: "每回合毒+1蛊+1；每回合只衰减一种负面" },
-      2: { id: "orthodox_boss_y2", name: "黑莲护法·桑暮雨", icon: "魔", portraitImage: "assets/portraits/sang_muyu.png", year: 2, hp: 3900, qi: 1200, atk: 145, def: 95, combo: 6, hit: 84, dodge: 16, crit: 14, speed: 1.65, boss: true, bossTrait: "drainQiLowShield", bossTraitDesc: "命中吸内；低血获得15%护体" },
-      3: { id: "orthodox_final", name: "鬼教掌门·夜摩罗", icon: "魔", portraitImage: "assets/portraits/ye_moluo.png", year: 3, hp: 7800, qi: 2200, atk: 220, def: 150, combo: 8, hit: 90, dodge: 22, crit: 20, speed: 1.78, boss: true, bossTrait: "poisonGuCapCleanse", bossTraitDesc: "毒蛊上限+3；50%血时净化并回血20%" }
+      1: { id: "orthodox_boss_y1", name: "鬼教香主·白无咎", icon: "毒", portraitImage: "assets/portraits_pixel/bai_wujiu_pixel_320.webp", year: 1, hp: 1900, qi: 760, atk: 96, def: 60, combo: 5, hit: 78, dodge: 12, crit: 10, speed: 1.52, boss: true, bossTrait: "poisonGuPerTurn", bossTraitDesc: "每回合毒+1蛊+1；每回合只衰减一种负面" },
+      2: { id: "orthodox_boss_y2", name: "黑莲护法·桑暮雨", icon: "魔", portraitImage: "assets/portraits_pixel/sang_muyu_pixel_320.webp", year: 2, hp: 3900, qi: 1200, atk: 145, def: 95, combo: 6, hit: 84, dodge: 16, crit: 14, speed: 1.65, boss: true, bossTrait: "drainQiLowShield", bossTraitDesc: "命中吸内；低血获得15%护体" },
+      3: { id: "orthodox_final", name: "鬼教掌门·夜摩罗", icon: "魔", portraitImage: "assets/portraits_pixel/ye_moluo_pixel_320.webp", year: 3, hp: 7800, qi: 2200, atk: 220, def: 150, combo: 8, hit: 90, dodge: 22, crit: 20, speed: 1.78, boss: true, bossTrait: "poisonGuCapCleanse", bossTraitDesc: "毒蛊上限+3；50%血时净化并回血20%" }
     },
     events: [
       { id: "orthodox_plague", name: "村镇蛊疫", category: "主线", icon: "疫", desc: "山脚村镇突然爆发怪病，村民高烧不退，似是蛊毒作祟。", type: "story", yearMin: 1, yearMax: 2 },
@@ -420,12 +420,12 @@ DATA.storylines = {
 
 // 小Boss池
 DATA.miniBosses = [
-  { id: "mini_bleed_blade", name: "血刀客", icon: "刀", yearMin: 2, hp: 1400, qi: 420, atk: 85, def: 45, combo: 4, hit: 72, dodge: 6, crit: 10, speed: 1.42, boss: true, bossTrait: "miniBleed", bossTraitDesc: "流血+2，上限10", rank: 3 },
-  { id: "mini_frost_assassin", name: "寒衣刺客", icon: "影", yearMin: 2, hp: 1200, qi: 500, atk: 78, def: 38, combo: 5, hit: 80, dodge: 28, crit: 12, speed: 1.70, boss: true, bossTrait: "miniFrost", bossTraitDesc: "高闪避，寒气+1", rank: 3 },
-  { id: "mini_hamstring_blade", name: "断筋刀师", icon: "刀", yearMin: 2, hp: 2400, qi: 760, atk: 120, def: 70, combo: 5, hit: 80, dodge: 10, crit: 12, speed: 1.50, boss: true, bossTrait: "miniHamstring", bossTraitDesc: "断筋+2，削攻", rank: 4 },
-  { id: "mini_gu_priest", name: "蛊道人", icon: "毒", yearMin: 2, hp: 2200, qi: 900, atk: 105, def: 60, combo: 4, hit: 78, dodge: 14, crit: 10, speed: 1.48, boss: true, bossTrait: "miniGu", bossTraitDesc: "蛊+2，增加耗内", rank: 4 },
-  { id: "mini_coin_dart", name: "金钱镖客", icon: "镖", yearMin: 2, hp: 2000, qi: 600, atk: 110, def: 55, combo: 5, hit: 88, dodge: 12, crit: 12, speed: 1.62, boss: true, bossTrait: "miniCoin", bossTraitDesc: "每2回合一次必中固定伤害", rank: 4 },
-  { id: "mini_armor_monk", name: "玄甲武师", icon: "甲", yearMin: 3, hp: 3600, qi: 1000, atk: 150, def: 130, combo: 3, hit: 82, dodge: 8, crit: 10, speed: 1.35, boss: true, bossTrait: "miniArmor", bossTraitDesc: "高防，开场20%护体", rank: 5 }
+  { id: "mini_bleed_blade", name: "血刀客", icon: "刀", portraitImage: "assets/portraits_pixel/mini_bleed_blade_pixel_320.webp", yearMin: 2, hp: 1400, qi: 420, atk: 85, def: 45, combo: 4, hit: 72, dodge: 6, crit: 10, speed: 1.42, boss: true, bossTrait: "miniBleed", bossTraitDesc: "流血+2，上限10", rank: 3 },
+  { id: "mini_frost_assassin", name: "寒衣刺客", icon: "影", portraitImage: "assets/portraits_pixel/mini_frost_assassin_pixel_320.webp", yearMin: 2, hp: 1200, qi: 500, atk: 78, def: 38, combo: 5, hit: 80, dodge: 28, crit: 12, speed: 1.70, boss: true, bossTrait: "miniFrost", bossTraitDesc: "高闪避，寒气+1", rank: 3 },
+  { id: "mini_hamstring_blade", name: "断筋刀师", icon: "刀", portraitImage: "assets/portraits_pixel/mini_hamstring_blade_pixel_320.webp", yearMin: 2, hp: 2400, qi: 760, atk: 120, def: 70, combo: 5, hit: 80, dodge: 10, crit: 12, speed: 1.50, boss: true, bossTrait: "miniHamstring", bossTraitDesc: "断筋+2，削攻", rank: 4 },
+  { id: "mini_gu_priest", name: "蛊道人", icon: "毒", portraitImage: "assets/portraits_pixel/mini_gu_priest_pixel_320.webp", yearMin: 2, hp: 2200, qi: 900, atk: 105, def: 60, combo: 4, hit: 78, dodge: 14, crit: 10, speed: 1.48, boss: true, bossTrait: "miniGu", bossTraitDesc: "蛊+2，增加耗内", rank: 4 },
+  { id: "mini_coin_dart", name: "金钱镖客", icon: "镖", portraitImage: "assets/portraits_pixel/mini_coin_dart_pixel_320.webp", yearMin: 2, hp: 2000, qi: 600, atk: 110, def: 55, combo: 5, hit: 88, dodge: 12, crit: 12, speed: 1.62, boss: true, bossTrait: "miniCoin", bossTraitDesc: "每2回合一次必中固定伤害", rank: 4 },
+  { id: "mini_armor_monk", name: "玄甲武师", icon: "甲", portraitImage: "assets/portraits_pixel/mini_armor_monk_pixel_320.webp", yearMin: 3, hp: 3600, qi: 1000, atk: 150, def: 130, combo: 3, hit: 82, dodge: 8, crit: 10, speed: 1.35, boss: true, bossTrait: "miniArmor", bossTraitDesc: "高防，开场20%护体", rank: 5 }
 ];
 
 // 主线事件处理逻辑（由 resolveStoryEvent 调用）

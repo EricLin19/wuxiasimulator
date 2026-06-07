@@ -1,30 +1,20 @@
 # 小小侠客立绘资产清单
 
-> 风格基准：采用沈孤云三选一里的最左版方向，偏粗粝、风尘、江湖感。  
-> 画面规格：简洁半身像，腰部以上，3/4 正面，软羊皮纸背景，适合小尺寸 UI 显示。  
-> 资产目录：`assets/portraits/`
+> 风格基准：粗粝、风尘、江湖感，半身武侠像素立绘，软羊皮纸背景。  
+> 实际接入目录：`assets/portraits_pixel/`  
+> 原始高精立绘目录：`assets/portraits/`，保留作母版，不直接用于 UI 加载。  
+> 当前代码默认使用 `*_pixel_320.webp`；`*_pixel_240.webp` 作为小卡片/缩略图备用。
 
 ---
 
 ## 1. UI 使用规范
 
-### 推荐显示尺寸
-
-| 场景 | 建议尺寸 | CSS 建议 |
-|---|---:|---|
-| 角色选择卡片 | 120x160 到 160x210 | `aspect-ratio: 3 / 4; object-fit: cover;` |
-| 角色详情大图 | 220x300 到 280x380 | `aspect-ratio: 3 / 4; object-fit: cover;` |
-| Boss 剧情弹窗 | 240x320 到 320x430 | `aspect-ratio: 3 / 4; object-fit: cover;` |
-| Boss 图鉴 / 预告 | 160x210 到 220x300 | `aspect-ratio: 3 / 4; object-fit: cover;` |
-
-### 裁切建议
-
-- 使用 `object-position: center top;`
-- 头像顶部留 `6%-10%` 空白。
-- 角色卡片中尽量显示到胸口或腰部，不要只裁脸。
-- 所有卡片容器固定比例，避免不同原图尺寸导致 UI 跳动。
-
-### 示例 CSS
+| 场景 | 建议资源 | 建议显示尺寸 | CSS 建议 |
+|---|---|---:|---|
+| 角色选择卡片 | `*_pixel_240.webp` 或 `*_pixel_320.webp` | 120x160 到 160x210 | `aspect-ratio: 3 / 4; object-fit: cover;` |
+| 角色详情大图 | `*_pixel_320.webp` | 220x300 到 280x380 | `aspect-ratio: 3 / 4; object-fit: cover;` |
+| Boss 剧情弹窗 | `*_pixel_320.webp` | 240x320 到 320x427 | `aspect-ratio: 3 / 4; object-fit: cover;` |
+| 战斗立绘 | `*_pixel_320.webp` | 依战斗布局缩放 | `object-fit: cover; object-position: center top;` |
 
 ```css
 .portrait-art {
@@ -39,105 +29,122 @@
 
 ---
 
-## 2. 主角立绘
+## 2. 接入约定
 
-| 角色 ID | 角色名 | 路径 | 用途 |
-|---|---|---|---|
-| `wanderer` | 沈孤云 | `assets/portraits/shen_guyun.png` | 江湖浪客主角 |
-| `constable` | 陆惊尘 | `assets/portraits/lu_jingchen.png` | 朝廷鹰犬主角 |
-| `orthodox` | 顾明昭 | `assets/portraits/gu_mingzhao.png` | 名门正派主角 |
+- `*_pixel_320.webp`：默认接入版本，清晰度和体积平衡。
+- `*_pixel_240.webp`：卡片小图备用版本，体积更小。
+- 生成过程中的 PNG 源图和预览图已清理，避免项目目录被未引用素材拖大。
 
-### 主角数据建议
+---
+
+## 3. 主角立绘
+
+| 角色 ID | 角色名 | 320 WebP | 大小 | 240 WebP | 大小 |
+|---|---|---|---:|---|---:|
+| `wanderer` | 沈孤云 | `assets/portraits_pixel/shen_guyun_pixel_320.webp` | 22.0 KB | `assets/portraits_pixel/shen_guyun_pixel_240.webp` | 11.7 KB |
+| `constable` | 陆惊尘 | `assets/portraits_pixel/lu_jingchen_pixel_320.webp` | 13.7 KB | `assets/portraits_pixel/lu_jingchen_pixel_240.webp` | 7.5 KB |
+| `orthodox` | 顾明昭 | `assets/portraits_pixel/gu_mingzhao_pixel_320.webp` | 16.7 KB | `assets/portraits_pixel/gu_mingzhao_pixel_240.webp` | 8.9 KB |
+
+代码接入：
 
 ```js
-portraitImage: "assets/portraits/shen_guyun.png"
-portraitImage: "assets/portraits/lu_jingchen.png"
-portraitImage: "assets/portraits/gu_mingzhao.png"
+portraitImage: "assets/portraits_pixel/shen_guyun_pixel_320.webp"
+portraitImage: "assets/portraits_pixel/lu_jingchen_pixel_320.webp"
+portraitImage: "assets/portraits_pixel/gu_mingzhao_pixel_320.webp"
 ```
 
 ---
 
-## 3. 江湖浪客线 Boss
+## 4. 江湖浪客线 Boss
 
 主线：`孤云逐浪`  
 敌对势力：正派武盟
 
-| Boss ID | 名称 | 年份 | 路径 | 定位 |
-|---|---|---:|---|---|
-| `wanderer_boss_y1` | 青旗堂主·陆闻川 | 1 | `assets/portraits/lu_wenchuan.png` | 流血刀 + 破防 |
-| `wanderer_boss_y2` | 执法长老·孟天衡 | 2 | `assets/portraits/meng_tianheng.png` | 高防 + 断筋 |
-| `wanderer_final` | 武盟帮主·岳宗玄 | 3 | `assets/portraits/yue_zongxuan.png` | 护体 + 净化 + 反击 |
+| Boss ID | 名称 | 年份 | 320 WebP | 大小 | 240 WebP | 大小 |
+|---|---|---:|---|---:|---|---:|
+| `wanderer_boss_y1` | 青旗堂主·陆闻川 | 1 | `assets/portraits_pixel/lu_wenchuan_pixel_320.webp` | 14.0 KB | `assets/portraits_pixel/lu_wenchuan_pixel_240.webp` | 7.8 KB |
+| `wanderer_boss_y2` | 执法长老·孟天衡 | 2 | `assets/portraits_pixel/meng_tianheng_pixel_320.webp` | 14.0 KB | `assets/portraits_pixel/meng_tianheng_pixel_240.webp` | 7.7 KB |
+| `wanderer_final` | 武盟帮主·岳宗玄 | 3 | `assets/portraits_pixel/yue_zongxuan_pixel_320.webp` | 14.1 KB | `assets/portraits_pixel/yue_zongxuan_pixel_240.webp` | 7.9 KB |
 
 ---
 
-## 4. 朝廷鹰犬线 Boss
+## 5. 朝廷鹰犬线 Boss
 
 主线：`铁鹰入局`  
 敌对势力：内廷权宦
 
-| Boss ID | 名称 | 年份 | 路径 | 定位 |
-|---|---|---:|---|---|
-| `constable_boss_y1` | 东厂档头·韩玉阙 | 1 | `assets/portraits/han_yuque.png` | 高命中 + 毒暗器 |
-| `constable_boss_y2` | 锦衣指挥使·沈镇岳 | 2 | `assets/portraits/shen_zhenyue.png` | 破防 + 高暴击 |
-| `constable_final` | 司礼监掌印·魏承恩 | 3 | `assets/portraits/wei_chengen.png` | 吸内 + 净化 + 高压制 |
+| Boss ID | 名称 | 年份 | 320 WebP | 大小 | 240 WebP | 大小 |
+|---|---|---:|---|---:|---|---:|
+| `constable_boss_y1` | 东厂档头·韩玉阙 | 1 | `assets/portraits_pixel/han_yuque_pixel_320.webp` | 12.7 KB | `assets/portraits_pixel/han_yuque_pixel_240.webp` | 7.3 KB |
+| `constable_boss_y2` | 锦衣指挥使·沈镇岳 | 2 | `assets/portraits_pixel/shen_zhenyue_pixel_320.webp` | 15.6 KB | `assets/portraits_pixel/shen_zhenyue_pixel_240.webp` | 8.1 KB |
+| `constable_final` | 司礼监掌印·魏承恩 | 3 | `assets/portraits_pixel/wei_chengen_pixel_320.webp` | 13.5 KB | `assets/portraits_pixel/wei_chengen_pixel_240.webp` | 7.3 KB |
 
 ---
 
-## 5. 名门正派线 Boss
+## 6. 名门正派线 Boss
 
 主线：`天衡照邪`  
 敌对势力：鬼教
 
-| Boss ID | 名称 | 年份 | 路径 | 定位 |
-|---|---|---:|---|---|
-| `orthodox_boss_y1` | 鬼教香主·白无咎 | 1 | `assets/portraits/bai_wujiu.png` | 毒 + 下蛊 |
-| `orthodox_boss_y2` | 黑莲护法·桑暮雨 | 2 | `assets/portraits/sang_muyu.png` | 吸内 + 护体 |
-| `orthodox_final` | 鬼教掌门·夜摩罗 | 3 | `assets/portraits/ye_moluo.png` | 毒蛊 + 复苏 + 持续压迫 |
+| Boss ID | 名称 | 年份 | 320 WebP | 大小 | 240 WebP | 大小 |
+|---|---|---:|---|---:|---|---:|
+| `orthodox_boss_y1` | 鬼教香主·白无咎 | 1 | `assets/portraits_pixel/bai_wujiu_pixel_320.webp` | 15.6 KB | `assets/portraits_pixel/bai_wujiu_pixel_240.webp` | 8.5 KB |
+| `orthodox_boss_y2` | 黑莲护法·桑暮雨 | 2 | `assets/portraits_pixel/sang_muyu_pixel_320.webp` | 16.3 KB | `assets/portraits_pixel/sang_muyu_pixel_240.webp` | 9.0 KB |
+| `orthodox_final` | 鬼教掌门·夜摩罗 | 3 | `assets/portraits_pixel/ye_moluo_pixel_320.webp` | 15.8 KB | `assets/portraits_pixel/ye_moluo_pixel_240.webp` | 8.5 KB |
 
 ---
 
-## 6. 建议数据字段
+## 7. 普通奇遇敌人
 
-角色数据可以增加：
+这些敌人由切磋、伏击、擂台、拦路、悬赏等奇遇战斗随机抽取。
 
-```js
-portraitImage: "assets/portraits/shen_guyun.png"
-```
-
-Boss 数据可以增加：
-
-```js
-portraitImage: "assets/portraits/yue_zongxuan.png"
-storylineId: "wanderer"
-year: 3
-```
+| 敌人 ID | 名称 | 320 WebP | 大小 | 240 WebP | 大小 |
+|---|---|---|---:|---|---:|
+| `rogue` | 二流高手 | `assets/portraits_pixel/rogue_pixel_320.webp` | 29.2 KB | `assets/portraits_pixel/rogue_pixel_240.webp` | 18.1 KB |
+| `blade` | 快刀手 | `assets/portraits_pixel/blade_pixel_320.webp` | 26.5 KB | `assets/portraits_pixel/blade_pixel_240.webp` | 16.6 KB |
+| `highDodgeAssassin` | 踏影刺客 | `assets/portraits_pixel/highDodgeAssassin_pixel_320.webp` | 26.7 KB | `assets/portraits_pixel/highDodgeAssassin_pixel_240.webp` | 17.0 KB |
+| `armorBreakBlade` | 裂甲刀客 | `assets/portraits_pixel/armorBreakBlade_pixel_320.webp` | 35.6 KB | `assets/portraits_pixel/armorBreakBlade_pixel_240.webp` | 21.6 KB |
+| `qiSuppressFist` | 断脉拳师 | `assets/portraits_pixel/qiSuppressFist_pixel_320.webp` | 26.1 KB | `assets/portraits_pixel/qiSuppressFist_pixel_240.webp` | 16.5 KB |
+| `witch` | 毒娘子 | `assets/portraits_pixel/witch_pixel_320.webp` | 26.8 KB | `assets/portraits_pixel/witch_pixel_240.webp` | 17.6 KB |
+| `demon` | 心魔 | `assets/portraits_pixel/demon_pixel_320.webp` | 32.3 KB | `assets/portraits_pixel/demon_pixel_240.webp` | 20.0 KB |
 
 ---
 
-## 7. 文件清单
+## 8. 小 Boss
 
-| 文件 | 尺寸 |
-|---|---:|
-| `assets/portraits/shen_guyun.png` | 1086x1448 |
-| `assets/portraits/lu_jingchen.png` | 1023x1537 |
-| `assets/portraits/gu_mingzhao.png` | 1086x1448 |
-| `assets/portraits/lu_wenchuan.png` | 1024x1536 |
-| `assets/portraits/meng_tianheng.png` | 1024x1536 |
-| `assets/portraits/yue_zongxuan.png` | 1086x1448 |
-| `assets/portraits/han_yuque.png` | 1024x1536 |
-| `assets/portraits/shen_zhenyue.png` | 1024x1536 |
-| `assets/portraits/wei_chengen.png` | 1086x1448 |
-| `assets/portraits/bai_wujiu.png` | 1023x1537 |
-| `assets/portraits/sang_muyu.png` | 1023x1537 |
-| `assets/portraits/ye_moluo.png` | 1023x1537 |
+这些敌人由小 Boss 奇遇和部分主线抗争战斗触发。
+
+| 小 Boss ID | 名称 | 320 WebP | 大小 | 240 WebP | 大小 |
+|---|---|---|---:|---|---:|
+| `mini_bleed_blade` | 血刀客 | `assets/portraits_pixel/mini_bleed_blade_pixel_320.webp` | 32.1 KB | `assets/portraits_pixel/mini_bleed_blade_pixel_240.webp` | 20.3 KB |
+| `mini_frost_assassin` | 寒衣刺客 | `assets/portraits_pixel/mini_frost_assassin_pixel_320.webp` | 32.7 KB | `assets/portraits_pixel/mini_frost_assassin_pixel_240.webp` | 20.4 KB |
+| `mini_hamstring_blade` | 断筋刀师 | `assets/portraits_pixel/mini_hamstring_blade_pixel_320.webp` | 34.7 KB | `assets/portraits_pixel/mini_hamstring_blade_pixel_240.webp` | 21.3 KB |
+| `mini_gu_priest` | 蛊道人 | `assets/portraits_pixel/mini_gu_priest_pixel_320.webp` | 37.7 KB | `assets/portraits_pixel/mini_gu_priest_pixel_240.webp` | 23.5 KB |
+| `mini_coin_dart` | 金钱镖客 | `assets/portraits_pixel/mini_coin_dart_pixel_320.webp` | 35.1 KB | `assets/portraits_pixel/mini_coin_dart_pixel_240.webp` | 21.5 KB |
+| `mini_armor_monk` | 玄甲武师 | `assets/portraits_pixel/mini_armor_monk_pixel_320.webp` | 29.0 KB | `assets/portraits_pixel/mini_armor_monk_pixel_240.webp` | 17.8 KB |
 
 ---
 
-## 8. 接入顺序建议
+## 9. 体积对比
 
-1. 先在角色选择页把三个主角立绘替换为 `portraitImage`。
-2. 再在 Boss 剧情弹窗 / 年末挑战界面接入 Boss 立绘。
-3. 统一卡片容器比例为 `3 / 4`。
-4. 所有图片使用 `object-fit: cover` 和 `object-position: center top`。
-5. 每次新增角色或 Boss，都继续沿用“粗粝半身武侠立绘 + 羊皮纸背景”的风格。
+| 类型 | 旧资源大小 | 新默认资源大小 |
+|---|---:|---:|
+| 原始主角 / Boss PNG | 约 2.4 MB 到 3.0 MB / 张 | 不直接加载 |
+| 320 WebP 像素版 | - | 约 12.7 KB 到 37.7 KB / 张 |
+| 240 WebP 像素版 | - | 约 7.3 KB 到 23.5 KB / 张 |
 
+以沈孤云为例：
+
+| 文件 | 尺寸 | 大小 |
+|---|---:|---:|
+| `assets/portraits/shen_guyun.png` | 1086x1448 | 2.69 MB |
+| `assets/portraits_pixel/shen_guyun_pixel_320.webp` | 320x427 | 22.0 KB |
+| `assets/portraits_pixel/shen_guyun_pixel_240.webp` | 240x320 | 11.7 KB |
+
+---
+
+## 10. 接入状态
+
+- `src/data/content.js` 的主角、三条主线年末 Boss、普通奇遇敌人、小 Boss 均已接入 `*_pixel_320.webp`。
+- 原始 PNG 母版仍保留在 `assets/portraits/`。
+- 若后续需要更极限的加载速度，可以在角色选择卡片中单独改用 `*_pixel_240.webp`。
