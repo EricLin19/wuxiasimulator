@@ -115,6 +115,8 @@ export function createBattle(run, enemyTemplate, isBoss = false) {
     run,
     // Per-turn trackers
     turnTrackers: { comboChains: 0, evasiveTriggers: 0, coinThrows: 0, guDisrupts: 0, frostHits: 0, stealTriggers: 0 },
+    // 敌人行动计数（用于限制断脉拳师等前N回合特性）
+    enemyActionCount: 0,
     // Armor trackers
     dragonGuardHp,
     wuxiangTurns: 0,
@@ -388,6 +390,7 @@ export function autoPlayerAction(run, battle) {
 }
 
 export function enemyAction(run, battle) {
+  battle.enemyActionCount = (battle.enemyActionCount || 0) + 1;
   const e = battle.enemy;
   const p = battle.player;
   if (e.qi <= 0) {
@@ -505,8 +508,12 @@ function applyEnemyTraitHit(battle, e, p) {
     addFloater(battle, "player", "破防");
   }
   if (e.stats.trait === "qiSuppress") {
-    const amount = artReduce ? 21 : 42;
-    drainPlayerQi(battle, e, p, amount);
+    if (battle.enemyActionCount > 5) {
+      // 前5回合后才不再削内（断脉拳师削弱：只在前5回合生效）
+    } else {
+      const amount = artReduce ? 21 : 42;
+      drainPlayerQi(battle, e, p, amount);
+    }
   }
 }
 
