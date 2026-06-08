@@ -784,12 +784,14 @@ button {
 
 .run-layout {
   display: grid;
-  grid-template-columns: 190px 1fr;
+  grid-template-columns: 190px minmax(0, 1fr);
   gap: 14px;
   min-height: 0;
+  min-width: 520px;
   height: calc(100vh - 60px);
   align-items: end;
-  overflow: visible;
+  overflow-x: auto;
+  overflow-y: hidden;
 }
 
 .left-nav {
@@ -915,12 +917,14 @@ button {
 
 .wanderer-run-layout {
   display: grid;
-  grid-template-columns: 120px 1fr;
+  grid-template-columns: 120px minmax(0, 1fr);
   gap: 10px;
   min-height: 0;
+  min-width: 520px;
   height: calc(100vh - 60px);
   align-items: stretch;
-  overflow: visible;
+  overflow-x: auto;
+  overflow-y: hidden;
 }
 
 .wanderer-run-layout .left-nav {
@@ -944,21 +948,23 @@ button {
   flex-direction: column;
   gap: 6px;
   min-height: 0;
-  overflow: hidden;
+  min-width: 0;
+  overflow: visible;
 }
 
 .wanderer-run-layout .bottom-actions {
-  grid-template-columns: repeat(5, minmax(70px, 1fr));
+  display: flex;
+  flex-wrap: nowrap;
   gap: 8px;
   flex-shrink: 0;
   overflow: visible;
 }
 
-.wanderer-run-layout .action-card {
+.wanderer-run-layout .bottom-actions .action-card {
+  flex: 0 0 auto;
+  min-width: 72px;
   min-height: 56px;
-  min-width: 60px;
   font-size: 18px;
-  flex-shrink: 0;
 }
 
 .hero-status {
@@ -995,8 +1001,8 @@ button {
 }
 
 .bottom-actions {
-  display: grid;
-  grid-template-columns: repeat(5, minmax(80px, 1fr));
+  display: flex;
+  flex-wrap: nowrap;
   gap: 8px;
   padding-bottom: 0;
   flex-shrink: 0;
@@ -1004,8 +1010,9 @@ button {
 }
 
 .action-card {
+  flex: 0 0 auto;
+  min-width: 72px;
   min-height: 72px;
-  min-width: 60px;
   background: var(--paper);
   border: 4px solid var(--line-soft);
   padding: 8px;
@@ -1015,7 +1022,6 @@ button {
   font-size: 20px;
   font-weight: 900;
   cursor: pointer;
-  flex-shrink: 0;
 }
 
 .side-panel {
