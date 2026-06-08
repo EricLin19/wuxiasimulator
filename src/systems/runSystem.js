@@ -584,6 +584,42 @@ export function resolveEvent(run, eventId, actions) {
 
 // 主线事件选择处理：顺应/抗争
 export function resolveStoryChoice(run, eventId, choice, actions) {
+  // 处理孤云逐浪月度主线剧情选择（不在run.events中，在run.currentStory）
+  if (run.currentStory && run.currentStory.id === eventId) {
+    const story = run.currentStory;
+    const ch = story.choices?.[choice === "accept" ? 0 : 1];
+    if (!ch) return false;
+    const eff = ch.effect || {};
+    if (eff.mainThreat) run.mainThreat = (run.mainThreat || 0) + eff.mainThreat;
+    if (eff.money) { run.money += eff.money; if (run.money < 0) run.money = 0; }
+    if (eff.exp) gainExp(run, eff.exp);
+    if (eff.fame) run.fame = (run.fame || 0) + eff.fame;
+    if (eff.flag) run.storyFlags[eff.flag] = true;
+    if (eff.flag2) run.storyFlags[eff.flag2] = true;
+    if (eff.gainItem) run.items.push(eff.gainItem);
+    if (eff.gainItem2) run.items.push(eff.gainItem2);
+    if (eff.atk) run.stats.atk += eff.atk;
+    if (eff.def) run.stats.def += eff.def;
+    if (eff.hp) { run.stats.hp += eff.hp; run.hp += eff.hp; }
+    if (eff.qi) { run.stats.qi += eff.qi; run.qi += eff.qi; }
+    if (eff.int) run.stats.int = (run.stats.int || 0) + eff.int;
+    if (eff.agi) run.stats.agi = (run.stats.agi || 0) + eff.agi;
+    if (eff.maxHpBoost) { run.stats.hp += eff.maxHpBoost; run.hp += eff.maxHpBoost; }
+    if (eff.qiBoost) { run.stats.qi += eff.qiBoost; run.qi += eff.qiBoost; }
+    if (eff.critBonus) run.critBonus = (run.critBonus || 0) + eff.critBonus;
+    if (eff.allyLossReduced) run.allyLossReduced = (run.allyLossReduced || 0) + eff.allyLossReduced;
+    if (eff.atkBonus) run.atkBonus = (run.atkBonus || 0) + eff.atkBonus;
+    if (eff.hpRecovery) run.hp = Math.min(run.stats.hp, run.hp + eff.hpRecovery);
+    const label = choice === "accept" ? "顺应" : "抗争";
+    log(run, `【${label}】${ch.label || ""}——${ch.desc || ""}`);
+    run.currentStory = null;
+    if (eff.triggerBattle && eff.enemyId && actions.startBattle) {
+      const ed = DATA.enemies?.find(e => e.id === eff.enemyId);
+      if (ed) { actions.startBattle(ed); saveRun(run); return true; }
+    }
+    saveRun(run);
+    return true;
+  }
   const event = run.events.find(e => e.id === eventId);
   if (!event || run.eventRemaining <= 0) return false;
   run.eventRemaining--;
