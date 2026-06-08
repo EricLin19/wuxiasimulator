@@ -932,6 +932,7 @@ button {
 .wanderer-run-layout {
   display: grid;
   grid-template-columns: 120px minmax(0, 1fr);
+  grid-template-rows: minmax(0, 1fr);
   gap: 10px;
   min-height: 0;
   min-width: 520px;
@@ -965,6 +966,7 @@ button {
   min-height: 0;
   min-width: 0;
   overflow: hidden;
+  align-content: start;
 }
 
 .wanderer-run-layout .bottom-actions {
