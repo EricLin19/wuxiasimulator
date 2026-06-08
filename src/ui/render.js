@@ -173,7 +173,7 @@ function renderModal(state, actions) {
     backpack: () => renderBackpackModal(modal, run, actions, close),
     goals: () => renderGoalsModal(modal, run, close),
     journal: () => renderJournalModal(modal, run, close),
-    battleItems: () => { console.log("[道具弹窗] 开始渲染, state.battle=", !!state.battle); renderBattleItemsModal(modal, state.run, state.battle, actions); },
+    battleItems: () => renderBattleItemsModal(modal, run, state.battle, actions),
     settings: () => renderSettingsModal(modal, state, actions, close)
   };
   renderers[state.modal.type]?.();
@@ -454,7 +454,7 @@ function renderBattle(state, actions) {
     <div class="fighter player">${b.playerPortrait ? `<img src="${b.playerPortrait}" alt="${b.player.name}" loading="lazy" decoding="async">` : b.player.icon}</div><div class="fighter enemy">${b.enemyPortrait ? `<img src="${b.enemyPortrait}" alt="${b.enemy.name}" loading="lazy" decoding="async">` : b.enemy.icon}</div>
     ${b.bossTrait ? `<div class="boss-trait-bar"><span class="debuff-badge enemy-trait" title="${escapeHtml(b.enemy.stats.traitDesc || b.bossTrait)}">Boss特性：${b.bossTrait}</span>${b.bossShield > 0 ? `<span class="debuff-badge" title="护体">护体 ${b.bossShield}</span>` : ""}${b.bossImmuneTurns > 0 ? `<span class="debuff-badge" title="免疫负面">免疫 ${b.bossImmuneTurns}回合</span>` : ""}</div>` : ""}
     ${(b.floaters || []).map(f => `<div class="combat-floater ${f.side}">${f.text}</div>`).join("")}
-    <div class="battle-bottom"><div class="battle-tools"><button class="btn secondary" data-basic>普攻</button><button class="btn secondary" data-rest>调息</button><button class="btn secondary" data-itemmenu>道具</button><span style="font-size:10px;color:#888;margin-left:4px" data-phase-label></span><button class="btn red" data-flee>逃跑</button></div><div class="skill-row"></div><div class="battle-log">${b.log.map(x => `<div>${x}</div>`).join("")}</div></div>`;
+    <div class="battle-bottom"><div class="battle-tools"><button class="btn secondary" data-basic>普攻</button><button class="btn secondary" data-rest>调息</button><button class="btn secondary" data-itemmenu>道具</button><button class="btn red" data-flee>逃跑</button></div><div class="skill-row"></div><div class="battle-log">${b.log.map(x => `<div>${x}</div>`).join("")}</div></div>`;
   const skillRow = root.querySelector(".skill-row");
   b.player.skills.forEach(id => {
     const s = DATA.skills[id];
@@ -476,17 +476,8 @@ function renderBattle(state, actions) {
   root.querySelector("[data-basic]").onclick = actions.basicAttack;
   root.querySelector("[data-rest]").disabled = b.phase !== "waitPlayer";
   root.querySelector("[data-rest]").onclick = actions.restAction;
-  // 道具按钮：直接内联处理，彻底绕过 actions 绑定问题
-  const itemBtn = root.querySelector("[data-itemmenu]");
-  itemBtn.disabled = b.phase !== "waitPlayer";
-  itemBtn.onclick = () => {
-    console.log("[道具] 点击！b.phase=", b.phase, "state.battle=", !!state.battle);
-    state.modal = { type: "battleItems" };
-    actions.render();
-  };
-  // 在按钮旁边显示当前 phase（debug）
-  const phaseLabel = root.querySelector("[data-phase-label]");
-  if (phaseLabel) phaseLabel.textContent = "phase:" + b.phase;
+  root.querySelector("[data-itemmenu]").disabled = b.phase !== "waitPlayer";
+  root.querySelector("[data-itemmenu]").onclick = actions.openItemMenu;
   root.querySelector("[data-flee]").disabled = b.phase !== "waitPlayer";
   root.querySelector("[data-flee]").onclick = actions.fleeAction;
   return root;
