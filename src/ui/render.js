@@ -173,7 +173,6 @@ function renderWandererRun(state, actions) {
   const storyCanvas = el("div", "story-canvas");
   if (story) {
     storyCanvas.innerHTML = `
-      <div class="story-month-title">第${run.year}年·${run.month}月　${story.title || ""}</div>
       <div class="story-body">${escapeHtml(story.text || "")}</div>`;
     if (story.choices && story.choices.length >= 2) {
       const choicesDiv = el("div", "story-choices");
@@ -186,7 +185,7 @@ function renderWandererRun(state, actions) {
       storyCanvas.appendChild(choicesDiv);
     }
   } else {
-    storyCanvas.innerHTML = `<div class="story-month-title">第${run.year}年·${run.month}月</div><div class="story-no-event">江湖风平浪静，且待下回分晓……</div>`;
+    storyCanvas.innerHTML = `<div class="story-no-event">江湖风平浪静，且待下回分晓……</div>`;
   }
 
   // 血量和经验条（仅两条）

@@ -789,6 +789,7 @@ button {
   min-height: 0;
   height: calc(100vh - 60px);
   align-items: end;
+  overflow: visible;
 }
 
 .left-nav {
@@ -796,6 +797,8 @@ button {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 8px;
+  flex-shrink: 0;
+  min-width: 160px;
 }
 
 .nav-tile {
@@ -803,12 +806,14 @@ button {
   display: grid;
   place-items: center;
   min-height: 112px;
+  min-width: 48px;
   padding: 8px 4px;
   background: var(--paper);
   border: 4px solid var(--line);
   font-size: 29px;
   font-weight: 900;
   cursor: pointer;
+  flex-shrink: 0;
 }
 
 .nav-tile:hover {
@@ -823,13 +828,14 @@ button {
   gap: 12px;
   min-height: 0;
   align-self: stretch;
+  overflow: visible;
 }
 
 /* ===== 孤云逐浪 主线画布 ===== */
 .story-canvas {
-  flex: 1;
-  display: grid;
-  grid-template-rows: auto 1fr auto;
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
   gap: 10px;
   padding: 14px 18px;
   background: rgba(255, 247, 230, 0.92);
@@ -838,6 +844,9 @@ button {
   box-shadow: 0 6px 0 var(--shadow);
   overflow-y: auto;
   min-height: 0;
+  max-width: 900px;
+  width: 100%;
+  align-self: center;
 }
 
 .story-month-title {
@@ -851,12 +860,14 @@ button {
 }
 
 .story-body {
+  flex: 1 1 auto;
   font-size: 21px;
   line-height: 1.7;
   color: var(--ink);
   overflow-y: auto;
   padding: 8px 4px;
   text-indent: 2em;
+  min-height: 0;
 }
 
 .story-choices {
@@ -893,11 +904,13 @@ button {
 
 /* 主线画布下方的血量和经验条 */
 .story-bars {
+  flex: 0 0 auto;
   display: flex;
   flex-direction: column;
-  gap: 6px;
-  padding: 8px 0;
+  gap: 4px;
+  padding: 6px 0;
   border-top: 2px solid var(--line-soft);
+  min-width: 0;
 }
 
 .wanderer-run-layout {
@@ -907,24 +920,29 @@ button {
   min-height: 0;
   height: calc(100vh - 60px);
   align-items: stretch;
+  overflow: visible;
 }
 
 .wanderer-run-layout .left-nav {
   align-self: start;
   grid-template-columns: 1fr;
   gap: 6px;
+  flex-shrink: 0;
+  min-width: 120px;
 }
 
 .wanderer-run-layout .nav-tile {
   min-height: 64px;
+  min-width: 60px;
   font-size: 24px;
   writing-mode: horizontal-tb;
+  flex-shrink: 0;
 }
 
 .wanderer-run-layout .center-stage {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 6px;
   min-height: 0;
   overflow: hidden;
 }
@@ -932,11 +950,15 @@ button {
 .wanderer-run-layout .bottom-actions {
   grid-template-columns: repeat(5, minmax(70px, 1fr));
   gap: 8px;
+  flex-shrink: 0;
+  overflow: visible;
 }
 
 .wanderer-run-layout .action-card {
   min-height: 56px;
+  min-width: 60px;
   font-size: 18px;
+  flex-shrink: 0;
 }
 
 .hero-status {
@@ -977,10 +999,13 @@ button {
   grid-template-columns: repeat(5, minmax(80px, 1fr));
   gap: 8px;
   padding-bottom: 0;
+  flex-shrink: 0;
+  overflow: visible;
 }
 
 .action-card {
   min-height: 72px;
+  min-width: 60px;
   background: var(--paper);
   border: 4px solid var(--line-soft);
   padding: 8px;
@@ -990,6 +1015,7 @@ button {
   font-size: 20px;
   font-weight: 900;
   cursor: pointer;
+  flex-shrink: 0;
 }
 
 .side-panel {
