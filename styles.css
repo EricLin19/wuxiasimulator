@@ -90,7 +90,7 @@ body.mobile-viewport .app {
 
 body.mobile-viewport .run-layout {
   height: auto;
-  grid-template-columns: 160px 1fr 265px;
+  grid-template-columns: 160px 1fr;
   gap: 8px;
   align-items: end;
 }
@@ -784,7 +784,7 @@ button {
 
 .run-layout {
   display: grid;
-  grid-template-columns: 190px 1fr 360px;
+  grid-template-columns: 190px 1fr;
   gap: 14px;
   min-height: 0;
   height: calc(100vh - 60px);
@@ -891,24 +891,18 @@ button {
   font-style: italic;
 }
 
-/* 主线画布中的属性区 */
-.story-stats {
-  display: grid;
-  grid-template-rows: auto auto;
+/* 主线画布下方的血量和经验条 */
+.story-bars {
+  display: flex;
+  flex-direction: column;
   gap: 6px;
   padding: 8px 0;
   border-top: 2px solid var(--line-soft);
 }
 
-.story-stats .stats-grid {
-  grid-template-columns: repeat(4, 1fr);
-  margin-top: 0;
-  gap: 5px;
-}
-
 .wanderer-run-layout {
   display: grid;
-  grid-template-columns: 120px 1fr 300px;
+  grid-template-columns: 120px 1fr;
   gap: 10px;
   min-height: 0;
   height: calc(100vh - 60px);
@@ -935,22 +929,8 @@ button {
   overflow: hidden;
 }
 
-.wanderer-run-layout .hero-status {
-  grid-template-columns: 90px 1fr;
-  gap: 8px;
-}
-
-.wanderer-run-layout .rank-box {
-  font-size: 18px;
-  padding: 6px;
-}
-
-.wanderer-run-layout .mini-stats {
-  grid-template-columns: repeat(4, minmax(70px, 1fr));
-}
-
 .wanderer-run-layout .bottom-actions {
-  grid-template-columns: repeat(4, minmax(80px, 1fr));
+  grid-template-columns: repeat(5, minmax(70px, 1fr));
   gap: 8px;
 }
 
@@ -959,19 +939,20 @@ button {
   font-size: 18px;
 }
 
-.wanderer-run-layout .side-panel {
-  align-self: stretch;
-  max-height: 100%;
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-}
-
 .hero-status {
   display: grid;
   grid-template-columns: 110px 1fr;
   gap: 10px;
   align-items: end;
+}
+
+/* 无属性面板时只用血条和经验条撑满中央 */
+.hero-status-story {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 1;
+  justify-content: center;
 }
 
 .rank-box {
@@ -993,8 +974,8 @@ button {
 
 .bottom-actions {
   display: grid;
-  grid-template-columns: repeat(4, minmax(100px, 1fr));
-  gap: 10px;
+  grid-template-columns: repeat(5, minmax(80px, 1fr));
+  gap: 8px;
   padding-bottom: 0;
 }
 
@@ -1566,7 +1547,7 @@ button {
   }
 
   body:not(.mobile-viewport) .run-layout {
-    grid-template-columns: 130px 1fr 250px;
+    grid-template-columns: 130px 1fr;
     gap: 8px;
     align-items: end;
   }
