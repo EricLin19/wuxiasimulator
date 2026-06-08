@@ -936,6 +936,7 @@ button {
   gap: 10px;
   min-height: 0;
   min-width: 520px;
+  height: calc(100vh - 60px);
   align-items: stretch;
   overflow-x: auto;
   overflow-y: hidden;
@@ -1621,6 +1622,9 @@ button {
    孤云逐浪 移动端覆盖 — 必须放在文件末尾以保证最高优先级
    覆盖 body.mobile-viewport .center-stage { align-content:end }
    ============================================================ */
+body.mobile-viewport .wanderer-run-layout {
+  height: calc(100% - 60px);
+}
 body.mobile-viewport .wanderer-run-layout .center-stage {
   align-content: start;
   grid-template-rows: minmax(0, 1fr) auto auto;
