@@ -825,6 +825,148 @@ button {
   align-self: stretch;
 }
 
+/* ===== 孤云逐浪 主线画布 ===== */
+.story-canvas {
+  flex: 1;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  gap: 10px;
+  padding: 14px 18px;
+  background: rgba(255, 247, 230, 0.92);
+  border: 5px solid var(--line);
+  border-radius: 4px;
+  box-shadow: 0 6px 0 var(--shadow);
+  overflow-y: auto;
+  min-height: 0;
+}
+
+.story-month-title {
+  font-size: 38px;
+  font-weight: 900;
+  color: #4d3425;
+  text-align: center;
+  border-bottom: 3px solid var(--line-soft);
+  padding-bottom: 8px;
+  letter-spacing: 4px;
+}
+
+.story-body {
+  font-size: 21px;
+  line-height: 1.7;
+  color: var(--ink);
+  overflow-y: auto;
+  padding: 8px 4px;
+  text-indent: 2em;
+}
+
+.story-choices {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  padding: 8px 0;
+  border-top: 2px dashed rgba(108, 63, 54, 0.35);
+}
+
+.story-choices .btn {
+  font-size: 24px;
+  min-height: 56px;
+}
+
+.story-choices .btn.accept-btn {
+  background: #2e7d32;
+  border-color: #1b5e20;
+}
+
+.story-choices .btn.resist-btn {
+  background: #ad3c34;
+  border-color: #7b241c;
+}
+
+.story-no-event {
+  display: grid;
+  place-items: center;
+  min-height: 200px;
+  color: var(--muted);
+  font-size: 22px;
+  font-style: italic;
+}
+
+/* 主线画布中的属性区 */
+.story-stats {
+  display: grid;
+  grid-template-rows: auto auto;
+  gap: 6px;
+  padding: 8px 0;
+  border-top: 2px solid var(--line-soft);
+}
+
+.story-stats .stats-grid {
+  grid-template-columns: repeat(4, 1fr);
+  margin-top: 0;
+  gap: 5px;
+}
+
+.wanderer-run-layout {
+  display: grid;
+  grid-template-columns: 120px 1fr 300px;
+  gap: 10px;
+  min-height: 0;
+  height: calc(100vh - 60px);
+  align-items: stretch;
+}
+
+.wanderer-run-layout .left-nav {
+  align-self: start;
+  grid-template-columns: 1fr;
+  gap: 6px;
+}
+
+.wanderer-run-layout .nav-tile {
+  min-height: 64px;
+  font-size: 24px;
+  writing-mode: horizontal-tb;
+}
+
+.wanderer-run-layout .center-stage {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.wanderer-run-layout .hero-status {
+  grid-template-columns: 90px 1fr;
+  gap: 8px;
+}
+
+.wanderer-run-layout .rank-box {
+  font-size: 18px;
+  padding: 6px;
+}
+
+.wanderer-run-layout .mini-stats {
+  grid-template-columns: repeat(4, minmax(70px, 1fr));
+}
+
+.wanderer-run-layout .bottom-actions {
+  grid-template-columns: repeat(4, minmax(80px, 1fr));
+  gap: 8px;
+}
+
+.wanderer-run-layout .action-card {
+  min-height: 56px;
+  font-size: 18px;
+}
+
+.wanderer-run-layout .side-panel {
+  align-self: stretch;
+  max-height: 100%;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
 .hero-status {
   display: grid;
   grid-template-columns: 110px 1fr;

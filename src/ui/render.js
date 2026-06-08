@@ -125,6 +125,7 @@ function renderTopbar(run, actions) {
 
 function renderRun(state, actions) {
   const run = state.run;
+  if (run.storylineId === "wanderer") return renderWandererRun(state, actions);
   const root = el("div");
   root.appendChild(renderTopbar(run, actions));
   const screen = el("div", "screen run-layout");
@@ -153,6 +154,75 @@ function renderRun(state, actions) {
     <div class="panel side-panel"><button class="btn secondary small" data-modal="journal" style="width:100%;margin-bottom:8px">江湖纪要</button><div class="log">${run.log.join("")}</div></div>`;
   screen.querySelectorAll("[data-modal]").forEach(node => { node.onclick = () => actions.openModal(node.dataset.modal); });
   screen.querySelector("[data-action=next]").onclick = actions.endMonth;
+  root.appendChild(screen);
+  return root;
+}
+
+function renderWandererRun(state, actions) {
+  const run = state.run;
+  const story = run.currentStory; // 当前月度剧情，可能为 null
+  const root = el("div");
+  root.appendChild(renderTopbar(run, actions));
+  const screen = el("div", "screen wanderer-run-layout");
+
+  // 左侧导航
+  const leftNav = el("div", "left-nav");
+  leftNav.innerHTML = `<div class="nav-tile" data-modal="character">角色</div><div class="nav-tile" data-modal="backpack">背包</div><div class="nav-tile" data-modal="goals">目标</div>`;
+  leftNav.querySelectorAll("[data-modal]").forEach(node => { node.onclick = () => actions.openModal(node.dataset.modal); });
+
+  // 中央画布
+  const center = el("div", "center-stage");
+
+  // 主线剧情画布
+  const storyCanvas = el("div", "story-canvas");
+  if (story) {
+    const sl = DATA.storylines?.wanderer;
+    storyCanvas.innerHTML = `
+      <div class="story-month-title">第${run.year}年·${run.month}月　${story.title || ""}</div>
+      <div class="story-body">${escapeHtml(story.text || "")}</div>`;
+    // 如果有选项，显示在剧情下方
+    if (story.choices && story.choices.length >= 2) {
+      const choicesDiv = el("div", "story-choices");
+      const sc = story.choices;
+      choicesDiv.innerHTML = `
+        <button class="btn green accept-btn" data-story-choice="accept">${sc[0].label || "顺应"}</button>
+        <button class="btn red resist-btn" data-story-choice="resist">${sc[1].label || "抗争"}</button>`;
+      choicesDiv.querySelector("[data-story-choice=accept]").onclick = () => actions.chooseStoryEvent(story.id || story.month, "accept");
+      choicesDiv.querySelector("[data-story-choice=resist]").onclick = () => actions.chooseStoryEvent(story.id || story.month, "resist");
+      storyCanvas.appendChild(choicesDiv);
+    }
+  } else {
+    storyCanvas.innerHTML = `<div class="story-month-title">第${run.year}年·${run.month}月</div><div class="story-no-event">江湖风平浪静，且待下回分晓……</div>`;
+  }
+
+  // 属性区（剧情下方）
+  const statsDiv = el("div", "story-stats");
+  statsDiv.innerHTML = `
+    <div class="stats-grid">${STAT_KEYS.map(k => statLine(k, run.stats[k])).join("")}</div>
+    ${bar(run.hp, run.stats.hp, `${run.hp}/${run.stats.hp}`)}
+    ${bar(run.martialExp, expNeed(run.level), `经验 ${run.martialExp}/${expNeed(run.level)}｜${getRankTitle(run)}`, "exp-fill")}
+    <div class="rank-box" style="font-size:14px;margin-top:4px">⭐${"★".repeat(Math.min(8, run.rankStars))} ${run.character.faction} · ${getRankTitle(run)}</div>`;
+
+  center.appendChild(storyCanvas);
+  center.appendChild(statsDiv);
+
+  // 底部操作
+  const actionsDiv = el("div", "bottom-actions");
+  actionsDiv.innerHTML = `
+    <div class="action-card" data-modal="events">奇遇<br>${run.eventRemaining}/3</div>
+    <div class="action-card" data-modal="training">修炼</div>
+    <div class="action-card" data-modal="hall">武林商人</div>
+    <div class="action-card" data-action="next">下回合</div>`;
+  actionsDiv.querySelectorAll("[data-modal]").forEach(node => { node.onclick = () => actions.openModal(node.dataset.modal); });
+  actionsDiv.querySelector("[data-action=next]").onclick = actions.endMonth;
+  center.appendChild(actionsDiv);
+
+  // 右侧日志
+  const sidePanel = el("div", "panel side-panel");
+  sidePanel.innerHTML = `<button class="btn secondary small" data-modal="journal" style="width:100%;margin-bottom:8px">江湖纪要</button><div class="log">${run.log.join("")}</div>`;
+  sidePanel.querySelector("[data-modal]").onclick = () => actions.openModal("journal");
+
+  screen.append(leftNav, center, sidePanel);
   root.appendChild(screen);
   return root;
 }

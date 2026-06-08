@@ -58,13 +58,14 @@ portraitImage: "assets/portraits_pixel/gu_mingzhao_pixel_320.webp"
 ## 4. 江湖浪客线 Boss
 
 主线：`孤云逐浪`  
-敌对势力：正派武盟
+敌对势力：正派武盟  
+> ⚠️ v5.4 重构：Boss已从 陆闻川/孟天衡/岳宗玄 更新为 赵崇岳/沈千山/楚宗玄，立绘待重新生成。孟天衡转为盟友角色，其旧立绘 `meng_tianheng_pixel` 可用于NPC对话。
 
 | Boss ID | 名称 | 年份 | 320 WebP | 大小 | 240 WebP | 大小 |
 |---|---|---:|---|---:|---|---:|
-| `wanderer_boss_y1` | 青旗堂主·陆闻川 | 1 | `assets/portraits_pixel/lu_wenchuan_pixel_320.webp` | 14.0 KB | `assets/portraits_pixel/lu_wenchuan_pixel_240.webp` | 7.8 KB |
-| `wanderer_boss_y2` | 执法长老·孟天衡 | 2 | `assets/portraits_pixel/meng_tianheng_pixel_320.webp` | 14.0 KB | `assets/portraits_pixel/meng_tianheng_pixel_240.webp` | 7.7 KB |
-| `wanderer_final` | 武盟帮主·岳宗玄 | 3 | `assets/portraits_pixel/yue_zongxuan_pixel_320.webp` | 14.1 KB | `assets/portraits_pixel/yue_zongxuan_pixel_240.webp` | 7.9 KB |
+| `wanderer_boss_y1` | 杭州堂主·赵崇岳 | 1 | `assets/portraits_pixel/zhao_chongyue_pixel_320.webp` | 待生成 | `assets/portraits_pixel/zhao_chongyue_pixel_240.webp` | 待生成 |
+| `wanderer_boss_y2` | 左护法·沈千山 | 2 | `assets/portraits_pixel/shen_qianshan_pixel_320.webp` | 待生成 | `assets/portraits_pixel/shen_qianshan_pixel_240.webp` | 待生成 |
+| `wanderer_final` | 武盟统领·楚宗玄 | 3 | `assets/portraits_pixel/chu_zongxuan_pixel_320.webp` | 待生成 | `assets/portraits_pixel/chu_zongxuan_pixel_240.webp` | 待生成 |
 
 ---
 
@@ -145,6 +146,6 @@ portraitImage: "assets/portraits_pixel/gu_mingzhao_pixel_320.webp"
 
 ## 10. 接入状态
 
-- `src/data/content.js` 的主角、三条主线年末 Boss、普通奇遇敌人、小 Boss 均已接入 `*_pixel_320.webp`。
+- `src/data/content.js` 的主角、三条主线年末 Boss、普通奇遇敌人、小 Boss 均已接入 `*_pixel_320.webp`。⚠️孤云逐浪线 Boss 立绘待重新生成（赵崇岳/沈千山/楚宗玄）。
 - 原始 PNG 母版仍保留在 `assets/portraits/`。
 - 若后续需要更极限的加载速度，可以在角色选择卡片中单独改用 `*_pixel_240.webp`。

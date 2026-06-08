@@ -92,6 +92,20 @@ export function applyMonthStart(run) {
     run.hp = Math.min(run.stats.hp, run.hp + amount);
     run.qi = Math.min(run.stats.qi, run.qi + amount);
   }
+  // 加载当前月份剧情（孤云逐浪线）
+  if (run.storylineId === "wanderer") {
+    loadWandererStory(run);
+  }
+}
+
+export function loadWandererStory(run) {
+  const monthAbsVal = (run.year - 1) * 12 + run.month;
+  const months = DATA.wandererMonths;
+  if (months && months[monthAbsVal]) {
+    run.currentStory = { ...months[monthAbsVal], id: months[monthAbsVal].id || `wanderer_m${monthAbsVal}` };
+  } else {
+    run.currentStory = null;
+  }
 }
 
 export function refreshEvents(run) {
