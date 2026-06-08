@@ -148,6 +148,7 @@ function makeStoryEventPool(run) {
 }
 
 function makeGrowthEventPool(run) {
+  if (run.storylineId === "wanderer") return makeWandererGrowthPool(run);
   const moneyGain = scaleMoney(run, 160);
   const heritage = [
     { id: "masterTeach", name: "隐世高手传功", category: "高手传功", icon: "传", desc: "路遇隐世高人，见你资质不凡，传你一套吐纳心法。内力上限+60，血量上限+200。", apply: ({ run }) => {
@@ -278,6 +279,117 @@ function makeRiskEventPool(run) {
     }
   }));
   return [...duel, ...price, ...miniBossEvents];
+}
+
+// ============================================================
+// 孤云逐浪 专属成长/风险事件池
+// ============================================================
+function makeWandererGrowthPool(run) {
+  const g = DATA.wandererGrowthEvents;
+  if (!g) return makeGrowthEventPool(run);
+  const monthAbs = (run.year - 1) * 12 + run.month;
+  const events = [];
+  // --- 传功 (heritage, 条件过滤) ---
+  for (const h of (g.heritage || [])) {
+    if (h.id === "wanderer_heritage_tieyi" && monthAbs < 10) continue;
+    if (h.id === "wanderer_heritage_meng" && monthAbs < 16) continue;
+    events.push({
+      id: h.id, name: h.name, category: "高手传功", icon: "传", desc: h.desc,
+      apply: h.id === "wanderer_heritage_tieyi"
+        ? (({ run: r }) => {
+            if (!r.traits.includes("tieyi_legacy")) r.traits.push("tieyi_legacy");
+            r.stats.def += 10;
+            log(r, "感悟铁衣遗志！防御+10，获得特性「铁衣遗志」：流血招式层数+3。");
+          })
+        : (({ run: r }) => {
+            r.stats.qi += 80; r.qi += 80;
+            if (!r.traits.includes("clearMind")) r.traits.push("clearMind");
+            log(r, "研读灰袍手札！内力上限+80，获得特性「明心」：负面状态-20%。");
+          })
+    });
+  }
+  // --- 道具 (item, 条件过滤) ---
+  for (const it of (g.item || [])) {
+    if (it.id === "wanderer_item_relic" && monthAbs < 3) continue;
+    if (it.id === "wanderer_item_merchant" && monthAbs < 6) continue;
+    events.push({
+      id: it.id, name: it.name, category: "道具", icon: "遗", desc: it.desc,
+      apply: it.id === "wanderer_item_relic"
+        ? (({ run: r }) => {
+            r.items.push("pill", "pill", "statPill", "statPill");
+            log(r, "发现外编队遗物！获得金疮药×2、小还丹×2。");
+          })
+        : (({ run: r }) => {
+            // 游商秘货：花钱买防具或直接得硬布背心
+            const cost = Math.floor((run.year >= 2 ? 0.6 : 0.5) * (600 + (run.year - 1) * 200));
+            if (r.money >= 200) {
+              r.money -= 200;
+              r.armors.push("armor_heavy_blue");
+              log(r, `游商秘货！花200金获得硬布背心。`);
+            } else {
+              r.money += scaleMoney(r, 80);
+              log(r, "游商见你钱不够，丢下几枚散碎银两走了。");
+            }
+          })
+    });
+  }
+  // --- 属性 (stat, 按年份梯度) ---
+  const statYrVals = { 1: [120, 28, 2, 3], 2: [168, 39, 3, 4], 3: [240, 56, 4, 5] };
+  const statKeys = ["hp", "qi", "dodge", "hit"];
+  (g.stat || []).forEach((s, i) => {
+    events.push({
+      id: s.id, name: s.name, category: "属性", icon: "体", desc: s.desc,
+      apply: (({ run: r }) => {
+        const v = (statYrVals[run.year] || statYrVals[1])[i];
+        if (s.statKey === "hp") { r.stats.hp += v; r.hp += v; }
+        else if (s.statKey === "qi") { r.stats.qi += v; r.qi += v; }
+        else { r.stats[s.statKey] += v; }
+        log(r, `${s.name}！${s.statKey === "hp" ? "血量上限" : s.statKey === "qi" ? "内力上限" : STAT_LABELS[s.statKey] || s.statKey}+${v}。`);
+      })
+    });
+  });
+  return events.length ? events : makeGrowthEventPool(run);
+}
+
+function makeWandererRiskPool(run) {
+  const g = DATA.wandererGrowthEvents;
+  if (!g) return makeRiskEventPool(run);
+  const monthAbs = (run.year - 1) * 12 + run.month;
+  const events = [];
+  // --- 打斗 (fight, 按年份过滤) ---
+  (g.fight || []).forEach(f => {
+    if (f.years && !f.years.includes(run.year)) return;
+    const rank = f.enemyRank || 1;
+    const enemyPool = (DATA.miniBosses || []).concat(DATA.enemies || []);
+    const enemies = enemyPool.filter(e => (e.rank || 1) === rank);
+    const fallback = enemies.length ? enemies : DATA.enemies;
+    events.push({
+      id: f.id, name: f.name, category: "切磋", icon: "战", desc: f.desc,
+      apply: (({ run: r, startBattle }) => {
+        const template = { ...fallback[Math.floor(Math.random() * fallback.length)] };
+        startBattle(template);
+      })
+    });
+  });
+  // --- 金钱 (coin, 按年份过滤) ---
+  const coinYrMap = { 1: 0, 2: 1, 3: 2 };
+  (g.coin || []).forEach(c => {
+    const yrIdx = coinYrMap[run.year] || 0;
+    const reward = c.reward || {};
+    const amount = reward[`y${run.year}`] || reward.y1 || 100;
+    // 条件过滤
+    if (c.id === "wanderer_coin_rebuild" && monthAbs < 10) return;
+    if (c.id === "wanderer_coin_intel" && (monthAbs < 16 || run.year < 2)) return;
+    if (c.id === "wanderer_coin_fangping" && monthAbs < 2) return;
+    events.push({
+      id: c.id, name: c.name, category: "金钱", icon: "钱", desc: c.desc,
+      apply: (({ run: r }) => {
+        r.money += amount;
+        log(r, `${c.name}！获得${amount}金钱。${c.bonusDesc ? "（" + c.bonusDesc + "）" : ""}`);
+      })
+    });
+  });
+  return events.length ? events : makeRiskEventPool(run);
 }
 
 export function refreshManuals(run) {
