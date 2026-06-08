@@ -959,12 +959,12 @@ button {
 }
 
 .wanderer-run-layout .center-stage {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) auto auto;
+  gap: 4px;
   min-height: 0;
   min-width: 0;
-  overflow: visible;
+  overflow: hidden;
 }
 
 .wanderer-run-layout .bottom-actions {
