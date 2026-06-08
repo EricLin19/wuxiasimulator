@@ -20,15 +20,19 @@ function onFirstInteraction() {
   _userInteracted = true;
   Object.values(players).forEach(a => {
     if (a.paused || a.readyState >= 2) {
-      // 如果是当前音轨且暂停中，尝试播放
-      a.play().catch(() => {});
+      // 如果是当前音轨且暂停中，尝试播放并恢复音量
+      a.play().then(() => {
+        if (a === getPlayer(currentKey) && a.volume === 0) fadeTo(a, _globalVolume, 450);
+      }).catch(() => {});
     }
   });
   // 确保当前音轨在播放
   const current = getPlayer(currentKey);
   if (current && current.paused) {
     current.currentTime ||= 0;
-    current.play().catch(() => {});
+    current.play().then(() => {
+      if (current.volume === 0) fadeTo(current, _globalVolume, 450);
+    }).catch(() => {});
   }
   document.removeEventListener("click", onFirstInteraction, true);
   document.removeEventListener("touchstart", onFirstInteraction, true);
@@ -77,7 +81,9 @@ export function setMusic(key) {
     const player = getPlayer(key);
     if (player && player.paused) {
       player.currentTime ||= 0;
-      player.play().catch(() => {});
+      player.play().then(() => {
+        if (player.volume === 0) fadeTo(player, _globalVolume, 450);
+      }).catch(() => {});
     }
     return;
   }
