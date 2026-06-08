@@ -851,6 +851,20 @@ button {
   align-self: center;
 }
 
+/* wanderer 模式下主线画布轻量化 */
+.wanderer-run-layout .story-canvas {
+  background: transparent;
+  border: 2px solid rgba(108, 63, 54, 0.25);
+  box-shadow: none;
+  padding: 8px 12px;
+  border-radius: 0;
+}
+
+.wanderer-run-layout .story-no-event {
+  min-height: 72px;
+  font-size: 18px;
+}
+
 .story-month-title {
   font-size: 38px;
   font-weight: 900;
@@ -925,6 +939,7 @@ button {
   align-items: stretch;
   overflow-x: auto;
   overflow-y: hidden;
+  padding: 14px 22px 8px;
 }
 
 .wanderer-run-layout .left-nav {
