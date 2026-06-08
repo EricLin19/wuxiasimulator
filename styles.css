@@ -958,6 +958,7 @@ button {
   gap: 8px;
   flex-shrink: 0;
   overflow: visible;
+  padding-left: 12px;
 }
 
 .wanderer-run-layout .bottom-actions .action-card {
