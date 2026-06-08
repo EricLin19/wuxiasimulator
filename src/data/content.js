@@ -1033,7 +1033,7 @@ DATA.wandererMerchantPool = {
 // 主线故事事件执行函数映射（在 runSystem.js 中实现，这里只定义数据结构）
 // 注意：这些事件的实际 apply 逻辑在 runSystem.js 的 resolveStoryEvent 中
 
-// 小Boss池
+// 小Boss池（通用）
 DATA.miniBosses = [
   { id: "mini_bleed_blade", name: "血刀客", icon: "刀", portraitImage: "assets/portraits_pixel/mini_bleed_blade_pixel_320.webp", yearMin: 2, hp: 1400, qi: 420, atk: 85, def: 45, combo: 4, hit: 72, dodge: 6, crit: 10, speed: 1.42, boss: true, bossTrait: "miniBleed", bossTraitDesc: "流血+2，上限10", rank: 3 },
   { id: "mini_frost_assassin", name: "寒衣刺客", icon: "影", portraitImage: "assets/portraits_pixel/mini_frost_assassin_pixel_320.webp", yearMin: 2, hp: 1200, qi: 500, atk: 78, def: 38, combo: 5, hit: 80, dodge: 28, crit: 12, speed: 1.70, boss: true, bossTrait: "miniFrost", bossTraitDesc: "高闪避，寒气+1", rank: 3 },
@@ -1042,6 +1042,31 @@ DATA.miniBosses = [
   { id: "mini_coin_dart", name: "金钱镖客", icon: "镖", portraitImage: "assets/portraits_pixel/mini_coin_dart_pixel_320.webp", yearMin: 2, hp: 2000, qi: 600, atk: 110, def: 55, combo: 5, hit: 88, dodge: 12, crit: 12, speed: 1.62, boss: true, bossTrait: "miniCoin", bossTraitDesc: "每2回合一次必中固定伤害", rank: 4 },
   { id: "mini_armor_monk", name: "玄甲武师", icon: "甲", portraitImage: "assets/portraits_pixel/mini_armor_monk_pixel_320.webp", yearMin: 3, hp: 3600, qi: 1000, atk: 150, def: 130, combo: 3, hit: 82, dodge: 8, crit: 10, speed: 1.35, boss: true, bossTrait: "miniArmor", bossTraitDesc: "高防，开场20%护体", rank: 5 }
 ];
+
+// ============================================================
+// 孤云逐浪 专属敌人池（v5.4，数据源：孤云逐浪人物.md）
+// ============================================================
+DATA.wandererEnemyPool = {
+  // --- 普通敌人（打斗事件专用）---
+  grunts: [
+    { id: "wanderer_grunt_disciple", name: "堂口弟子", icon: "卒", portraitImage: "assets/portraits_pixel/rogue_pixel_320.webp", hp: 350, qi: 120, atk: 32, def: 14, combo: 3, hit: 68, dodge: 5, crit: 6, speed: 1.20, rank: 1 },
+    { id: "wanderer_grunt_patrol", name: "巡逻追兵", icon: "巡", portraitImage: "assets/portraits_pixel/blade_pixel_320.webp", hp: 500, qi: 160, atk: 45, def: 22, combo: 4, hit: 72, dodge: 8, crit: 8, speed: 1.30, rank: 2 },
+    { id: "wanderer_grunt_traitor", name: "散人叛徒", icon: "叛", portraitImage: "assets/portraits_pixel/rogue_pixel_320.webp", hp: 320, qi: 100, atk: 28, def: 12, combo: 3, hit: 65, dodge: 6, crit: 5, speed: 1.25, rank: 1 },
+    { id: "wanderer_grunt_bounty", name: "赏金猎人", icon: "猎", portraitImage: "assets/portraits_pixel/mini_coin_dart_pixel_320.webp", hp: 650, qi: 200, atk: 55, def: 28, combo: 4, hit: 78, dodge: 10, crit: 10, speed: 1.40, rank: 3 },
+    { id: "wanderer_grunt_challenger", name: "江湖挑战者", icon: "擂", portraitImage: "assets/portraits_pixel/armorBreakBlade_pixel_320.webp", hp: 600, qi: 180, atk: 52, def: 25, combo: 4, hit: 75, dodge: 9, crit: 9, speed: 1.35, rank: 2 },
+    { id: "wanderer_grunt_guard", name: "武盟守卫", icon: "卫", portraitImage: "assets/portraits_pixel/mini_armor_monk_pixel_320.webp", hp: 480, qi: 140, atk: 42, def: 24, combo: 3, hit: 70, dodge: 5, crit: 7, speed: 1.22, rank: 2 }
+  ],
+  // --- 小Boss（头目级，随机遭遇 + 事件专用）---
+  miniBosses: [
+    { id: "wanderer_mini_zhoutong", name: "铁手·周通", icon: "拳", portraitImage: "assets/portraits_pixel/qiSuppressFist_pixel_320.webp", yearMin: 1, hp: 1800, qi: 500, atk: 75, def: 52, combo: 5, hit: 80, dodge: 8, crit: 12, speed: 1.42, boss: true, bossTrait: "miniBleed", bossTraitDesc: "拳拳骨裂，流血+2", rank: 2 },
+    { id: "wanderer_mini_zhishi", name: "堂口执事", icon: "吏", portraitImage: "assets/portraits_pixel/rogue_pixel_320.webp", yearMin: 1, hp: 800, qi: 200, atk: 38, def: 18, combo: 3, hit: 65, dodge: 5, crit: 5, speed: 1.15, boss: true, bossTrait: null, bossTraitDesc: null, rank: 1 },
+    { id: "wanderer_mini_liuchangqing", name: "寒剑·柳长卿", icon: "剑", portraitImage: "assets/portraits_pixel/blade_pixel_320.webp", yearMin: 2, hp: 3000, qi: 850, atk: 105, def: 62, combo: 6, hit: 86, dodge: 18, crit: 15, speed: 1.65, boss: true, bossTrait: "miniFrost", bossTraitDesc: "寒霜剑气，寒气+2", rank: 3 },
+    { id: "wanderer_mini_yegu", name: "无影·叶孤", icon: "影", portraitImage: "assets/portraits_pixel/highDodgeAssassin_pixel_320.webp", yearMin: 2, hp: 2200, qi: 720, atk: 95, def: 40, combo: 7, hit: 88, dodge: 30, crit: 18, speed: 1.80, boss: true, bossTrait: "highDodge", bossTraitDesc: "极速暗杀，闪避+15", rank: 3 },
+    { id: "wanderer_mini_qianbiao", name: "狂刀·钱彪", icon: "刀", portraitImage: "assets/portraits_pixel/mini_bleed_blade_pixel_320.webp", yearMin: 2, hp: 2800, qi: 680, atk: 115, def: 55, combo: 5, hit: 82, dodge: 10, crit: 14, speed: 1.48, boss: true, bossTrait: "lowHpBerserk", bossTraitDesc: "低血狂暴，攻速双升", rank: 3 },
+    { id: "wanderer_mini_kanzhang", name: "地牢看守长", icon: "牢", portraitImage: "assets/portraits_pixel/demon_pixel_320.webp", yearMin: 2, hp: 2500, qi: 780, atk: 90, def: 68, combo: 4, hit: 80, dodge: 12, crit: 10, speed: 1.38, boss: true, bossTrait: "pointStrike", bossTraitDesc: "判官笔专打穴道，概率封行动", rank: 3 },
+    { id: "wanderer_mini_gongsunlie", name: "右护法·公孙烈", icon: "枪", portraitImage: "assets/portraits_pixel/armorBreakBlade_pixel_320.webp", yearMin: 3, hp: 7000, qi: 1800, atk: 185, def: 120, combo: 6, hit: 85, dodge: 10, crit: 16, speed: 1.52, boss: true, bossTrait: "armorBreak", bossTraitDesc: "铁枪破阵，防御贯通", rank: 6 }
+  ]
+};
 
 // 主线事件处理逻辑（由 resolveStoryEvent 调用）
 // 这些函数在 runSystem.js 中通过 DATA.storyEventHandlers 注册

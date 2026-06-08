@@ -142,6 +142,8 @@ export function refreshEvents(run) {
 }
 
 function makeStoryEventPool(run) {
+  // 孤云逐浪主线由36月叙事驱动，不参与随机故事池
+  if (run.storylineId === "wanderer") return [];
   const sl = DATA.storylines?.[run.storylineId];
   if (!sl) return [];
   return (sl.events || []).filter(e => run.year >= (e.yearMin || 1) && run.year <= (e.yearMax || 3));
@@ -286,7 +288,7 @@ function makeRiskEventPool(run) {
 // ============================================================
 function makeWandererGrowthPool(run) {
   const g = DATA.wandererGrowthEvents;
-  if (!g) return makeGrowthEventPool(run);
+  if (!g) return [];
   const monthAbs = (run.year - 1) * 12 + run.month;
   const events = [];
   // --- 传功 (heritage, 条件过滤) ---
@@ -348,25 +350,41 @@ function makeWandererGrowthPool(run) {
       })
     });
   });
-  return events.length ? events : makeGrowthEventPool(run);
+  return events;
 }
 
 function makeWandererRiskPool(run) {
   const g = DATA.wandererGrowthEvents;
-  if (!g) return makeRiskEventPool(run);
+  if (!g) return [];
   const monthAbs = (run.year - 1) * 12 + run.month;
   const events = [];
-  // --- 打斗 (fight, 按年份过滤) ---
+  // --- 孤云专属敌人池 ---
+  const wp = DATA.wandererEnemyPool;
+  const wGrunts = wp?.grunts || [];
+  const wMinis = wp?.miniBosses || [];
+  // 按 fight 事件 ID 映射专属敌人
+  const fightEnemyMap = {
+    wanderer_fight_remnant:  { enemies: wGrunts.filter(e => e.id === "wanderer_grunt_disciple"), count: run.year >= 2 ? 3 : 2, desc: "堂口弟子" },
+    wanderer_fight_bounty:   { enemies: wGrunts.filter(e => e.id === "wanderer_grunt_bounty"), count: run.year >= 2 ? 4 : 3, desc: "赏金猎人团" },
+    wanderer_fight_traitor:  { enemies: wGrunts.filter(e => e.id === "wanderer_grunt_traitor" || e.id === "wanderer_grunt_disciple"), count: 2, desc: "叛徒+武盟弟子" },
+    wanderer_fight_arena:    { enemies: wGrunts.filter(e => e.id === "wanderer_grunt_challenger"), count: 1, desc: "各路挑战者" },
+    wanderer_fight_escort:   { enemies: wGrunts.filter(e => e.id === "wanderer_grunt_patrol"), count: run.year >= 2 ? 4 : 3, desc: "巡逻追兵" },
+    wanderer_fight_camp:     { enemies: wMinis.filter(e => e.id === "wanderer_mini_kanzhang").concat(wGrunts.filter(e => e.id === "wanderer_grunt_guard")), count: 1, desc: "看守长+守卫" }
+  };
+  // --- 打斗 (fight, 按年份过滤，使用孤云专属敌人) ---
   (g.fight || []).forEach(f => {
     if (f.years && !f.years.includes(run.year)) return;
-    const rank = f.enemyRank || 1;
-    const enemyPool = (DATA.miniBosses || []).concat(DATA.enemies || []);
-    const enemies = enemyPool.filter(e => (e.rank || 1) === rank);
-    const fallback = enemies.length ? enemies : DATA.enemies;
+    const mapping = fightEnemyMap[f.id];
+    const enemyList = mapping ? mapping.enemies : wGrunts;
+    const numEnemies = mapping ? mapping.count : 1;
+    const battleLabel = mapping ? mapping.desc : "敌人";
+    if (!enemyList.length) return;
     events.push({
-      id: f.id, name: f.name, category: "切磋", icon: "战", desc: f.desc,
+      id: f.id, name: f.name, category: "切磋", icon: "战",
+      desc: `${f.desc}（${battleLabel}×${numEnemies}）`,
       apply: (({ run: r, startBattle }) => {
-        const template = { ...fallback[Math.floor(Math.random() * fallback.length)] };
+        const template = { ...enemyList[Math.floor(Math.random() * enemyList.length)] };
+        template.name = `${template.name}${numEnemies > 1 ? "×" + numEnemies : ""}`;
         startBattle(template);
       })
     });
@@ -389,7 +407,7 @@ function makeWandererRiskPool(run) {
       })
     });
   });
-  return events.length ? events : makeRiskEventPool(run);
+  return events;
 }
 
 export function refreshManuals(run) {
@@ -422,7 +440,61 @@ export function getAvailableManuals(run) {
   return DATA.manuals.filter(id => RARITIES[DATA.skills[id].rarity].year <= run.year);
 }
 
+// ============================================================
+// 孤云逐浪 专属武林商人
+// ============================================================
+function refreshWandererMerchant(run) {
+  const pool = DATA.wandererMerchantPool;
+  if (!pool) return;
+  const yr = run.year;
+  // 年份质量过滤
+  const qualityOk = (q) => {
+    if (yr === 1) return q === "blue" || (Math.random() < 0.15 && q === "orange");
+    if (yr === 2) return q === "blue" || q === "orange" || (Math.random() < 0.1 && q === "red");
+    return q === "orange" || q === "red";
+  };
+  // 秘籍：1~2本，排除已学会的
+  const availManuals = (pool.manuals || []).filter(m => qualityOk(m.rarity) && !run.skills.includes(m.id) && !run.trainingSkills.includes(m.id));
+  const manualCount = Math.random() < 0.5 ? 1 : 2;
+  const manuals = [];
+  for (let i = 0; i < manualCount && availManuals.length; i++) {
+    const idx = Math.floor(Math.random() * availManuals.length);
+    const m = availManuals.splice(idx, 1)[0];
+    manuals.push({ kind: "manual", id: m.id, price: m.price });
+  }
+  // 武器：1~2把，优先匹配学派
+  const availWeapons = (pool.weapons || []).filter(w => qualityOk(w.rarity));
+  const matchingWeapons = run.selectedSchool ? availWeapons.filter(w => w.school === run.selectedSchool) : availWeapons;
+  const weaponPool = matchingWeapons.length ? matchingWeapons : availWeapons;
+  const weaponCount = Math.random() < 0.5 ? 1 : 2;
+  const weapons = [];
+  for (let i = 0; i < weaponCount && weaponPool.length; i++) {
+    const idx = Math.floor(Math.random() * weaponPool.length);
+    const w = weaponPool.splice(idx, 1)[0];
+    weapons.push({ kind: "weapon", id: w.id, price: w.price });
+  }
+  // 防具：1件
+  const availArmors = (pool.armors || []).filter(a => qualityOk(a.rarity));
+  const armorIdx = availArmors.length ? Math.floor(Math.random() * availArmors.length) : -1;
+  const armors = armorIdx >= 0 ? [{ kind: "armor", id: availArmors[armorIdx].id, price: availArmors[armorIdx].price }] : [];
+  // 内功：1本
+  const availArts = (pool.internalArts || []).filter(a => qualityOk(a.rarity) && !run.internalArts.includes(a.id));
+  const artIdx = availArts.length ? Math.floor(Math.random() * availArts.length) : -1;
+  const arts = artIdx >= 0 ? [{ kind: "internalArt", id: availArts[artIdx].id, price: availArts[artIdx].price }] : [];
+  // 丹药：3~5颗
+  const pillCount = 3 + Math.floor(Math.random() * 3); // 3-5
+  const pills = [];
+  const pillPool = [...(pool.pills || [])];
+  for (let i = 0; i < pillCount && pillPool.length; i++) {
+    const idx = Math.floor(Math.random() * pillPool.length);
+    pills.push({ kind: "item", id: pillPool[idx].id });
+    pillPool.splice(idx, 1);
+  }
+  run.merchantStock = [...manuals, ...weapons, ...armors, ...arts, ...pills];
+}
+
 export function refreshMerchantStock(run) {
+  if (run.storylineId === "wanderer") return refreshWandererMerchant(run);
   const rarity = run.year >= 3 ? "red" : run.year >= 2 ? "orange" : "blue";
   // 内功：随机2本同稀有度
   const artPool = Object.values(DATA.internalArts).filter(a => a.rarity === rarity && !run.internalArts.includes(a.id));
@@ -993,7 +1065,14 @@ function reconcileStyleMasteries(run) {
 
 export function buyManual(run, skillId) {
   const skill = DATA.skills[skillId];
-  const price = Math.floor((skill.rarity === "red" ? 900 : skill.rarity === "orange" ? 520 : 300) * (run.treasure.effect === "manualMastery" ? 0.82 : 1));
+  // 孤云逐浪使用商人池专属定价
+  let price;
+  if (run.storylineId === "wanderer") {
+    const wpManual = (DATA.wandererMerchantPool?.manuals || []).find(m => m.id === skillId);
+    price = wpManual ? wpManual.price : Math.floor((skill.rarity === "red" ? 900 : skill.rarity === "orange" ? 520 : 300) * (run.treasure.effect === "manualMastery" ? 0.82 : 1));
+  } else {
+    price = Math.floor((skill.rarity === "red" ? 900 : skill.rarity === "orange" ? 520 : 300) * (run.treasure.effect === "manualMastery" ? 0.82 : 1));
+  }
   if (run.money < price) return { ok: false, message: "金钱不足" };
   if (run.trainingSkills.includes(skillId) || run.skills.includes(skillId)) return { ok: false, message: "已经拥有" };
   run.money -= price;
@@ -1049,6 +1128,8 @@ export function getRankTitle(run) {
 export function buyShopEntry(run, entry) {
   if (entry.kind === "weapon") return buyWeapon(run, entry.id);
   if (entry.kind === "armor") return buyArmor(run, entry.id);
+  if (entry.kind === "internalArt") return buyInternalArt(run, entry.id);
+  if (entry.kind === "manual") return buyManual(run, entry.id);
   return buyItem(run, entry.id);
 }
 
@@ -1078,7 +1159,14 @@ export function buyWeapon(run, weaponId) {
 export function buyInternalArt(run, artId) {
   const art = DATA.internalArts[artId];
   if (!art) return { ok: false, message: "不存在该内功" };
-  const price = art.rarity === "red" ? 1200 : art.rarity === "orange" ? 680 : 360;
+  // 孤云逐浪使用商人池专属定价
+  let price;
+  if (run.storylineId === "wanderer") {
+    const wpArt = (DATA.wandererMerchantPool?.internalArts || []).find(a => a.id === artId);
+    price = wpArt ? wpArt.price : (art.rarity === "red" ? 1200 : art.rarity === "orange" ? 680 : 360);
+  } else {
+    price = art.rarity === "red" ? 1200 : art.rarity === "orange" ? 680 : 360;
+  }
   if (run.money < price) return { ok: false, message: "金钱不足" };
   if (run.internalArts.includes(artId)) return { ok: false, message: "已经拥有" };
   run.money -= price;
