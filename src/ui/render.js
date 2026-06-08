@@ -500,7 +500,6 @@ function debuffBadges(unit) {
 }
 
 function renderBattleItemsModal(modal, run, battle, actions) {
-  console.log("[道具弹窗] renderBattleItemsModal 被调用, battle:", !!battle, "items:", battle?.player?.items);
   if (!battle) {
     modal.innerHTML = `<div class="modal-head"><h2 class="modal-title">使用道具</h2></div><div class="list"><p>战斗数据异常，请重试。</p></div>`;
     return;
