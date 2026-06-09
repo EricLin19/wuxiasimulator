@@ -1,6 +1,7 @@
 import { DATA, RARITIES, STAT_LABELS, STAT_KEYS } from "../data/content.js";
 import { clone, rand, sample, monthAbs } from "../core/utils.js";
 import { saveRun, saveMeta, clearRun } from "../core/save.js";
+import { state } from "../core/state.js";
 
 const COMBAT_SCHOOLS = ["blade", "hidden", "fist", "lightness"];
 const ALL_SCHOOLS = ["blade", "hidden", "fist", "lightness"];
@@ -82,6 +83,8 @@ export function createRun(characterId, treasureId, meta) {
 export function log(run, text) {
   run.log.unshift(`<p>${text}</p>`);
   run.log = run.log.slice(0, 100);
+  // 自动触发Toast反馈——任何写入武林纪要的操作都会在屏幕中央闪现
+  state.toast = text;
 }
 
 export function applyMonthStart(run) {
@@ -1231,17 +1234,20 @@ export function buyWeapon(run, weaponId) {
   return { ok: true };
 }
 
+export function getInternalArtPrice(run, artId) {
+  const art = DATA.internalArts[artId];
+  if (!art) return 0;
+  if (run.storylineId === "wanderer") {
+    const wpArt = (DATA.wandererMerchantPool?.internalArts || []).find(a => a.id === artId);
+    return wpArt ? wpArt.price : (art.rarity === "red" ? 1200 : art.rarity === "orange" ? 680 : 360);
+  }
+  return art.rarity === "red" ? 1200 : art.rarity === "orange" ? 680 : 360;
+}
+
 export function buyInternalArt(run, artId) {
   const art = DATA.internalArts[artId];
   if (!art) return { ok: false, message: "不存在该内功" };
-  // 孤云逐浪使用商人池专属定价
-  let price;
-  if (run.storylineId === "wanderer") {
-    const wpArt = (DATA.wandererMerchantPool?.internalArts || []).find(a => a.id === artId);
-    price = wpArt ? wpArt.price : (art.rarity === "red" ? 1200 : art.rarity === "orange" ? 680 : 360);
-  } else {
-    price = art.rarity === "red" ? 1200 : art.rarity === "orange" ? 680 : 360;
-  }
+  const price = getInternalArtPrice(run, artId);
   if (run.money < price) return { ok: false, message: "金钱不足" };
   if (run.internalArts.includes(artId)) return { ok: false, message: "已经拥有" };
   run.money -= price;
@@ -1335,6 +1341,7 @@ export function toggleActiveSkill(run, skillId) {
     if (!result.ok) return result;
   }
   reconcileStyleMasteries(run);
+  log(run, run.activeSkills.includes(skillId) ? `${skill.name} 上场。` : `${skill.name} 下场。`);
   saveRun(run);
   return { ok: true };
 }

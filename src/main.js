@@ -44,17 +44,21 @@ import {
 function showToast(text) {
   state.toast = text;
   render();
-  setTimeout(() => {
-    if (state.toast === text) {
-      state.toast = "";
-      render();
-    }
-  }, 1200);
 }
 
+let _toastTimer = null;
 function render() {
   renderApp(state, actions);
   syncMusicForState(state);
+  // 自动清除toast：2秒后消失
+  if (state.toast) {
+    clearTimeout(_toastTimer);
+    _toastTimer = setTimeout(() => {
+      state.toast = "";
+      renderApp(state, actions);
+      syncMusicForState(state);
+    }, 2000);
+  }
 }
 
 function fitMobileViewport() {
@@ -144,7 +148,6 @@ function resolveBattleResult(result) {
     if (battle.isBoss) {
       state.run.yearlyBossDefeated[battle.bossYear] = true;
       log(state.run, `击败年末强敌：${battle.enemy.name}。`);
-      showToast(`击败${battle.enemy.name}！`);
       if (battle.bossYear >= 3) {
         settleRun(state, "win", `你击败了${battle.enemy.name}，江湖传遍你的名号。`);
       } else {
@@ -158,7 +161,6 @@ function resolveBattleResult(result) {
       state.run.money += money;
       const leveled = gainExp(state.run, 120);
       log(state.run, `击败${battle.enemy.name}，获得${money}金钱和120武学阅历。`);
-      showToast(`击败${battle.enemy.name}！获得${money}金钱，经验+120。`);
       state.screen = "run";
       state.battle = null;
       // 战斗结束后清理battle相关状态，确保道具栏可正常点击
@@ -197,6 +199,7 @@ const actions = {
     state.run.mainThreat = state.run.mainThreat || 0;
     state.screen = "run";
     state.modal = null;
+    state.toast = "";
     render();
   },
   selectCharacter: id => { state.selectedCharacter = id; render(); },
@@ -205,8 +208,6 @@ const actions = {
     state.run = createRun(state.selectedCharacter, state.selectedTreasure, state.meta);
     state.screen = "run";
     state.modal = null;
-    const char = DATA.characters.find(c => c.id === state.selectedCharacter);
-    showToast(`${char?.name || ""}踏入江湖！`);
     render();
   },
   openModal: type => {
@@ -223,20 +224,16 @@ const actions = {
     audioSetVolume(v);
   },
   chooseEvent: id => {
-    const event = state.run.events.find(e => e.id === id);
     resolveEvent(state.run, id, {
       openMerchant: () => { state.modal = { type: "merchant" }; },
       startBattle: enemy => startBattle(enemy, false)
     });
-    if (event) showToast(`${event.name}——江湖的故事翻开了新的一页。`);
     render();
   },
   chooseStoryEvent: (eventId, choice) => {
-    const label = choice === "accept" ? "顺应" : "抗争";
     resolveStoryChoice(state.run, eventId, choice, {
       startBattle: enemy => startBattle(enemy, false)
     });
-    showToast(`【${label}】做出了你的选择。`);
     state.modal = null;
     render();
   },
@@ -253,96 +250,62 @@ const actions = {
   trainStat: kind => {
     const result = trainStat(state.run, kind);
     if (!result.ok) return showToast(result.message);
-    const labels = { atk: "攻击+3，经验+35", def: "防御+3，经验+35", hp: "血量上限+90，经验+35", qi: "内力上限+30，经验+35" };
-    showToast(`修炼完成！${labels[kind] || ""}`);
     if (result.leveled) {
       state.modal = { type: "reward", options: buildRewardChoices(state.run) };
     }
     render();
   },
   trainSkill: id => {
-    const skill = DATA.skills[id];
     const result = trainSkill(state.run, id);
     if (!result.ok) return showToast(result.message);
-    const progress = state.run.skillProgress[id] || 0;
-    const train = skill?.train || 0;
-    if (progress >= train && state.run.skills.includes(id)) {
-      showToast(`秘籍修成！《${skill?.name || ""}》已习得！`);
-    } else {
-      showToast(`修炼《${skill?.name || ""}》，进度 ${progress}/${train}`);
-    }
     if (result.leveled) {
       state.modal = { type: "reward", options: buildRewardChoices(state.run) };
     }
     render();
   },
   buyManual: id => {
-    const skill = DATA.skills[id];
     const result = buyManual(state.run, id);
     if (!result.ok) return showToast(result.message);
-    showToast(`购得秘籍《${skill?.name || ""}》。`);
     render();
   },
   buyShopEntry: entry => {
     const result = buyShopEntry(state.run, entry);
     if (!result.ok) return showToast(result.message);
-    let label = "";
-    if (entry.kind === "manual") { const s = DATA.skills[entry.id]; label = `秘籍《${s?.name || ""}》`; }
-    else if (entry.kind === "weapon") { const w = DATA.weapons[entry.id]; label = `${w?.name || ""}`; }
-    else if (entry.kind === "armor") { const a = DATA.armors[entry.id]; label = `${a?.name || ""}`; }
-    else if (entry.kind === "internalArt") { const a = DATA.internalArts[entry.id]; label = `内功《${a?.name || ""}》`; }
-    else { const it = DATA.items[entry.id]; label = `${it?.name || ""}`; }
-    showToast(`购买成功：${label}`);
     render();
   },
   useBagItem: id => {
-    const item = DATA.items[id];
     const result = useBagItem(state.run, id);
     if (!result.ok) return showToast(result.message);
-    showToast(`使用${item?.name || "道具"}。`);
     render();
   },
   equipWeapon: id => {
-    const weapon = DATA.weapons[id];
     const result = equipWeapon(state.run, id);
     if (!result.ok) return showToast(result.message);
-    showToast(`装备${weapon?.name || "武器"}。`);
     render();
   },
   buyArmor: id => {
-    const armor = DATA.armors[id];
     const result = buyArmor(state.run, id);
     if (!result.ok) return showToast(result.message);
-    showToast(`购得防具：${armor?.name || ""}。`);
     render();
   },
   equipArmor: id => {
-    const armor = DATA.armors[id];
     const result = equipArmor(state.run, id);
     if (!result.ok) return showToast(result.message);
-    showToast(`装备${armor?.name || "防具"}。`);
     render();
   },
   buyInternalArt: id => {
-    const art = DATA.internalArts[id];
     const result = buyInternalArt(state.run, id);
     if (!result.ok) return showToast(result.message);
-    showToast(`购得内功《${art?.name || ""}》。`);
     render();
   },
   equipInternalArt: id => {
-    const art = DATA.internalArts[id];
     const result = equipInternalArt(state.run, id);
     if (!result.ok) return showToast(result.message);
-    showToast(`装备内功《${art?.name || ""}》。`);
     render();
   },
   toggleActiveSkill: id => {
-    const skill = DATA.skills[id];
     const result = toggleActiveSkill(state.run, id);
     if (!result.ok) return showToast(result.message);
-    const isActive = state.run.activeSkills.includes(id);
-    showToast(isActive ? `${skill?.name || ""} 上场！` : `${skill?.name || ""} 下场。`);
     render();
   },
   allocateMeta: key => {
@@ -352,14 +315,13 @@ const actions = {
     state.meta.metaPoints--;
     saveMeta(state.meta);
     const statLabel = { hp: "血量", qi: "内力", atk: "攻击", def: "防御", combo: "连击", hit: "命中", dodge: "闪避", crit: "暴击", speed: "出手速度" };
-    showToast(`分配属性点：${statLabel[key] || key}+1（下次开局生效）`);
+    state.toast = `分配属性点：${statLabel[key] || key}+1（下次开局生效）`;
     render();
   },
   takeReward: index => {
     const option = state.modal.options[index];
     const logText = takeReward(state.run, option);
     log(state.run, logText);
-    showToast(`获得${option.name || "突破奖励"}！`);
     state.modal = null;
     saveRun(state.run);
     render();

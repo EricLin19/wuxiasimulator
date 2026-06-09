@@ -1,6 +1,6 @@
 import { DATA, STAT_LABELS, STAT_KEYS, SCHOOLS, RARITIES } from "../data/content.js";
 import { monthAbs } from "../core/utils.js";
-import { expNeed, getRankTitle } from "../systems/runSystem.js";
+import { expNeed, getRankTitle, getInternalArtPrice } from "../systems/runSystem.js";
 
 // 特性描述弹窗（替代 alert，避免手机横屏旋转）
 window.__showTraitDesc = function (el) {
@@ -362,7 +362,8 @@ function renderMerchantModal(modal, run, actions, isHall = false, close = "") {
   run.merchantStock.filter(e => e.kind === "internalArt").forEach(entry => {
     const art = DATA.internalArts[entry.id];
     if (!art) return;
-    const label = !run.internalArts.includes(entry.id) ? `${art.rarity === "red" ? 1200 : art.rarity === "orange" ? 680 : 360}◎` : "已拥有";
+    const price = getInternalArtPrice(run, entry.id);
+    const label = !run.internalArts.includes(entry.id) ? `${price}◎` : "已拥有";
     modal.querySelectorAll(".merchant-col .list")[1].appendChild(rowCard(art.icon, `【${rarityName(art.rarity)}】${art.name}`, art.desc, label, () => actions.buyInternalArt(entry.id)));
   });
 
