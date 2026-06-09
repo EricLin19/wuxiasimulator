@@ -241,10 +241,19 @@ function renderModal(state, actions) {
   return back;
 }
 
+const META_BONUS = {
+  hp: 90, qi: 30, atk: 3, def: 3, combo: 2, hit: 3, dodge: 1, crit: 2, speed: 0.04
+};
+
 function renderMetaModal(modal, state, actions, close) {
   state.meta.allocations ||= {};
   modal.innerHTML = `<div class="modal-head"><h2 class="modal-title">局外成长</h2>${close}</div><div class="inventory-summary"><div class="inventory-chip">可分配属性点：${state.meta.metaPoints}</div><div class="inventory-chip">通关：${state.meta.wins}/${state.meta.runs}</div><div class="inventory-chip">无尽模式：${state.meta.endlessUnlocked ? "已解锁" : "未解锁"}</div></div><div class="list"></div>`;
-  STAT_KEYS.forEach(key => modal.querySelector(".list").appendChild(rowCard("点", `${STAT_LABELS[key]} +${state.meta.allocations[key] || 0}`, STAT_HELP[key], "分配", () => actions.allocateMeta(key))));
+  STAT_KEYS.forEach(key => {
+    const pts = state.meta.allocations[key] || 0;
+    const bonus = pts * META_BONUS[key];
+    const bonusText = key === "speed" ? `+${bonus.toFixed(2)}` : `+${Math.round(bonus)}`;
+    modal.querySelector(".list").appendChild(rowCard("点", `${STAT_LABELS[key]} ${bonusText}（已分配${pts}点）`, STAT_HELP[key], "分配", () => actions.allocateMeta(key)));
+  });
 }
 
 function renderEventsModal(modal, run, actions, close) {

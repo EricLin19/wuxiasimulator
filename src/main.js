@@ -48,14 +48,17 @@ function showToast(text) {
 }
 
 let _toastTimer = null;
+let _lastToast = "";
 function render() {
   renderApp(state, actions);
   syncMusicForState(state);
-  // 自动清除toast：2秒后消失
-  if (state.toast) {
+  // 自动清除toast：2秒后消失；只在toast内容变化时重置定时器，避免重复点击导致toast永不消失
+  if (state.toast && state.toast !== _lastToast) {
+    _lastToast = state.toast;
     clearTimeout(_toastTimer);
     _toastTimer = setTimeout(() => {
       state.toast = "";
+      _lastToast = "";
       renderApp(state, actions);
       syncMusicForState(state);
     }, 2000);
