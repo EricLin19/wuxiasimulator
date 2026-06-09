@@ -57,7 +57,14 @@ let _tauntEl = null;
 let _tauntTimer = null;
 let _lastTauntBattle = null;
 
+let _lastRenderTime = 0;
 function render() {
+  const now = performance.now();
+  const elapsed = now - _lastRenderTime;
+  // 战斗期间每帧都渲染，加 12ms 节流防止浏览器积压
+  if (elapsed < 12 && state.screen === "battle") return;
+  _lastRenderTime = now;
+
   renderApp(state, actions);
   syncMusicForState(state);
 
@@ -402,22 +409,24 @@ const actions = {
   useSkill: id => {
     const result = battleUseSkill(state.run, state.battle, id);
     if (result.message) return showToast(result.message);
-    resolveBattleResult(result);
+    if (result.ended) { resolveBattleResult(result); return; }
     render();
   },
   useItem: id => {
     const result = battleUseItem(state.run, state.battle, id);
     if (result.message) return showToast(result.message);
     state.modal = null;
-    resolveBattleResult(result);
+    if (result.ended) { resolveBattleResult(result); return; }
     render();
   },
   basicAttack: () => {
-    resolveBattleResult(battleBasicAttack(state.run, state.battle));
+    const result = battleBasicAttack(state.run, state.battle);
+    if (result.ended) { resolveBattleResult(result); return; }
     render();
   },
   restAction: () => {
-    resolveBattleResult(battleRestAction(state.run, state.battle));
+    const result = battleRestAction(state.run, state.battle);
+    if (result.ended) { resolveBattleResult(result); return; }
     render();
   },
   toggleAuto: () => { battleToggleAuto(state.battle); render(); },
