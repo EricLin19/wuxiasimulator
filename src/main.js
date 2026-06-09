@@ -61,6 +61,11 @@ function render() {
   renderApp(state, actions);
   syncMusicForState(state);
 
+  // 动态读取 #app 是否有旋转，用于 toast/taunt 同步旋转
+  const app = document.getElementById("app");
+  const appHasRot = app?.style.transform?.includes("rotate(90deg)");
+  const rotVal = appHasRot ? "90deg" : "0deg";
+
   // Toast：挂到 document.body（避免 renderApp 的 innerHTML="" 清空）
   if (state.toast && state.toast !== _lastToast) {
     _lastToast = state.toast;
@@ -70,6 +75,7 @@ function render() {
     _toastEl = document.createElement("div");
     _toastEl.className = "toast";
     _toastEl.textContent = state.toast;
+    _toastEl.style.setProperty("--rot", rotVal);
     document.body.appendChild(_toastEl);
 
     _toastTimer = setTimeout(() => {
@@ -88,6 +94,7 @@ function render() {
     _tauntEl = document.createElement("div");
     _tauntEl.className = "toast";
     _tauntEl.textContent = `【${state.battle.enemy.name}】"${state.battle.tauntText}"`;
+    _tauntEl.style.setProperty("--rot", rotVal);
     document.body.appendChild(_tauntEl);
 
     _tauntTimer = setTimeout(() => {

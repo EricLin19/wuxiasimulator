@@ -1586,16 +1586,6 @@ button {
   word-break: break-all;
 }
 
-@media (orientation: landscape) {
-  .toast {
-    --rot: 90deg;
-    top: 30%;
-    max-width: 50vh;
-    font-size: 13px;
-    padding: 8px 14px;
-  }
-}
-
 @keyframes toastIn {
   from { opacity: 0; transform: translate(-50%, -50%) rotate(var(--rot)) scale(0.92); }
   to   { opacity: 1; transform: translate(-50%, -50%) rotate(var(--rot)) scale(1); }
