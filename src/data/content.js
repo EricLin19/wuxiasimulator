@@ -230,13 +230,31 @@ export const DATA = {
     armor_tianheng_red: { id: "armor_tianheng_red", name: "天衡御心甲", icon: "甲", rarity: "red", price: 960, hp: 900, def: 22, desc: "御心之力。低于25%血时直接伤害-50%，持续伤害-25%。", lowHpGuard: 0.5, dotReduce: 0.25, lowHpThreshold: 0.25 }
   },
   enemies: [
-    { id: "rogue", name: "二流高手", icon: "贼", portraitImage: "assets/portraits_pixel/rogue_pixel_320.webp", hp: 260, qi: 120, atk: 46, def: 22, combo: 2, hit: 55, dodge: 2, crit: 5, speed: 1.25, rank: 1 },
-    { id: "blade", name: "快刀手", icon: "刀", portraitImage: "assets/portraits_pixel/blade_pixel_320.webp", hp: 330, qi: 180, atk: 62, def: 30, combo: 3, hit: 65, dodge: 3, crit: 8, speed: 1.55, rank: 2 },
-    { id: "highDodgeAssassin", name: "踏影刺客", icon: "影", portraitImage: "assets/portraits_pixel/highDodgeAssassin_pixel_320.webp", hp: 300, qi: 220, atk: 66, def: 24, combo: 5, hit: 76, dodge: 42, crit: 14, speed: 1.85, rank: 2, trait: "evasive", traitName: "高闪避", traitDesc: "闪避极高，考验命中和必中招式。" },
-    { id: "armorBreakBlade", name: "裂甲刀客", icon: "破", portraitImage: "assets/portraits_pixel/armorBreakBlade_pixel_320.webp", hp: 390, qi: 210, atk: 74, def: 34, combo: 3, hit: 68, dodge: 2, crit: 9, speed: 1.42, rank: 3, trait: "armorBreak", traitName: "破防刀", traitDesc: "攻击会忽略部分防御，并削弱防御。" },
-    { id: "qiSuppressFist", name: "断脉拳师", icon: "拳", portraitImage: "assets/portraits_pixel/qiSuppressFist_pixel_320.webp", hp: 420, qi: 280, atk: 68, def: 38, combo: 7, hit: 70, dodge: 4, crit: 8, speed: 1.38, rank: 3, trait: "qiSuppress", traitName: "断脉掌", traitDesc: "前5回合攻击会削减内力，逼迫调息节奏（第6回合起不再削内）。" },
-    { id: "witch", name: "毒娘子", icon: "毒", portraitImage: "assets/portraits_pixel/witch_pixel_320.webp", hp: 390, qi: 260, atk: 58, def: 32, combo: 4, hit: 66, dodge: 5, crit: 9, speed: 1.45, rank: 3 },
-    { id: "demon", name: "心魔", icon: "魔", portraitImage: "assets/portraits_pixel/demon_pixel_320.webp", hp: 560, qi: 300, atk: 82, def: 42, combo: 6, hit: 66, dodge: 4, crit: 12, speed: 1.4, rank: 4 }
+    { id: "rogue", name: "武盟喽啰·刀手", icon: "贼", portraitImage: "assets/portraits_pixel/rogue_pixel_320.webp", hp: 260, qi: 120, atk: 46, def: 22, combo: 2, hit: 55, dodge: 2, crit: 5, speed: 1.25, rank: 1 },
+    { id: "blade", name: "武盟二流弟子", icon: "刀", portraitImage: "assets/portraits_pixel/blade_pixel_320.webp", hp: 330, qi: 180, atk: 62, def: 30, combo: 3, hit: 65, dodge: 3, crit: 8, speed: 1.55, rank: 2 },
+    { id: "highDodgeAssassin", name: "武盟暗哨", icon: "影", portraitImage: "assets/portraits_pixel/highDodgeAssassin_pixel_320.webp", hp: 300, qi: 220, atk: 66, def: 24, combo: 5, hit: 76, dodge: 42, crit: 14, speed: 1.85, rank: 2, trait: "evasive", traitName: "高闪避", traitDesc: "武盟暗哨，身法极快，考验命中和必中招式。" },
+    { id: "armorBreakBlade", name: "武盟破防刀手", icon: "破", portraitImage: "assets/portraits_pixel/armorBreakBlade_pixel_320.webp", hp: 390, qi: 210, atk: 74, def: 34, combo: 3, hit: 68, dodge: 2, crit: 9, speed: 1.42, rank: 3, trait: "armorBreak", traitName: "破防刀", traitDesc: "攻击会忽略部分防御，并削弱防御。" },
+    { id: "qiSuppressFist", name: "武盟执事", icon: "拳", portraitImage: "assets/portraits_pixel/qiSuppressFist_pixel_320.webp", hp: 420, qi: 280, atk: 68, def: 38, combo: 7, hit: 70, dodge: 4, crit: 8, speed: 1.38, rank: 3, trait: "qiSuppress", traitName: "断脉掌", traitDesc: "前5回合攻击会削减内力，逼迫调息节奏（第6回合起不再削内）。" },
+    { id: "witch", name: "武盟散人叛徒·毒妇", icon: "毒", portraitImage: "assets/portraits_pixel/witch_pixel_320.webp", hp: 390, qi: 260, atk: 58, def: 32, combo: 4, hit: 66, dodge: 5, crit: 9, speed: 1.45, rank: 3 },
+    { id: "demon", name: "散人叛徒·心魔", icon: "魔", portraitImage: "assets/portraits_pixel/demon_pixel_320.webp", hp: 560, qi: 300, atk: 82, def: 42, combo: 6, hit: 66, dodge: 4, crit: 12, speed: 1.4, rank: 4 },
+    // 孤云逐浪专属敌人
+    { id: "tangkou_enforcer", name: "堂口执事", icon: "官", portraitImage: "assets/portraits_pixel/armorBreakBlade_pixel_320.webp", hp: 320, qi: 180, atk: 52, def: 28, combo: 3, hit: 60, dodge: 3, crit: 6, speed: 1.3, rank: 2 },
+    { id: "capture_squad", name: "抓捕队员×3", icon: "捕", portraitImage: "assets/portraits_pixel/blade_pixel_320.webp", hp: 380, qi: 160, atk: 58, def: 24, combo: 2, hit: 62, dodge: 2, crit: 6, speed: 1.35, rank: 2 },
+    { id: "tangkou_fat_boss", name: "胖执事·赵豹", icon: "官", portraitImage: "assets/portraits_pixel/armorBreakBlade_pixel_320.webp", hp: 450, qi: 200, atk: 64, def: 34, combo: 3, hit: 58, dodge: 2, crit: 7, speed: 1.2, rank: 3 },
+    { id: "jail_captain", name: "狱卒头领", icon: "狱", portraitImage: "assets/portraits_pixel/qiSuppressFist_pixel_320.webp", hp: 420, qi: 220, atk: 66, def: 36, combo: 4, hit: 64, dodge: 3, crit: 8, speed: 1.3, rank: 3 },
+    { id: "patrol_squad", name: "巡逻弟子×3", icon: "巡", portraitImage: "assets/portraits_pixel/blade_pixel_320.webp", hp: 350, qi: 170, atk: 54, def: 26, combo: 3, hit: 60, dodge: 3, crit: 6, speed: 1.4, rank: 2 },
+    { id: "zhou_tong_iron_hand", name: "铁手·周通", icon: "拳", portraitImage: "assets/portraits_pixel/qiSuppressFist_pixel_320.webp", hp: 520, qi: 280, atk: 78, def: 42, combo: 5, hit: 68, dodge: 4, crit: 10, speed: 1.35, rank: 4, trait: "armorBreak", traitName: "铁手", traitDesc: "铁手套开瓢，拳拳破防。" },
+    { id: "vanguard_captain", name: "先锋队长", icon: "刀", portraitImage: "assets/portraits_pixel/armorBreakBlade_pixel_320.webp", hp: 460, qi: 240, atk: 72, def: 38, combo: 4, hit: 66, dodge: 3, crit: 9, speed: 1.4, rank: 3 },
+    { id: "scout_team", name: "武盟斥候×2", icon: "斥", portraitImage: "assets/portraits_pixel/highDodgeAssassin_pixel_320.webp", hp: 300, qi: 160, atk: 52, def: 22, combo: 4, hit: 62, dodge: 8, crit: 8, speed: 1.6, rank: 2 },
+    { id: "protectorate_deputy", name: "左护法副将", icon: "将", portraitImage: "assets/portraits_pixel/demon_pixel_320.webp", hp: 600, qi: 320, atk: 84, def: 48, combo: 5, hit: 70, dodge: 5, crit: 11, speed: 1.4, rank: 4, trait: "armorBreak", traitName: "精锐", traitDesc: "沈千山麾下精锐，攻防兼备。" },
+    { id: "remnant_squad", name: "溃军残部", icon: "溃", portraitImage: "assets/portraits_pixel/blade_pixel_320.webp", hp: 340, qi: 150, atk: 56, def: 24, combo: 2, hit: 58, dodge: 2, crit: 6, speed: 1.3, rank: 2 },
+    { id: "wumeng_spy_assassin", name: "武盟探子·刺客", icon: "刺", portraitImage: "assets/portraits_pixel/highDodgeAssassin_pixel_320.webp", hp: 360, qi: 200, atk: 70, def: 28, combo: 5, hit: 68, dodge: 36, crit: 12, speed: 1.75, rank: 3, trait: "evasive", traitName: "暗杀者", traitDesc: "身法轻灵，企图突围报信。" },
+    { id: "liu_changqing_retreat", name: "寒剑·柳长卿（退却中）", icon: "剑", portraitImage: "assets/portraits_pixel/highDodgeAssassin_pixel_320.webp", hp: 480, qi: 300, atk: 76, def: 36, combo: 4, hit: 70, dodge: 10, crit: 12, speed: 1.55, rank: 4, trait: "evasive", traitName: "寒剑", traitDesc: "高速诡变剑术，闪避极高。" },
+    { id: "hanjian_liu_changqing", name: "寒剑·柳长卿", icon: "剑", portraitImage: "assets/portraits_pixel/highDodgeAssassin_pixel_320.webp", hp: 520, qi: 340, atk: 82, def: 40, combo: 5, hit: 74, dodge: 12, crit: 14, speed: 1.6, rank: 4, trait: "evasive", traitName: "寒剑", traitDesc: "沈千山副使，剑术诡变，高速闪避。" },
+    { id: "camp_guard_captain", name: "安置营守卫长", icon: "守", portraitImage: "assets/portraits_pixel/armorBreakBlade_pixel_320.webp", hp: 500, qi: 260, atk: 74, def: 42, combo: 4, hit: 66, dodge: 4, crit: 10, speed: 1.35, rank: 3 },
+    { id: "traitor_oldzhang_with_aids", name: "老张与同伙×3", icon: "叛", portraitImage: "assets/portraits_pixel/blade_pixel_320.webp", hp: 380, qi: 180, atk: 58, def: 28, combo: 3, hit: 60, dodge: 3, crit: 7, speed: 1.35, rank: 2 },
+    { id: "assault_team_trapped", name: "突击队·中伏", icon: "队", portraitImage: "assets/portraits_pixel/blade_pixel_320.webp", hp: 420, qi: 200, atk: 66, def: 30, combo: 3, hit: 62, dodge: 3, crit: 8, speed: 1.3, rank: 3 },
+    { id: "fata_squad", name: "护法堂精锐", icon: "精", portraitImage: "assets/portraits_pixel/armorBreakBlade_pixel_320.webp", hp: 460, qi: 240, atk: 72, def: 36, combo: 4, hit: 66, dodge: 4, crit: 10, speed: 1.4, rank: 3 }
   ],
   bosses: [
     { id: "boss_y1", name: "青竹寨主", icon: "刀", year: 1, hp: 560, qi: 260, atk: 78, def: 42, combo: 4, hit: 68, dodge: 4, crit: 10, speed: 1.35, boss: true },
@@ -1062,12 +1080,12 @@ DATA.miniBosses = [
 DATA.wandererEnemyPool = {
   // --- 普通敌人（打斗事件专用）---
   grunts: [
-    { id: "wanderer_grunt_disciple", name: "堂口弟子", icon: "卒", portraitImage: "assets/portraits_pixel/rogue_pixel_320.webp", hp: 350, qi: 120, atk: 32, def: 14, combo: 3, hit: 68, dodge: 5, crit: 6, speed: 1.20, rank: 1 },
-    { id: "wanderer_grunt_patrol", name: "巡逻追兵", icon: "巡", portraitImage: "assets/portraits_pixel/blade_pixel_320.webp", hp: 500, qi: 160, atk: 45, def: 22, combo: 4, hit: 72, dodge: 8, crit: 8, speed: 1.30, rank: 2 },
+    { id: "wanderer_grunt_disciple", name: "武盟喽啰·弟子", icon: "卒", portraitImage: "assets/portraits_pixel/rogue_pixel_320.webp", hp: 350, qi: 120, atk: 32, def: 14, combo: 3, hit: 68, dodge: 5, crit: 6, speed: 1.20, rank: 1 },
+    { id: "wanderer_grunt_patrol", name: "武盟喽啰·巡逻队", icon: "巡", portraitImage: "assets/portraits_pixel/blade_pixel_320.webp", hp: 500, qi: 160, atk: 45, def: 22, combo: 4, hit: 72, dodge: 8, crit: 8, speed: 1.30, rank: 2 },
     { id: "wanderer_grunt_traitor", name: "散人叛徒", icon: "叛", portraitImage: "assets/portraits_pixel/rogue_pixel_320.webp", hp: 320, qi: 100, atk: 28, def: 12, combo: 3, hit: 65, dodge: 6, crit: 5, speed: 1.25, rank: 1 },
-    { id: "wanderer_grunt_bounty", name: "赏金猎人", icon: "猎", portraitImage: "assets/portraits_pixel/mini_coin_dart_pixel_320.webp", hp: 650, qi: 200, atk: 55, def: 28, combo: 4, hit: 78, dodge: 10, crit: 10, speed: 1.40, rank: 3 },
-    { id: "wanderer_grunt_challenger", name: "江湖挑战者", icon: "擂", portraitImage: "assets/portraits_pixel/armorBreakBlade_pixel_320.webp", hp: 600, qi: 180, atk: 52, def: 25, combo: 4, hit: 75, dodge: 9, crit: 9, speed: 1.35, rank: 2 },
-    { id: "wanderer_grunt_guard", name: "武盟守卫", icon: "卫", portraitImage: "assets/portraits_pixel/mini_armor_monk_pixel_320.webp", hp: 480, qi: 140, atk: 42, def: 24, combo: 3, hit: 70, dodge: 5, crit: 7, speed: 1.22, rank: 2 }
+    { id: "wanderer_grunt_bounty", name: "武盟喽啰·赏金团", icon: "猎", portraitImage: "assets/portraits_pixel/mini_coin_dart_pixel_320.webp", hp: 650, qi: 200, atk: 55, def: 28, combo: 4, hit: 78, dodge: 10, crit: 10, speed: 1.40, rank: 3 },
+    { id: "wanderer_grunt_challenger", name: "武盟喽啰·挑战者", icon: "擂", portraitImage: "assets/portraits_pixel/armorBreakBlade_pixel_320.webp", hp: 600, qi: 180, atk: 52, def: 25, combo: 4, hit: 75, dodge: 9, crit: 9, speed: 1.35, rank: 2 },
+    { id: "wanderer_grunt_guard", name: "武盟喽啰·守卫", icon: "卫", portraitImage: "assets/portraits_pixel/mini_armor_monk_pixel_320.webp", hp: 480, qi: 140, atk: 42, def: 24, combo: 3, hit: 70, dodge: 5, crit: 7, speed: 1.22, rank: 2 }
   ],
   // --- 小Boss（头目级，随机遭遇 + 事件专用）---
   miniBosses: [

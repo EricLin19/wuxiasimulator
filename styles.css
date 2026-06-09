@@ -1158,6 +1158,19 @@ button {
   max-height: calc(100vh - 110px);
   padding: 18px;
   overflow: auto;
+  pointer-events: auto;
+}
+
+.modal .btn {
+  pointer-events: auto;
+}
+
+.modal .row-card {
+  pointer-events: auto;
+}
+
+.modal .row-card button {
+  pointer-events: auto;
 }
 
 .merchant-layout {

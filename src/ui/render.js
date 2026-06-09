@@ -444,17 +444,21 @@ function renderBackpackModal(modal, run, actions, close) {
   const armorCounts = countIds(run.armors);
   modal.innerHTML = `<div class="modal-head"><h2 class="modal-title">背包</h2>${close}</div><div class="inventory-summary"><div class="inventory-chip">金钱：${run.money}◎</div><div class="inventory-chip">道具：${run.items.length}</div><div class="inventory-chip">武器：${run.weapons.length}</div><div class="inventory-chip">防具：${run.armors.length}</div></div><div class="list"></div>`;
   const list = modal.querySelector(".list");
-  if (!run.items.length && !run.weapons.length && !run.armors.length) list.innerHTML = "<p>背包里暂时没有道具。</p>";
+  if (!run.items.length && !run.weapons.length && !run.armors.length) { list.innerHTML = "<p>背包里暂时没有道具。</p>"; return; }
+  // 安全渲染：跳过 DATA 中不存在的物品（防止因脏数据导致渲染中断）
   Object.entries(counts).forEach(([id, count]) => {
     const item = DATA.items[id];
+    if (!item) return;
     list.appendChild(rowCard(item.icon, `${item.name} x${count}`, item.desc, "使用", () => actions.useBagItem(id)));
   });
   Object.entries(weaponCounts).forEach(([id, count]) => {
     const weapon = DATA.weapons[id];
+    if (!weapon) return;
     list.appendChild(rowCard(weapon.icon, `【${rarityName(weapon.rarity)}】${weapon.name} x${count}`, weaponTitle(weapon), run.equippedWeapon === id ? "已装备" : "装备", () => actions.equipWeapon(id)));
   });
   Object.entries(armorCounts).forEach(([id, count]) => {
     const armor = DATA.armors[id];
+    if (!armor) return;
     list.appendChild(rowCard(armor.icon, `【${rarityName(armor.rarity)}】${armor.name} x${count}`, armorTitle(armor), run.equippedArmor === id ? "已装备" : "装备", () => actions.equipArmor(id)));
   });
 }
@@ -477,9 +481,14 @@ function renderGoalsModal(modal, run, close) {
   const progress = Math.min(100, Math.floor(currentMonth / totalMonths * 100));
   // 威胁值威胁度
   const threatLevel = threatVal >= 9 ? "【威势压人】Boss全面增强" : threatVal >= 6 ? "【暗流涌动】Boss明显变强" : threatVal >= 3 ? "【山雨欲来】Boss略微增强" : "";
+  // 散人决心
+  const resolve = run.wandererResolve || 0;
+  const resolveLevel = resolve >= 9 ? "【散人齐心】Boss大幅削弱" : resolve >= 6 ? "【散人暗助】Boss明显削弱" : resolve >= 3 ? "【散人初聚】Boss略微削弱" : "";
+  const resolveColor = resolve >= 6 ? "#2ecc71" : resolve >= 3 ? "#27ae60" : "#888";
   modal.innerHTML = `<div class="modal-head"><h2 class="modal-title">本局目标</h2>${close}</div><div class="goal-panel"><div class="boss-portrait">${bossPortraitImg ? `<img src="${bossPortraitImg}" alt="${bossName}" loading="lazy" decoding="async">` : bossIcon}</div><div>
     <h2>主线：${storylineName}</h2>
     <p style="color:${threatColor};margin:6px 0">${threatName}：${threatVal} ${threatLevel}</p>
+    <p style="color:${resolveColor};margin:6px 0">散人决心：${resolve} ${resolveLevel}</p>
     <div style="background:#f5e6d3;padding:8px;margin:8px 0;border-left:3px solid #c0392b;font-size:13px;line-height:1.5">
       <b>威胁值说明：</b>每月主线事件可选择<b>"顺应"</b>（获得奖励但威胁+1~3）或<b>"抗争"</b>（战斗/付钱换取威胁不增）。<br>
       威胁值越高，年末Boss越强：<span style="color:#f39c12">3-5山雨欲来</span>→<span style="color:#e67e22">6-8暗流涌动</span>→<span style="color:#e74c3c">9+威势压人</span>。

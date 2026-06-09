@@ -63,6 +63,7 @@ export function createRun(characterId, treasureId, meta) {
     // 三主线新增
     storylineId: characterId,
     mainThreat: 0,
+    wandererResolve: 0,
     storyFlags: {},
     log: [],
     finished: false
@@ -422,7 +423,12 @@ function makeWandererRiskPool(run) {
 }
 
 export function refreshManuals(run) {
-  const available = getAvailableManuals(run).filter(id => !run.skills.includes(id) && !run.trainingSkills.includes(id));
+  let available = getAvailableManuals(run).filter(id => !run.skills.includes(id) && !run.trainingSkills.includes(id));
+  // 孤云线：仅限专属秘籍池
+  if (run.storylineId === "wanderer") {
+    const wpSkillIds = (DATA.wandererMerchantPool?.manuals || []).map(m => m.id);
+    available = available.filter(id => wpSkillIds.includes(id));
+  }
   const manuals = [];
   if (run.selectedSchool) {
     const locked = available.filter(id => DATA.skills[id].school === run.selectedSchool);
@@ -805,13 +811,47 @@ export function resolveStoryChoice(run, eventId, choice, actions) {
     if (eff.allyLossReduced) run.allyLossReduced = (run.allyLossReduced || 0) + eff.allyLossReduced;
     if (eff.atkBonus) run.atkBonus = (run.atkBonus || 0) + eff.atkBonus;
     if (eff.hpRecovery) run.hp = Math.min(run.stats.hp, run.hp + eff.hpRecovery);
+    // 抗争路线：积累散人决心
+    if (choice === "resist") {
+      const resolveGain = eff.resolveGain || (eff.triggerBattle ? 1 : eff.money && eff.money < 0 ? 1 : 0);
+      if (resolveGain > 0) run.wandererResolve = Math.min(10, (run.wandererResolve || 0) + resolveGain);
+    }
     const label = choice === "accept" ? "顺应" : "抗争";
     log(run, `【${label}】${ch.label || ""}——${ch.desc || ""}`);
-    run.currentStory = null;
+    // 先处理choice级别的战斗（在eff中）
     if (eff.triggerBattle && eff.enemyId && actions.startBattle) {
       const ed = DATA.enemies?.find(e => e.id === eff.enemyId);
-      if (ed) { actions.startBattle(ed); saveRun(run); return true; }
+      if (ed) {
+        const isMini = story.isMiniBoss || false;
+        run.currentStory = null;
+        saveRun(run);
+        actions.startBattle(ed, isMini);
+        return true;
+      }
     }
+    // 然后处理story级别的战斗（在choice之后触发）
+    if (story.triggerBattle && story.enemyId) {
+      const ed = DATA.enemies?.find(e => e.id === story.enemyId);
+      if (ed) {
+        const isMini = story.isMiniBoss || story.isClimaxBattle || false;
+        run.currentStory = null;
+        saveRun(run);
+        actions.startBattle(ed, isMini);
+        return true;
+      }
+    }
+    // 处理年末Boss
+    if (story.triggerFinalBoss) {
+      const bossData = DATA.storylines?.[run.storylineId]?.bosses?.[run.year];
+      if (bossData && actions.startBattle) {
+        run.currentStory = null;
+        saveRun(run);
+        const boss = buildBossWithThreat(run, bossData);
+        actions.startBattle(boss, true);
+        return true;
+      }
+    }
+    run.currentStory = null;
     saveRun(run);
     return true;
   }
@@ -916,7 +956,8 @@ export function resolveStoryChoice(run, eventId, choice, actions) {
         const enemies = (DATA.enemies || []).filter(e => e.rank <= 2 + run.year);
         const enemy = enemies[Math.floor(Math.random() * enemies.length)];
         if (enemy && actions.startBattle) {
-          log(run, `【抗争】${result.log}你选择了正面交锋。`);
+          log(run, `【抗争】${result.log}你选择了正面交锋。散人决心+1。`);
+          run.wandererResolve = Math.min(10, (run.wandererResolve || 0) + 1);
           run.storyFlags[eventId + "_resist"] = true;
           actions.startBattle(enemy);
           saveRun(run);
@@ -928,7 +969,8 @@ export function resolveStoryChoice(run, eventId, choice, actions) {
         const miniPool = (DATA.miniBosses || []).filter(b => run.year >= (b.yearMin || 1));
         const boss = miniPool[Math.floor(Math.random() * miniPool.length)];
         if (boss && actions.startBattle) {
-          log(run, `【抗争】${result.log}你迎战强敌。`);
+          log(run, `【抗争】${result.log}你迎战强敌。散人决心+2。`);
+          run.wandererResolve = Math.min(10, (run.wandererResolve || 0) + 2);
           run.storyFlags[eventId + "_resist"] = true;
           const template = { ...boss, id: "mini_" + boss.id };
           actions.startBattle(template);
@@ -940,7 +982,8 @@ export function resolveStoryChoice(run, eventId, choice, actions) {
         const cost = result.cost || 100;
         if (run.money >= cost) {
           run.money -= cost;
-          log(run, `【抗争】${result.log}花费${cost}金钱。威胁值不变。`);
+          run.wandererResolve = Math.min(10, (run.wandererResolve || 0) + 1);
+          log(run, `【抗争】${result.log}花费${cost}金钱。威胁值不变。散人决心+1。`);
         } else {
           // 钱不够，只能接受一半效果
           run.mainThreat = (run.mainThreat || 0) + Math.ceil(h.accept.threat / 2);
@@ -993,20 +1036,41 @@ export function endMonth(run, startBoss) {
 function buildBossWithThreat(run, bossTemplate) {
   const boss = { ...bossTemplate };
   const threat = run.mainThreat || 0;
-  // 根据威胁值应用加成
+
+  // 1. 武盟威视对Boss的增强buff
   if (threat >= 9) {
     boss.hp = Math.floor(boss.hp * 1.3);
     boss.atk = Math.floor(boss.atk * 1.15);
-    boss.desc = (boss.desc || "") + "【威势压人】";
+    boss.def = Math.floor((boss.def || 0) * 1.1);
+    boss.bossTraitDesc = (boss.bossTraitDesc || "") + "【威势压人：HP+30%, 攻击+15%, 防御+10%】";
   } else if (threat >= 6) {
     boss.hp = Math.floor(boss.hp * 1.2);
     boss.atk = Math.floor(boss.atk * 1.1);
-    boss.desc = (boss.desc || "") + "【暗流涌动】";
+    boss.def = Math.floor((boss.def || 0) * 1.05);
+    boss.bossTraitDesc = (boss.bossTraitDesc || "") + "【暗流涌动：HP+20%, 攻击+10%, 防御+5%】";
   } else if (threat >= 3) {
     boss.hp = Math.floor(boss.hp * 1.1);
     boss.atk = Math.floor(boss.atk * 1.05);
-    boss.desc = (boss.desc || "") + "【山雨欲来】";
+    boss.bossTraitDesc = (boss.bossTraitDesc || "") + "【山雨欲来：HP+10%, 攻击+5%】";
   }
+
+  // 2. 散人决心对玩家的增强buff（mainThreat为负时积累，抵消Boss增强）
+  const resolve = run.wandererResolve || 0;
+  if (resolve > 0) {
+    if (resolve >= 9) {
+      boss.hp = Math.floor(boss.hp * 0.85);
+      boss.atk = Math.floor(boss.atk * 0.9);
+      boss.bossTraitDesc = (boss.bossTraitDesc || "") + "【散人齐心：Boss HP-15%, 攻击-10%】";
+    } else if (resolve >= 6) {
+      boss.hp = Math.floor(boss.hp * 0.9);
+      boss.atk = Math.floor(boss.atk * 0.95);
+      boss.bossTraitDesc = (boss.bossTraitDesc || "") + "【散人暗助：Boss HP-10%, 攻击-5%】";
+    } else if (resolve >= 3) {
+      boss.atk = Math.floor(boss.atk * 0.95);
+      boss.bossTraitDesc = (boss.bossTraitDesc || "") + "【散人初聚：Boss 攻击-5%】";
+    }
+  }
+
   return boss;
 }
 
@@ -1206,6 +1270,7 @@ export function useBagItem(run, itemId) {
   const idx = run.items.indexOf(itemId);
   if (idx < 0) return { ok: false, message: "没有该道具" };
   const item = DATA.items[itemId];
+  if (!item) { run.items.splice(idx, 1); return { ok: false, message: "道具数据异常，已清除" }; }
   run.items.splice(idx, 1);
   if (item.type === "heal") run.hp = Math.min(run.stats.hp, run.hp + Math.floor(run.stats.hp * (item.hpPct || 0.2)));
   if (item.type === "qi") run.qi = Math.min(run.stats.qi, run.qi + Math.floor(run.stats.qi * (item.qiPct || 0.25)));
