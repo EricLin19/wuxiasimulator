@@ -177,12 +177,31 @@ function startBattle(enemy, isBoss = false) {
   state.battle = createBattle(state.run, enemy, isBoss);
   state.modal = null;
   state.screen = "battle";
+  ensureBattleTimer(); // 重新确保 timer 正在运行
   render();
 }
 
+// 防止 resolveBattleResult 被重入调用
+let _resolving = false;
+
 function resolveBattleResult(result) {
   if (!result?.ended) return;
+  if (_resolving) {
+    console.warn("[Battle] resolveBattleResult 重入被阻止");
+    return;
+  }
+  _resolving = true;
+
+  console.time("[Battle] 结算耗时");
   const battle = state.battle;
+  if (!battle) { _resolving = false; return; }
+
+  // 立即停止战斗 timer，防止后续 tick 干扰
+  if (battleTimer) {
+    clearInterval(battleTimer);
+    battleTimer = null;
+  }
+
   if (result.winner === "player") {
     state.run.hp = Math.max(1, battle.player.hp);
     state.run.qi = Math.max(0, battle.player.qi);
@@ -196,7 +215,9 @@ function resolveBattleResult(result) {
         state.screen = "run";
         state.battle = null;
         state.modal = { type: "reward", options: buildRewardChoices(state.run) };
+        console.time("[Battle] saveRun(boss)");
         saveRun(state.run);
+        console.timeEnd("[Battle] saveRun(boss)");
       }
     } else {
       const diff = getBattleDifficulty(battle.player.stats.hp, battle.enemy.stats.hp);
@@ -205,20 +226,26 @@ function resolveBattleResult(result) {
       const money = scaleMoney(state.run, Math.floor(baseMoney * diff.moneyMult));
       const exp = Math.floor(baseExp * diff.expMult);
       state.run.money += money;
+      console.time("[Battle] gainExp");
       const leveled = gainExp(state.run, exp);
+      console.timeEnd("[Battle] gainExp");
       log(state.run, `击败${battle.enemy.name}，获得${money}金钱和${exp}武学阅历。（难度：${diff.label}）`);
       state.screen = "run";
       state.battle = null;
       // 战斗结束后清理battle相关状态，确保道具栏可正常点击
+      // finishDeferredEvent 内部已调 saveRun，无需重复
       finishDeferredEvent(state.run);
       if (leveled) state.modal = { type: "reward", options: buildRewardChoices(state.run) };
       else state.modal = null;
-      saveRun(state.run);
     }
   } else {
     settleRun(state, "lose", `你败给了${battle.enemy.name}。`);
   }
+  console.time("[Battle] render结算");
   render();
+  console.timeEnd("[Battle] render结算");
+  console.timeEnd("[Battle] 结算耗时");
+  _resolving = false;
 }
 
 const actions = {
@@ -450,9 +477,23 @@ function ensureBattleTimer() {
     const speedMult = state.battle.speed || 1;
     const phase = tickBattle(state.battle, 0.08 * speedMult);
     render();
-    if (phase === "ended") resolveBattleResult({ ended: true, winner: state.battle.enemy.hp <= 0 ? "player" : "enemy" });
-    if (phase === "enemyAction") setTimeout(() => resolveBattleResult(enemyAction(state.run, state.battle)), 260 / speedMult);
-    if (phase === "autoPlayer") setTimeout(() => resolveBattleResult(autoPlayerAction(state.run, state.battle)), 240 / speedMult);
+    if (phase === "ended") {
+      // 在 timer 内检测到的结算（debuff 致死等）
+      if (!state.battle) return; // 防御：可能在 render 中被消费
+      resolveBattleResult({ ended: true, winner: state.battle.enemy.hp <= 0 ? "player" : "enemy" });
+    }
+    if (phase === "enemyAction") {
+      setTimeout(() => {
+        if (!state.battle || state.screen !== "battle") return; // 防御：战斗已结束
+        resolveBattleResult(enemyAction(state.run, state.battle));
+      }, 260 / speedMult);
+    }
+    if (phase === "autoPlayer") {
+      setTimeout(() => {
+        if (!state.battle || state.screen !== "battle") return; // 防御：战斗已结束
+        resolveBattleResult(autoPlayerAction(state.run, state.battle));
+      }, 240 / speedMult);
+    }
   }, 80);
 }
 
