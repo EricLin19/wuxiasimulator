@@ -50,7 +50,6 @@ export function renderApp(state, actions) {
     if (newModal) newModal.scrollTop = savedScrollTop;
   }
 }
-}
 
 function renderMenu(state, actions) {
   const root = el("div", "main-menu");
@@ -67,7 +66,7 @@ function renderMenu(state, actions) {
     </div>`;
   root.querySelector("[data-act=start]").onclick = actions.gotoSelect;
   root.querySelector("[data-act=continue]").onclick = actions.continueRun;
-  root.querySelector("[data-act=meta]").onclick = () => { state.modal = { type: "meta" }; actions.render(); };
+  root.querySelector("[data-act=meta]").onclick = () => actions.openModal("meta");
   return root;
 }
 
@@ -350,7 +349,7 @@ function renderRewardModal(modal, state, actions) {
     card.innerHTML = `
       <span class="event-cat-tag" style="background:${typeColor}">${opt.type}</span>
       <h3>${opt.name}</h3>
-      <div class="event-art">${opt.icon}</div>
+      <div class="event-art">${opt.icon || "📜"}</div>
       <p>${opt.desc}</p>
       <button class="btn green">选择</button>`;
     card.querySelector("button").onclick = () => actions.takeReward(index);
