@@ -64,13 +64,15 @@ function getPlayer(key) {
 }
 
 function fadeTo(audio, target, ms = 450) {
-  const start = audio.volume;
-  if (start === target) return;
+  // 钳位 start 和 target，从源头消除所有越界输入
+  const start = Math.max(0, Math.min(1, audio.volume || 0));
+  target = Math.max(0, Math.min(1, target));
+  if (Math.abs(start - target) < 0.0001) return; // 忽略极小的无效差值
   const startedAt = performance.now();
   const tick = now => {
     const t = Math.min(1, (now - startedAt) / ms);
     const vol = start + (target - start) * t;
-    audio.volume = Math.max(0, Math.min(1, vol)); // 钳位到 [0, 1]
+    audio.volume = Math.max(0, Math.min(1, vol)); // 双重钳位
     if (t < 1) requestAnimationFrame(tick);
   };
   requestAnimationFrame(tick);

@@ -322,6 +322,22 @@ function renderTrainingModal(modal, run, actions, close) {
       modal.querySelector(".list").appendChild(rowCard(s.icon, skillDisplayName(s), `${schoolName(s.school)}｜${s.styleName || ""}｜${s.desc} 完成：${statText}。进度 ${run.skillProgress[id] || 0}/${s.train}`, "修炼", () => actions.trainSkill(id)));
     });
   }
+  // 内功修炼
+  const uncultivatedArts = (run.internalArts || []).filter(id => {
+    const art = DATA.internalArts[id];
+    return art && (run.artProgress?.[id] || 0) < (art.cultivateCost || 0);
+  });
+  if (uncultivatedArts.length) {
+    const artHeader = el("div", "row-card section-header");
+    artHeader.innerHTML = `<div class="row-title" style="grid-column:1/-1;text-align:center;color:#8e44ad">— 未修炼内功（${uncultivatedArts.length}本）—</div>`;
+    modal.querySelector(".list").appendChild(artHeader);
+    uncultivatedArts.forEach(id => {
+      const art = DATA.internalArts[id];
+      if (!art) return;
+      const statText = Object.entries(art.statGain || {}).map(([k, v]) => `${STAT_LABELS[k]}+${v}`).join("，");
+      modal.querySelector(".list").appendChild(rowCard(art.icon, `【${art.rarity === "red" ? "绝" : art.rarity === "orange" ? "上" : "中"}】${art.name}`, `${art.desc} 完成：${statText}。进度 ${run.artProgress?.[id] || 0}/${art.cultivateCost}`, "参悟", () => actions.trainArt(id)));
+    });
+  }
   const rows = [
     { title: "举铁", meta: "攻击+3，经验+35，消耗1行动", icon: "拳", action: () => actions.trainStat("atk") },
     { title: "站桩功", meta: "防御+3，经验+35，消耗1行动", icon: "桩", action: () => actions.trainStat("def") },
@@ -455,10 +471,14 @@ function renderCharacterModal(modal, run, actions, close) {
     run.internalArts.forEach(id => {
       const art = DATA.internalArts[id];
       if (!art) return;
-      artList.appendChild(rowCard(art.icon, `【${rarityName(art.rarity)}】${art.name}`, art.desc, run.activeInternalArt === id ? "已装备" : "装备", () => actions.equipInternalArt(id)));
+      const progress = run.artProgress?.[id] || 0;
+      const cultivated = progress >= (art.cultivateCost || 0);
+      const btnLabel = cultivated ? (run.activeInternalArt === id ? "已装备" : "装备") : `参悟(${progress}/${art.cultivateCost})`;
+      const btnAction = cultivated ? () => actions.equipInternalArt(id) : () => actions.trainArt(id);
+      artList.appendChild(rowCard(art.icon, `【${rarityName(art.rarity)}】${art.name}${cultivated ? "" : " 未修成"}`, art.desc, btnLabel, btnAction));
     });
   } else if (artList) {
-    artList.innerHTML = "<p>尚未习得任何内功。</p>";
+    artList.innerHTML = "<p>尚未获得任何内功秘籍。</p>";
   }
 }
 

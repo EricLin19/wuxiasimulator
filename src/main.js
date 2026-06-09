@@ -10,6 +10,7 @@ import {
   endMonth,
   trainStat,
   trainSkill,
+  trainArt,
   buyManual,
   buyInternalArt,
   equipInternalArt,
@@ -195,6 +196,7 @@ function resolveBattleResult(result) {
   const battle = state.battle;
   if (!battle) return;
   state.battle = null;
+  _lastTauntBattle = null;
 
   // 立即停止战斗 timer，防止后续 tick 干扰
   if (battleTimer) {
@@ -222,10 +224,10 @@ function resolveBattleResult(result) {
       }
     } else {
       const diff = getBattleDifficulty(battle.player.stats.hp, battle.enemy.stats.hp);
-      const baseMoney = 180;
-      const baseExp = 120;
-      const money = scaleMoney(state.run, Math.floor(baseMoney * diff.moneyMult));
-      const exp = Math.floor(baseExp * diff.expMult);
+      const enemyHp = battle.enemy.stats.hp;
+      const baseReward = Math.floor(enemyHp * 0.24);
+      const money = scaleMoney(state.run, Math.floor(baseReward * diff.moneyMult));
+      const exp = Math.floor(baseReward * diff.expMult);
       state.run.money += money;
       console.time("[Battle] gainExp");
       const leveled = gainExp(state.run, exp);
@@ -335,6 +337,14 @@ const actions = {
     }
     render();
   },
+  trainArt: id => {
+    const result = trainArt(state.run, id);
+    if (!result.ok) return showToast(result.message);
+    if (result.leveled) {
+      state.modal = { type: "reward", options: buildRewardChoices(state.run) };
+    }
+    render();
+  },
   buyManual: id => {
     const result = buyManual(state.run, id);
     if (!result.ok) return showToast(result.message);
@@ -435,6 +445,7 @@ const actions = {
       state.run.items = state.battle.player.items;
       state.screen = "run";
       state.battle = null;
+      _lastTauntBattle = null;
       state.modal = null;
       log(state.run, result.message);
       finishDeferredEvent(state.run);

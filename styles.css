@@ -1569,7 +1569,7 @@ button {
   left: 50%;
   transform: translate(-50%, -50%) rotate(var(--rot));
   min-width: 180px;
-  max-width: 70vw;
+  max-width: min(70vw, 60vh);
   padding: 10px 18px;
   background: #fffdf4;
   border: 3px solid var(--line);

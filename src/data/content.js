@@ -363,22 +363,22 @@ DATA.styleTraits = STYLE_TRAITS;
 DATA.manuals = Object.keys(SKILL_STYLES);
 
 export const INTERNAL_ARTS = {
-  art_blue_1: { id: "art_blue_1", name: "紫霄清心诀", rarity: "blue", icon: "清", desc: "清心寡欲之诀。负面状态持续时间略降。血量+150，内力+50，防御+4。", statGain: { hp: 150, qi: 50, def: 4 }, combatEffect: "debuffReduce", combatDesc: "负面状态持续时间略降" },
-  art_blue_2: { id: "art_blue_2", name: "混元真息", rarity: "blue", icon: "混", desc: "浑元一体，根基扎实。血量+140，内力+50，攻击+2，防御+2。", statGain: { hp: 140, qi: 50, atk: 2, def: 2 } },
-  art_blue_3: { id: "art_blue_3", name: "罗汉镇岳功", rarity: "blue", icon: "镇", desc: "如山如岳，不动不移。血量+180，防御+7，受到直接伤害-3%。", statGain: { hp: 180, def: 7 }, combatEffect: "dmgReduce", combatDesc: "受到直接伤害-3%" },
-  art_blue_4: { id: "art_blue_4", name: "回照心经", rarity: "blue", icon: "照", desc: "心光回照，滋养肉身。血量+150，内力+40，战斗开始恢复15%血量。", statGain: { hp: 150, qi: 40 }, combatEffect: "healOnStart", combatDesc: "战斗开始时恢复15%血量" },
-  art_blue_5: { id: "art_blue_5", name: "太玄入门篇", rarity: "blue", icon: "玄", desc: "玄门筑基心法。内力+60，暴击+4。", statGain: { qi: 60, crit: 4 } },
-  art_blue_6: { id: "art_blue_6", name: "龙象锻骨功", rarity: "blue", icon: "象", desc: "锻骨炼体，力大无穷。血量+150，攻击+7。", statGain: { hp: 150, atk: 7 } },
-  art_blue_7: { id: "art_blue_7", name: "先天归元功", rarity: "blue", icon: "先", desc: "归元守一，内息绵绵。内力+70，命中+5，每回合恢复6%最大内力（上限10%）。", statGain: { qi: 70, hit: 5 }, combatEffect: "qiRegen", combatDesc: "每回合恢复6%最大内力" },
-  art_blue_8: { id: "art_blue_8", name: "葵影残篇", rarity: "blue", icon: "葵", desc: "残卷仅有速功心法。闪避+6，出手速度+0.18。", statGain: { dodge: 6, speed: 0.18 } },
-  art_orange_1: { id: "art_orange_1", name: "虚玄无相功", rarity: "orange", icon: "相", desc: "无形无相，气随意转。内力+110，连击+6，招式内力消耗-12%（降耗最高22%）。", statGain: { qi: 110, combo: 6 }, combatEffect: "qiReduce", combatDesc: "所有招式内力消耗-12%" },
-  art_orange_2: { id: "art_orange_2", name: "纯阳正气诀", rarity: "orange", icon: "阳", desc: "纯阳之体，正气凛然。血量+300，攻击+10，暴击+4，暴击伤害+0.2。", statGain: { hp: 300, atk: 10, crit: 4 }, combatEffect: "critUp", combatDesc: "暴击倍率+0.2" },
-  art_orange_3: { id: "art_orange_3", name: "玄霜真气", rarity: "orange", icon: "冰", desc: "玄霜入脉，寒意逼人。血量+180，内力+120，命中附加1层寒气（每己方回合最多1次）。", statGain: { hp: 180, qi: 120 }, combatEffect: "frostOnHit", combatDesc: "攻击/招式命中附加1层寒气（每回合最多1次）" },
-  art_orange_4: { id: "art_orange_4", name: "摄元秘法", rarity: "orange", icon: "星", desc: "夺天地之元。血量+240，内力+100，命中吸取目标8%当前内力（上限40）。", statGain: { hp: 240, qi: 100 }, combatEffect: "drainQi", combatDesc: "攻击时汲取目标8%当前内力（上限40）" },
-  art_red_1: { id: "art_red_1", name: "九曜真功", rarity: "red", icon: "曜", desc: "九曜盈体，生生不息。血量+720，内力+180，每回合恢复5%最大血量（上限6%）。", statGain: { hp: 720, qi: 180 }, combatEffect: "healOnTurn", combatDesc: "每回合开始恢复5%最大血量" },
-  art_red_2: { id: "art_red_2", name: "大罗洗髓经", rarity: "red", icon: "髓", desc: "脱胎换骨，洗尽铅华。血量+520，内力+160，全属性+6，开场净化，前2己方回合负面抵抗提高。", statGain: { hp: 520, qi: 160, atk: 6, def: 6, hit: 6, dodge: 6, crit: 6, speed: 0.06 }, combatEffect: "cleanse", combatDesc: "战斗开始清除所有负面状态，前2己方回合负面抵抗" },
-  art_red_3: { id: "art_red_3", name: "天衡神照经", rarity: "red", icon: "衡", desc: "天衡运转，神照万象。血量+600，内力+220，战斗开始恢复25%血量和15%内力。", statGain: { hp: 600, qi: 220 }, combatEffect: "bigHealStart", combatDesc: "战斗开始恢复25%血量+15%内力" },
-  art_red_4: { id: "art_red_4", name: "玄元龙象功", rarity: "red", icon: "龙", desc: "龙象之力，转化万钧。血量+480，内力+160，攻击+14，受直接伤害的20%转为内力。", statGain: { hp: 480, qi: 160, atk: 14 }, combatEffect: "dmgToQi", combatDesc: "受直接伤害的20%转为内力" }
+  art_blue_1: { id: "art_blue_1", name: "紫霄清心诀", rarity: "blue", icon: "清", cultivateCost: 15, desc: "清心寡欲之诀。负面状态持续时间略降。血量+150，内力+50，防御+4。", statGain: { hp: 150, qi: 50, def: 4 }, combatEffect: "debuffReduce", combatDesc: "负面状态持续时间略降" },
+  art_blue_2: { id: "art_blue_2", name: "混元真息", rarity: "blue", icon: "混", cultivateCost: 15, desc: "浑元一体，根基扎实。血量+140，内力+50，攻击+2，防御+2。", statGain: { hp: 140, qi: 50, atk: 2, def: 2 } },
+  art_blue_3: { id: "art_blue_3", name: "罗汉镇岳功", rarity: "blue", icon: "镇", cultivateCost: 15, desc: "如山如岳，不动不移。血量+180，防御+7，受到直接伤害-3%。", statGain: { hp: 180, def: 7 }, combatEffect: "dmgReduce", combatDesc: "受到直接伤害-3%" },
+  art_blue_4: { id: "art_blue_4", name: "回照心经", rarity: "blue", icon: "照", cultivateCost: 15, desc: "心光回照，滋养肉身。血量+150，内力+40，战斗开始恢复15%血量。", statGain: { hp: 150, qi: 40 }, combatEffect: "healOnStart", combatDesc: "战斗开始时恢复15%血量" },
+  art_blue_5: { id: "art_blue_5", name: "太玄入门篇", rarity: "blue", icon: "玄", cultivateCost: 15, desc: "玄门筑基心法。内力+60，暴击+4。", statGain: { qi: 60, crit: 4 } },
+  art_blue_6: { id: "art_blue_6", name: "龙象锻骨功", rarity: "blue", icon: "象", cultivateCost: 15, desc: "锻骨炼体，力大无穷。血量+150，攻击+7。", statGain: { hp: 150, atk: 7 } },
+  art_blue_7: { id: "art_blue_7", name: "先天归元功", rarity: "blue", icon: "先", cultivateCost: 15, desc: "归元守一，内息绵绵。内力+70，命中+5，每回合恢复6%最大内力（上限10%）。", statGain: { qi: 70, hit: 5 }, combatEffect: "qiRegen", combatDesc: "每回合恢复6%最大内力" },
+  art_blue_8: { id: "art_blue_8", name: "葵影残篇", rarity: "blue", icon: "葵", cultivateCost: 15, desc: "残卷仅有速功心法。闪避+6，出手速度+0.18。", statGain: { dodge: 6, speed: 0.18 } },
+  art_orange_1: { id: "art_orange_1", name: "虚玄无相功", rarity: "orange", icon: "相", cultivateCost: 25, desc: "无形无相，气随意转。内力+110，连击+6，招式内力消耗-12%（降耗最高22%）。", statGain: { qi: 110, combo: 6 }, combatEffect: "qiReduce", combatDesc: "所有招式内力消耗-12%" },
+  art_orange_2: { id: "art_orange_2", name: "纯阳正气诀", rarity: "orange", icon: "阳", cultivateCost: 25, desc: "纯阳之体，正气凛然。血量+300，攻击+10，暴击+4，暴击伤害+0.2。", statGain: { hp: 300, atk: 10, crit: 4 }, combatEffect: "critUp", combatDesc: "暴击倍率+0.2" },
+  art_orange_3: { id: "art_orange_3", name: "玄霜真气", rarity: "orange", icon: "冰", cultivateCost: 25, desc: "玄霜入脉，寒意逼人。血量+180，内力+120，命中附加1层寒气（每己方回合最多1次）。", statGain: { hp: 180, qi: 120 }, combatEffect: "frostOnHit", combatDesc: "攻击/招式命中附加1层寒气（每回合最多1次）" },
+  art_orange_4: { id: "art_orange_4", name: "摄元秘法", rarity: "orange", icon: "星", cultivateCost: 25, desc: "夺天地之元。血量+240，内力+100，命中吸取目标8%当前内力（上限40）。", statGain: { hp: 240, qi: 100 }, combatEffect: "drainQi", combatDesc: "攻击时汲取目标8%当前内力（上限40）" },
+  art_red_1: { id: "art_red_1", name: "九曜真功", rarity: "red", icon: "曜", cultivateCost: 40, desc: "九曜盈体，生生不息。血量+720，内力+180，每回合恢复5%最大血量（上限6%）。", statGain: { hp: 720, qi: 180 }, combatEffect: "healOnTurn", combatDesc: "每回合开始恢复5%最大血量" },
+  art_red_2: { id: "art_red_2", name: "大罗洗髓经", rarity: "red", icon: "髓", cultivateCost: 40, desc: "脱胎换骨，洗尽铅华。血量+520，内力+160，全属性+6，开场净化，前2己方回合负面抵抗提高。", statGain: { hp: 520, qi: 160, atk: 6, def: 6, hit: 6, dodge: 6, crit: 6, speed: 0.06 }, combatEffect: "cleanse", combatDesc: "战斗开始清除所有负面状态，前2己方回合负面抵抗" },
+  art_red_3: { id: "art_red_3", name: "天衡神照经", rarity: "red", icon: "衡", cultivateCost: 40, desc: "天衡运转，神照万象。血量+600，内力+220，战斗开始恢复25%血量和15%内力。", statGain: { hp: 600, qi: 220 }, combatEffect: "bigHealStart", combatDesc: "战斗开始恢复25%血量+15%内力" },
+  art_red_4: { id: "art_red_4", name: "玄元龙象功", rarity: "red", icon: "龙", cultivateCost: 40, desc: "龙象之力，转化万钧。血量+480，内力+160，攻击+14，受直接伤害的20%转为内力。", statGain: { hp: 480, qi: 160, atk: 14 }, combatEffect: "dmgToQi", combatDesc: "受直接伤害的20%转为内力" }
 };
 DATA.internalArts = INTERNAL_ARTS;
 
@@ -392,7 +392,7 @@ DATA.storylines = {
     threatName: "武盟威势",
     threatDesc: "武盟对散人的压迫日增",
     bosses: {
-      1: { id: "wanderer_boss_y1", name: "杭州堂主·赵崇岳", icon: "刀", portraitImage: "assets/portraits_pixel/lu_wenchuan_pixel_320.webp", year: 1, hp: 8000, qi: 1800, atk: 160, def: 90, combo: 5, hit: 80, dodge: 10, crit: 14, speed: 1.50, boss: true, bossTrait: "lowHpBerserk", bossTraitDesc: "低血时攻速双升；九环刀法范围攻击", taunt: "知不知因为你一个人，我少赚了多少银子？" },
+      1: { id: "wanderer_boss_y1", name: "杭州堂主·赵崇岳", icon: "刀", portraitImage: "assets/portraits_pixel/lu_wenchuan_pixel_320.webp", year: 1, hp: 6000, qi: 1800, atk: 160, def: 90, combo: 5, hit: 80, dodge: 10, crit: 14, speed: 1.50, boss: true, bossTrait: "lowHpBerserk", bossTraitDesc: "低血时攻速双升；九环刀法范围攻击", taunt: "知不知因为你一个人，我少赚了多少银子？" },
       2: { id: "wanderer_boss_y2", name: "左护法·沈千山", icon: "戟", portraitImage: "assets/portraits_pixel/meng_tianheng_pixel_320.webp", year: 2, hp: 15000, qi: 3500, atk: 240, def: 160, combo: 6, hit: 88, dodge: 14, crit: 18, speed: 1.65, boss: true, bossTrait: "berserkSummon", bossTraitDesc: "70%血狂暴；30%血召唤护卫；均衡全面", taunt: "把所有人当资源配置，包括你我，区别只是价格不同。" },
       3: { id: "wanderer_final", name: "武盟统领·楚宗玄", icon: "魔", portraitImage: "assets/portraits_pixel/yue_zongxuan_pixel_320.webp", year: 3, hp: 30000, qi: 6000, atk: 320, def: 220, combo: 8, hit: 95, dodge: 20, crit: 24, speed: 1.80, boss: true, bossTrait: "shieldPurityBerserk", bossTraitDesc: "开场25%护体；50%血净化一次；15%血攻翻倍防归零", taunt: "维持一个能救千万人的机构需要代价。每年几百个散人变成数字——我觉得值得。" }
     },
@@ -480,8 +480,8 @@ DATA.wandererMonths = {
     title: "铁窗内外",
     text: "方平还是被抓了。但这次你知道为什么——因为他在茶馆里大声念那张外编队名单上的名字，一个一个地念，连死因都念出来了。消息传来时你的剑掉在了地上。他入狱前的最后一句话传出来是笑着说的：\"老子念的是真话。有种来杀我啊。\"你赶到杭州大牢，隔着铁栅栏看到的不仅是嘴角的淤青——还有他右手食指和中指的扭曲变形。那是审讯留下的痕迹。狱卒冷眼旁观：\"拒册又煽动的，按新规矩——要么入册签卖身契，要么……\"他没说完，但指了指后院的方向。那里传来隐约的呻吟声。",
     choices: [
-      { id:"accept", label:"顺应：丑时闯牢", desc:"武力救人，不再等", effect:{mainThreat:2, def:3, triggerBattle:true, enemyId:"jail_captain", exp:150, flag:"fangpingSaved"} },
-      { id:"resist", label:"抗争：求那灰袍人", desc:"赌他还有底线", effect:{money:-400, flag:"fangpingSaved", flag2:"oweMeng"} }
+      { id:"accept", label:"顺应：求那灰袍人", desc:"赌他还有底线", effect:{money:-400, flag:"fangpingSaved", flag2:"oweMeng"} },
+      { id:"resist", label:"抗争：丑时闯牢", desc:"武力救人，不再等", effect:{mainThreat:2, def:3, triggerBattle:true, enemyId:"jail_captain", exp:150, flag:"fangpingSaved"} }
     ]
   },
   5: {
@@ -603,8 +603,8 @@ DATA.wandererMonths = {
     title: "孟天衡的信",
     text: "一只信鸽落在你窗台上。信上只有八个字：「安置营位置图附后。」信封里是一张画在羊皮纸上的地图——一个个红圈标记着江南各地\"安置营\"的位置，每个旁边标注着人数。没有署名。但你认得这笔迹。孟天衡在用自己的命给你递一把刀。这张图足以让武盟的罪行无所遁形。",
     choices: [
-      { id:"accept", label:"趁夜突袭安置营", desc:"抢在转移之前救人", effect:{triggerBattle:true, enemyId:"camp_guard_captain", exp:250, mainThreat:2, flag:"nightRaid"} },
-      { id:"resist", label:"按兵不动", desc:"保存实力先用地图布局", effect:{int:2, flag:"patientStrategy", mengFavor:1, gainItem:"camp_location_map"} }
+      { id:"accept", label:"顺应：按兵不动", desc:"保存实力先用地图布局", effect:{int:2, flag:"patientStrategy", mengFavor:1, gainItem:"camp_location_map"} },
+      { id:"resist", label:"抗争：趁夜突袭安置营", desc:"抢在转移之前救人", effect:{triggerBattle:true, enemyId:"camp_guard_captain", exp:250, mainThreat:2, flag:"nightRaid"} }
     ]
   },
   17: {
@@ -649,8 +649,8 @@ DATA.wandererMonths = {
     title: "刺客之夜",
     text: "深夜，一道黑影潜入了你的房间。快刀，极快。你滚下床的瞬间枕头已经被剖成了两半。来人是江湖上有名的杀手\"无影\"叶孤——沈千山花重金请来的。交手三十招后你才发现不对劲——他的目标不是杀你。他的目标是你枕下那份外编队名单原件。武盟派刺客来不是为了灭口，是为了销赃——让证据永远消失于世。",
     choices: [
-      { id:"accept", label:"正面迎击硬拼", desc:"以硬碰硬保护证据", effect:{triggerBattle:true, enemyId:"ye_gu_duel", evidencePreserved:true} },
-      { id:"resist", label:"利用地形周旋", desc:"用智慧保护证据和自己", effect:{evidencePreserved:true} }
+      { id:"accept", label:"顺应：利用地形周旋", desc:"用智慧保护证据和自己", effect:{evidencePreserved:true} },
+      { id:"resist", label:"抗争：正面迎击硬拼", desc:"以硬碰硬保护证据", effect:{triggerBattle:true, enemyId:"ye_gu_duel", evidencePreserved:true} }
     ],
     triggerBattle: true, enemyId: "shadow_killer_yegu",
     isMiniBoss: true, bossRank: 3,

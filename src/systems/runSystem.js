@@ -5,7 +5,7 @@ import { state } from "../core/state.js";
 
 const COMBAT_SCHOOLS = ["blade", "hidden", "fist", "lightness"];
 const ALL_SCHOOLS = ["blade", "hidden", "fist", "lightness"];
-export const RANK_TITLES = ["喽啰", "外门弟子", "内门弟子", "精英弟子", "香主", "堂主", "护法", "长老", "副掌门", "代掌门", "掌门"];
+export const RANK_TITLES = ["初窥门径", "驾轻就熟", "略有小成", "融会贯通", "炉火纯青", "所向披靡", "傲视群雄", "一代宗师", "天人合一", "天人之上"];
 
 export function createRun(characterId, treasureId, meta) {
   const character = DATA.characters.find(x => x.id === characterId);
@@ -58,6 +58,8 @@ export function createRun(characterId, treasureId, meta) {
     merchantStock: [],
     internalArts: [],
     activeInternalArt: null,
+    artProgress: {},
+    trainingArts: [],
     finalBoss: null,
     finalBossMonth: 36,
     yearlyBossDefeated: {},
@@ -1196,7 +1198,7 @@ export function gainExp(run, amount) {
 }
 
 export function expNeed(level) {
-  return Math.floor(120 + level * level * 42 + level * 38);
+  return Math.floor(800 + level * level * 180);
 }
 
 /**
@@ -1264,24 +1266,50 @@ export function buyInternalArt(run, artId) {
   if (run.internalArts.includes(artId)) return { ok: false, message: "已经拥有" };
   run.money -= price;
   run.internalArts.push(artId);
-  // 立即获得属性加成
-  for (const [key, value] of Object.entries(art.statGain || {})) {
-    run.stats[key] = Number(((run.stats[key] || 0) + value).toFixed(2));
-  }
-  run.hp = Math.min(run.hp + (art.statGain?.hp || 0), run.stats.hp);
-  run.qi = Math.min(run.qi + (art.statGain?.qi || 0), run.stats.qi);
-  log(run, `购买内功秘籍：《${art.name}》。${art.desc}`);
+  // 购买秘籍后需要消耗行动力修炼才能获得属性加成
+  log(run, `购买内功秘籍：《${art.name}》。需要在修炼面板花费行动力参悟。`);
   saveRun(run);
   return { ok: true };
 }
 
 export function equipInternalArt(run, artId) {
   if (!run.internalArts.includes(artId)) return { ok: false, message: "尚未获得该内功" };
-  // 切换装备：先移除旧效果（这里简化，直接换）
+  const art = DATA.internalArts[artId];
+  // 检查是否已修炼完成
+  if ((run.artProgress?.[artId] || 0) < (art.cultivateCost || 0)) {
+    return { ok: false, message: `尚未修成《${art.name}》（进度${run.artProgress?.[artId] || 0}/${art.cultivateCost}）` };
+  }
   run.activeInternalArt = artId;
-  log(run, `装备内功：《${DATA.internalArts[artId].name}》。`);
+  log(run, `装备内功：《${art.name}》。`);
   saveRun(run);
   return { ok: true };
+}
+
+export function trainArt(run, artId) {
+  const art = DATA.internalArts[artId];
+  if (!art) return { ok: false, message: "不存在该内功" };
+  if (!run.internalArts.includes(artId)) return { ok: false, message: "尚未获得该秘籍" };
+  const progress = run.artProgress?.[artId] || 0;
+  if (progress >= (art.cultivateCost || 0)) return { ok: false, message: "已修炼完成" };
+  if (!spendAp(run, 1)) return { ok: false, message: "行动力不足" };
+  if (!run.artProgress) run.artProgress = {};
+  run.artProgress[artId] = progress + 1;
+  if (!run.trainingArts) run.trainingArts = [];
+  if (!run.trainingArts.includes(artId)) run.trainingArts.push(artId);
+  log(run, `参悟内功《${art.name}》，进度 ${run.artProgress[artId]}/${art.cultivateCost}。`);
+  if (run.artProgress[artId] >= (art.cultivateCost || 0)) {
+    // 修炼完成：获得属性加成
+    for (const [key, value] of Object.entries(art.statGain || {})) {
+      run.stats[key] = Number(((run.stats[key] || 0) + value).toFixed(2));
+    }
+    run.hp = Math.min(run.hp + (art.statGain?.hp || 0), run.stats.hp);
+    run.qi = Math.min(run.qi + (art.statGain?.qi || 0), run.stats.qi);
+    run.trainingArts = run.trainingArts.filter(id => id !== artId);
+    log(run, `内功修成：《${art.name}》！获得属性加成。`);
+  }
+  const leveled = gainExp(run, 30);
+  saveRun(run);
+  return { ok: true, leveled };
 }
 
 export function useBagItem(run, itemId) {
