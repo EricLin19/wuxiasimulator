@@ -312,7 +312,7 @@ function makeWandererGrowthPool(run) {
   }
   // --- 道具 (item, 条件过滤) ---
   for (const it of (g.item || [])) {
-    if (it.id === "wanderer_item_relic" && monthAbs < 3) continue;
+    if (it.id === "wanderer_item_relic" && monthAbs < 6) continue;
     if (it.id === "wanderer_item_merchant" && monthAbs < 6) continue;
     events.push({
       id: it.id, name: it.name, category: "道具", icon: "遗", desc: it.desc,
@@ -335,10 +335,12 @@ function makeWandererGrowthPool(run) {
           })
     });
   }
-  // --- 属性 (stat, 按年份梯度) ---
+  // --- 属性 (stat, 按年份梯度，含月份过滤) ---
   const statYrVals = { 1: [120, 28, 2, 3], 2: [168, 39, 3, 4], 3: [240, 56, 4, 5] };
   const statKeys = ["hp", "qi", "dodge", "hit"];
+  const statMonthMin = [10, 10, 10, 25]; // hp=M10, qi=M10, dodge=M10, hit=M25
   (g.stat || []).forEach((s, i) => {
+    if (monthAbs < statMonthMin[i]) return;
     events.push({
       id: s.id, name: s.name, category: "属性", icon: "体", desc: s.desc,
       apply: (({ run: r }) => {
@@ -371,9 +373,15 @@ function makeWandererRiskPool(run) {
     wanderer_fight_escort:   { enemies: wGrunts.filter(e => e.id === "wanderer_grunt_patrol"), count: run.year >= 2 ? 4 : 3, desc: "巡逻追兵" },
     wanderer_fight_camp:     { enemies: wMinis.filter(e => e.id === "wanderer_mini_kanzhang").concat(wGrunts.filter(e => e.id === "wanderer_grunt_guard")), count: 1, desc: "看守长+守卫" }
   };
-  // --- 打斗 (fight, 按年份过滤，使用孤云专属敌人) ---
+  // --- 打斗 (fight, 按年份+月份过滤，使用孤云专属敌人) ---
+  const fightMonthMin = {
+    wanderer_fight_remnant: 13, wanderer_fight_bounty: 20,
+    wanderer_fight_traitor: 6, wanderer_fight_arena: 6,
+    wanderer_fight_escort: 6, wanderer_fight_camp: 16
+  };
   (g.fight || []).forEach(f => {
     if (f.years && !f.years.includes(run.year)) return;
+    if (fightMonthMin[f.id] && monthAbs < fightMonthMin[f.id]) return;
     const mapping = fightEnemyMap[f.id];
     const enemyList = mapping ? mapping.enemies : wGrunts;
     const numEnemies = mapping ? mapping.count : 1;
@@ -396,9 +404,12 @@ function makeWandererRiskPool(run) {
     const reward = c.reward || {};
     const amount = reward[`y${run.year}`] || reward.y1 || 100;
     // 条件过滤
+    if (c.id === "wanderer_coin_escort" && monthAbs < 10) return;
     if (c.id === "wanderer_coin_rebuild" && monthAbs < 10) return;
     if (c.id === "wanderer_coin_intel" && (monthAbs < 16 || run.year < 2)) return;
     if (c.id === "wanderer_coin_fangping" && monthAbs < 2) return;
+    if (c.id === "wanderer_coin_labor" && monthAbs < 13) return;
+    if (c.id === "wanderer_coin_market" && monthAbs < 6) return;
     events.push({
       id: c.id, name: c.name, category: "金钱", icon: "钱", desc: c.desc,
       apply: (({ run: r }) => {

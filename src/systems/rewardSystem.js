@@ -51,6 +51,8 @@ export function buildRewardChoices(run) {
 function buildTraitReward(run) {
   const available = DATA.traits.filter(t =>
     !run.traits.includes(t.id) && !run.skillTraits.some(st => st.id === t.id)
+    // 孤云线：排除其他剧情线的专属特性
+    && !(run.storylineId === "wanderer" && ["constable", "orthodox"].includes(t.id))
   );
   if (!available.length) return null;
   const trait = sample(available, 1)[0];
@@ -65,6 +67,11 @@ function buildTraitReward(run) {
 }
 
 function buildSkillReward(run) {
+  // 孤云线限定：只从专属秘籍池中抽取
+  const wandererSkillIds = run.storylineId === "wanderer"
+    ? (DATA.wandererMerchantPool?.manuals || []).map(m => m.id)
+    : null;
+
   // 优先给当前流派的秘籍，其次给通用秘籍
   const available = Object.keys(DATA.skills || {}).filter(id => {
     const s = DATA.skills[id];
@@ -72,6 +79,8 @@ function buildSkillReward(run) {
     if (run.skills.includes(id)) return false;
     if (run.trainingSkills.includes(id)) return false;
     if (RARITIES[s.rarity].year > run.year) return false;
+    // 孤云线：只保留专属池中的秘籍
+    if (wandererSkillIds && !wandererSkillIds.includes(id)) return false;
     return true;
   });
 
@@ -94,9 +103,16 @@ function buildSkillReward(run) {
 }
 
 function buildWeaponReward(run) {
+  // 孤云线限定：只从专属武器池中抽取
+  const wandererWeaponIds = run.storylineId === "wanderer"
+    ? (DATA.wandererMerchantPool?.weapons || []).map(w => w.id)
+    : null;
+
   const available = Object.values(DATA.weapons || {}).filter(w => {
     if (run.weapons.includes(w.id)) return false;
     if (RARITIES[w.rarity].year > run.year) return false;
+    // 孤云线：只保留专属池中的武器
+    if (wandererWeaponIds && !wandererWeaponIds.includes(w.id)) return false;
     return true;
   });
 
@@ -120,9 +136,16 @@ function buildWeaponReward(run) {
 }
 
 function buildArmorReward(run) {
+  // 孤云线限定：只从专属防具池中抽取
+  const wandererArmorIds = run.storylineId === "wanderer"
+    ? (DATA.wandererMerchantPool?.armors || []).map(a => a.id)
+    : null;
+
   const available = Object.values(DATA.armors || {}).filter(a => {
     if (run.armors.includes(a.id)) return false;
     if (RARITIES[a.rarity].year > run.year) return false;
+    // 孤云线：只保留专属池中的防具
+    if (wandererArmorIds && !wandererArmorIds.includes(a.id)) return false;
     return true;
   });
 
@@ -140,9 +163,16 @@ function buildArmorReward(run) {
 }
 
 function buildInternalArtReward(run) {
+  // 孤云线限定：只从专属内功池中抽取
+  const wandererArtIds = run.storylineId === "wanderer"
+    ? (DATA.wandererMerchantPool?.internalArts || []).map(a => a.id)
+    : null;
+
   const available = Object.values(DATA.internalArts || {}).filter(a => {
     if (run.internalArts.includes(a.id)) return false;
     if (RARITIES[a.rarity].year > run.year) return false;
+    // 孤云线：只保留专属池中的内功
+    if (wandererArtIds && !wandererArtIds.includes(a.id)) return false;
     return true;
   });
 
