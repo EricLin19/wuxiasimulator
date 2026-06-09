@@ -603,7 +603,15 @@ function applyTurnStart(battle, unit) {
     battleLog(battle, `${unit.name}蛊息扰动，失去${loss}内力。`);
     unit.gu = Math.max(0, unit.gu - 1);
   }
-  // 中毒不每回合结算，只在被命中时生效（降低攻防命闪速）
+  // 中毒结算（每层毒伤8，每层削内4，结算后-1）
+  if (unit.poison > 0) {
+    const dmg = unit.poison * POISON_DMG;
+    const qiLoss = unit.poison * POISON_QI;
+    unit.hp = Math.max(0, unit.hp - dmg);
+    unit.qi = Math.max(0, unit.qi - qiLoss);
+    battleLog(battle, `${unit.name}毒发攻心，受到${dmg}伤害并流失${qiLoss}内力。`);
+    unit.poison = Math.max(0, unit.poison - 1);
+  }
   // 断筋结算（每层削攻1，降低速度，结算后-1）
   if (unit.hamstring > 0) {
     unit.hamstring = Math.max(0, unit.hamstring - 1);
