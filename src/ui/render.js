@@ -1,6 +1,6 @@
 import { DATA, STAT_LABELS, STAT_KEYS, SCHOOLS, RARITIES } from "../data/content.js";
 import { monthAbs } from "../core/utils.js";
-import { expNeed, getRankTitle, getInternalArtPrice } from "../systems/runSystem.js";
+import { expNeed, getRankTitle, getInternalArtPrice, getBattleDifficulty } from "../systems/runSystem.js";
 
 // 特性描述弹窗（替代 alert，避免手机横屏旋转）
 window.__showTraitDesc = function (el) {
@@ -20,15 +20,15 @@ window.__showTraitDesc = function (el) {
 };
 
 const STAT_HELP = {
-  hp: "局外每点：新局血量+20",
-  qi: "局外每点：新局内力+15",
-  atk: "局外每点：新局攻击+2",
-  def: "局外每点：新局防御+2",
-  combo: "局外每点：新局连击+1",
-  hit: "局外每点：新局命中+2。实际命中=100+命中-闪避",
+  hp: "局外每点：新局血量+90（等价于1次行动点修炼）",
+  qi: "局外每点：新局内力+30（等价于1次行动点修炼）",
+  atk: "局外每点：新局攻击+3（等价于1次行动点修炼）",
+  def: "局外每点：新局防御+3（等价于1次行动点修炼）",
+  combo: "局外每点：新局连击+2",
+  hit: "局外每点：新局命中+3。实际命中=100+命中-闪避",
   dodge: "局外每点：新局闪避+1",
-  crit: "局外每点：新局暴击+1。暴击属性表示2倍暴击概率",
-  speed: "局外每点：新局出手速度+0.03"
+  crit: "局外每点：新局暴击+2",
+  speed: "局外每点：新局出手速度+0.04"
 };
 
 export function renderApp(state, actions) {
@@ -278,11 +278,14 @@ function renderEventsModal(modal, run, actions, close) {
     const sc = STORY_CHOICES[e.id];
     // 主线威胁值标注
     const threatNote = sc ? `<p style="color:#e74c3c;font-weight:700;margin:6px 0 0 0">武盟威视+${sc.threat}（顺应）</p>` : "";
-    // 战斗难度标注
+    // 战斗难度标注（动态计算）
     let diffNote = "";
-    if (e.category === "小Boss") diffNote = `<p style="color:#e74c3c;font-weight:900;margin:6px 0 0 0">战斗难度：极难</p>`;
-    else if (e.category === "切磋" && e.id && e.id.startsWith("mini_")) diffNote = `<p style="color:#e74c3c;font-weight:900;margin:6px 0 0 0">战斗难度：极难</p>`;
-    else if (e.category === "切磋") diffNote = `<p style="color:#f39c12;font-weight:700;margin:6px 0 0 0">战斗难度：困难</p>`;
+    const diff = computeEventDifficulty(run, e);
+    if (diff) {
+      diffNote = `<p style="color:${diff.color};font-weight:700;margin:6px 0 0 0">战斗难度：${diff.label}</p>`;
+    } else if (e.category === "小Boss") {
+      diffNote = `<p style="color:#e74c3c;font-weight:900;margin:6px 0 0 0">战斗难度：极难</p>`;
+    }
     if (e.type === "story") {
       // 主线事件：双按钮
       card.innerHTML = `<span class="event-cat-tag" style="background:${catColor}">${e.category || "事件"}</span><h3>${e.name}${storyTag}</h3><div class="event-art">${e.icon}</div><p>${e.desc}</p>${threatNote}<div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:6px"><button class="btn green small" data-accept>顺应</button><button class="btn red small" data-resist>抗争</button></div>`;
@@ -424,6 +427,8 @@ function renderCharacterModal(modal, run, actions, close) {
         <h3>装备武器</h3><p>${equippedWeaponText}</p>
         <h3>装备防具</h3><p>${equippedArmorText}</p>
         <h3>已装备内功</h3><p>${run.activeInternalArt ? traitChip(DATA.internalArts[run.activeInternalArt].name, DATA.internalArts[run.activeInternalArt].desc) : "未装备"}</p>
+        <h3>已学内功（${(run.internalArts || []).length}本）</h3>
+        <div class="list internal-art-list"></div>
       </div>
     </div>`;
   const list = modal.querySelector(".skill-select-list");
@@ -437,15 +442,26 @@ function renderCharacterModal(modal, run, actions, close) {
     const active = run.activeSkills.includes(id);
     list.appendChild(rowCard(skill.icon, `${active ? "✓ " : ""}${skillDisplayName(skill)}`, `${schoolName(skill.school)}｜${skill.styleName || ""}｜${skill.desc}`, active ? "下场" : "上场", () => actions.toggleActiveSkill(id)));
   });
+  const artList = modal.querySelector(".internal-art-list");
+  if (artList && (run.internalArts || []).length) {
+    run.internalArts.forEach(id => {
+      const art = DATA.internalArts[id];
+      if (!art) return;
+      artList.appendChild(rowCard(art.icon, `【${rarityName(art.rarity)}】${art.name}`, art.desc, run.activeInternalArt === id ? "已装备" : "装备", () => actions.equipInternalArt(id)));
+    });
+  } else if (artList) {
+    artList.innerHTML = "<p>尚未习得任何内功。</p>";
+  }
 }
 
 function renderBackpackModal(modal, run, actions, close) {
   const counts = countIds(run.items);
   const weaponCounts = countIds(run.weapons);
   const armorCounts = countIds(run.armors);
-  modal.innerHTML = `<div class="modal-head"><h2 class="modal-title">背包</h2>${close}</div><div class="inventory-summary"><div class="inventory-chip">金钱：${run.money}◎</div><div class="inventory-chip">道具：${run.items.length}</div><div class="inventory-chip">武器：${run.weapons.length}</div><div class="inventory-chip">防具：${run.armors.length}</div></div><div class="list"></div>`;
+  const artCounts = countIds(run.internalArts || []);
+  modal.innerHTML = `<div class="modal-head"><h2 class="modal-title">背包</h2>${close}</div><div class="inventory-summary"><div class="inventory-chip">金钱：${run.money}◎</div><div class="inventory-chip">道具：${run.items.length}</div><div class="inventory-chip">武器：${run.weapons.length}</div><div class="inventory-chip">防具：${run.armors.length}</div><div class="inventory-chip">内功：${(run.internalArts || []).length}</div></div><div class="list"></div>`;
   const list = modal.querySelector(".list");
-  if (!run.items.length && !run.weapons.length && !run.armors.length) { list.innerHTML = "<p>背包里暂时没有道具。</p>"; return; }
+  if (!run.items.length && !run.weapons.length && !run.armors.length && !(run.internalArts || []).length) { list.innerHTML = "<p>背包里暂时没有道具。</p>"; return; }
   // 安全渲染：跳过 DATA 中不存在的物品（防止因脏数据导致渲染中断）
   Object.entries(counts).forEach(([id, count]) => {
     const item = DATA.items[id];
@@ -461,6 +477,11 @@ function renderBackpackModal(modal, run, actions, close) {
     const armor = DATA.armors[id];
     if (!armor) return;
     list.appendChild(rowCard(armor.icon, `【${rarityName(armor.rarity)}】${armor.name} x${count}`, armorTitle(armor), run.equippedArmor === id ? "已装备" : "装备", () => actions.equipArmor(id)));
+  });
+  Object.entries(artCounts).forEach(([id, count]) => {
+    const art = DATA.internalArts[id];
+    if (!art) return;
+    list.appendChild(rowCard(art.icon, `【${rarityName(art.rarity)}】${art.name} x${count}`, art.desc, run.activeInternalArt === id ? "已装备" : "装备", () => actions.equipInternalArt(id)));
   });
 }
 
@@ -656,6 +677,39 @@ function skillDisplayName(skill) {
 
 function countIds(ids) {
   return ids.reduce((map, id) => ({ ...map, [id]: (map[id] || 0) + 1 }), {});
+}
+
+function computeEventDifficulty(run, event) {
+  if (event.category !== "切磋" && event.category !== "小Boss") return null;
+  let enemyHp = 0;
+  // 孤云逐浪专属打斗事件：根据事件ID映射到敌人池
+  const wandererFightMap = {
+    wanderer_fight_remnant: ["wanderer_grunt_disciple"],
+    wanderer_fight_bounty: ["wanderer_grunt_bounty"],
+    wanderer_fight_traitor: ["wanderer_grunt_traitor", "wanderer_grunt_disciple"],
+    wanderer_fight_arena: ["wanderer_grunt_challenger"],
+    wanderer_fight_escort: ["wanderer_grunt_patrol"],
+    wanderer_fight_camp: ["wanderer_mini_kanzhang", "wanderer_grunt_guard"]
+  };
+  const wp = DATA.wandererEnemyPool;
+  if (wandererFightMap[event.id] && wp) {
+    const ids = wandererFightMap[event.id];
+    const allEnemies = [...(wp.grunts || []), ...(wp.miniBosses || [])];
+    const matched = allEnemies.filter(e => ids.includes(e.id));
+    enemyHp = matched.length ? matched.reduce((s, e) => s + (e.hp || 0), 0) / matched.length * 2 : 0;
+  } else if (event.id && event.id.startsWith("mini_")) {
+    // 通用小Boss
+    const miniId = event.id.replace("mini_", "");
+    const mini = (DATA.miniBosses || []).find(b => b.id === miniId);
+    enemyHp = mini ? mini.hp * 2 : 0;
+  } else if (event.category === "切磋") {
+    // 通用切磋：按当前rank上限取平均敌人血量
+    const maxRank = Math.min(4, 1 + Math.floor(monthAbs(run) / 8));
+    const pool = (DATA.enemies || []).filter(e => (e.rank || 1) <= maxRank);
+    enemyHp = pool.length ? pool.reduce((s, e) => s + (e.hp || 0), 0) / pool.length * 2 : 600;
+  }
+  if (!enemyHp) return null;
+  return getBattleDifficulty(run.stats.hp, enemyHp);
 }
 
 function debugRow(title, meta, id) {

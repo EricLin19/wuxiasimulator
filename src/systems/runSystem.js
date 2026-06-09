@@ -1199,6 +1199,18 @@ export function expNeed(level) {
   return Math.floor(120 + level * level * 42 + level * 38);
 }
 
+/**
+ * 计算战斗难度
+ * ratio = 玩家血量 / 敌人血量（已按scaleEnemyStats缩放后的实际战斗值）
+ * >=1.2: easy, >=0.8: normal, <0.8: hard
+ */
+export function getBattleDifficulty(playerHp, enemyHp) {
+  const ratio = playerHp / enemyHp;
+  if (ratio >= 1.2) return { level: "easy", label: "简单", color: "#2ecc71", expMult: 0.7, moneyMult: 0.7 };
+  if (ratio >= 0.8) return { level: "normal", label: "一般", color: "#f39c12", expMult: 1.0, moneyMult: 1.0 };
+  return { level: "hard", label: "困难", color: "#e74c3c", expMult: 1.3, moneyMult: 1.3 };
+}
+
 export function getRankTitle(run) {
   return RANK_TITLES[Math.min(RANK_TITLES.length - 1, Math.max(0, run.level - 1))];
 }
@@ -1383,13 +1395,13 @@ export function settleRun(state, result, reason) {
 }
 
 function applyMetaAllocations(stats, allocations) {
-  stats.hp += (allocations.hp || 0) * 60;
-  stats.qi += (allocations.qi || 0) * 15;
-  stats.atk += (allocations.atk || 0) * 2;
-  stats.def += (allocations.def || 0) * 2;
-  stats.combo += (allocations.combo || 0) * 1;
-  stats.hit += (allocations.hit || 0) * 2;
+  stats.hp += (allocations.hp || 0) * 90;
+  stats.qi += (allocations.qi || 0) * 30;
+  stats.atk += (allocations.atk || 0) * 3;
+  stats.def += (allocations.def || 0) * 3;
+  stats.combo += (allocations.combo || 0) * 2;
+  stats.hit += (allocations.hit || 0) * 3;
   stats.dodge += allocations.dodge || 0;
-  stats.crit += allocations.crit || 0;
-  stats.speed = Number((stats.speed + (allocations.speed || 0) * 0.03).toFixed(2));
+  stats.crit += (allocations.crit || 0) * 2;
+  stats.speed = Number((stats.speed + (allocations.speed || 0) * 0.04).toFixed(2));
 }

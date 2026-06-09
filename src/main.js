@@ -23,7 +23,8 @@ import {
   log,
   spendAp,
   settleRun,
-  toggleActiveSkill
+  toggleActiveSkill,
+  getBattleDifficulty
 } from "./systems/runSystem.js";
 import { buildRewardChoices, takeReward } from "./systems/rewardSystem.js";
 import { syncMusicForState, setVolume as audioSetVolume } from "./systems/audioSystem.js";
@@ -157,10 +158,14 @@ function resolveBattleResult(result) {
         saveRun(state.run);
       }
     } else {
-      const money = scaleMoney(state.run, 180);
+      const diff = getBattleDifficulty(battle.player.stats.hp, battle.enemy.stats.hp);
+      const baseMoney = 180;
+      const baseExp = 120;
+      const money = scaleMoney(state.run, Math.floor(baseMoney * diff.moneyMult));
+      const exp = Math.floor(baseExp * diff.expMult);
       state.run.money += money;
-      const leveled = gainExp(state.run, 120);
-      log(state.run, `击败${battle.enemy.name}，获得${money}金钱和120武学阅历。`);
+      const leveled = gainExp(state.run, exp);
+      log(state.run, `击败${battle.enemy.name}，获得${money}金钱和${exp}武学阅历。（难度：${diff.label}）`);
       state.screen = "run";
       state.battle = null;
       // 战斗结束后清理battle相关状态，确保道具栏可正常点击
