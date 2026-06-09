@@ -1563,10 +1563,11 @@ button {
 }
 
 .toast {
+  --rot: 0deg;
   position: fixed;
   top: 50%;
   left: 50%;
-  transform: translate(-50%, -50%);
+  transform: translate(-50%, -50%) rotate(var(--rot));
   min-width: 180px;
   max-width: 70vw;
   padding: 10px 18px;
@@ -1587,8 +1588,7 @@ button {
 
 @media (orientation: landscape) {
   .toast {
-    transform: translate(-50%, -50%) rotate(90deg);
-    transform-origin: center center;
+    --rot: 90deg;
     top: 30%;
     max-width: 50vh;
     font-size: 13px;
@@ -1597,15 +1597,8 @@ button {
 }
 
 @keyframes toastIn {
-  from { opacity: 0; transform: translate(-50%, -50%) scale(0.92); }
-  to   { opacity: 1; transform: translate(-50%, -50%) scale(1); }
-}
-
-@media (orientation: landscape) {
-  @keyframes toastIn {
-    from { opacity: 0; transform: translate(-50%, -50%) rotate(90deg) scale(0.92); }
-    to   { opacity: 1; transform: translate(-50%, -50%) rotate(90deg) scale(1); }
-  }
+  from { opacity: 0; transform: translate(-50%, -50%) rotate(var(--rot)) scale(0.92); }
+  to   { opacity: 1; transform: translate(-50%, -50%) rotate(var(--rot)) scale(1); }
 }
 
 .trait-chip {
