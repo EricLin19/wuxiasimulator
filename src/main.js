@@ -61,17 +61,16 @@ function render() {
   renderApp(state, actions);
   syncMusicForState(state);
 
-  // Toast：只在内容变化时才创建/重建 DOM，1 秒后自动消失
+  // Toast：挂到 document.body（避免 renderApp 的 innerHTML="" 清空）
   if (state.toast && state.toast !== _lastToast) {
     _lastToast = state.toast;
     if (_toastEl) { _toastEl.remove(); _toastEl = null; }
     clearTimeout(_toastTimer);
 
-    const app = document.getElementById("app");
     _toastEl = document.createElement("div");
     _toastEl.className = "toast";
     _toastEl.textContent = state.toast;
-    app.appendChild(_toastEl);
+    document.body.appendChild(_toastEl);
 
     _toastTimer = setTimeout(() => {
       if (_toastEl) { _toastEl.remove(); _toastEl = null; }
@@ -80,17 +79,16 @@ function render() {
     }, 1000);
   }
 
-  // 战斗嘴炮：独立 DOM，每场战斗只显示 1 秒
+  // 战斗嘴炮：挂到 document.body（避免 renderApp 的 innerHTML="" 清空）
   if (state.battle?.tauntText && state.battle !== _lastTauntBattle) {
     _lastTauntBattle = state.battle;
     if (_tauntEl) { _tauntEl.remove(); _tauntEl = null; }
     clearTimeout(_tauntTimer);
 
-    const app = document.getElementById("app");
     _tauntEl = document.createElement("div");
     _tauntEl.className = "toast";
     _tauntEl.textContent = `【${state.battle.enemy.name}】"${state.battle.tauntText}"`;
-    app.appendChild(_tauntEl);
+    document.body.appendChild(_tauntEl);
 
     _tauntTimer = setTimeout(() => {
       if (_tauntEl) { _tauntEl.remove(); _tauntEl = null; }
