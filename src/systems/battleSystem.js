@@ -176,10 +176,8 @@ export function createBattle(run, enemyTemplate, isBoss = false) {
   }
 
   if (enemyStats.traitName) battle.log.unshift(`${enemyTemplate.name}特性：${enemyStats.traitName}。${enemyStats.traitDesc || ""}`);
-  // 嘴炮：敌人进入战斗的专属台词
-  if (enemyTemplate.taunt) {
-    battle.log.unshift(`【${enemyTemplate.name}】"${enemyTemplate.taunt}"`);
-  }
+  // 嘴炮：敌人进入战斗的专属台词（存为独立字段，由 renderBattle 一次性展示）
+  battle.tauntText = enemyTemplate.taunt || null;
   // 战斗难度
   const ratio = pStats.hp / enemyStats.hp;
   battle.difficulty = ratio >= 1.2 ? "easy" : ratio >= 0.8 ? "normal" : "hard";

@@ -42,26 +42,59 @@ import {
   fleeAction as battleFleeAction
 } from "./systems/battleSystem.js";
 
+// ── Toast 系统：独立 DOM 元素，不受 renderApp 重建影响 ──
+let _toastEl = null;
+let _toastTimer = null;
+let _lastToast = "";
+
 function showToast(text) {
   state.toast = text;
   render();
 }
 
-let _toastTimer = null;
-let _lastToast = "";
+// ── Battle 嘴炮系统：独立 DOM，每场战斗只显示一次 ──
+let _tauntEl = null;
+let _tauntTimer = null;
+let _lastTauntBattle = null;
+
 function render() {
   renderApp(state, actions);
   syncMusicForState(state);
-  // 自动清除toast：2秒后消失；只在toast内容变化时重置定时器，避免重复点击导致toast永不消失
+
+  // Toast：只在内容变化时才创建/重建 DOM，1 秒后自动消失
   if (state.toast && state.toast !== _lastToast) {
     _lastToast = state.toast;
+    if (_toastEl) { _toastEl.remove(); _toastEl = null; }
     clearTimeout(_toastTimer);
+
+    const app = document.getElementById("app");
+    _toastEl = document.createElement("div");
+    _toastEl.className = "toast";
+    _toastEl.textContent = state.toast;
+    app.appendChild(_toastEl);
+
     _toastTimer = setTimeout(() => {
+      if (_toastEl) { _toastEl.remove(); _toastEl = null; }
       state.toast = "";
       _lastToast = "";
-      renderApp(state, actions);
-      syncMusicForState(state);
-    }, 2000);
+    }, 1000);
+  }
+
+  // 战斗嘴炮：独立 DOM，每场战斗只显示 1 秒
+  if (state.battle?.tauntText && state.battle !== _lastTauntBattle) {
+    _lastTauntBattle = state.battle;
+    if (_tauntEl) { _tauntEl.remove(); _tauntEl = null; }
+    clearTimeout(_tauntTimer);
+
+    const app = document.getElementById("app");
+    _tauntEl = document.createElement("div");
+    _tauntEl.className = "toast";
+    _tauntEl.textContent = `【${state.battle.enemy.name}】"${state.battle.tauntText}"`;
+    app.appendChild(_tauntEl);
+
+    _tauntTimer = setTimeout(() => {
+      if (_tauntEl) { _tauntEl.remove(); _tauntEl = null; }
+    }, 1000);
   }
 }
 

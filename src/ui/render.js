@@ -49,7 +49,7 @@ export function renderApp(state, actions) {
     const newModal = app.querySelector(".modal");
     if (newModal) newModal.scrollTop = savedScrollTop;
   }
-  if (state.toast) app.appendChild(el("div", "toast", state.toast));
+}
 }
 
 function renderMenu(state, actions) {
