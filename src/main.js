@@ -188,26 +188,21 @@ function startBattle(enemy, isBoss = false) {
   render();
 }
 
-// 防止 resolveBattleResult 被重入调用
-let _resolving = false;
-
 function resolveBattleResult(result) {
   if (!result?.ended) return;
-  if (_resolving) {
-    console.warn("[Battle] resolveBattleResult 重入被阻止");
-    return;
-  }
-  _resolving = true;
 
-  console.time("[Battle] 结算耗时");
+  // 立即保存 battle 引用并置 null，防止任何重入（包括 timer tick、render 触发的回调）
   const battle = state.battle;
-  if (!battle) { _resolving = false; return; }
+  if (!battle) return;
+  state.battle = null;
 
   // 立即停止战斗 timer，防止后续 tick 干扰
   if (battleTimer) {
     clearInterval(battleTimer);
     battleTimer = null;
   }
+
+  console.time("[Battle] 结算耗时");
 
   if (result.winner === "player") {
     state.run.hp = Math.max(1, battle.player.hp);
@@ -220,7 +215,6 @@ function resolveBattleResult(result) {
         settleRun(state, "win", `你击败了${battle.enemy.name}，江湖传遍你的名号。`);
       } else {
         state.screen = "run";
-        state.battle = null;
         state.modal = { type: "reward", options: buildRewardChoices(state.run) };
         console.time("[Battle] saveRun(boss)");
         saveRun(state.run);
@@ -238,7 +232,6 @@ function resolveBattleResult(result) {
       console.timeEnd("[Battle] gainExp");
       log(state.run, `击败${battle.enemy.name}，获得${money}金钱和${exp}武学阅历。（难度：${diff.label}）`);
       state.screen = "run";
-      state.battle = null;
       // 战斗结束后清理battle相关状态，确保道具栏可正常点击
       // finishDeferredEvent 内部已调 saveRun，无需重复
       finishDeferredEvent(state.run);
@@ -252,7 +245,6 @@ function resolveBattleResult(result) {
   render();
   console.timeEnd("[Battle] render结算");
   console.timeEnd("[Battle] 结算耗时");
-  _resolving = false;
 }
 
 const actions = {
@@ -482,9 +474,10 @@ let battleTimer = null;
 function ensureBattleTimer() {
   if (battleTimer) return;
   battleTimer = setInterval(() => {
-    if (state.screen !== "battle" || !state.battle || state.battle.phase !== "running") return;
-    const speedMult = state.battle.speed || 1;
-    const phase = tickBattle(state.battle, 0.08 * speedMult);
+    const b = state.battle;
+    if (state.screen !== "battle" || !b || b.phase !== "running") return;
+    const speedMult = b.speed || 1;
+    const phase = tickBattle(b, 0.08 * speedMult);
     render();
     if (phase === "ended") {
       // 在 timer 内检测到的结算（debuff 致死等）
