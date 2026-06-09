@@ -226,6 +226,7 @@ export function tickBattle(battle, dt) {
 }
 
 export function useSkill(run, battle, skillId) {
+  if (!battle) return { ok: false, message: "战斗已结束" };
   if (battle.phase !== "waitPlayer" && battle.phase !== "autoPlayer") return { ok: false };
   const p = battle.player;
   const skill = DATA.skills[skillId];
@@ -248,6 +249,7 @@ export function useSkill(run, battle, skillId) {
 }
 
 export function basicAttack(run, battle) {
+  if (!battle) return { ok: false, message: "战斗已结束" };
   if (battle.phase !== "waitPlayer" && battle.phase !== "autoPlayer") return { ok: false };
   const p = battle.player;
   const target = battle.enemy;
@@ -349,6 +351,7 @@ function hasThreeWaves(run, actor) {
 }
 
 export function useItem(run, battle, itemId) {
+  if (!battle) return { ok: false, message: "战斗已结束" };
   if (battle.phase !== "waitPlayer" && battle.phase !== "autoPlayer") return { ok: false };
   const p = battle.player;
   const idx = p.items.indexOf(itemId);
@@ -371,6 +374,7 @@ export function useItem(run, battle, itemId) {
 }
 
 export function restAction(run, battle) {
+  if (!battle) return { ok: false, message: "战斗已结束" };
   const p = battle.player;
   let hpAmt = Math.floor(p.stats.hp * 0.08);
   let qiAmt = Math.floor(p.stats.qi * 0.12);

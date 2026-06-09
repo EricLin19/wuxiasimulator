@@ -597,6 +597,7 @@ function debuffBadges(unit) {
 }
 
 function renderBattleItemsModal(modal, run, battle, actions) {
+  if (!battle) { modal.innerHTML = "<p>战斗已结束。</p>"; return; }
   const close = `<button class="btn red small" data-close>关闭</button>`;
   const items = battle.player.items.filter(id => {
     const item = DATA.items[id];

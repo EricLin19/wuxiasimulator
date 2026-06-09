@@ -91,6 +91,7 @@ function buildSkillReward(run) {
   const pool = schoolMatches.length ? schoolMatches : available;
   const skillId = sample(pool, 1)[0];
   const skill = DATA.skills[skillId];
+  if (!skill) return null;  // 防御：skillId 在 DATA.skills 中不存在时直接跳过
 
   return {
     kind: "skill",

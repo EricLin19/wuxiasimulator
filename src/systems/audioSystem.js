@@ -69,7 +69,8 @@ function fadeTo(audio, target, ms = 450) {
   const startedAt = performance.now();
   const tick = now => {
     const t = Math.min(1, (now - startedAt) / ms);
-    audio.volume = start + (target - start) * t;
+    const vol = start + (target - start) * t;
+    audio.volume = Math.max(0, Math.min(1, vol)); // 钳位到 [0, 1]
     if (t < 1) requestAnimationFrame(tick);
   };
   requestAnimationFrame(tick);
