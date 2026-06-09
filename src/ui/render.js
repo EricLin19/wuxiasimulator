@@ -547,7 +547,7 @@ function renderBattle(state, actions) {
   const b = state.battle;
   const root = el("div", "battle-screen");
   root.innerHTML = `
-    <div class="battle-top">${fighterPanel(b.player)}<div class="gauge-lane"><div class="gauge-dot" style="left:${b.player.gauge}%">${b.player.icon}</div><div class="gauge-dot" style="left:${b.enemy.gauge}%">${b.enemy.icon}</div><div class="speed-label speed-toggle" data-speedbtn>速度x${b.speed || 1}</div></div>${fighterPanel(b.enemy)}</div>
+    <div class="battle-top">${fighterPanel(b.player)}<div class="gauge-lane"><div class="gauge-dot" style="left:${b.player.gauge}%">${b.player.name.charAt(0)}</div><div class="gauge-dot" style="left:${b.enemy.gauge}%">${b.enemy.name.charAt(0)}</div><div class="speed-label speed-toggle" data-speedbtn>速度x${b.speed || 1}</div></div>${fighterPanel(b.enemy)}</div>
     <div class="fighter player">${b.playerPortrait ? `<img src="${b.playerPortrait}" alt="${b.player.name}" loading="lazy" decoding="async">` : b.player.icon}</div><div class="fighter enemy">${b.enemyPortrait ? `<img src="${b.enemyPortrait}" alt="${b.enemy.name}" loading="lazy" decoding="async">` : b.enemy.icon}</div>
     ${b.bossTrait ? `<div class="boss-trait-bar"><span class="debuff-badge enemy-trait" title="${escapeHtml(b.enemy.stats.traitDesc || b.bossTrait)}">Boss特性：${b.bossTrait}</span>${b.bossShield > 0 ? `<span class="debuff-badge" title="护体">护体 ${b.bossShield}</span>` : ""}${b.bossImmuneTurns > 0 ? `<span class="debuff-badge" title="免疫负面">免疫 ${b.bossImmuneTurns}回合</span>` : ""}</div>` : ""}
     ${(b.floaters || []).map(f => `<div class="combat-floater ${f.side}">${f.text}</div>`).join("")}
