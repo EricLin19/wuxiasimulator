@@ -1118,7 +1118,7 @@ export const META_DEFAULT = {
   bestYear: 1,
   bestMonth: 1,
   metaPoints: 0,
-  allocations: { hp: 0, qi: 0, atk: 0, def: 0, combo: 0, hit: 0, dodge: 0, crit: 0, speed: 0 },
+  allocations: { hp: 0, qi: 0, atk: 0, def: 0, combo: 0, hit: 0, dodge: 0, crit: 0, speed: 0, money: 0 },
   unlockedTreasures: ["inkTally", "goldAbacus", "springGourd"],
   endlessUnlocked: false
 };

@@ -28,7 +28,8 @@ const STAT_HELP = {
   hit: "局外每点：新局命中+3。实际命中=100+命中-闪避",
   dodge: "局外每点：新局闪避+1",
   crit: "局外每点：新局暴击+2",
-  speed: "局外每点：新局出手速度+0.04"
+  speed: "局外每点：新局出手速度+0.04",
+  money: "局外每点：新局额外+100金钱"
 };
 
 export function renderApp(state, actions) {
@@ -241,7 +242,8 @@ function renderModal(state, actions) {
 }
 
 const META_BONUS = {
-  hp: 90, qi: 30, atk: 3, def: 3, combo: 2, hit: 3, dodge: 1, crit: 2, speed: 0.04
+  hp: 90, qi: 30, atk: 3, def: 3, combo: 2, hit: 3, dodge: 1, crit: 2, speed: 0.04,
+  money: 100
 };
 
 function renderMetaModal(modal, state, actions, close) {
@@ -253,6 +255,11 @@ function renderMetaModal(modal, state, actions, close) {
     const bonusText = key === "speed" ? `+${bonus.toFixed(2)}` : `+${Math.round(bonus)}`;
     modal.querySelector(".list").appendChild(rowCard("点", `${STAT_LABELS[key]} ${bonusText}（已分配${pts}点）`, STAT_HELP[key], "分配", () => actions.allocateMeta(key)));
   });
+  // 金钱分配
+  const moneyPts = state.meta.allocations.money || 0;
+  const moneyBonus = moneyPts * 100;
+  const moneyText = moneyBonus > 0 ? `金钱 +${moneyBonus}（已分配${moneyPts}点）` : `金钱（已分配${moneyPts}点）`;
+  modal.querySelector(".list").appendChild(rowCard("金", moneyText, STAT_HELP.money, "分配", () => actions.allocateMeta("money")));
 }
 
 function renderEventsModal(modal, run, actions, close) {

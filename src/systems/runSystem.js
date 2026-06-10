@@ -23,6 +23,7 @@ export function createRun(characterId, treasureId, meta) {
     stats.qi += 40;
   }
   applyMetaAllocations(stats, meta.allocations || {});
+  const moneyBonus = (meta.allocations.money || 0) * 100;
 
   const run = {
     id: Date.now(),
@@ -30,7 +31,7 @@ export function createRun(characterId, treasureId, meta) {
     month: 1,
     maxAp,
     ap: maxAp,
-    money,
+    money: money + moneyBonus,
     character,
     treasure,
     stats,

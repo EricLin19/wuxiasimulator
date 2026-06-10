@@ -392,11 +392,11 @@ const actions = {
   },
   allocateMeta: key => {
     if (state.meta.metaPoints <= 0) return showToast("没有可分配属性点");
-    state.meta.allocations ||= { hp: 0, qi: 0, atk: 0, def: 0, combo: 0, hit: 0, dodge: 0, crit: 0, speed: 0 };
+    state.meta.allocations ||= {};
     state.meta.allocations[key] = (state.meta.allocations[key] || 0) + 1;
     state.meta.metaPoints--;
     saveMeta(state.meta);
-    const statLabel = { hp: "血量", qi: "内力", atk: "攻击", def: "防御", combo: "连击", hit: "命中", dodge: "闪避", crit: "暴击", speed: "出手速度" };
+    const statLabel = { hp: "血量", qi: "内力", atk: "攻击", def: "防御", combo: "连击", hit: "命中", dodge: "闪避", crit: "暴击", speed: "出手速度", money: "金钱" };
     state.toast = `分配属性点：${statLabel[key] || key}+1（下次开局生效）`;
     render();
   },
