@@ -174,16 +174,41 @@ function renderWandererRun(state, actions) {
   if (story) {
     storyCanvas.innerHTML = `
       <div class="story-body">${escapeHtml(story.text || "")}</div>`;
-    if (story.choices && story.choices.length >= 2) {
+
+    // M36 结局选择（战后展示）
+    if (story.endings) {
+      const endingsDiv = el("div", "story-choices");
+      endingsDiv.innerHTML = story.endings.map(e => {
+        const condNote = e.condition ? `<span style="font-size:10px;color:#999;display:block">条件：${e.condition}</span>` : "";
+        return `<button class="btn ending-btn" data-ending-id="${e.id}" style="background:#d4a056;color:#1a1a2e;margin:6px 0;padding:12px;width:100%;text-align:left;font-size:14px;font-weight:700">${e.label}${condNote}<span style="font-size:12px;font-weight:400;display:block;margin-top:4px">${e.desc}</span></button>`;
+      }).join("");
+      endingsDiv.querySelectorAll("[data-ending-id]").forEach(btn => {
+        btn.onclick = () => actions.chooseStoryEvent(story.id || story.month, "ending", btn.getAttribute("data-ending-id"));
+      });
+      storyCanvas.appendChild(endingsDiv);
+    }
+    // 战斗月（偶数月）：抗争按钮 + 跳过
+    else if (story.fightLabel) {
       const choicesDiv = el("div", "story-choices");
-      const sc = story.choices;
       choicesDiv.innerHTML = `
-        <button class="btn green accept-btn" data-story-choice="accept">${sc[0].label || "顺应"}</button>
-        <button class="btn red resist-btn" data-story-choice="resist">${sc[1].label || "抗争"}</button>`;
-      choicesDiv.querySelector("[data-story-choice=accept]").onclick = () => actions.chooseStoryEvent(story.id || story.month, "accept");
-      choicesDiv.querySelector("[data-story-choice=resist]").onclick = () => actions.chooseStoryEvent(story.id || story.month, "resist");
+        <button class="btn red fight-btn" data-story-choice="fight">${story.fightLabel || "抗争"}</button>
+        <div class="skip-link" data-story-choice="skip" style="text-align:center;margin-top:12px;color:#777;cursor:pointer;font-size:13px;text-decoration:underline">跳过本月 →</div>`;
+      choicesDiv.querySelector("[data-story-choice=fight]").onclick = () => actions.chooseStoryEvent(story.id || story.month, "fight");
+      choicesDiv.querySelector("[data-story-choice=skip]").onclick = () => actions.chooseStoryEvent(story.id || story.month, "skip");
       storyCanvas.appendChild(choicesDiv);
     }
+  } else if (run.storyEndings) {
+    // M36 战后结局选择（从 battle 结算回来）
+    storyCanvas.innerHTML = `<div class="story-body">太行之巅，风云变色。楚宗玄倒下后，武盟群龙无首——天下散人的命运，握在你手中。</div>`;
+    const endingsDiv = el("div", "story-choices");
+    endingsDiv.innerHTML = run.storyEndings.map(e => {
+      const condNote = e.condition ? `<span style="font-size:10px;color:#999;display:block">条件：${e.condition}</span>` : "";
+      return `<button class="btn ending-btn" data-ending-id="${e.id}" style="background:#d4a056;color:#1a1a2e;margin:6px 0;padding:12px;width:100%;text-align:left;font-size:14px;font-weight:700">${e.label}${condNote}<span style="font-size:12px;font-weight:400;display:block;margin-top:4px">${e.desc}</span></button>`;
+    }).join("");
+    endingsDiv.querySelectorAll("[data-ending-id]").forEach(btn => {
+      btn.onclick = () => actions.chooseStoryEvent("m36_endings", "ending", btn.getAttribute("data-ending-id"));
+    });
+    storyCanvas.appendChild(endingsDiv);
   } else {
     storyCanvas.innerHTML = `<div class="story-no-event">江湖风平浪静，且待下回分晓……</div>`;
   }

@@ -800,74 +800,83 @@ export function resolveEvent(run, eventId, actions) {
   return true;
 }
 
-// 主线事件选择处理：顺应/抗争
+// 主线事件选择处理：抗争/跳过
+// choice: "fight" 触发战斗 | "skip" 跳过本月 | "ending" 选择结局
 export function resolveStoryChoice(run, eventId, choice, actions) {
   // 处理孤云逐浪月度主线剧情选择（不在run.events中，在run.currentStory）
   if (run.currentStory && run.currentStory.id === eventId) {
     const story = run.currentStory;
-    const ch = story.choices?.[choice === "accept" ? 0 : 1];
-    if (!ch) return false;
-    const eff = ch.effect || {};
-    if (eff.mainThreat) run.mainThreat = (run.mainThreat || 0) + eff.mainThreat;
-    if (eff.money) { run.money += eff.money; if (run.money < 0) run.money = 0; }
-    if (eff.exp) gainExp(run, eff.exp);
-    if (eff.fame) run.fame = (run.fame || 0) + eff.fame;
-    if (eff.flag) run.storyFlags[eff.flag] = true;
-    if (eff.flag2) run.storyFlags[eff.flag2] = true;
-    if (eff.gainItem) run.items.push(eff.gainItem);
-    if (eff.gainItem2) run.items.push(eff.gainItem2);
-    if (eff.atk) run.stats.atk += eff.atk;
-    if (eff.def) run.stats.def += eff.def;
-    if (eff.hp) { run.stats.hp += eff.hp; run.hp += eff.hp; }
-    if (eff.qi) { run.stats.qi += eff.qi; run.qi += eff.qi; }
-    if (eff.int) run.stats.int = (run.stats.int || 0) + eff.int;
-    if (eff.agi) run.stats.agi = (run.stats.agi || 0) + eff.agi;
-    if (eff.maxHpBoost) { run.stats.hp += eff.maxHpBoost; run.hp += eff.maxHpBoost; }
-    if (eff.qiBoost) { run.stats.qi += eff.qiBoost; run.qi += eff.qiBoost; }
-    if (eff.critBonus) run.critBonus = (run.critBonus || 0) + eff.critBonus;
-    if (eff.allyLossReduced) run.allyLossReduced = (run.allyLossReduced || 0) + eff.allyLossReduced;
-    if (eff.atkBonus) run.atkBonus = (run.atkBonus || 0) + eff.atkBonus;
-    if (eff.hpRecovery) run.hp = Math.min(run.stats.hp, run.hp + eff.hpRecovery);
-    // 抗争路线：积累散人决心
-    if (choice === "resist") {
-      const resolveGain = eff.resolveGain || (eff.triggerBattle ? 1 : eff.money && eff.money < 0 ? 1 : 0);
-      if (resolveGain > 0) run.wandererResolve = Math.min(10, (run.wandererResolve || 0) + resolveGain);
-    }
-    const label = choice === "accept" ? "顺应" : "抗争";
-    log(run, `【${label}】${ch.label || ""}——${ch.desc || ""}`);
-    // 先处理choice级别的战斗（在eff中）
-    if (eff.triggerBattle && eff.enemyId && actions.startBattle) {
-      const ed = DATA.enemies?.find(e => e.id === eff.enemyId);
-      if (ed) {
-        const isMini = story.isMiniBoss || false;
-        run.currentStory = null;
-        saveRun(run);
-        actions.startBattle(ed, isMini);
-        return true;
+
+    // === 结局选择（M36战后） ===
+    if (choice === "ending" && story.endings && actions.endingId) {
+      const endingChoice = story.endings.find(e => e.id === actions.endingId);
+      if (!endingChoice) return false;
+      // 检查条件
+      if (endingChoice.condition) {
+        const cond = endingChoice.condition;
+        const m = cond.match(/^(\w+)\s*(>=|<=|==|!=|>|<)\s*(.+)$/);
+        if (m) {
+          const [, key, op, rawVal] = m;
+          const runVal = key.startsWith("flag_") ? (run.storyFlags?.[key] || false) : (run[key] ?? 0);
+          const cmpVal = key.startsWith("flag_") ? true : Number(rawVal);
+          let met = false;
+          if (op === ">=") met = runVal >= cmpVal;
+          else if (op === "<=") met = runVal <= cmpVal;
+          else if (op === "==") met = runVal == cmpVal;
+          else if (op === "!=") met = runVal != cmpVal;
+          else if (op === ">") met = runVal > cmpVal;
+          else if (op === "<") met = runVal < cmpVal;
+          if (!met) { run.currentStory = null; saveRun(run); return false; }
+        }
       }
+      const eff = endingChoice.effect || {};
+      log(run, `结局：${endingChoice.label} — ${endingChoice.desc}`);
+      run.storyEndings = null;
+      run.currentStory = null;
+      saveRun(run);
+      if (actions.settleEnding) {
+        actions.settleEnding(eff, endingChoice);
+      }
+      return true;
     }
-    // 然后处理story级别的战斗（在choice之后触发）
-    if (story.triggerBattle && story.enemyId) {
+
+    // === 抗争：触发战斗 ===
+    if (choice === "fight") {
+      if (!story.enemyId) { run.currentStory = null; saveRun(run); return false; }
       const ed = DATA.enemies?.find(e => e.id === story.enemyId);
-      if (ed) {
-        const isMini = story.isMiniBoss || story.isClimaxBattle || false;
-        run.currentStory = null;
-        saveRun(run);
-        actions.startBattle(ed, isMini);
-        return true;
-      }
+      if (!ed) { run.currentStory = null; saveRun(run); return false; }
+      // 在run上存储故事战斗上下文，供main.js的resolveBattleResult使用
+      run.storyBattle = {
+        month: story.month != null ? story.month : monthAbs(run),
+        reward: story.battleReward || null,
+        isFinalBoss: story.isFinalBoss || false,
+        endings: story.endings || null,
+        battleDesc: story.battleDesc || ""
+      };
+      run.currentStory = null;
+      saveRun(run);
+      const isBoss = story.isBoss || story.isFinalBoss || false;
+      actions.startBattle(ed, isBoss);
+      return true;
     }
-    // 处理年末Boss
-    if (story.triggerFinalBoss) {
-      const bossData = DATA.storylines?.[run.storylineId]?.bosses?.[run.year];
-      if (bossData && actions.startBattle) {
-        run.currentStory = null;
-        saveRun(run);
-        const boss = buildBossWithThreat(run, bossData);
-        actions.startBattle(boss, true);
-        return true;
+
+    // === 跳过：直接推进到下个月 ===
+    if (choice === "skip") {
+      log(run, "你选择暂避锋芒，静观其变。");
+      run.currentStory = null;
+      run.month++;
+      if (run.month > 12) { run.month = 1; run.year++; }
+      run.eventRemaining = 3;
+      if ([1, 4, 7, 10].includes(run.month)) {
+        refreshManuals(run);
+        log(run, "传武堂刷新了4本秘籍。");
       }
+      applyMonthStart(run);
+      refreshEvents(run);
+      saveRun(run);
+      return true;
     }
+
     run.currentStory = null;
     saveRun(run);
     return true;
@@ -1023,7 +1032,8 @@ export function finishDeferredEvent(run) {
 }
 
 export function endMonth(run, startBoss) {
-  if (run.month === 12 && !run.yearlyBossDefeated[run.year]) {
+  // 孤云逐浪线Boss通过主线抗争触发，不在此自动触发
+  if (run.month === 12 && !run.yearlyBossDefeated[run.year] && run.storylineId !== "wanderer") {
     // 从当前主线获取对应年份Boss
     const sl = DATA.storylines?.[run.storylineId];
     const bossTemplate = sl?.bosses?.[run.year];

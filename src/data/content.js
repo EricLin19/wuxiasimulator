@@ -263,7 +263,26 @@ export const DATA = {
     { id: "elite_guard_squad", name: "总坛精英守卫", icon: "精", portraitImage: "assets/portraits_pixel/armorBreakBlade_pixel_320.webp", hp: 2000, qi: 600, atk: 92, def: 52, combo: 4, hit: 76, dodge: 6, crit: 11, speed: 1.42, rank: 4, taunt: "擅闯总坛者，死。" },
     { id: "beacon_scout_captain", name: "斥候队长", icon: "斥", portraitImage: "assets/portraits_pixel/highDodgeAssassin_pixel_320.webp", hp: 420, qi: 220, atk: 62, def: 30, combo: 5, hit: 72, dodge: 18, crit: 10, speed: 1.65, rank: 2, taunt: "发现目标，速战速决。" },
     { id: "right_protector_gongsun", name: "右护法·公孙烈", icon: "枪", portraitImage: "assets/portraits_pixel/armorBreakBlade_pixel_320.webp", hp: 7000, qi: 1800, atk: 185, def: 120, combo: 6, hit: 85, dodge: 10, crit: 16, speed: 1.52, rank: 6, trait: "armorBreak", traitName: "铁枪破阵", traitDesc: "铁枪破阵，防御贯通", taunt: "统领说打谁就打谁。我不问为什么。" },
-    { id: "dungeon_warden_with_guards", name: "地牢看守长", icon: "牢", portraitImage: "assets/portraits_pixel/demon_pixel_320.webp", hp: 2500, qi: 780, atk: 90, def: 68, combo: 4, hit: 80, dodge: 12, crit: 10, speed: 1.38, rank: 3, trait: "pointStrike", traitName: "判官笔", traitDesc: "判官笔专打穴道，概率封行动", taunt: "换班的间隙只有一炷香。你们来得不是时候。" }
+    { id: "dungeon_warden_with_guards", name: "地牢看守长", icon: "牢", portraitImage: "assets/portraits_pixel/demon_pixel_320.webp", hp: 2500, qi: 780, atk: 90, def: 68, combo: 4, hit: 80, dodge: 12, crit: 10, speed: 1.38, rank: 3, trait: "pointStrike", traitName: "判官笔", traitDesc: "判官笔专打穴道，概率封行动", taunt: "换班的间隙只有一炷香。你们来得不是时候。" },
+    // --- v5.8 主线18战敌人 ---
+    { id: "main_m2_liu_tie", name: "堂口捕头·刘铁", icon: "捕", portraitImage: "assets/portraits_pixel/rogue_pixel_320.webp", hp: 500, qi: 180, atk: 40, def: 16, combo: 3, hit: 65, dodge: 5, crit: 6, speed: 1.15, rank: 1, taunt: "堂口有令——拒册散人，押回问话！" },
+    { id: "main_m4_qian_hu", name: "缉捕队长·钱虎", icon: "缉", portraitImage: "assets/portraits_pixel/blade_pixel_320.webp", hp: 750, qi: 240, atk: 55, def: 22, combo: 3, hit: 68, dodge: 5, crit: 7, speed: 1.20, rank: 1, taunt: "老子在堂口十年，还没哪个散人跑得掉。" },
+    { id: "main_m6_zhou_tong", name: "铁手·周通", icon: "拳", portraitImage: "assets/portraits_pixel/qiSuppressFist_pixel_320.webp", hp: 1000, qi: 320, atk: 70, def: 28, combo: 5, hit: 70, dodge: 6, crit: 10, speed: 1.25, rank: 2, boss: true, bossTrait: "armorBreak", bossTraitDesc: "铁手套开瓢，拳拳破防", taunt: "奉命'劝导'拒册散人。劝不听的话——我这双手套开过不少瓢。" },
+    { id: "main_m8_ma_rulong", name: "先锋营统领·马如龙", icon: "将", portraitImage: "assets/portraits_pixel/armorBreakBlade_pixel_320.webp", hp: 1500, qi: 420, atk: 85, def: 34, combo: 4, hit: 72, dodge: 7, crit: 9, speed: 1.30, rank: 2, taunt: "先锋营在此！散人还不束手就擒？" },
+    { id: "main_m10_yang_zhen", name: "护法副将·杨震", icon: "将", portraitImage: "assets/portraits_pixel/mini_armor_monk_pixel_320.webp", hp: 2000, qi: 520, atk: 100, def: 40, combo: 4, hit: 75, dodge: 8, crit: 10, speed: 1.35, rank: 3, boss: true, bossTrait: "miniArmor", bossTraitDesc: "护体真气，高防稳守", taunt: "左护法点名要你的人头。自己交出来，免得多受皮肉苦。" },
+    { id: "main_m12_zhao_chongyue", name: "杭州堂主·赵崇岳", icon: "刀", portraitImage: "assets/portraits_pixel/lu_wenchuan_pixel_320.webp", hp: 4000, qi: 1200, atk: 120, def: 48, combo: 5, hit: 80, dodge: 10, crit: 14, speed: 1.50, rank: 5, boss: true, bossTrait: "lowHpBerserk", bossTraitDesc: "低血时攻速双升；九环刀法范围攻击", taunt: "知不知道因为你一个人，我少赚了多少银子？" },
+    { id: "main_m14_du_wei", name: "沈千山帐前哨长·杜威", icon: "哨", portraitImage: "assets/portraits_pixel/blade_pixel_320.webp", hp: 2500, qi: 600, atk: 110, def: 44, combo: 4, hit: 74, dodge: 9, crit: 10, speed: 1.40, rank: 3, taunt: "左护法的眼睛无处不在。你藏不住的。" },
+    { id: "main_m16_liu_changqing", name: "寒剑·柳长卿", icon: "剑", portraitImage: "assets/portraits_pixel/highDodgeAssassin_pixel_320.webp", hp: 3000, qi: 750, atk: 125, def: 50, combo: 5, hit: 76, dodge: 14, crit: 14, speed: 1.50, rank: 3, boss: true, bossTrait: "miniFrost", bossTraitDesc: "寒霜剑气，减速削内", taunt: "你的剑法，比传闻中弱。" },
+    { id: "main_m18_qin_lie", name: "夜袭队长·秦烈", icon: "袭", portraitImage: "assets/portraits_pixel/mini_bleed_blade_pixel_320.webp", hp: 3500, qi: 780, atk: 140, def: 56, combo: 5, hit: 78, dodge: 10, crit: 12, speed: 1.48, rank: 4, taunt: "夜长梦多——速战速决，一个不留。" },
+    { id: "main_m20_cui_ming", name: "「血手」崔命", icon: "血", portraitImage: "assets/portraits_pixel/demon_pixel_320.webp", hp: 4000, qi: 850, atk: 155, def: 62, combo: 4, hit: 80, dodge: 12, crit: 14, speed: 1.52, rank: 4, boss: true, bossTrait: "miniBleed", bossTraitDesc: "链子锤重创，流血+2", taunt: "五千两是你的命价——但我不急着收，先玩玩。" },
+    { id: "main_m22_ye_gu", name: "无影·叶孤", icon: "影", portraitImage: "assets/portraits_pixel/highDodgeAssassin_pixel_320.webp", hp: 4500, qi: 1000, atk: 170, def: 68, combo: 7, hit: 88, dodge: 30, crit: 18, speed: 1.80, rank: 4, boss: true, bossTrait: "highDodge", bossTraitDesc: "极速暗杀，闪避+15", taunt: "我要的不是你的命，是那份名单。交出来，你可以活。" },
+    { id: "main_m24_shen_qianshan", name: "左护法·沈千山", icon: "戟", portraitImage: "assets/portraits_pixel/meng_tianheng_pixel_320.webp", hp: 8000, qi: 2400, atk: 200, def: 80, combo: 6, hit: 88, dodge: 14, crit: 18, speed: 1.65, rank: 7, boss: true, bossTrait: "berserkSummon", bossTraitDesc: "70%血狂暴；30%血召唤护卫", taunt: "把所有人当资源配置——包括你我。区别只是价格不同。" },
+    { id: "main_m26_qian_biao", name: "狂刀·钱彪", icon: "刀", portraitImage: "assets/portraits_pixel/mini_bleed_blade_pixel_320.webp", hp: 5000, qi: 1100, atk: 185, def: 74, combo: 5, hit: 82, dodge: 10, crit: 14, speed: 1.60, rank: 5, boss: true, bossTrait: "lowHpBerserk", bossTraitDesc: "低血狂暴，攻速双升", taunt: "统领建立的新秩序，需要你们这些散人做出点牺牲。" },
+    { id: "main_m28_wei_yue", name: "精英卫队长·卫岳", icon: "卫", portraitImage: "assets/portraits_pixel/armorBreakBlade_pixel_320.webp", hp: 5500, qi: 1200, atk: 200, def: 80, combo: 5, hit: 84, dodge: 10, crit: 15, speed: 1.65, rank: 5, taunt: "总坛禁卫在此。擅入者，踏过我的尸体。" },
+    { id: "main_m30_huo_feng", name: "烽火统领·霍烽", icon: "烽", portraitImage: "assets/portraits_pixel/armorBreakBlade_pixel_320.webp", hp: 6000, qi: 1400, atk: 215, def: 86, combo: 5, hit: 85, dodge: 9, crit: 16, speed: 1.70, rank: 6, boss: true, bossTrait: "armorBreak", bossTraitDesc: "狼牙棒重击，破防贯通", taunt: "太行外围百里之内，没有我的狼烟传不到的信号。" },
+    { id: "main_m32_gongsun_lie", name: "右护法·公孙烈", icon: "枪", portraitImage: "assets/portraits_pixel/armorBreakBlade_pixel_320.webp", hp: 6500, qi: 1600, atk: 230, def: 92, combo: 6, hit: 85, dodge: 10, crit: 16, speed: 1.75, rank: 6, boss: true, bossTrait: "armorBreak", bossTraitDesc: "浑铁枪破阵，防御贯通", taunt: "统领说打谁就打谁。我不问为什么。" },
+    { id: "main_m34_yan_tie", name: "地牢典狱长·阎铁", icon: "狱", portraitImage: "assets/portraits_pixel/demon_pixel_320.webp", hp: 7000, qi: 1800, atk: 245, def: 98, combo: 4, hit: 88, dodge: 12, crit: 14, speed: 1.80, rank: 6, boss: true, bossTrait: "pointStrike", bossTraitDesc: "判官笔打穴，概率封行动", taunt: "来了就别走了。地牢的铁链还有空位。" },
+    { id: "main_m36_chu_zongxuan", name: "武盟统领·楚宗玄", icon: "魔", portraitImage: "assets/portraits_pixel/yue_zongxuan_pixel_320.webp", hp: 15000, qi: 4000, atk: 280, def: 112, combo: 8, hit: 95, dodge: 20, crit: 24, speed: 2.00, rank: 10, boss: true, bossTrait: "shieldPurityBerserk", bossTraitDesc: "开场25%护体；50%血净化；15%血攻翻倍防归零", taunt: "维持一个能救千万人的机构需要代价。每年几百个散人变成数字——我觉得值得。" }
   ],
   bosses: [
     { id: "boss_y1", name: "青竹寨主", icon: "刀", year: 1, hp: 560, qi: 260, atk: 78, def: 42, combo: 4, hit: 68, dodge: 4, crit: 10, speed: 1.35, boss: true, taunt: "这山头我说了算，你一个散人敢来送死？" },
@@ -445,367 +464,145 @@ DATA.storylines = {
 // ============================================================
 // 孤云逐浪 36月叙事数据（v5.4）
 // ============================================================
+// v5.8 重构：奇数月=纯剧情（无按钮），偶数月=单「抗争」按钮+跳过
+// 战斗胜利→散人决心+1，失败→武盟威慑+1，跳过→无变化
 DATA.wandererMonths = {
-  1: {
-    title: "活人变鬼",
-    text: "半个月前隔壁老李被武盟带走，说是去杭州\"做差事\"，一个月二十两银子。他老婆当时还笑。今天老李回来了——是被抬回来的，一床破席裹着，两条腿没了，胸口一道贯穿伤。他老婆哭到晕厥时，你听到老李微弱地说了一句：\"别……别去登记……那是矿坑……\"第二天，一张烫金帖子飞进院门：「三日内杭州堂口入册。逾期者，强制押解。」你握着剑柄的手在抖。不是因为怕——是因为愤怒。",
-    choices: [
-      { id:"accept", label:"顺应：暂且登记", desc:"先稳住，摸清底细再图后计", effect:{mainThreat:1, money:120, flag:"registered"} },
-      { id:"resist", label:"抗争：撕帖明志", desc:"老子不入那个册", effect:{triggerBattle:true, enemyId:"tangkou_enforcer", exp:80, flag:"publicResist"} }
-    ]
-  },
-  2: {
-    title: "故人夜叩",
-    text: "子时敲门——三声顿，两声续。方平来了。但他这次没带银子。左臂缠着渗血的布条，脸色苍白如纸：\"昨晚他们来抓我了……我跑了一个时辰才甩掉。\"他从怀里掏出一卷皱巴巴的纸，展开来，血迹尚未干透。上面密密麻麻写着名字和去向——矿坑、边关哨所、某位员外的私邸……大部分名字旁边打了一个叉。方平低声说：\"打了叉的，死了。\"话音未落，院门外传来杂乱的脚步声。火把的光映上了窗纸。",
-    choices: [
-      { id:"accept", label:"顺应：带方平撤离", desc:"保住人要紧，留得青山在", effect:{money:-80, flag:"fangpingBond_deep", gainItem:"waibian_team_roster"} },
-      { id:"resist", label:"抗争：正面突围", desc:"让散人不好惹", effect:{triggerBattle:true, enemyId:"capture_squad", exp:150, atk:1, flag:"publicResist", gainItem:"waibian_team_roster"} }
-    ],
-    triggerBattle: true, enemyId: "capture_squad",
-    battleDesc: "持火把破门而入的抓捕队员。领头一脸横肉，腰间挂着短棍与绳索——专门来收人的。方平左臂有伤，你得独自挡住大部。",
-    battleReward: { exp:180, money:50, gainItem:"enforcer_captured_weapon", fame:20 }
-  },
-  3: {
-    title: "密令与茶",
-    text: "你在堂口偷翻到一封密令，内容比你想的更狠：「江南散人入编进度迟缓。即日起改行强硬手段——拒册者一律编入'敢死队'，充作剿匪前驱。另：每交付合格外编人员五十名，堂口可获赏银五百两及总坛功勋牌一枚。」角落批注是赵崇岳亲笔：\"人命不值钱。加把劲。\"散人在武盟眼里根本不是人——是五百两银一批发的人肉货币。送去剿匪当前驱送死，或者卖给权贵当私兵、角斗士取乐。登记就是卖身契。离开时廊下遇一个灰袍人喝茶。他看了看你手里的东西，没告发你。自称孟天衡。当晚，你决定独闯堂口找那个胖执事算账。",
-    choices: [
-      { id:"accept", label:"顺势传播证据", desc:"让天下散人都看清真相", effect:{mainThreat:1, exp:120, fame:50, flag:"leakedIntel"} },
-      { id:"resist", label:"独自消化情报", desc:"留作日后致命底牌", effect:{int:2, gainItem:"wumeng_slavery_order", flag:"keptIntel"} }
-    ],
-    triggerBattle: true, enemyId: "tangkou_fat_boss",
-    battleDesc: "堂口执事带着弟子拦路。胖子武功不高，但桌上有花名册和外编调拨文书——必须抢到手，这是能置武盟于死地的证据。",
-    battleReward: { exp:200, money:80, gainItem:"hangzhou_registry_copy", gainItem2:"slave_allocation_records" }
-  },
-  4: {
-    title: "铁窗内外",
-    text: "方平还是被抓了。但这次你知道为什么——因为他在茶馆里大声念那张外编队名单上的名字，一个一个地念，连死因都念出来了。消息传来时你的剑掉在了地上。他入狱前的最后一句话传出来是笑着说的：\"老子念的是真话。有种来杀我啊。\"你赶到杭州大牢，隔着铁栅栏看到的不仅是嘴角的淤青——还有他右手食指和中指的扭曲变形。那是审讯留下的痕迹。狱卒冷眼旁观：\"拒册又煽动的，按新规矩——要么入册签卖身契，要么……\"他没说完，但指了指后院的方向。那里传来隐约的呻吟声。",
-    choices: [
-      { id:"accept", label:"顺应：求那灰袍人", desc:"赌他还有底线", effect:{money:-400, flag:"fangpingSaved", flag2:"oweMeng"} },
-      { id:"resist", label:"抗争：丑时闯牢", desc:"武力救人，不再等", effect:{mainThreat:2, def:3, triggerBattle:true, enemyId:"jail_captain", exp:150, flag:"fangpingSaved"} }
-    ]
-  },
-  5: {
-    title: "满城金旗",
-    text: "金色令旗一夜之间插遍江南。令旗下的新规只有三条：一、窝藏拒册者，同罪论处，编入外编队。二、举报拒册散人者，赏银十两。三、抗拒抓捕者——格杀勿论。第三条是新增的。以前是\"拘押\"，现在是\"格杀\"。你在苏州官道亲眼见到的一幕刻进了骨子里：几个武盟弟子拖着一个年轻散人往马车上拽。那散人不过十几岁的样子，哭着喊\"我没犯法，我只是不想登记\"。领头的弟子面无表情，拔刀在他腿上划了一道——不是为了杀他，是为了让他走不了，只能被拖上车。周围那么多人看着，没有一个人上前。方平攥紧了拳头，指节泛白。你握紧了剑柄，走了上去。",
-    choices: [
-      { id:"accept", label:"暗中联络各方", desc:"结成暗网互通风声", effect:{mainThreat:2, flag:"builtNetwork"} },
-      { id:"resist", label:"蛰伏修炼", desc:"实力不足救人等于送死", effect:{exp:300, atk:2, def:2, flag:"focusedTraining"} }
-    ],
-    triggerBattle: true, enemyId: "patrol_squad",
-    battleDesc: "巡逻弟子正将年轻散人拖上马车。领头使刀，其余人持绳索木棒——这是他们的日常工作。你拔剑而出。",
-    battleReward: { exp:120, fame:30, flag:"savedYoungWanderer" }
-  },
-  6: {
-    title: "梅边二叙",
-    text: "那灰袍人第二次来找你。槐树下喝酒，他的杯子端了很久都没喝。他自称姓孟，是武盟中人，但看不下去赵崇岳干的事。他告诉你赵崇岳将散人打包出售——江南富商三百两买家丁护卫，北方将军要免费的探路炮灰，城南地下角斗场消耗剩余人力。他还透露杭州城外龙井谷聚集了一批散人，领头的叫韩铁衣。他说三个月后会奉命来彻查——到时候给他一个能交代的理由。话音未落，赵崇岳麾下执法队长周通带着人堵住了院子。周通掂了掂手中的铁手套，咧嘴一笑：\"奉命'劝导'拒册散人。劝不听的话——我这双手套开过不少瓢。\"",
-    choices: [
-      { id:"accept", label:"坦诚相待", desc:"赌这灰袍人的底线还在", effect:{mengFavor:2, flag:"mengAlliance_open"} },
-      { id:"resist", label:"虚与委蛇", desc:"继续观察不暴露底牌", effect:{int:2, flag:"mengAlliance_none"} }
-    ],
-    triggerBattle: true, enemyId: "zhou_tong_iron_hand",
-    isMiniBoss: true, bossRank: 2,
+  // === 第一年 ===
+  1: { title: "活人变鬼",
+    text: "半个月前隔壁老李被武盟带走，说是去杭州「做差事」，一个月二十两银子。他老婆当时还笑。今天老李回来了——是被抬回来的，一床破席裹着，两条腿没了，胸口一道贯穿伤。他老婆哭到晕厥时，你听到老李微弱地说了一句：「别……别去登记……那是矿坑……」第二天，一张烫金帖子飞进院门：「三日内杭州堂口入册。逾期者，强制押解。」你握着剑柄的手在抖。不是因为怕——是因为愤怒。" },
+  2: { title: "堂口来人",
+    text: "子时敲门——三声顿，两声续。方平来了。但他这次没带银子。左臂缠着渗血的布条，脸色苍白如纸：「昨晚他们来抓我了……我跑了一个时辰才甩掉。」他从怀里掏出一卷皱巴巴的纸，展开来，血迹尚未干透——上面密密麻麻写着名字和去向，大部分旁边打了一个叉。「打了叉的，死了。」话音未落，院门外传来杂乱的脚步声。火把的光映上窗纸——堂口捕头刘铁带着人到了。刘铁是杭州堂口的老捕头，在道上混了二十年，专抓「不听话」的散人。方平左臂有伤，这一仗只能你来挡。",
+    fightLabel: "挺身迎战", enemyId: "main_m2_liu_tie", hasBattle: true, isBoss: false,
+    battleDesc: "堂口捕头刘铁带着手下破门而入——短棍和绳索是专门来收人的。方平左臂有伤，你得独自挡住大部。",
+    battleReward: { exp:150, money:80, gainItem:"waibian_team_roster", fame:15 } },
+  3: { title: "密令与茶",
+    text: "你在堂口偷翻到一封密令，内容比你想的更狠：「江南散人入编进度迟缓。即日起改行强硬手段——拒册者一律编入敢死队，充作剿匪前驱。另：每交付合格外编人员五十名，堂口可获赏银五百两及总坛功勋牌一枚。」角落批注是赵崇岳亲笔：「人命不值钱。加把劲。」散人在武盟眼里根本不是人——是五百两银一批发的人肉货币。送去剿匪当前驱送死，或者卖给权贵当私兵取乐。登记就是卖身契。离开时廊下遇一个灰袍人喝茶。他看了看你手里的东西，没告发你。自称孟天衡。当晚你决定把密令内容刻在脑子里——这是将来复仇的铁证。" },
+  4: { title: "铁窗·铁刀",
+    text: "方平还是被抓了。因为他在茶馆里大声念那张外编队名单上的名字，一个一个地念，连死因都念出来了。他入狱前的最后一句话传出来是笑着说的：「老子念的是真话。有种来杀我啊。」你赶到杭州大牢时，隔着铁栅栏看到的不只是他嘴角的淤青——还有右手食指和中指的扭曲变形。缉捕队长钱虎正坐在牢门口磨刀。他是堂口出了名的狠角色——十年前因「抓捕散人效率最高」被赵崇岳亲自提拔。「拒册又煽动的，按新规矩只有两条路：签卖身契——」他抬头看了你一眼，「或者从大牢的正门打出去。」",
+    fightLabel: "劫狱救人", enemyId: "main_m4_qian_hu", hasBattle: true, isBoss: false,
+    battleDesc: "缉捕队长钱虎使一柄厚背单刀，在牢门口等你。十年抓人的经验让他不急着出刀——他在等你露出破绽。",
+    battleReward: { exp:200, money:60, gainItem:"jail_key_ring", flag:"fangpingSaved", fame:30 } },
+  5: { title: "满城金旗",
+    text: "金色令旗一夜之间插遍江南。令旗下的新规只有三条：一、窝藏拒册者，同罪论处，编入外编队。二、举报拒册散人者，赏银十两。三、抗拒抓捕者——格杀勿论。你在苏州官道亲眼见到的一幕刻进了骨子里：几个武盟弟子拖着一个年轻散人往马车上拽。那散人不过十几岁，哭着喊「我没犯法，我只是不想登记」。领头的弟子面无表情，拔刀在他腿上划了一道——不是为了杀他，是为了让他走不了。周围那么多人看着，没有一个人上前。方平攥紧了拳头，指节泛白。你记住了每一个袖手旁观的脸——也记住了那些弱者的恐惧。" },
+  6: { title: "铁手拦路",
+    text: "那灰袍人第二次来找你。槐树下喝酒，他自称姓孟，是武盟中人但看不下去赵崇岳干的事。他告诉你赵崇岳将散人打包出售——江南富商三百两买家丁护卫，北方将军要免费的探路炮灰，城南地下角斗场消耗剩余人力。他还透露杭州城外龙井谷聚集了一批散人，领头的叫韩铁衣。话音未落，赵崇岳麾下执法队长周通带着人堵住了院子。周通掂了掂手中的铁手套，咧嘴一笑——这副铁手套沾过不止一个人的血。他每抓一个散人，就能从赵崇岳那里领一笔「绩效赏金」。你搜遍了堂口的密令、偷看了执事的账本、还拿到了孟天衡的内线情报——现在就算让你走，他们也不敢了。",
+    fightLabel: "生死一搏", enemyId: "main_m6_zhou_tong", hasBattle: true, isBoss: true,
     battleDesc: "铁手周通使一对精铁手套，每一拳都带着骨裂之声。他是赵崇岳麾下得力干将——劝导不成便动手，手上不止一条人命。",
-    battleReward: { exp:350, fame:80, gainItem:"iron_glove_fragment", atk:2 }
-  },
-  7: {
-    title: "清剿令下",
-    text: "总坛批复到了——赵崇岳获准武力清剿。批复上四个字格外刺眼：「格杀勿论」。你终于明白：从第一天起，这就不是什么\"管束\"的问题。武盟要的不是散人听话——是要散人死，或者变成他们的财产。你对方平说：\"去龙井谷，韩铁衣那里是第一个目标。\"方平问：\"就我们两个？\"你说：\"先去。能救多少救多少。\"",
-    choices: [
-      { id:"accept", label:"求援各方", desc:"集结力量守谷", effect:{mainThreat:2, fame:150, flag:"qingyunReinforced"} },
-      { id:"resist", label:"主动阻击", desc:"打乱敌军部署争取时间", effect:{mainThreat:3, atk:3, exp:250, triggerBattle:true, enemyId:"vanguard_captain", flag:"vanguardDelayed"} }
-    ]
-  },
-  8: {
-    title: "山雨欲来",
-    text: "距大军抵达还有十天。你在龙井谷外围设防时撞上了武盟斥候小队。对方发现你后立刻试图发信号——必须在他们报信之前全部拿下。这一仗不能输，输了龙井谷的位置就暴露了。",
-    choices: [
-      { id:"accept", label:"坚守防御", desc:"加固工事打守城战", effect:{def:5, flag:"preparedDefense"} },
-      { id:"resist", label:"奇谋伏击", desc:"运动中歼敌", effect:{int:4, exp:200, flag:"preparedAmbush"} }
+    battleReward: { exp:350, fame:80, gainItem:"iron_glove_fragment", atk:2 } },
+  7: { title: "清剿令下",
+    text: "总坛批复到了——赵崇岳获准武力清剿。批复上四个字格外刺眼：「格杀勿论」。你终于明白：从第一天起，这就不是什么「管束」的问题。武盟要的不是散人听话——是要散人死，或者变成他们的财产。你对方平说：「去龙井谷，韩铁衣那里是第一个目标。」方平问：「就我们两个？」你说：「先去。能救多少救多少。」大军已在路上。先锋营统领马如龙，奉命打头阵——他是赵崇岳手下最擅长攻城拔寨的将领，龙井谷的地形他闭着眼睛都能画出进攻路线。" },
+  8: { title: "山雨欲来",
+    text: "距大军抵达还有十天。你在龙井谷外围设防时撞上了先锋营的先头部队。马如龙亲自带着斥候侦察地形，发现你后立刻挥枪冲来——他不想等大军汇合，他认为区区几个散人不需要浪费赵堂主的时间。「先锋营铁蹄之下，没有踏不平的寨子。」他的长枪在月光下泛着冷光。这一仗不能输——输了龙井谷的位置就暴露，谷里上百条人命将在一夜之间灰飞烟灭。",
+    fightLabel: "血战捍卫", enemyId: "main_m8_ma_rulong", hasBattle: true, isBoss: false,
+    battleDesc: "先锋营统领马如龙使一杆长枪，枪法凌厉。他认为散人不过是一群乌合之众——需要被他的铁蹄踏醒。",
+    battleReward: { exp:280, gainItem:"vanguard_battle_flag", fame:40, int:1 } },
+  9: { title: "血色黎明",
+    text: "黎明时分，赵崇岳的大军布满了整座山谷。韩铁衣走到你身边。他穿着一身洗到发白的粗布短打，袖口磨出了线头，但腰杆挺得笔直。手上端着一碗素面，热气在晨光里升腾。「谢了。」他顿了顿，「要不是你提前报信，这谷里的人昨晚就没了。」他没再多说，低头把面吃完。碗搁在石头上时，山下号角吹响了——进攻开始。这一战，避无可避。赵崇岳还派出了他的王牌——护法副将杨震。杨震是沈千山特别调拨给赵崇岳的精锐，据说一身横练功夫刀枪不入，专打硬仗。" },
+  10: { title: "龙井谷血战",
+    text: "这一天打了整整一天。三轮攻势下来，龙井谷已成一片火海。护法副将杨震率精锐冲破了最后一道防线。浓烟中找到韩铁衣时，他倒在地上浑身是伤，身边的敌人都是一击毙命。他费力睁开眼笑了：「还好赶上了……见最后一面……」他咳出一口血，抓住你的手腕——力气大得不像将死之人。「兄弟……散人的这面旗……太沉……你得接着扛。」然后他的手松开了。你跪在烟雾中，杨震就在十步开外擦拭他的双戟。「他死了。」杨震不带感情地说，「接下来轮到你了。」你站起来，用尽全身力气把那面被烟火熏黑的旗插进了焦土里。",
+    fightLabel: "为韩铁衣复仇", enemyId: "main_m10_yang_zhen", hasBattle: true, isBoss: true,
+    battleDesc: "杨震使双戟，一身护体真气刀枪不入。他是沈千山调拨给赵崇岳的王牌——龙井谷最惨烈的一战。韩铁衣刚刚牺牲，愤怒的你如同一头出笼猛虎。",
+    battleReward: { exp:500, fame:200, gainItem:"tieyi_last_letter", atk:3, def:2 } },
+  11: { title: "四面楚歌",
+    text: "龙井谷的消息飞遍了江湖。武盟加大了搜捕力度，每天都有散人来投奔。方平熬红了眼擦剑，说：「我一闭眼就看见韩铁衣。」门外的马蹄声没停过。赵崇岳已经震怒——他派出去的两个得力干将（马如龙、杨震）都没能拿下你。现在他下了死命令：年终之前，你的人头必须摆在堂口的供桌上。你收到消息：赵崇岳将在十二月亲临龙井谷——他要亲手了结你。" },
+  12: { title: "年终之战·赵崇岳之死",
+    text: "黄昏，赵崇岳亲临谷前。九环大刀插在地上，刀环叮当作响。「你就是那个拒册的散人？」他拔刀，夕阳染红整片山谷，「知不知道因为你一个人，我少赚了多少银子？」他居然在笑——那种数钱时候才会有的表情。这场仗打了一整个时辰。最后你抓住第九环刀法的收招间隙，剑入了他的胸膛。赵崇岳倒地前还在笑：「你以为杀了我……事情就完了？总坛不会……放过你的……」他到死都没有后悔。因为他真的只把你和散人看成了一笔亏了的账。第一年，结束。",
+    fightLabel: "斩首之剑", enemyId: "main_m12_zhao_chongyue", hasBattle: true, isBoss: true,
+    battleDesc: "杭州堂主赵崇岳，九环大刀，大开大合。低血量时攻速双升——他是你面对的第一个真正的Boss。",
+    battleReward: { exp:1000, fame:500, gainItem:"zhao_nine_ring_blade", money:500, atk:5, def:3 } },
+  // === 第二年 ===
+  13: { title: "风暴再起",
+    text: "赵崇岳的死讯传到了总坛。总坛震动，随即下令——左护法沈千山亲率大军南下。但真正让你心寒的是另一件事：武盟发布了新的「入册补充条款」——「为保障散人权益，设立安置营统一管理」。你从截获的信件中读到：所谓「安置营」就是集中营的别名。进去的人按技能分类——有武功的去前线当炮灰，没武功的送到矿坑和作坊，用到不能再用为止。沈千山的第一批斥候已经开始行动。他的帐前哨长杜威，专管侦察和情报——据说整个江南没有他找不到的人。" },
+  14: { title: "昆仑结盟",
+    text: "首次散人大会在昆仑山召开，各路散人武者纷纷到场。你正登台演说时，人群中一个不起眼的身影悄悄退到了阴影里——沈千山的哨长杜威亲自伪装成散人混进了大会。他不是来刺杀的，是来评估的——评估你的号召力和散人联盟的真正规模。被你识破后，杜威没有慌张，反而笑了：「左护法说得对——你比赵崇岳聪明。可惜聪明人也逃不过眼线。」他拔刀的速度比你预想的快得多。沈千山训练出来的哨长，每一个都是侦察、追踪、格杀的全才。",
+    fightLabel: "斩断眼线", enemyId: "main_m14_du_wei", hasBattle: true, isBoss: false,
+    battleDesc: "杜威是沈千山麾下最精锐的侦察哨长，身法迅捷，刀法刁钻。不能让他活着回去报告大会的虚实。",
+    battleReward: { exp:300, int:1, gainItem:"shen_scout_map", fame:60 } },
+  15: { title: "峡谷截击",
+    text: "沈千山的副手柳长卿先行试探。此人使寒铁长剑，剑术诡异莫测，在峡谷设伏被你和方平合力逼退。临走时他说：「左护法说了，愿入籍的话待遇从优，不必去外编队。」这话本身就是最大的侮辱——不必去外编队，意思是其他人活该去送死。接连战胜赵崇岳和马如龙之后，散人们看你的眼光变了。但柳长卿的这句话让你意识到——武盟没有放弃招降你。他们需要你活着投降，用来瓦解散人反抗的意志。柳长卿说下个月会再来——带剑来。" },
+  16: { title: "寒剑之约",
+    text: "柳长卿果然来了。这次他没有设伏——而是光明正大地站在峡谷入口等你。寒铁长剑在晨雾中泛着幽蓝的光。「上次是试探。」他说，「这次是生死。」他告诉你孟天衡给他寄了一封信——就在昨天。信上没有字，只有一张安置营的位置图。柳长卿说他把信烧了，因为他也有底线。但沈千山不会容忍任何人的底线——所以他必须在沈千山发现之前，「解决掉你」，用来证明自己的忠诚。他的剑和上次不一样了——更快，更冷，剑尖已经被寒霜凝出了薄冰。",
+    fightLabel: "剑下决生死", enemyId: "main_m16_liu_changqing", hasBattle: true, isBoss: true,
+    battleDesc: "寒剑柳长卿，寒铁长剑，剑术诡变。寒霜剑气减速削内——他是沈千山麾下最令人胆寒的剑客。",
+    battleReward: { exp:500, fame:150, gainItem:"cold_iron_shard", agi:3, flag:"liuChangqingDefeated" } },
+  17: { title: "内鬼",
+    text: "联盟内部出了问题——粮草调配名单外泄，接连三次行动都被武盟提前预知。方平查到一个可疑人物：负责后勤的老张，最近频繁往杭州方向送信。对质那天老张直接拔了刀。他脸上的表情不是愧疚，而是恐惧——一种比面对你更深沉的恐惧。「他们……他们在俺老家……全家……」老张的声音在抖，「俺不送信……他们就……」你忽然意识到：武盟控制人的手段不只是暴力——还有你所爱的人。他不是坏人，只是个被人捏住了软肋的父亲。但消息已经泄露出去了——沈千山知道了你的营地位置。夜袭队长秦烈已经在路上。" },
+  18: { title: "灵寺夜话",
+    text: "你决定去见一见沈千山。不是投降，而是想看看这个亲手屠谷、把人当成货物贩卖的人到底在想什么。灵隐寺深夜，沈千山独自坐在大殿里擦拭佩剑。见到你没有惊讶，只说了一句：「你确实很勇敢。」你们谈了一个时辰。提起外编队和安置营的时候，他的反应出乎意料地平淡：「打仗要花钱。养人要花钱。钱从哪来？散人不交税、不服役、不产粮——他们占着江湖的资源却不出力。我做的不过是资源合理配置罢了。」「把人当资源配置？」「把所有人当资源配置。」他纠正道，「包括你我。区别只是价格不同。」你不能接受这种逻辑。站起身来时，殿外传来整齐的脚步声——夜袭队长秦烈带着他的双刀队已经封锁了出口。沈千山没有抬头：「如果你能活着走出灵隐寺——我承认你有资格跟我谈。」",
+    fightLabel: "杀出重围", enemyId: "main_m18_qin_lie", hasBattle: true, isBoss: false,
+    battleDesc: "夜袭队长秦烈使双刀，快如骤雨。他带领的夜袭队已经封锁了灵隐寺所有出口——这一仗是突围战。",
+    battleReward: { exp:400, fame:80, atk:2, def:1 } },
+  19: { title: "突袭",
+    text: "谈判彻底破裂。第三天凌晨，护法堂的突击队在秦烈率领下摸进了联盟驻地。等你被警报惊醒时，他们已经放火烧毁了粮仓。火光映红了半边天——这不是试探，这是正式宣战。联盟损失惨重。方平在救火时肩胛中了一刀。天亮后你握着剑站在烧焦的粮仓前，第一次认真思考了一个问题：活着的散人越来越少了。而沈千山的通缉令才刚刚开始——五千两白银。整个江湖的赏金猎人都会来。" },
+  20: { title: "血色赏金",
+    text: "沈千山正式发布了通缉令——悬赏五千两捉拿你。一夜之间，江湖上的赏金猎人和投机分子都盯上了你。方平笑着说：「操，咱俩现在值五千两了，还挺值钱的。」你没笑。第一个找上门的是「血手」崔命——赏金猎人中出了名的狠角色，链子锤是他的招牌。他不像其他人那样先放狠话——他进门第一锤就砸碎了你桌上的茶杯。「五千两。」他舔了舔嘴唇，「够我玩一年的。别急着死，让我慢慢赚。」",
+    fightLabel: "灭杀猎犬", enemyId: "main_m20_cui_ming", hasBattle: true, isBoss: true,
+    battleDesc: "「血手」崔命使链子锤，每一锤都直奔要害。他的锤上缠着碎骨——那是上一个猎物的遗物。",
+    battleReward: { exp:450, money:300, fame:100, atk:2 } },
+  21: { title: "刺客之夜",
+    text: "深夜，一道黑影潜入了你的房间。快刀，极快。你滚下床的瞬间枕头已经被剖成了两半。来人是江湖上有名的杀手「无影」叶孤——沈千山花重金请来的。但交手三十招后你发现了不对劲——他不是来杀你的。他的目标是你枕下那份外编队名单原件。武盟派顶级刺客来不是为了灭口，是为了销赃——让证据永远消失于世。你护住那份名单的同时，叶孤退到了窗口：「下个月，我会认真跟你打。今晚只是来看看你的刀有多快。」他没说完就消失在了夜色里。不是逃——是赴下一个约。" },
+  22: { title: "无影之约",
+    text: "「无影」叶孤如约而至。这次没有偷袭、没有黑夜掩护——他站在月光下，蝉翼双刃在手。「上次是销赃，这次是决斗。」他说沈千山付了他双倍的价钱——一倍买那份名单，一倍买你的命。但他说他不喜欢「销赃」这种活——「杀手也有杀手的规矩。」他亮出双刃，「今晚不玩阴的。用你的剑，换我的刃——活着的人拿名单走。」叶孤是江湖公认三年内最可能问鼎第一杀手之位的天才。他从小被一个老杀手养大，没有朋友、没有感情——只有刀和命。",
+    fightLabel: "以命搏刃", enemyId: "main_m22_ye_gu", hasBattle: true, isBoss: true,
+    battleDesc: "「无影」叶孤，江湖顶级刺客。蝉翼双刃快如闪电，闪避极高——他的刀比你的眼睛更快。",
+    battleReward: { exp:550, fame:200, agi:4, gainItem:"cicada_wing_blade" } },
+  23: { title: "反击号角",
+    text: "与其被动挨打不如主动出击。你带领核心成员清剿了赏金猎人在联盟周边的据点。这些人装备精良且配合默契——连崔命这样的顶级猎人都败在了你手里，剩下的更不值一提。但这已经不是当年那个单枪匹马在巷战中躲闪的你了。你身后有了一群真正的兄弟——方平、龙井谷的幸存者、各路投奔的散人。时机已到。沈千山在太湖边上等着你。" },
+  24: { title: "年终之战·沈千山之败",
+    text: "决战在太湖之滨展开。沈千山一身黑甲，手持方天画戟。他没有废话，只说了一句：「你很不错。可惜站错了边。」战斗持续了近两个时辰。沈千山的武学造诣远超赵崇岳——他能同时应对你和方平的夹攻而不落下风。就在你即将力竭之际——一道分光剑气从侧面切入了战场。孟天衡来了。他浑身是血，显然是一路打过来的。他对沈千山说：「够了。」三人联手，终于击倒了沈千山。倒地前沈千山看着孟天衡，忽然笑了：「好……安置营的事……统领早就……批过了……」沈千山死了。但他的最后一句话像一根刺扎进了你心里——连沈千山都只是执行者，真正的源头在上面。第二年，结束。",
+    fightLabel: "终结护法", enemyId: "main_m24_shen_qianshan", hasBattle: true, isBoss: true,
+    battleDesc: "左护法沈千山，方天画戟，攻守全能。70%血狂暴，30%血召唤护卫——这是他最后的力量。",
+    battleReward: { exp:2000, fame:800, gainItem:"shen_halberd_fragment", money:1000, atk:8, def:6 } },
+  // === 第三年 ===
+  25: { title: "天下震动",
+    text: "沈千山之死的消息传到了太行总坛。据说楚宗玄在正殿坐了一整天，谁也没见。江湖格局变了——武盟内部裂成了三派：主战的、主和的、中立的。而你从一个籍籍无名的散人变成了让武盟统领都不得不正视的存在。你手中的证据开始发酵了——外编队名单、奴隶调拨记录、安置营地图通过散人网络悄悄流传，越来越多的人知道了武盟的真面目。孟天衡战后失踪了，有人说他被抓回去了。但主战派没有消停——狂刀钱彪在各地巡视，见到散人就抓。「统领建立的新秩序，需要你们做出点牺牲。」他每次都这么说。" },
+  26: { title: "狂刀·钱彪",
+    text: "武盟内部主战派不甘失败，暗中派人四处袭扰散人。「狂刀」钱彪带着一队狂热信徒截住了你的去路。他使厚背大砍刀，招式凶猛但不精细——可怕的不是他的刀法，而是他眼中的信仰。他真心相信楚宗玄正在建立一种新的秩序，相信把散人变成资源是为了实现更大的整体利益。这种信仰比贪婪更不可收买。「你杀得了赵崇岳，杀得了沈千山——」钱彪拔刀，「但你杀不完信仰。」他的刀背在夕阳下泛着暗金色的光——刀背上刻着「天道酬勤」。",
+    fightLabel: "刀碎迷障", enemyId: "main_m26_qian_biao", hasBattle: true, isBoss: true,
+    battleDesc: "狂刀钱彪使厚背大砍刀，低血时进入狂暴状态攻速双升。他眼中的狂热比刀更锋利。",
+    battleReward: { exp:550, money:250, fame:120, gainItem:"fanatic_oath_token", agi:2 } },
+  27: { title: "太行之邀",
+    text: "烫金请帖再次出现。落款两个字：楚宗玄。「闻君屡建奇功，特邀太行一叙。」打开帖子，里面夹层有一行小字：「有些事，当面说比较清楚。关于你手中那些材料……」他知道你有证据。这是最后通牒——也是请君入瓮。方平拍桌子：「去不去？」「去。」「你疯了？」「不去怎么赢。」太行总坛戒备森严——精英卫队长卫岳的禁卫军日夜巡逻，号称「一只蚊子都飞不进正殿」。" },
+  28: { title: "统领真容",
+    text: "见到了楚宗玄。不像传说中那样凶神恶煞，反而像一个饱读诗书的隐士。谈论了整整两个时辰关于「江湖秩序」。他的话有道理，问题在于手段是暴力。当你拿出证据摊在他面前时，他没有否认也没有愤怒，只是平静地说：「我知道。这些事都是我批准的。维持这个机构的运转需要钱——很多钱。而散人是最容易变现的资源。二十年来我惩办恶霸超过千人、调解纠纷超过万起——这些都是真的。代价是什么？代价是每年有几百个散人变成了数字。你觉得这值得吗？我觉得值得。你觉得不值得——所以才有了今天。」谈判崩了。走出大门时，精英卫队长卫岳拦住了去路。他拔出雁翎刀：「统领说——散人不配走入总坛之后还能走出去。」",
+    fightLabel: "杀出总坛", enemyId: "main_m28_wei_yue", hasBattle: true, isBoss: false,
+    battleDesc: "精英卫队长卫岳使雁翎刀，率领禁卫军在总坛大门前层层布阵。他是楚宗玄钦点的最后一道防线。",
+    battleReward: { exp:550, fame:200, gainItem:"taihang_guard_uniform", def:3 } },
+  29: { title: "孟天衡的去向",
+    text: "多方打听之后确认——孟天衡确实被押回了总坛，关在地牢深处。楚宗玄没有杀他，留了一条命。也许是念旧情，也许是在等待什么时机。方平问：「要不要救？」「当然要。」「就我们？」「不。」你开始集结所有能够调动的力量。但在此之前还有两道门槛——太行外围的烽火统领霍烽，和外层防线的右护法公孙烈。" },
+  30: { title: "烽火狼烟",
+    text: "总攻前三天，太行山外围。烽火统领霍烽负责整条烽火线的警戒——太行百里之内任何风吹草动都逃不过他的烽火台。你是侦察的老手，但霍烽是把「发现敌人」当成毕生事业的人。他腰间挂着一柄狼牙棒，手下说他一棒能砸碎半人高的青石。「二十年来没人能摸过我的烽火台。」他说，「你也一样。」远处山脊上，烽火台正在燃烧引火材料——半盏茶的功夫就能升起狼烟，届时总坛收到警报，所有部署付诸东流。",
+    fightLabel: "掐灭烽火", enemyId: "main_m30_huo_feng", hasBattle: true, isBoss: true,
+    battleDesc: "烽火统领霍烽使狼牙棒，力大无穷。必须在狼烟升起之前击倒他——这是与时间的赛跑。",
+    battleReward: { exp:600, gainItem:"taihang_beacon_map", int:2, fame:100 } },
+  31: { title: "大军压境",
+    text: "散人联军在太行山下列阵。方平立于左侧，各路散人首领列于右侧。你拔剑指向天空，身后呐喊声震动了山林间的飞鸟。楚宗玄站在高高的台阶之上，白衣胜雪，目光平静如水，缓缓开口：「你本是将才。可惜选了死路。」你握紧剑柄。这条路不是死的——是自己一步一步选来的，也是自己要走到底的。第一道防线就在山门——右护法公孙烈率亲卫严阵以待。" },
+  32: { title: "突破外层",
+    text: "总坛前的第一道防线由右护法公孙烈率亲卫镇守。此人使一杆浑铁枪，力大无穷，招式狠辣，是楚宗玄麾下第一猛将。麾下亲卫结阵配合，枪出如龙——这是通往正殿的首道难关，也是最难闯的一关。他从不问为什么——「统领说打谁就打谁。」他的浑铁枪是太行山最硬的铁铸成的，据说枪下亡魂不下百人。",
+    fightLabel: "破阵夺关", enemyId: "main_m32_gongsun_lie", hasBattle: true, isBoss: true,
+    battleDesc: "右护法公孙烈使浑铁枪，铁枪破阵，防御贯通——这是通往楚宗玄正殿的第一道也是最后一道铁门。",
+    battleReward: { exp:1800, fame:600, atk:6, def:5, gainItem:"gongsun_iron_spear" } },
+  33: { title: "地牢营救",
+    text: "带着方平和几个最信任的人摸进了总坛地牢。沿途肃清了好几波巡逻队。在最深处的囚室里找到了孟天衡——被锁链吊在半空中，浑身是伤，但那双眼睛仍然亮着。他沙哑地问：「你来干什么？」你说：「来兑现你欠我的。」挥剑斩断了锁链。他要站起来的时候晃了一下，你扶住了他——这个曾经站在你对面的男人，如今瘦得脱了形。昏暗的甬道尽头传来铁链拖地的声响——地牢典狱长阎铁已经在出口等着了。此人在地牢里待了二十年，专门研究如何让武功高手在狭小空间里失去优势。「地牢的铁链还剩最后一个空位——」他的判官笔在手心里转了半圈，「专门留给你的。」" },
+  34: { title: "地狱守门人",
+    text: "走出囚室，阎铁已经在出口的甬道里等着了。他身后是通往地面的最后一段台阶——但这段台阶上站了二十个守卫。阎铁的判官笔在烛火下泛着暗光——专打穴道，每一击都能封锁一处经脉。「二十年了，」他说，「还没有人从我的地牢里带走过一个活人。」孟天衡靠在你肩上气若游丝：「把我放下来……我能走……」但你知道他走不了——被吊了数月，他的腿已经快废了。方平挡在阎铁面前：「你们先走——我来拖住他。」你看着方平肩上还未愈合的刀伤，握剑的手在抖。不是因为怕——是因为你发现这场三年之战走到这里，你已经快没有兄弟可以拼命了。",
+    fightLabel: "护兄杀出地狱", enemyId: "main_m34_yan_tie", hasBattle: true, isBoss: true,
+    battleDesc: "地牢典狱长阎铁使判官笔，概率封行动。守卫层层封锁阴暗甬道——必须杀出血路才能带孟天衡出去。",
+    battleReward: { exp:700, fame:250, gainItem:"judge_pen_of_the_dead", def:3, flag:"mengRescued" } },
+  35: { title: "正殿门前",
+    text: "走出地牢，天边已泛鱼肚白。孟天衡和方平都伤得不轻——孟天衡几乎站不稳，方平的左肩伤口又开始渗血。你在后山找了个隐蔽的石窟把他们安顿下来。方平靠在石壁上忽然笑了一声：「他娘的，打了三年仗，最后倒在这破山洞里。」「你不是说要收尸吗——」你递过水囊，「还没到时候。」沉默片刻。你站起身整了整衣襟，孟天衡和方平都看着你。你笑了笑，没说话。该打的仗都打完了，只剩最后一场。你独自穿过长长的廊道向正殿走去——沿途再无阻拦。正殿大门紧闭。楚宗玄在里面。你深吸一口气，推开了门。" },
+  36: { title: "最终之战·太行之巅",
+    text: "正殿之中，楚宗玄负手而立。面前的茶尚温热，看起来一点都不惊讶，仿佛一直在等你。须发皆白，目光如同山岳压顶而来。缓缓开口：「三十年前，最好的朋友被邪教高手杀了，没人管。于是我发誓建立一个机构，让江湖不再有这种悲剧。二十年来惩办恶霸超千人，调解纠纷过万起——这些都是真的。然后我开始把人当成资源。为了更大的秩序，必须有人做出牺牲。你以为你代表正义？你身后那些人只是换了一个主人。今天你赢了，明天你就会变成下一个我。」沉默片刻。他又说：「来吧。」天罡正气第十一重。大殿地面砖石龟裂，温度骤降。「别让我失望。」",
+    isEndNode: true, isFinalBoss: true,
+    fightLabel: "终结秩序",
+    enemyId: "main_m36_chu_zongxuan",
+    endings: [
+      { id: "accept", label: "归云入泽", desc: "战后与残余谈判为散人争未来", effect: { ending: "wanderer_accept", endingEpilogue: "settle" } },
+      { id: "resist", label: "孤云独行", desc: "拒绝所有妥协走最自由也最难的路", effect: { ending: "wanderer_resist", endingEpilogue: "wander" } },
+      { id: "special", label: "继任统领【隐藏】", desc: "以统领身份重塑规则", condition: "fame>=2000 && flag_becameLeader", effect: { ending: "wanderer_reform", endingEpilogue: "reform" } }
     ],
-    triggerBattle: true, enemyId: "scout_team",
-    battleDesc: "武盟斥候在山脊线上侦察龙井谷防御。被发现后他们试图发信号——一旦烽烟升起，总坛立刻收到警报！",
-    battleReward: { exp:180, gainItem:"enemy_signal_plan", int:1 }
-  },
-  9: {
-    title: "血色黎明",
-    text: "黎明时分，赵崇岳的大军布满了整座山谷。韩铁衣走到你身边。他穿着一身洗到发白的粗布短打，袖口磨出了线头，但腰杆挺得笔直。手上端着一碗素面，热气在晨光里升腾。\"谢了。\"他顿了顿，\"要不是你提前报信，这谷里的人昨晚就没了。\"他没再多说，低头把面吃完。碗搁在石头上时，山下号角吹响了——进攻开始。这一战，避无可避。",
-    choices: [
-      { id:"accept", label:"承诺接班", desc:"若幸存则接领袖之责", effect:{fame:200, flag:"promisedLeadership"} },
-      { id:"resist", label:"专注眼前", desc:"不正面回应承诺", effect:{flag:"promisedLeadership_false"} }
-    ]
-  },
-  10: {
-    title: "龙井谷血战",
-    text: "这一天打了整整一天。三轮攻势下来，龙井谷已成一片火海。浓烟中找到韩铁衣时，他倒在地上浑身是伤。身边的敌人都是一击毙命。他费力睁开眼笑了：\"还好赶上了……见最后一面……\"他咳出一口血，抓住你的手腕——力气大得不像将死之人。\"兄弟……散人的这面旗……太沉……你得接着扛。\"然后他的手松开了。你跪在烟雾中看着自己沾满血灰的手。这双手，再也洗不干净了。幸存者围了上来。一个小伙子哑着嗓子问：\"扛旗的人没了……我们怎么办？\"你站起来，用尽全身力气把那面被烟火熏黑的旗插进了焦土里。",
-    choices: [
-      { id:"accept", label:"立誓接旗", desc:"承接散人领袖之责", effect:{mainThreat:3, atk:5, def:3, fame:300, flag:"becameLeader"} },
-      { id:"resist", label:"收集证据", desc:"优先记录罪证留日后清算", effect:{mainThreat:1, int:3, gainItem:"longjing_massacre_evidence", flag:"evidenceCollector"} }
-    ],
-    triggerBattle: true, enemyId: "protectorate_deputy",
-    isClimaxBattle: true,
-    battleDesc: "左护法麾下副将率精锐冲破防线杀入谷中。这是龙井谷最惨烈的一战——韩铁衣刚刚牺牲，愤怒的你如同一头出笼猛虎。",
-    battleReward: { exp:500, fame:200, gainItem:"tieyi_last_letter", atk:3, def:2 }
-  },
-  11: {
-    title: "四面楚歌",
-    text: "龙井谷的消息飞遍了江湖。武盟加大了搜捕力度，每天都有散人来投奔或者求救。方平熬红了眼擦剑，说：\"我一闭眼就看见韩铁衣，还有那个小伙子的脸。\"门外又有马蹄声响——据线报，一支残部正在附近搜捕逃散的幸存者。接到的新命令是：\"宁可错杀，不可漏网。\"",
-    choices: [
-      { id:"accept", label:"设擂立威", desc:"公开凝聚人心", effect:{mainThreat:2, exp:350, fame:400, flag:"publicFigure"} },
-      { id:"resist", label:"分化瓦解", desc:"策反中层从内部瓦解", effect:{mainThreat:1, int:4, gainItem:"wumeng_defector_list", flag:"subversionActive"} }
-    ],
-    triggerBattle: true, enemyId: "remnant_squad",
-    battleDesc: "溃军正在搜捕龙井谷幸存的散人。命令是宁可错杀不可漏网。你亲自带队追击——这一次，不再是一个人在战斗。",
-    battleReward: { exp:250, money:150, fame:60 }
-  },
-  12: {
-    title: "年终之战·赵崇岳之死",
-    text: "黄昏，赵崇岳亲临谷前。九环大刀插在地上，刀环叮当作响。\"你就是那个拒册的散人？\"他拔刀，夕阳染红整片山谷，\"知不知道因为你一个人，我少赚了多少银子？\"他居然在笑——那种数钱时候才会有的表情。这场仗打了一整个时辰。最后你抓住第九环刀法的收招间隙，剑入了他的胸膛。赵崇岳倒地前还在笑：\"你以为杀了我……事情就完了？总坛不会……放过你的……\"他到死都没有后悔。因为他真的只把你和我看成了一笔亏了的账。第一年，结束。",
-    choices: [
-      { id:"accept", label:"收兵安顿", desc:"收殓死者安顿幸存者", effect:{mainThreat:2, fame:200, flag:"year1Completed", yearEnding:"peaceful"} },
-      { id:"resist", label:"乘胜追击", desc:"扩大战果不留余地", effect:{mainThreat:4, exp:500, atk:3, flag:"year1Completed", flag2:"aggressivePursuit", yearEnding:"aggressive"} }
-    ],
-    triggerFinalBoss: "zhao_chongyue", isYearEndBoss: true,
-    bossInfo: { name:"赵崇岳", title:"杭州堂主", weapon:"九环大刀", style:"大开大合的力量型", rank:5, hp:8000, skills:["九环劈山","横扫千军","金刚护体"] },
-    battleReward: { exp:1000, fame:500, gainItem:"zhao_nine_ring_blade", money:500, atk:5, def:3 }
-  },
-  13: {
-    title: "风暴再起",
-    text: "赵崇岳的死讯传到了总坛。据说总坛震动，随即下令——左护法沈千山亲率大军南下。但真正让你心寒的是另一件事。武盟发布了新的「入册补充条款」，条款写得冠冕堂皇——\"为保障散人权益，设立安置营统一管理\"。但你从截获的信件中读到：所谓\"安置营\"就是集中营的别名。进去的人按技能分类——有武功的去前线当炮灰，没武功的送到矿坑和作坊，用到不能再用为止。方平问你怕不怕。你说怕。他又问还干不干。你说干。",
-    choices: [
-      { id:"accept", label:"召开散人大会", desc:"正式组建联盟对抗", effect:{fame:300, flag:"leagueFounded"} },
-      { id:"resist", label:"分散隐蔽", desc:"化整为零避锋芒", effect:{int:3, mainThreat:0, flag:"guerrillaMode"} }
-    ]
-  },
-  14: {
-    title: "昆仑结盟",
-    text: "首次散人大会在昆仑山召开，各路散人武者纷纷到场。会上争论不休之际，一个武盟探子混进了人群。被人识破后，他当即拔刀伤人，企图突围出去报信。此人的武功不低，人群中穿梭如电——若让他回去，后果不堪设想。",
-    choices: [
-      { id:"accept", label:"集中指挥", desc:"统一调度更高效", effect:{fame:150, flag:"centralizedCommand"} },
-      { id:"resist", label:"松散自治", desc:"各队自行决策", effect:{flag:"looseConfederation"} }
-    ],
-    triggerBattle: true, enemyId: "wumeng_spy_assassin",
-    battleDesc: "潜伏大会中的武盟探子暴露后拔刀行凶，人群中穿梭如电——不能让他活着回去报信！",
-    battleReward: { exp:200, int:1, gainItem:"wumeng_infiltration_letter" }
-  },
-  15: {
-    title: "峡谷截击",
-    text: "沈千山的副手柳长卿先行试探。此人使寒铁长剑，剑术诡异莫测，设伏被你和方平合力逼退。临走时他说：\"左护法说了，愿入籍的话待遇从优，不必去外编队。\"这话本身就是最大的侮辱——不必去外编队，意思是其他人活该去送死。接连战胜赵崇岳和柳长卿，散人们看你的眼光变了。他们开始相信，你真的能带他们走出一条生路。",
-    choices: [
-      { id:"accept", label:"接受谈判邀请", desc:"见见沈千山的底牌", effect:{flag:"metShenInvitation"} },
-      { id:"resist", label:"拒绝并追击", desc:"不给任何喘息空间", effect:{triggerBattle:true, enemyId:"liu_changqing_retreat", exp:300, flag:"liuChase"} }
-    ],
-    triggerBattle: true, enemyId: "hanjian_liu_changqing",
-    isMiniBoss: true, bossRank: 3,
-    bossInfo: { name:"柳长卿", title:"左护法副使·寒剑", weapon:"寒铁长剑", style:"高速诡变剑术", rank:3, hp:4500, skills:["寒霜剑气","幻影分身","冰封三尺"] },
-    battleReward: { exp:500, fame:150, gainItem:"cold_iron_shard", agi:3 }
-  },
-  16: {
-    title: "孟天衡的信",
-    text: "一只信鸽落在你窗台上。信上只有八个字：「安置营位置图附后。」信封里是一张画在羊皮纸上的地图——一个个红圈标记着江南各地\"安置营\"的位置，每个旁边标注着人数。没有署名。但你认得这笔迹。孟天衡在用自己的命给你递一把刀。这张图足以让武盟的罪行无所遁形。",
-    choices: [
-      { id:"accept", label:"顺应：按兵不动", desc:"保存实力先用地图布局", effect:{int:2, flag:"patientStrategy", mengFavor:1, gainItem:"camp_location_map"} },
-      { id:"resist", label:"抗争：趁夜突袭安置营", desc:"抢在转移之前救人", effect:{triggerBattle:true, enemyId:"camp_guard_captain", exp:250, mainThreat:2, flag:"nightRaid"} }
-    ]
-  },
-  17: {
-    title: "内鬼",
-    text: "联盟内部出了问题——粮草调配名单外泄，接连三次行动都被武盟提前预知。方平查到一个可疑人物：负责后勤的老张，最近频繁往杭州方向送信。对质那天，老张直接拔了刀。他脸上的表情不是愧疚，而是恐惧——一种比面对你更深沉的恐惧。\"他们……他们在俺老家……全家……\"老张的声音在抖，\"俺不送信……他们就……\"你忽然意识到：武盟控制人的手段不只是暴力——还有你所爱的人。他不是坏人，只是个被人捏住了软肋的父亲。",
-    choices: [
-      { id:"accept", label:"帮他救家人再处置", desc:"人可以被胁迫，但选择权在自己", effect:{money:-300, flag:"rescuedTraitorsFamily"} },
-      { id:"resist", label:"依律处置不留后患", desc:"军法无情但派人暗助其家人", effect:{flag:"publicExecution", flag2:"secretFamilyRescue", int:2, gainItem:"traitor_upstream_info"} }
-    ],
-    triggerBattle: true, enemyId: "traitor_oldzhang_with_aids",
-    battleDesc: "老张狗急跳墙，两名同伙也从暗处窜出。他不是坏人——只是个被人捏住了软肋的父亲。但背叛就是背叛，你必须在这里做一个决断。",
-    battleReward: { exp:180, gainItem:"bribe_gold_list", money:200 }
-  },
-  18: {
-    title: "灵寺夜话",
-    text: "你决定去见一见沈千山。不是投降，而是想看看这个亲手屠谷、把人当成货物贩卖的人到底在想什么。灵隐寺深夜，沈千山独自坐在大殿里擦拭佩剑。见到你没有惊讶，只说了一句：\"你确实很勇敢。\"你们谈了一个时辰。提起外编队和安置营的时候，他的反应出乎意料地平淡：\"打仗要花钱。养人要花钱。钱从哪来？散人不交税、不服役、不产粮——他们占着江湖的资源却不出力。我做的不过是资源合理配置罢了。\"\"把人当资源配置？\"你问。\"把所有人当资源配置。\"他纠正道，\"包括你我。区别只是价格不同。\"",
-    choices: [
-      { id:"accept", label:"暂缓对抗", desc:"争取时间整合力量", effect:{mainThreat:1, flag:"temporaryTruce"} },
-      { id:"resist", label:"当场决裂", desc:"表明绝不妥协的态度", effect:{mainThreat:3, fame:200, flag:"openHostility"} }
-    ]
-  },
-  19: {
-    title: "突袭",
-    text: "谈判破裂后的第三天凌晨，护法堂一支突击队摸进了联盟驻地。等你被警报惊醒时，他们已经放火烧毁了粮仓。火光映红了半边天，四周喊杀声一片——这不是试探，这是正式宣战。",
-    choices: [
-      { id:"accept", label:"死守阵地", desc:"保护剩余物资和人员", effect:{def:4, flag:"heldGround"} },
-      { id:"resist", label:"诱敌深入", desc:"放弃驻地引敌入陷阱", effect:{atk:3, exp:300, flag:"ambushSuccess", triggerBattle:true, enemyId:"assault_team_trapped"} }
-    ],
-    triggerBattle: true, enemyId: "fata_squad",
-    battleDesc: "精锐攻入驻地核心区。粮仓起火，四周喊杀声一片——必须尽快肃清这批敌人！",
-    battleReward: { exp:350, fame:80, def:2 }
-  },
-  20: {
-    title: "四面树敌",
-    text: "沈千山正式发布了通缉令——悬赏五千两捉拿你。一夜之间，江湖上的赏金猎人和投机分子都盯上了你。方平笑着说：\"操，咱俩现在值五千两了，还挺值钱的。\"你没笑。因为你清楚，武盟通缉你不光因为你是\"拒册头目\"。更关键的是——你手里那份外编队名单和奴隶调拨记录，一旦公之于众，整个武盟的根基都会动摇。他们要的不只是你的人头。他们要的是所有证据和你一起消失。",
-    choices: [
-      { id:"accept", label:"公开露面", desc:"让所有人知道你不怕", effect:{fame:300, flag:"publicDefiance"} },
-      { id:"resist", label:"隐匿行踪保护证据", desc:"减少暴露", effect:{agi:3, mainThreat:1, flag:"stealthMode"} }
-    ]
-  },
-  21: {
-    title: "刺客之夜",
-    text: "深夜，一道黑影潜入了你的房间。快刀，极快。你滚下床的瞬间枕头已经被剖成了两半。来人是江湖上有名的杀手\"无影\"叶孤——沈千山花重金请来的。交手三十招后你才发现不对劲——他的目标不是杀你。他的目标是你枕下那份外编队名单原件。武盟派刺客来不是为了灭口，是为了销赃——让证据永远消失于世。",
-    choices: [
-      { id:"accept", label:"顺应：利用地形周旋", desc:"用智慧保护证据和自己", effect:{evidencePreserved:true} },
-      { id:"resist", label:"抗争：正面迎击硬拼", desc:"以硬碰硬保护证据", effect:{triggerBattle:true, enemyId:"ye_gu_duel", evidencePreserved:true} }
-    ],
-    triggerBattle: true, enemyId: "shadow_killer_yegu",
-    isMiniBoss: true, bossRank: 3,
-    bossInfo: { name:"叶孤", title:"无影刺客", weapon:"蝉翼双刃", style:"极速暗杀流", rank:3, hp:3800, skills:["影遁","瞬杀","毒刃"] },
-    battleReward: { exp:450, fame:120, agi:4 }
-  },
-  22: {
-    title: "分崩离析",
-    text: "五千两悬赏的压力开始显现。联盟中的队伍陆续动摇——有人率先退出，理由很直白：\"损失太重，撑不住了。\"其他人也在摇摆不定。方平摔了杯子：\"关键时刻掉链子！\"你沉默了很久。然后说：\"让他们走吧。愿意走的本来就不是我们的兄弟，留下的才是。\"但心里清楚——留下的人每一天都在用命换明天。而那些走的，也许才是聪明的。",
-    choices: [
-      { id:"accept", label:"宽容放行", desc:"不勉强任何人留下", effect:{fame:150, flag:"tolerantLeader"} },
-      { id:"resist", label:"强硬挽留", desc:"以纪律约束动摇者", effect:{mainThreat:2, flag:"ironFistDiscipline"} }
-    ]
-  },
-  23: {
-    title: "反击号角",
-    text: "与其被动挨打不如主动出击。你带领核心成员主动出击，清剿那些蠢蠢欲动的赏金猎人在联盟周边设立的据点。这些人装备精良且配合默契，为了五千两赏金什么都做得出来。但这已经不是当年那个单枪匹马在巷战中躲闪的你了。",
-    choices: [
-      { id:"accept", label:"全面清剿", desc:"彻底清除周边威胁", effect:{fame:200, exp:400, flag:"bountyHuntersCleared"} },
-      { id:"resist", label:"擒贼擒王", desc:"直取首领震慑其余", effect:{gainItem:"hunter_leader_badge", int:2, fame:300} }
-    ],
-    triggerBattle: true, enemyId: "bounty_hunter_squad",
-    battleDesc: "赏金猎人在据点中等着你。装备精良且配合默契——但这已经不是当年单枪匹马的你。",
-    battleReward: { exp:320, money:400, gainItem:"hunter_equipment_set" }
-  },
-  24: {
-    title: "年终之战·沈千山之败",
-    text: "决战在太湖之滨展开。沈千山一身黑甲，手持方天画戟。他没有废话，只说了一句：\"你很不错。可惜站错了边。\"战斗持续了近两个时辰。沈千山的武学造诣远超赵崇岳——他能同时应对你和方平的夹攻而不落下风。就在你即将力竭之际——一道分光剑气从侧面切入了战场。孟天衡来了。他浑身是血，显然是一路打过来的。他对沈千山说：\"够了。\"三人联手，终于击倒了沈千山。倒地前沈千山看着孟天衡，忽然笑了：\"好……安置营的事……统领早就……批过了……\"沈千山死了。但他的最后一句话像一根刺扎进了你心里——**连沈千山都只是执行者，真正的源头在上面。**第二年，结束。",
-    choices: [
-      { id:"accept", label:"收编降卒", desc:"给予俘虏生路瓦解敌方军心", effect:{fame:300, flag:"mercifulVictory", yearEnding:"unified"} },
-      { id:"resist", label:"彻底清算", desc:"不留后患斩草除根", effect:{mainThreat:5, exp:800, flag:"ruthlessVictory", yearEnding:"dominance"} }
-    ],
-    triggerFinalBoss: "shen_yueshan", isYearEndBoss: true,
-    specialEvent: "meng_tianheng_betrayal",
-    bossInfo: { name:"沈千山", title:"武盟左护法", weapon:"方天画戟", style:"均衡全面的大师级", rank:7, hp:15000, skills:["画戟开山","铁壁铜墙","连环戟","护法真气"] },
-    battleReward: { exp:2000, fame:800, gainItem:"shen_halberd_fragment", money:1000, atk:8, def:6 }
-  },
-  25: {
-    title: "天下震动",
-    text: "沈千山之死的消息传到了太行总坛。据说楚宗玄在正殿坐了一整天，谁也没见。江湖格局变了。武盟内部裂成了三派——主战的、主和的、中立的。而你，从一个籍籍无名的散人，变成了让武盟统领都不得不正视的存在。但更重要的消息是：你手中的证据开始发酵了。外编队名单、奴隶调拨记录、安置营地图——这些材料通过散人网络悄悄流传开来，江湖上越来越多的人知道了武盟的真面目。孟天衡战后失踪了。有人说他被抓回去了，也有人说隐居去了。",
-    choices: [
-      { id:"accept", label:"广发英雄帖", desc:"号召天下共讨武盟", effect:{fame:500, flag:"globalCallToArms"} },
-      { id:"resist", label:"韬光养晦", desc:"利用武盟内耗壮大自己", effect:{int:5, mainThreat:1, flag:"layLowAndGrow"} }
-    ]
-  },
-  26: {
-    title: "各方势力",
-    text: "武盟内部主战派不甘失败，暗中派人四处袭扰散人。巡视途中遭遇了\"狂刀\"钱彪一伙。这些人眼中透着的不是贪婪，而是一种狂热的信仰。他们真心相信楚宗玄正在建立一种新的秩序，相信把散人变成资源是为了实现更大的整体利益。这种信仰比贪婪更可怕——因为它不可收买，也不可理喻。",
-    choices: [
-      { id:"accept", label:"招抚为主", desc:"争取感化而非消灭", effect:{flag:"conversionFocus"} },
-      { id:"resist", label:"杀鸡儆猴", desc:"用雷霆手段立威", effect:{fame:200, atk:2, flag:"terrorTactics"} }
-    ],
-    triggerBattle: true, enemyId: "fanatic_qianbiao_with_men",
-    battleDesc: "狂刀钱彪使厚背大砍刀招式凶猛但不精细。手下个个眼中透着狂热——已被洗脑坚信把散人当资源是为了建立更好的秩序。",
-    battleReward: { exp:280, money:180, gainItem:"fanatic_oath_token" }
-  },
-  27: {
-    title: "太行之邀",
-    text: "烫金请帖再次出现。落款两个字：楚宗玄。「闻君屡建奇功，特邀太行一叙。」打开帖子，里面夹层有一行小字：\"有些事，当面说比较清楚。关于你手中那些材料……\"他知道你有证据。这是最后通牒——也是请君入瓮。方平拍桌子：\"去不去？\"\"去。\"\"你疯了？\"\"不去怎么赢。\"",
-    choices: [
-      { id:"accept", label:"只身赴约", desc:"看看楚宗玄的真实意图", effect:{flag:"metYue"} },
-      { id:"resist", label:"公之于众", desc:"将证据彻底公开逼迫表态", effect:{fame:600, mainThreat:4, flag:"publicPressure"} }
-    ]
-  },
-  28: {
-    title: "统领真容",
-    text: "见到了楚宗玄。不像传说中那样凶神恶煞，反而像一个饱读诗书的隐士。谈论了整整两个时辰关于\"江湖秩序\"。他的话有道理，问题在于手段是暴力。当你拿出证据摊在他面前时，反应出乎意料——他没有否认也没有愤怒，只是平静地说：\"我知道。这些事都是我批准的。维持这个机构的运转需要钱——很多钱。而散人是最容易变现的资源。二十年来我惩办恶霸超过千人、调解纠纷超过万起——这些都是真的。代价是什么？代价是每年有几百个散人变成了数字。你觉得这值得吗？我觉得值得。你觉得不值得——所以才有了今天。\"谈判崩了。走出大门时，守卫拦住了去路。",
-    choices: [
-      { id:"accept", label:"速战速决", desc:"最快速度突破包围", effect:{exp:400} },
-      { id:"resist", label:"稳扎稳打", desc:"节省体力应对后续", effect:{hpRecovery:20} }
-    ],
-    triggerBattle: true, enemyId: "elite_guard_squad",
-    battleDesc: "总坛精英守卫呈扇形包围每个人武功都不弱于堂口执事——这才是真正的精锐。",
-    battleReward: { exp:500, fame:150, gainItem:"taihang_guard_uniform" }
-  },
-  29: {
-    title: "孟天衡的去向",
-    text: "多方打听之后确认——孟天衡确实被押回了总坛，关在地牢深处。楚宗玄没有杀他，留了一条命。也许是念旧情，也许是在等待什么时机。方平问：\"要不要救？\"\"当然要。\"\"就我们？\"\"不。\"你开始集结所有能够调动的力量。这一次你要去的地方是地狱的最底层。而你要带出来的那个人，曾经站在你的对面，如今却成了你最想救回的人。",
-    choices: [
-      { id:"accept", label:"营救孟天衡", desc:"他值得赌一把", effect:{flag:"rescueMengPlan", mengFavor:3} },
-      { id:"resist", label:"集中兵力攻总坛", desc:"救人不如直接终结源头", effect:{atk:4, flag:"directAssault"} }
-    ]
-  },
-  30: {
-    title: "最后的筹备",
-    text: "总攻前三天，在太行山外围清理耳目。最后一波斥候在被发现后试图点燃烽火台向总坛报警——必须在狼烟升起来之前阻止，否则不到半盏茶的功夫总坛就会收到警报，届时所有部署都将付诸东流。这是一场与时间的赛跑。",
-    choices: [
-      { id:"accept", label:"正面强攻路线", desc:"堂堂正正打上山门", effect:{flag:"assaultTactic_frontal"} },
-      { id:"resist", label:"奇袭后山路线", desc:"小分队直取正殿", effect:{flag:"assaultTactic_stealth"} }
-    ],
-    triggerBattle: true, enemyId: "beacon_scout_captain",
-    battleDesc: "斥候队长正在点燃烽火台。一旦狼烟升起总坛立刻收到警报——时间不多了！",
-    battleReward: { exp:220, gainItem:"taihang_beacon_map", int:2 }
-  },
-  31: {
-    title: "大军压境",
-    text: "散人联军在太行山下列阵。方平立于左侧，各路散人首领列于右侧。你拔剑指向天空，身后呐喊声震动了山林间的飞鸟。楚宗玄站在高高的台阶之上，白衣胜雪，目光平静如水，缓缓开口：\"你本是将才。可惜选了死路。\"你握紧剑柄。这条路不是死的——是自己一步一步选来的，也是自己要走到底的。",
-    choices: [
-      { id:"accept", label:"鼓舞士气演说", desc:"让每个人都明白为何而战", effect:{fame:400, flag:"inspiringSpeech"} },
-      { id:"resist", label:"默默拔剑行动说话", desc:"无需多言", effect:{atk:3, flag:"silentDetermination"} }
-    ]
-  },
-  32: {
-    title: "突破外层",
-    text: "总坛前的第一道防线由右护法公孙烈率亲卫镇守。此人使一杆浑铁枪，力大无穷，招式狠辣，是楚宗玄麾下第一猛将。麾下亲卫结阵配合，枪出如龙——这是通往正殿的首道难关，也是最难闯的一关。",
-    choices: [
-      { id:"accept", label:"分兵牵制各个击破", desc:"战术性分割逐一瓦解", effect:{allyLossReduced:30} },
-      { id:"resist", label:"中央突破直捣黄龙", desc:"集中力量撕开口子", effect:{atkBonus:4} }
-    ],
-    triggerBattle: true, enemyId: "right_protector_gongsun",
-    isMidBoss: true, bossRank: 6,
-    bossInfo: { name:"公孙烈", title:"武盟右护法", weapon:"浑铁枪", style:"刚猛强攻型", hp:10000, skills:["铁枪破阵","横扫八方","护法金刚"] },
-    battleReward: { exp:1500, fame:500, atk:5, def:5 }
-  },
-  33: {
-    title: "地牢营救",
-    text: "带着方平和几个最信任的人摸进了总坛地牢。沿途肃清了好几波巡逻队。在最深处的囚室里找到了孟天衡——被锁链吊在半空中，浑身是伤，但那双眼睛仍然亮着。他沙哑地问：\"你来干什么？\"你说：\"来兑现你欠我的。\"挥剑斩断了锁链。他要站起来的时候晃了一下，你扶住了他——这个曾经站在你对面的男人，如今瘦得脱了形。杀出血路带他出去。",
-    choices: [
-      { id:"accept", label:"掩护孟天衡先撤", desc:"确保安全撤出去", effect:{flag:"mengRescued", mengFavor:4} },
-      { id:"resist", label:"一起杀上去", desc:"多一人多一分力", effect:{flag:"mengFightsAlongside"} }
-    ],
-    triggerBattle: true, enemyId: "dungeon_warden_with_guards",
-    battleDesc: "地牢看守长使判官笔专打穴道。守卫层层封锁阴暗甬道里杀气弥漫——必须杀出血路才能带他出去！",
-    battleReward: { exp:400, fame:100 }
-  },
-  34: {
-    title: "安顿与切磋",
-    text: "走出地牢，天边已泛鱼肚白。孟天衡和方平都伤得不轻——孟天衡被铁链吊了数月，站都站不稳；方平在突围时左肩中了一剑，血浸透了半边衣襟。你在后山找了个隐蔽的石窟，把他们安顿下来。方平靠在石壁上，忽然笑了一声：\"他娘的，打了三年仗，最后倒在这破山洞里。\"\"你不是说要收尸吗，\"你递过水囊，\"还没到时候。\"沉默片刻，他挣扎着站起来，抽出剑。\"来。最后打一场。\"他咧嘴一笑，\"打完这场，你一个人去。我在这等你。\"你们在石窟前的空地上切磋了最后一场。剑光映着破晓的微光，没有胜负——只有三年并肩走过来的默契。收剑时方平拍了拍你的肩，没说话。你知道他想说什么。",
-    choices: [
-      { id:"accept", label:"和他切磋到最后", desc:"实战检验彼此成长", effect:{exp:200} },
-      { id:"resist", label:"安静陪他歇息", desc:"有些话不需要用剑说", effect:{maxHpBoost:50, flag:"quietRest"} }
-    ],
-    optionalSparring: { opponent: "fangping", desc: "与方平的最后一场切磋", reward: {exp:150} }
-  },
-  35: {
-    title: "正殿门前",
-    text: "安顿好两人后，你独自穿过长长的廊道，向正殿走去。沿途再无阻拦。该打的仗都打完了，只剩最后一场。正殿大门紧闭。你知道楚宗玄就在里面。你整了整衣襟，深吸一口气，推开了门。",
-    choices: [
-      { id:"accept", label:"从容赴约", desc:"以最好的状态面对最后一战", effect:{maxHpBoost:100, qiBoost:50, flag:"readyForFinal"} },
-      { id:"resist", label:"燃起斗志", desc:"让愤怒成为力量", effect:{atk:8, critBonus:10, flag:"battleFury"} }
-    ]
-  },
-  36: {
-    title: "最终之战·太行之巅",
-    text: "正殿之中，楚宗玄负手而立。面前的茶尚温热，看起来一点都不惊讶，仿佛一直在等你。须发皆白，目光如同山岳压顶而来。缓缓开口：\"三十年前，最好的朋友被邪教高手杀了，没人管。于是我发誓建立一个机构，让江湖不再有这种悲剧。二十年来惩办恶霸超千人，调解纠纷过万起——这些都是真的。然后我开始把人当成资源。为了更大的秩序，必须有人做出牺牲。你以为你代表正义？你身后那些人只是换了一个主人。今天你赢了，明天你就会变成下一个我。\"沉默片刻。他又说：\"来吧。\"天罡正气第十一重。大殿地面砖石龟裂，温度骤降。\"别让我失望。\"",
-    isEndNode: true,
-    choices: [
-      { id:"accept", label:"顺应结局：归云入泽", desc:"战后与残余谈判为散人争未来", effect:{ending:"wanderer_accept", endingEpilogue:"settle"} },
-      { id:"resist", label:"抗争结局：孤云独行", desc:"拒绝所有妥协走最自由也最难的路", effect:{ending:"wanderer_resist", endingEpilogue:"wander"} },
-      { id:"special", label:"隐藏结局：继任统领", desc:"【条件】以统领身份重塑规则", condition:"fame>=2000 && becameLeader && publicFigure", effect:{ending:"wanderer_reform", endingEpilogue:"reform"} }
-    ],
-    triggerFinalBoss: "chu_zongxuan_final", isFinalBoss: true,
-    bossInfo: { name:"楚宗玄", title:"武盟统领", weapon:"天罡正气", style:"纯内力压制终极boss", rank:10, hp:30000, skills:["天罡正气十一重(范围冲击)","万法归一(反弹伤害)","乾坤一掷(终结爆发)"] },
-    battleReward: { exp:5000, fame:2000, money:3000, atk:10, def:10, int:10, agi:10 }
-  }
+    battleDesc: "武盟统领楚宗玄，天罡正气终极Boss。开场25%护体；50%血净化一次；15%血攻翻倍防归零。",
+    battleReward: { exp:5000, fame:2000, money:3000, atk:10, def:10, int:10, agi:10 } }
 };
 
 // ============================================================

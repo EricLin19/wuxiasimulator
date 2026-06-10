@@ -206,11 +206,45 @@ function resolveBattleResult(result) {
 
   console.time("[Battle] 结算耗时");
 
+  // 获取故事战斗上下文（主线抗争触发）
+  const storyBattle = state.run.storyBattle;
+  if (storyBattle) delete state.run.storyBattle;
+
   if (result.winner === "player") {
     state.run.hp = Math.max(1, battle.player.hp);
     state.run.qi = Math.max(0, battle.player.qi);
     state.run.items = battle.player.items;
-    if (battle.isBoss) {
+
+    // === 故事战斗胜利处理 ===
+    if (storyBattle) {
+      // 应用战斗奖励
+      const rew = storyBattle.reward;
+      if (rew) {
+        if (rew.money) state.run.money += rew.money;
+        if (rew.exp) { const leveled = gainExp(state.run, rew.exp); if (leveled) state.modal = { type: "reward", options: buildRewardChoices(state.run) }; }
+        if (rew.gainItem) state.run.items.push(rew.gainItem);
+        if (rew.fame) state.run.fame = (state.run.fame || 0) + rew.fame;
+        if (rew.atk) state.run.stats.atk += rew.atk;
+        if (rew.def) state.run.stats.def += rew.def;
+        if (rew.int) state.run.stats.int = (state.run.stats.int || 0) + rew.int;
+        if (rew.agi) state.run.stats.agi = (state.run.stats.agi || 0) + rew.agi;
+      }
+      // 赢：散人决心+1
+      state.run.wandererResolve = Math.min(10, (state.run.wandererResolve || 0) + 1);
+      log(state.run, `击败${battle.enemy.name}！散人决心 +1（当前：${state.run.wandererResolve}/10）`);
+
+      // M36最终Boss：展示结局选择
+      if (storyBattle.isFinalBoss && storyBattle.endings) {
+        state.run.storyEndings = storyBattle.endings;
+        state.run.storyBattleResult = "win";
+      }
+
+      if (battle.isBoss && battle.bossYear) {
+        state.run.yearlyBossDefeated[battle.bossYear] = true;
+      }
+      state.screen = "run";
+      finishDeferredEvent(state.run);
+    } else if (battle.isBoss) {
       state.run.yearlyBossDefeated[battle.bossYear] = true;
       log(state.run, `击败年末强敌：${battle.enemy.name}。`);
       if (battle.bossYear >= 3) {
@@ -241,7 +275,26 @@ function resolveBattleResult(result) {
       else state.modal = null;
     }
   } else {
-    settleRun(state, "lose", `你败给了${battle.enemy.name}。`);
+    // === 故事战斗失败处理 ===
+    if (storyBattle) {
+      // 输：武盟威慑+1，不结束游戏
+      state.run.mainThreat = (state.run.mainThreat || 0) + 1;
+      log(state.run, `败给${battle.enemy.name}。武盟威慑 +1（当前：${state.run.mainThreat}）`);
+      state.run.hp = Math.max(1, Math.floor(state.run.stats.hp * 0.3)); // 残血存活
+      state.run.qi = 0;
+
+      // M36最终Boss败：展示结局选择（可能有限）
+      if (storyBattle.isFinalBoss && storyBattle.endings) {
+        state.run.storyEndings = storyBattle.endings;
+        state.run.storyBattleResult = "lose";
+      }
+
+      state.screen = "run";
+      state.modal = null;
+      saveRun(state.run);
+    } else {
+      settleRun(state, "lose", `你败给了${battle.enemy.name}。`);
+    }
   }
   console.time("[Battle] render结算");
   render();
@@ -304,9 +357,14 @@ const actions = {
     });
     render();
   },
-  chooseStoryEvent: (eventId, choice) => {
+  chooseStoryEvent: (eventId, choice, endingId) => {
     resolveStoryChoice(state.run, eventId, choice, {
-      startBattle: enemy => startBattle(enemy, false)
+      startBattle: enemy => startBattle(enemy, false),
+      endingId: endingId || null,
+      settleEnding: (eff, endingChoice) => {
+        log(state.run, `结局降临：${endingChoice.label}`);
+        settleRun(state, "win", endingChoice.desc || endingChoice.label);
+      }
     });
     state.modal = null;
     render();
