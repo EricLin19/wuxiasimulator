@@ -1096,17 +1096,17 @@ DATA.wandererEnemyPool = {
     { id: "wanderer_grunt_challenger", name: "武盟喽啰·挑战者", icon: "擂", portraitImage: "assets/portraits_pixel/armorBreakBlade_pixel_320.webp", hp: 600, qi: 180, atk: 52, def: 25, combo: 4, hit: 75, dodge: 9, crit: 9, speed: 1.35, rank: 2, taunt: "听说散人现在不好惹？让我试试。" },
     { id: "wanderer_grunt_guard", name: "武盟喽啰·守卫", icon: "卫", portraitImage: "assets/portraits_pixel/mini_armor_monk_pixel_320.webp", hp: 480, qi: 140, atk: 42, def: 24, combo: 3, hit: 70, dodge: 5, crit: 7, speed: 1.22, rank: 2, taunt: "擅闯者，格杀勿论。" },
     // --- 林中伏击逐年变体 ---
-    { id: "wanderer_grunt_ambush_yr1", name: "武盟喽啰", icon: "伏", portraitImage: "assets/portraits_pixel/rogue_pixel_320.webp", hp: 350, qi: 120, atk: 32, def: 14, combo: 3, hit: 68, dodge: 5, crit: 6, speed: 1.20, rank: 1, taunt: "武盟办案，散人跪下！" },
-    { id: "wanderer_grunt_ambush_yr2", name: "武盟打手", icon: "伏", portraitImage: "assets/portraits_pixel/rogue_pixel_320.webp", hp: 700, qi: 200, atk: 48, def: 21, combo: 4, hit: 72, dodge: 7, crit: 8, speed: 1.25, rank: 2, taunt: "上头点名要你的人头，可别怪我们。" },
-    { id: "wanderer_grunt_ambush_yr3", name: "武盟精英", icon: "伏", portraitImage: "assets/portraits_pixel/blade_pixel_320.webp", hp: 1400, qi: 320, atk: 64, def: 28, combo: 5, hit: 76, dodge: 9, crit: 10, speed: 1.30, rank: 3, taunt: "统领亲选的猎杀小队，你逃不掉的。" },
+    { id: "wanderer_grunt_ambush_yr1", name: "武盟喽啰", icon: "伏", portraitImage: "assets/portraits_pixel/rogue_pixel_320.webp", hp: 350, qi: 120, atk: 32, def: 14, combo: 3, hit: 68, dodge: 5, crit: 6, speed: 1.20, rank: 1, taunt: "嘿，又一个散人！兄弟们，围上！" },
+    { id: "wanderer_grunt_ambush_yr2", name: "武盟打手", icon: "伏", portraitImage: "assets/portraits_pixel/blade_pixel_320.webp", hp: 700, qi: 200, atk: 48, def: 21, combo: 4, hit: 72, dodge: 7, crit: 8, speed: 1.25, rank: 2, taunt: "武盟的地盘你也敢闯？给我拿下！" },
+    { id: "wanderer_grunt_ambush_yr3", name: "武盟精英", icon: "伏", portraitImage: "assets/portraits_pixel/armorBreakBlade_pixel_320.webp", hp: 1400, qi: 320, atk: 64, def: 28, combo: 5, hit: 76, dodge: 9, crit: 10, speed: 1.30, rank: 3, taunt: "奉统领令——散人抗册者，杀无赦。" },
     // --- 悬赏缉拿逐年变体 ---
-    { id: "wanderer_grunt_bandit_yr1", name: "绿林强盗", icon: "赏", portraitImage: "assets/portraits_pixel/rogue_pixel_320.webp", hp: 380, qi: 100, atk: 34, def: 12, combo: 3, hit: 66, dodge: 4, crit: 7, speed: 1.22, rank: 1, taunt: "此路是我开，此树是我栽！" },
-    { id: "wanderer_grunt_bandit_yr2", name: "强盗好手", icon: "赏", portraitImage: "assets/portraits_pixel/mini_coin_dart_pixel_320.webp", hp: 760, qi: 180, atk: 51, def: 18, combo: 4, hit: 70, dodge: 6, crit: 9, speed: 1.28, rank: 2, taunt: "官府悬赏？老子先抢了你！" },
-    { id: "wanderer_grunt_bandit_yr3", name: "强盗首领", icon: "赏", portraitImage: "assets/portraits_pixel/mini_bleed_blade_pixel_320.webp", hp: 1520, qi: 280, atk: 68, def: 24, combo: 5, hit: 74, dodge: 8, crit: 11, speed: 1.35, rank: 3, taunt: "这片山头归我管，官府算什么东西！" },
+    { id: "wanderer_grunt_bandit_yr1", name: "绿林强盗", icon: "赏", portraitImage: "assets/portraits_pixel/rogue_pixel_320.webp", hp: 380, qi: 100, atk: 34, def: 12, combo: 3, hit: 66, dodge: 4, crit: 7, speed: 1.22, rank: 1, taunt: "此路是我开，此树是我栽——要想从此过，留下买路财！" },
+    { id: "wanderer_grunt_bandit_yr2", name: "强盗好手", icon: "赏", portraitImage: "assets/portraits_pixel/mini_bleed_blade_pixel_320.webp", hp: 760, qi: 180, atk: 51, def: 18, combo: 4, hit: 70, dodge: 6, crit: 9, speed: 1.28, rank: 2, taunt: "听说你身上油水不少？乖乖交出来，爷爷饶你一命。" },
+    { id: "wanderer_grunt_bandit_yr3", name: "强盗首领", icon: "赏", portraitImage: "assets/portraits_pixel/demon_pixel_320.webp", hp: 1520, qi: 280, atk: 68, def: 24, combo: 5, hit: 74, dodge: 8, crit: 11, speed: 1.35, rank: 3, taunt: "官府管不了这山头，更管不了老子的刀。" },
     // --- 擂台切磋逐年变体 ---
-    { id: "wanderer_grunt_fighter_yr1", name: "三流高手", icon: "擂", portraitImage: "assets/portraits_pixel/rogue_pixel_320.webp", hp: 400, qi: 130, atk: 36, def: 16, combo: 3, hit: 70, dodge: 6, crit: 7, speed: 1.24, rank: 1, taunt: "请赐教！" },
-    { id: "wanderer_grunt_fighter_yr2", name: "二流高手", icon: "擂", portraitImage: "assets/portraits_pixel/blade_pixel_320.webp", hp: 800, qi: 220, atk: 54, def: 24, combo: 4, hit: 74, dodge: 8, crit: 9, speed: 1.30, rank: 2, taunt: "擂台上见真章。" },
-    { id: "wanderer_grunt_fighter_yr3", name: "一流高手", icon: "擂", portraitImage: "assets/portraits_pixel/armorBreakBlade_pixel_320.webp", hp: 1600, qi: 360, atk: 72, def: 32, combo: 5, hit: 78, dodge: 10, crit: 11, speed: 1.36, rank: 3, taunt: "能接我十招，算你赢。" }
+    { id: "wanderer_grunt_fighter_yr1", name: "三流高手", icon: "擂", portraitImage: "assets/portraits_pixel/blade_pixel_320.webp", hp: 400, qi: 130, atk: 36, def: 16, combo: 3, hit: 70, dodge: 6, crit: 7, speed: 1.24, rank: 1, taunt: "来得正好，正缺个练手的。" },
+    { id: "wanderer_grunt_fighter_yr2", name: "二流高手", icon: "擂", portraitImage: "assets/portraits_pixel/mini_coin_dart_pixel_320.webp", hp: 800, qi: 220, atk: 54, def: 24, combo: 4, hit: 74, dodge: 8, crit: 9, speed: 1.30, rank: 2, taunt: "报上名来，我的刀下不斩无名之辈。" },
+    { id: "wanderer_grunt_fighter_yr3", name: "一流高手", icon: "擂", portraitImage: "assets/portraits_pixel/highDodgeAssassin_pixel_320.webp", hp: 1600, qi: 360, atk: 72, def: 32, combo: 5, hit: 78, dodge: 10, crit: 11, speed: 1.36, rank: 3, taunt: "十年未逢对手——希望你不是下一个让我失望的人。" }
   ],
   // --- 小Boss（头目级，随机遭遇 + 事件专用）---
   miniBosses: [
