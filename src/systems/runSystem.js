@@ -383,15 +383,15 @@ function makeWandererRiskPool(run) {
   // --- 孤云专属敌人池 ---
   const wp = DATA.wandererEnemyPool;
   const wGrunts = wp?.grunts || [];
-  const wMinis = wp?.miniBosses || [];
   // 按 fight 事件 ID 映射专属敌人
+  // 注：wandererEnemyPool.miniBosses 仅为主线使用，不在奇遇池中出现
   const fightEnemyMap = {
     wanderer_fight_remnant:  { enemies: wGrunts.filter(e => e.id === "wanderer_grunt_disciple"), count: run.year >= 2 ? 3 : 2, desc: "堂口弟子" },
     wanderer_fight_bounty:   { enemies: wGrunts.filter(e => e.id === "wanderer_grunt_bounty"), count: run.year >= 2 ? 4 : 3, desc: "赏金猎人团" },
     wanderer_fight_traitor:  { enemies: wGrunts.filter(e => e.id === "wanderer_grunt_traitor" || e.id === "wanderer_grunt_disciple"), count: 2, desc: "叛徒+武盟弟子" },
     wanderer_fight_arena:    { enemies: wGrunts.filter(e => e.id === "wanderer_grunt_challenger"), count: 1, desc: "各路挑战者" },
     wanderer_fight_escort:   { enemies: wGrunts.filter(e => e.id === "wanderer_grunt_patrol"), count: run.year >= 2 ? 4 : 3, desc: "巡逻追兵" },
-    wanderer_fight_camp:     { enemies: wMinis.filter(e => e.id === "wanderer_mini_kanzhang").concat(wGrunts.filter(e => e.id === "wanderer_grunt_guard")), count: 1, desc: "看守长+守卫" }
+    wanderer_fight_camp:     { enemies: wGrunts.filter(e => e.id === "wanderer_grunt_guard"), count: run.year >= 2 ? 3 : 2, desc: "守卫" }
   };
   // --- 打斗 (fight, 按年份+月份过滤，使用孤云专属敌人) ---
   const fightMonthMin = {

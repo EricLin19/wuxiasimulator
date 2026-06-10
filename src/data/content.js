@@ -906,7 +906,7 @@ DATA.wandererEnemyPool = {
     { id: "wanderer_grunt_fighter_yr2", name: "二流高手", icon: "擂", portraitImage: "assets/portraits_pixel/mini_coin_dart_pixel_320.webp", hp: 800, qi: 220, atk: 54, def: 24, combo: 4, hit: 74, dodge: 8, crit: 9, speed: 1.30, rank: 2, taunt: "报上名来，我的刀下不斩无名之辈。" },
     { id: "wanderer_grunt_fighter_yr3", name: "一流高手", icon: "擂", portraitImage: "assets/portraits_pixel/highDodgeAssassin_pixel_320.webp", hp: 1600, qi: 360, atk: 72, def: 32, combo: 5, hit: 78, dodge: 10, crit: 11, speed: 1.36, rank: 3, taunt: "十年未逢对手——希望你不是下一个让我失望的人。" }
   ],
-  // --- 小Boss（头目级，随机遭遇 + 事件专用）---
+  // --- 小Boss（头目级，仅主线使用，不在奇遇池中随机出现）---
   miniBosses: [
     { id: "wanderer_mini_zhoutong", name: "铁手·周通", icon: "拳", portraitImage: "assets/portraits_pixel/qiSuppressFist_pixel_320.webp", yearMin: 1, hp: 1800, qi: 500, atk: 75, def: 52, combo: 5, hit: 80, dodge: 8, crit: 12, speed: 1.42, boss: true, bossTrait: "miniBleed", bossTraitDesc: "拳拳骨裂，流血+2", rank: 2, taunt: "奉命'劝导'拒册散人。劝不听的话——我这双手套开过不少瓢。" },
     { id: "wanderer_mini_zhishi", name: "堂口执事", icon: "吏", portraitImage: "assets/portraits_pixel/rogue_pixel_320.webp", yearMin: 1, hp: 800, qi: 200, atk: 38, def: 18, combo: 3, hit: 65, dodge: 5, crit: 5, speed: 1.15, boss: true, bossTrait: null, bossTraitDesc: null, rank: 1, taunt: "五百两五十人，这批货不错。" },
