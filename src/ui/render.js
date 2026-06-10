@@ -743,21 +743,18 @@ function countIds(ids) {
 function computeEventDifficulty(run, event) {
   if (event.category !== "切磋" && event.category !== "小Boss") return null;
   let enemyHp = 0;
-  // 孤云逐浪专属打斗事件：根据事件ID映射到敌人池
-  const wandererFightMap = {
-    wanderer_fight_remnant: ["wanderer_grunt_disciple"],
-    wanderer_fight_bounty: ["wanderer_grunt_bounty"],
-    wanderer_fight_traitor: ["wanderer_grunt_traitor", "wanderer_grunt_disciple"],
-    wanderer_fight_arena: ["wanderer_grunt_challenger"],
-    wanderer_fight_escort: ["wanderer_grunt_patrol"],
-    wanderer_fight_camp: ["wanderer_mini_kanzhang", "wanderer_grunt_guard"]
+  // 孤云逐浪专属打斗事件：映射到三大通用年份池
+  const wandererFightPool = {
+    wanderer_fight_remnant: "ambush", wanderer_fight_escort: "ambush",
+    wanderer_fight_bounty: "bandit", wanderer_fight_camp: "bandit",
+    wanderer_fight_traitor: "fighter", wanderer_fight_arena: "fighter"
   };
   const wp = DATA.wandererEnemyPool;
-  if (wandererFightMap[event.id] && wp) {
-    const ids = wandererFightMap[event.id];
-    const allEnemies = [...(wp.grunts || []), ...(wp.miniBosses || [])];
-    const matched = allEnemies.filter(e => ids.includes(e.id));
-    enemyHp = matched.length ? matched.reduce((s, e) => s + (e.hp || 0), 0) / matched.length * 2 : 0;
+  if (wandererFightPool[event.id] && wp?.grunts) {
+    const pool = wandererFightPool[event.id];
+    const yr = Math.min(run.year, 3);
+    const enemy = wp.grunts.find(e => e.id === `wanderer_grunt_${pool}_yr${yr}`);
+    enemyHp = enemy ? enemy.hp * 2 : 0;
   } else if (event.id && event.id.startsWith("mini_")) {
     // 通用小Boss
     const miniId = event.id.replace("mini_", "");

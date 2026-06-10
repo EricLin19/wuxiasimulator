@@ -885,14 +885,8 @@ DATA.miniBosses = [
 // 孤云逐浪 专属敌人池（v5.4，数据源：孤云逐浪人物.md）
 // ============================================================
 DATA.wandererEnemyPool = {
-  // --- 普通敌人（打斗事件专用）---
+  // --- 普通敌人（奇遇通用战斗，仅三大事件年份变体）---
   grunts: [
-    { id: "wanderer_grunt_disciple", name: "武盟喽啰·弟子", icon: "卒", portraitImage: "assets/portraits_pixel/rogue_pixel_320.webp", hp: 350, qi: 120, atk: 32, def: 14, combo: 3, hit: 68, dodge: 5, crit: 6, speed: 1.20, rank: 1, taunt: "武盟办案，散人跪下！" },
-    { id: "wanderer_grunt_patrol", name: "武盟喽啰·巡逻队", icon: "巡", portraitImage: "assets/portraits_pixel/blade_pixel_320.webp", hp: 500, qi: 160, atk: 45, def: 22, combo: 4, hit: 72, dodge: 8, crit: 8, speed: 1.30, rank: 2, taunt: "夜巡到此，可疑人员一律拿下。" },
-    { id: "wanderer_grunt_traitor", name: "散人叛徒", icon: "叛", portraitImage: "assets/portraits_pixel/rogue_pixel_320.webp", hp: 320, qi: 100, atk: 28, def: 12, combo: 3, hit: 65, dodge: 6, crit: 5, speed: 1.25, rank: 1, taunt: "别怪我……我家还有老娘。" },
-    { id: "wanderer_grunt_bounty", name: "武盟喽啰·赏金团", icon: "猎", portraitImage: "assets/portraits_pixel/mini_coin_dart_pixel_320.webp", hp: 650, qi: 200, atk: 55, def: 28, combo: 4, hit: 78, dodge: 10, crit: 10, speed: 1.40, rank: 3, taunt: "五千两的人头，我要定了。" },
-    { id: "wanderer_grunt_challenger", name: "武盟喽啰·挑战者", icon: "擂", portraitImage: "assets/portraits_pixel/armorBreakBlade_pixel_320.webp", hp: 600, qi: 180, atk: 52, def: 25, combo: 4, hit: 75, dodge: 9, crit: 9, speed: 1.35, rank: 2, taunt: "听说散人现在不好惹？让我试试。" },
-    { id: "wanderer_grunt_guard", name: "武盟喽啰·守卫", icon: "卫", portraitImage: "assets/portraits_pixel/mini_armor_monk_pixel_320.webp", hp: 480, qi: 140, atk: 42, def: 24, combo: 3, hit: 70, dodge: 5, crit: 7, speed: 1.22, rank: 2, taunt: "擅闯者，格杀勿论。" },
     // --- 林中伏击逐年变体 ---
     { id: "wanderer_grunt_ambush_yr1", name: "武盟喽啰", icon: "伏", portraitImage: "assets/portraits_pixel/rogue_pixel_320.webp", hp: 350, qi: 120, atk: 32, def: 14, combo: 3, hit: 68, dodge: 5, crit: 6, speed: 1.20, rank: 1, taunt: "嘿，又一个散人！兄弟们，围上！" },
     { id: "wanderer_grunt_ambush_yr2", name: "武盟打手", icon: "伏", portraitImage: "assets/portraits_pixel/blade_pixel_320.webp", hp: 700, qi: 200, atk: 48, def: 21, combo: 4, hit: 72, dodge: 7, crit: 8, speed: 1.25, rank: 2, taunt: "武盟的地盘你也敢闯？给我拿下！" },

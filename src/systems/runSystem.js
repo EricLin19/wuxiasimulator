@@ -382,16 +382,15 @@ function makeWandererRiskPool(run) {
   const events = [];
   // --- 孤云专属敌人池 ---
   const wp = DATA.wandererEnemyPool;
-  const wGrunts = wp?.grunts || [];
-  // 按 fight 事件 ID 映射专属敌人
-  // 注：wandererEnemyPool.miniBosses 仅为主线使用，不在奇遇池中出现
+  // 按 fight 事件 ID 映射到三大通用池（林中伏击/悬赏缉拿/擂台切磋）（林中伏击/悬赏缉拿/擂台切磋）
+  const POOLS = { ambush: "ambush", bandit: "bandit", fighter: "fighter" };
   const fightEnemyMap = {
-    wanderer_fight_remnant:  { enemies: wGrunts.filter(e => e.id === "wanderer_grunt_disciple"), count: run.year >= 2 ? 3 : 2, desc: "堂口弟子" },
-    wanderer_fight_bounty:   { enemies: wGrunts.filter(e => e.id === "wanderer_grunt_bounty"), count: run.year >= 2 ? 4 : 3, desc: "赏金猎人团" },
-    wanderer_fight_traitor:  { enemies: wGrunts.filter(e => e.id === "wanderer_grunt_traitor" || e.id === "wanderer_grunt_disciple"), count: 2, desc: "叛徒+武盟弟子" },
-    wanderer_fight_arena:    { enemies: wGrunts.filter(e => e.id === "wanderer_grunt_challenger"), count: 1, desc: "各路挑战者" },
-    wanderer_fight_escort:   { enemies: wGrunts.filter(e => e.id === "wanderer_grunt_patrol"), count: run.year >= 2 ? 4 : 3, desc: "巡逻追兵" },
-    wanderer_fight_camp:     { enemies: wGrunts.filter(e => e.id === "wanderer_grunt_guard"), count: run.year >= 2 ? 3 : 2, desc: "守卫" }
+    wanderer_fight_remnant:  { pool: POOLS.ambush,  count: run.year >= 2 ? 3 : 2, desc: "林中伏击" },
+    wanderer_fight_escort:   { pool: POOLS.ambush,  count: run.year >= 2 ? 4 : 3, desc: "林中伏击" },
+    wanderer_fight_bounty:   { pool: POOLS.bandit,  count: run.year >= 2 ? 4 : 3, desc: "悬赏缉拿" },
+    wanderer_fight_camp:     { pool: POOLS.bandit,  count: run.year >= 2 ? 3 : 2, desc: "悬赏缉拿" },
+    wanderer_fight_traitor:  { pool: POOLS.fighter, count: 2, desc: "擂台切磋" },
+    wanderer_fight_arena:    { pool: POOLS.fighter, count: 1, desc: "擂台切磋" }
   };
   // --- 打斗 (fight, 按年份+月份过滤，使用孤云专属敌人) ---
   const fightMonthMin = {
@@ -403,16 +402,18 @@ function makeWandererRiskPool(run) {
     if (f.years && !f.years.includes(run.year)) return;
     if (fightMonthMin[f.id] && monthAbs < fightMonthMin[f.id]) return;
     const mapping = fightEnemyMap[f.id];
-    const enemyList = mapping ? mapping.enemies : wGrunts;
-    const numEnemies = mapping ? mapping.count : 1;
-    const battleLabel = mapping ? mapping.desc : "敌人";
-    if (!enemyList.length) return;
+    if (!mapping) return;
+    const yr = Math.min(run.year, 3);
+    const lookupId = `wanderer_grunt_${mapping.pool}_yr${yr}`;
+    const enemy = wp.grunts.find(e => e.id === lookupId);
+    if (!enemy) return;
+    const num = mapping.count;
     events.push({
       id: f.id, name: f.name, category: "切磋", icon: "战",
-      desc: `${f.desc}（${battleLabel}×${numEnemies}）`,
+      desc: `${f.desc}（${mapping.desc}×${num}）`,
       apply: (({ run: r, startBattle }) => {
-        const template = { ...enemyList[Math.floor(Math.random() * enemyList.length)] };
-        template.name = `${template.name}${numEnemies > 1 ? "×" + numEnemies : ""}`;
+        const template = { ...enemy };
+        template.name = `${template.name}${num > 1 ? "×" + num : ""}`;
         startBattle(template);
       })
     });
