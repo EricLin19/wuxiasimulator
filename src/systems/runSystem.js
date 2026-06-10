@@ -237,6 +237,8 @@ function pickYearEnemy(run, eventId, fallbackEnemies) {
 }
 
 function makeRiskEventPool(run) {
+  // 孤云逐浪线：使用专属风险事件池（含金钱任务和孤云敌人）
+  if (run.storylineId === "wanderer") return makeWandererRiskPool(run);
   const maxRank = Math.min(4, 1 + Math.floor(monthAbs(run) / 8));
   const enemies = DATA.enemies.filter(e => e.rank <= maxRank);
   const moneyGain = scaleMoney(run, 160);

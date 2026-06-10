@@ -153,6 +153,11 @@ export function createBattle(run, enemyTemplate, isBoss = false) {
       battle.bossShield = Math.floor(enemyStats.hp * 0.2);
       battleLog(battle, `${enemyTemplate.name}获得护体，吸收${battle.bossShield}伤害！`);
     }
+    // shieldPurityBerserk：开场25%护体
+    if (battle.bossTrait === "shieldPurityBerserk") {
+      battle.bossShield = Math.floor(enemyStats.hp * 0.25);
+      battleLog(battle, `${enemyTemplate.name}天罡气场护体，吸收${battle.bossShield}伤害！`);
+    }
     // drainQiImmuneBurst：前3回合免疫负面
     if (battle.bossTrait === "drainQiImmuneBurst") {
       battle.bossImmuneTurns = 3;
@@ -1220,6 +1225,58 @@ function checkBossPhaseTriggers(battle) {
     battleLog(battle, `${e.name}陷入狂暴，攻击提升！`);
     addFloater(battle, "enemy", "狂暴");
   }
+
+  // === 孤云逐浪线 Boss 阶段触发 ===
+
+  // lowHpBerserk：30%血攻速双升（赵崇岳/钱彪）
+  if (trait === "lowHpBerserk" && hpPct <= 0.3 && !battle.bossPhaseTriggered["berserk30"]) {
+    battle.bossPhaseTriggered["berserk30"] = true;
+    e.stats.atk = Math.floor(e.stats.atk * 1.3);
+    e.stats.speed += 0.08;
+    battleLog(battle, `${e.name}陷入狂暴，攻速双升！`);
+    addFloater(battle, "enemy", "狂暴");
+  }
+
+  // berserkSummon：70%血全开，30%血召唤护卫（沈千山）
+  if (trait === "berserkSummon" && hpPct <= 0.7 && !battle.bossPhaseTriggered["fullPower"]) {
+    battle.bossPhaseTriggered["fullPower"] = true;
+    e.stats.atk = Math.floor(e.stats.atk * 1.15);
+    e.stats.speed += 0.05;
+    battleLog(battle, `${e.name}实力全开，攻击与速度提升！`);
+    addFloater(battle, "enemy", "全开");
+  }
+  if (trait === "berserkSummon" && hpPct <= 0.3 && !battle.bossPhaseTriggered["summonGuard"]) {
+    battle.bossPhaseTriggered["summonGuard"] = true;
+    e.stats.atk = Math.floor(e.stats.atk * 1.2);
+    e.stats.def = Math.floor(e.stats.def * 1.15);
+    battleLog(battle, `${e.name}召来亲卫助阵，攻防齐升！`);
+    addFloater(battle, "enemy", "召唤护卫");
+  }
+
+  // shieldPurityBerserk：50%血天罡净化，15%血燃命（楚宗玄）
+  if (trait === "shieldPurityBerserk" && hpPct <= 0.5 && !battle.bossPhaseTriggered["purityCleanse"]) {
+    battle.bossPhaseTriggered["purityCleanse"] = true;
+    e.bleed = 0; e.poison = 0; e.inner = 0; e.frost = 0; e.hamstring = 0; e.gu = 0;
+    const healAmt = Math.floor(e.stats.hp * 0.2);
+    e.hp = Math.min(e.stats.hp, e.hp + healAmt);
+    battleLog(battle, `${e.name}天罡正气涤荡全身，净化所有负面并回血${healAmt}！`);
+    addFloater(battle, "enemy", "天罡净化");
+  }
+  if (trait === "shieldPurityBerserk" && hpPct <= 0.15 && !battle.bossPhaseTriggered["burnLife"]) {
+    battle.bossPhaseTriggered["burnLife"] = true;
+    e.stats.atk = Math.floor(e.stats.atk * 2);
+    e.stats.def = 0;
+    battleLog(battle, `${e.name}燃尽防御换至强一击！攻击翻倍，防御归零！`);
+    addFloater(battle, "enemy", "燃命一击");
+  }
+
+  // highDodge：50%血闪避再升（叶孤）
+  if (trait === "highDodge" && hpPct <= 0.5 && !battle.bossPhaseTriggered["shadowStep"]) {
+    battle.bossPhaseTriggered["shadowStep"] = true;
+    e.stats.dodge += 5;
+    battleLog(battle, `${e.name}身法如影，闪避再升！`);
+    addFloater(battle, "enemy", "闪避↑");
+  }
 }
 
 // 计算Boss特性造成的防御忽略（bleedPer3等）
@@ -1260,6 +1317,17 @@ function applyBossHitEffect(battle, target) {
     );
     battleLog(battle, `${e.name}掌劲断筋，你被附加断筋！`);
     addFloater(battle, "player", "断筋+2");
+  }
+
+  // pointStrike：30%概率打穴封行动（阎铁/地牢看守长）
+  if (trait === "pointStrike") {
+    if (Math.random() < 0.3) {
+      const extraDmg = Math.floor(e.stats.atk * 0.3);
+      target.hp = Math.max(0, target.hp - extraDmg);
+      target.stats.speed = Math.max(0.5, target.stats.speed - 0.25);
+      battleLog(battle, `${e.name}判官笔精准打穴！你行动受阻，受到${extraDmg}贯穿伤害！`);
+      addFloater(battle, "player", "穴道被封");
+    }
   }
 }
 
