@@ -225,16 +225,27 @@ function makeGrowthEventPool(run) {
   return [...heritage, ...relic, ...training];
 }
 
+function pickYearEnemy(run, eventId, fallbackEnemies) {
+  const yr = Math.min(run.year, 3);
+  const prefixMap = { ambush: "ambush", duelHall: "fighter", wanted: "bandit" };
+  const prefix = prefixMap[eventId];
+  if (!prefix) return rand(fallbackEnemies);
+  const lookupId = `wanderer_grunt_${prefix}_yr${yr}`;
+  const pool = DATA.wandererEnemyPool?.grunts || [];
+  const enemy = pool.find(e => e.id === lookupId);
+  return enemy || rand(fallbackEnemies);
+}
+
 function makeRiskEventPool(run) {
   const maxRank = Math.min(4, 1 + Math.floor(monthAbs(run) / 8));
   const enemies = DATA.enemies.filter(e => e.rank <= maxRank);
   const moneyGain = scaleMoney(run, 160);
   const duel = [
-    { id: "ambush", name: "林中伏击", category: "切磋", icon: "伏", desc: "密林中遭遇埋伏，来者不善。胜利后获得额外金钱。", apply: ({ startBattle }) => startBattle(rand(enemies)) },
-    { id: "duelHall", name: "擂台切磋", category: "切磋", icon: "擂", desc: "城中摆下擂台，以武会友。胜利后获得丰厚武学阅历。", apply: ({ startBattle }) => startBattle(rand(enemies)) },
+    { id: "ambush", name: "林中伏击", category: "切磋", icon: "伏", desc: "密林中遭遇埋伏，来者不善。胜利后获得额外金钱。", apply: ({ run, startBattle }) => startBattle(pickYearEnemy(run, "ambush", enemies)) },
+    { id: "duelHall", name: "擂台切磋", category: "切磋", icon: "擂", desc: "城中摆下擂台，以武会友。胜利后获得丰厚武学阅历。", apply: ({ run, startBattle }) => startBattle(pickYearEnemy(run, "duelHall", enemies)) },
     { id: "roadBlock", name: "拦路强人", category: "切磋", icon: "拦", desc: "官道上撞见拦路强人，唯有手中兵刃说话。", apply: ({ startBattle }) => startBattle(rand(enemies)) },
     { id: "justice", name: "路见不平", category: "切磋", icon: "侠", desc: "见恶霸欺压百姓，拔刀相助。胜利后名利双收。", apply: ({ startBattle }) => startBattle(rand(enemies)) },
-    { id: "wanted", name: "悬赏缉拿", category: "切磋", icon: "赏", desc: "官府悬赏通缉悍匪，擒下可得重赏。", apply: ({ startBattle }) => startBattle(rand(enemies)) }
+    { id: "wanted", name: "悬赏缉拿", category: "切磋", icon: "赏", desc: "官府悬赏通缉悍匪，擒下可得重赏。", apply: ({ run, startBattle }) => startBattle(pickYearEnemy(run, "wanted", enemies)) }
   ];
   const price = [
     { id: "doctor", name: "江湖郎中", category: "金钱代价", icon: "医", desc: `江湖郎中兜售秘药，花费${scaleMoney(run, 80)}金钱永久提升攻击+2、防御+2。`, apply: ({ run }) => {
@@ -646,11 +657,11 @@ export function makeEventPool(run) {
 
   // 切磋 (30%)：与江湖人士战斗
   const duel = [
-    { id: "ambush", name: "林中伏击", category: "切磋", icon: "伏", desc: "密林中遭遇埋伏，来者不善。胜利后获得额外金钱。", apply: ({ startBattle }) => startBattle(rand(enemies)) },
-    { id: "duelHall", name: "擂台切磋", category: "切磋", icon: "擂", desc: "城中摆下擂台，以武会友。胜利后获得丰厚武学阅历。", apply: ({ startBattle }) => startBattle(rand(enemies)) },
+    { id: "ambush", name: "林中伏击", category: "切磋", icon: "伏", desc: "密林中遭遇埋伏，来者不善。胜利后获得额外金钱。", apply: ({ run, startBattle }) => startBattle(pickYearEnemy(run, "ambush", enemies)) },
+    { id: "duelHall", name: "擂台切磋", category: "切磋", icon: "擂", desc: "城中摆下擂台，以武会友。胜利后获得丰厚武学阅历。", apply: ({ run, startBattle }) => startBattle(pickYearEnemy(run, "duelHall", enemies)) },
     { id: "roadBlock", name: "拦路强人", category: "切磋", icon: "拦", desc: "官道上撞见拦路强人，唯有手中兵刃说话。", apply: ({ startBattle }) => startBattle(rand(enemies)) },
     { id: "justice", name: "路见不平", category: "切磋", icon: "侠", desc: "见恶霸欺压百姓，拔刀相助。胜利后名利双收。", apply: ({ startBattle }) => startBattle(rand(enemies)) },
-    { id: "wanted", name: "悬赏缉拿", category: "切磋", icon: "赏", desc: "官府悬赏通缉悍匪，擒下可得重赏。", apply: ({ startBattle }) => startBattle(rand(enemies)) }
+    { id: "wanted", name: "悬赏缉拿", category: "切磋", icon: "赏", desc: "官府悬赏通缉悍匪，擒下可得重赏。", apply: ({ run, startBattle }) => startBattle(pickYearEnemy(run, "wanted", enemies)) }
   ];
 
   // 维度增加 (30%)：修炼提升属性
