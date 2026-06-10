@@ -146,7 +146,7 @@ export const DATA = {
     { id: "critUp", name: "战意", desc: "暴击+2。" },
     { id: "breath", name: "龟息", desc: "调息额外恢复80血量和内力。" },
     { id: "force", name: "刚力", desc: "伤害增加2%。" },
-    { id: "clearMind", name: "明心", desc: "每月开始额外获得10行动力。" },
+    { id: "clearMind", name: "明心", desc: "每月开始额外获得1行动力。" },
     { id: "merchantFriend", name: "奇智", desc: "商人价格降低15%。" },
     { id: "hardBone", name: "硬骨", desc: "最大血量+60。" },
     { id: "innerRoot", name: "内息深长", desc: "最大内力+80。" }
@@ -363,22 +363,22 @@ DATA.styleTraits = STYLE_TRAITS;
 DATA.manuals = Object.keys(SKILL_STYLES);
 
 export const INTERNAL_ARTS = {
-  art_blue_1: { id: "art_blue_1", name: "紫霄清心诀", rarity: "blue", icon: "清", cultivateCost: 15, desc: "清心寡欲之诀。负面状态持续时间略降。血量+150，内力+50，防御+4。", statGain: { hp: 150, qi: 50, def: 4 }, combatEffect: "debuffReduce", combatDesc: "负面状态持续时间略降" },
-  art_blue_2: { id: "art_blue_2", name: "混元真息", rarity: "blue", icon: "混", cultivateCost: 15, desc: "浑元一体，根基扎实。血量+140，内力+50，攻击+2，防御+2。", statGain: { hp: 140, qi: 50, atk: 2, def: 2 } },
-  art_blue_3: { id: "art_blue_3", name: "罗汉镇岳功", rarity: "blue", icon: "镇", cultivateCost: 15, desc: "如山如岳，不动不移。血量+180，防御+7，受到直接伤害-3%。", statGain: { hp: 180, def: 7 }, combatEffect: "dmgReduce", combatDesc: "受到直接伤害-3%" },
-  art_blue_4: { id: "art_blue_4", name: "回照心经", rarity: "blue", icon: "照", cultivateCost: 15, desc: "心光回照，滋养肉身。血量+150，内力+40，战斗开始恢复15%血量。", statGain: { hp: 150, qi: 40 }, combatEffect: "healOnStart", combatDesc: "战斗开始时恢复15%血量" },
-  art_blue_5: { id: "art_blue_5", name: "太玄入门篇", rarity: "blue", icon: "玄", cultivateCost: 15, desc: "玄门筑基心法。内力+60，暴击+4。", statGain: { qi: 60, crit: 4 } },
-  art_blue_6: { id: "art_blue_6", name: "龙象锻骨功", rarity: "blue", icon: "象", cultivateCost: 15, desc: "锻骨炼体，力大无穷。血量+150，攻击+7。", statGain: { hp: 150, atk: 7 } },
-  art_blue_7: { id: "art_blue_7", name: "先天归元功", rarity: "blue", icon: "先", cultivateCost: 15, desc: "归元守一，内息绵绵。内力+70，命中+5，每回合恢复6%最大内力（上限10%）。", statGain: { qi: 70, hit: 5 }, combatEffect: "qiRegen", combatDesc: "每回合恢复6%最大内力" },
-  art_blue_8: { id: "art_blue_8", name: "葵影残篇", rarity: "blue", icon: "葵", cultivateCost: 15, desc: "残卷仅有速功心法。闪避+6，出手速度+0.18。", statGain: { dodge: 6, speed: 0.18 } },
-  art_orange_1: { id: "art_orange_1", name: "虚玄无相功", rarity: "orange", icon: "相", cultivateCost: 25, desc: "无形无相，气随意转。内力+110，连击+6，招式内力消耗-12%（降耗最高22%）。", statGain: { qi: 110, combo: 6 }, combatEffect: "qiReduce", combatDesc: "所有招式内力消耗-12%" },
-  art_orange_2: { id: "art_orange_2", name: "纯阳正气诀", rarity: "orange", icon: "阳", cultivateCost: 25, desc: "纯阳之体，正气凛然。血量+300，攻击+10，暴击+4，暴击伤害+0.2。", statGain: { hp: 300, atk: 10, crit: 4 }, combatEffect: "critUp", combatDesc: "暴击倍率+0.2" },
-  art_orange_3: { id: "art_orange_3", name: "玄霜真气", rarity: "orange", icon: "冰", cultivateCost: 25, desc: "玄霜入脉，寒意逼人。血量+180，内力+120，命中附加1层寒气（每己方回合最多1次）。", statGain: { hp: 180, qi: 120 }, combatEffect: "frostOnHit", combatDesc: "攻击/招式命中附加1层寒气（每回合最多1次）" },
-  art_orange_4: { id: "art_orange_4", name: "摄元秘法", rarity: "orange", icon: "星", cultivateCost: 25, desc: "夺天地之元。血量+240，内力+100，命中吸取目标8%当前内力（上限40）。", statGain: { hp: 240, qi: 100 }, combatEffect: "drainQi", combatDesc: "攻击时汲取目标8%当前内力（上限40）" },
-  art_red_1: { id: "art_red_1", name: "九曜真功", rarity: "red", icon: "曜", cultivateCost: 40, desc: "九曜盈体，生生不息。血量+720，内力+180，每回合恢复5%最大血量（上限6%）。", statGain: { hp: 720, qi: 180 }, combatEffect: "healOnTurn", combatDesc: "每回合开始恢复5%最大血量" },
-  art_red_2: { id: "art_red_2", name: "大罗洗髓经", rarity: "red", icon: "髓", cultivateCost: 40, desc: "脱胎换骨，洗尽铅华。血量+520，内力+160，全属性+6，开场净化，前2己方回合负面抵抗提高。", statGain: { hp: 520, qi: 160, atk: 6, def: 6, hit: 6, dodge: 6, crit: 6, speed: 0.06 }, combatEffect: "cleanse", combatDesc: "战斗开始清除所有负面状态，前2己方回合负面抵抗" },
-  art_red_3: { id: "art_red_3", name: "天衡神照经", rarity: "red", icon: "衡", cultivateCost: 40, desc: "天衡运转，神照万象。血量+600，内力+220，战斗开始恢复25%血量和15%内力。", statGain: { hp: 600, qi: 220 }, combatEffect: "bigHealStart", combatDesc: "战斗开始恢复25%血量+15%内力" },
-  art_red_4: { id: "art_red_4", name: "玄元龙象功", rarity: "red", icon: "龙", cultivateCost: 40, desc: "龙象之力，转化万钧。血量+480，内力+160，攻击+14，受直接伤害的20%转为内力。", statGain: { hp: 480, qi: 160, atk: 14 }, combatEffect: "dmgToQi", combatDesc: "受直接伤害的20%转为内力" }
+  art_blue_1: { id: "art_blue_1", name: "紫霄清心诀", rarity: "blue", icon: "清", cultivateCost: 3, desc: "清心寡欲之诀。负面状态持续时间略降。血量+150，内力+50，防御+4。", statGain: { hp: 150, qi: 50, def: 4 }, combatEffect: "debuffReduce", combatDesc: "负面状态持续时间略降" },
+  art_blue_2: { id: "art_blue_2", name: "混元真息", rarity: "blue", icon: "混", cultivateCost: 3, desc: "浑元一体，根基扎实。血量+140，内力+50，攻击+2，防御+2。", statGain: { hp: 140, qi: 50, atk: 2, def: 2 } },
+  art_blue_3: { id: "art_blue_3", name: "罗汉镇岳功", rarity: "blue", icon: "镇", cultivateCost: 3, desc: "如山如岳，不动不移。血量+180，防御+7，受到直接伤害-3%。", statGain: { hp: 180, def: 7 }, combatEffect: "dmgReduce", combatDesc: "受到直接伤害-3%" },
+  art_blue_4: { id: "art_blue_4", name: "回照心经", rarity: "blue", icon: "照", cultivateCost: 3, desc: "心光回照，滋养肉身。血量+150，内力+40，战斗开始恢复15%血量。", statGain: { hp: 150, qi: 40 }, combatEffect: "healOnStart", combatDesc: "战斗开始时恢复15%血量" },
+  art_blue_5: { id: "art_blue_5", name: "太玄入门篇", rarity: "blue", icon: "玄", cultivateCost: 3, desc: "玄门筑基心法。内力+60，暴击+4。", statGain: { qi: 60, crit: 4 } },
+  art_blue_6: { id: "art_blue_6", name: "龙象锻骨功", rarity: "blue", icon: "象", cultivateCost: 3, desc: "锻骨炼体，力大无穷。血量+150，攻击+7。", statGain: { hp: 150, atk: 7 } },
+  art_blue_7: { id: "art_blue_7", name: "先天归元功", rarity: "blue", icon: "先", cultivateCost: 3, desc: "归元守一，内息绵绵。内力+70，命中+5，每回合恢复6%最大内力（上限10%）。", statGain: { qi: 70, hit: 5 }, combatEffect: "qiRegen", combatDesc: "每回合恢复6%最大内力" },
+  art_blue_8: { id: "art_blue_8", name: "葵影残篇", rarity: "blue", icon: "葵", cultivateCost: 3, desc: "残卷仅有速功心法。闪避+6，出手速度+0.18。", statGain: { dodge: 6, speed: 0.18 } },
+  art_orange_1: { id: "art_orange_1", name: "虚玄无相功", rarity: "orange", icon: "相", cultivateCost: 4, desc: "无形无相，气随意转。内力+110，连击+6，招式内力消耗-12%（降耗最高22%）。", statGain: { qi: 110, combo: 6 }, combatEffect: "qiReduce", combatDesc: "所有招式内力消耗-12%" },
+  art_orange_2: { id: "art_orange_2", name: "纯阳正气诀", rarity: "orange", icon: "阳", cultivateCost: 4, desc: "纯阳之体，正气凛然。血量+300，攻击+10，暴击+4，暴击伤害+0.2。", statGain: { hp: 300, atk: 10, crit: 4 }, combatEffect: "critUp", combatDesc: "暴击倍率+0.2" },
+  art_orange_3: { id: "art_orange_3", name: "玄霜真气", rarity: "orange", icon: "冰", cultivateCost: 4, desc: "玄霜入脉，寒意逼人。血量+180，内力+120，命中附加1层寒气（每己方回合最多1次）。", statGain: { hp: 180, qi: 120 }, combatEffect: "frostOnHit", combatDesc: "攻击/招式命中附加1层寒气（每回合最多1次）" },
+  art_orange_4: { id: "art_orange_4", name: "摄元秘法", rarity: "orange", icon: "星", cultivateCost: 4, desc: "夺天地之元。血量+240，内力+100，命中吸取目标8%当前内力（上限40）。", statGain: { hp: 240, qi: 100 }, combatEffect: "drainQi", combatDesc: "攻击时汲取目标8%当前内力（上限40）" },
+  art_red_1: { id: "art_red_1", name: "九曜真功", rarity: "red", icon: "曜", cultivateCost: 5, desc: "九曜盈体，生生不息。血量+720，内力+180，每回合恢复5%最大血量（上限6%）。", statGain: { hp: 720, qi: 180 }, combatEffect: "healOnTurn", combatDesc: "每回合开始恢复5%最大血量" },
+  art_red_2: { id: "art_red_2", name: "大罗洗髓经", rarity: "red", icon: "髓", cultivateCost: 5, desc: "脱胎换骨，洗尽铅华。血量+520，内力+160，全属性+6，开场净化，前2己方回合负面抵抗提高。", statGain: { hp: 520, qi: 160, atk: 6, def: 6, hit: 6, dodge: 6, crit: 6, speed: 0.06 }, combatEffect: "cleanse", combatDesc: "战斗开始清除所有负面状态，前2己方回合负面抵抗" },
+  art_red_3: { id: "art_red_3", name: "天衡神照经", rarity: "red", icon: "衡", cultivateCost: 5, desc: "天衡运转，神照万象。血量+600，内力+220，战斗开始恢复25%血量和15%内力。", statGain: { hp: 600, qi: 220 }, combatEffect: "bigHealStart", combatDesc: "战斗开始恢复25%血量+15%内力" },
+  art_red_4: { id: "art_red_4", name: "玄元龙象功", rarity: "red", icon: "龙", cultivateCost: 5, desc: "龙象之力，转化万钧。血量+480，内力+160，攻击+14，受直接伤害的20%转为内力。", statGain: { hp: 480, qi: 160, atk: 14 }, combatEffect: "dmgToQi", combatDesc: "受直接伤害的20%转为内力" }
 };
 DATA.internalArts = INTERNAL_ARTS;
 
