@@ -6,8 +6,8 @@ const MAX_PALM_CHAIN_ACTIONS = 3; // arm can increase to 4
 
 // Debuff caps
 const DEBUFF_CAPS = {
-  bleed: 12,
-  poison: 12,
+  bleed: 30,
+  poison: 30,
   inner: 12,
   frost: 10,
   hamstring: 10,
@@ -147,14 +147,7 @@ export function createBattle(run, enemyTemplate, isBoss = false) {
     enemyPortrait: enemyTemplate.portraitImage || null
   };
 
-  // 无相秘甲：前3己方回合免疫新负面
-  if (run.equippedArmor) {
-    const armor = DATA.armors[run.equippedArmor];
-    if (armor?.immuneTurns) {
-      battle.wuxiangTurns = armor.immuneTurns;
-      battle.immuneNewDebuffs = true;
-    }
-  }
+  // 战斗开始：初始化 battle 对象完成
 
   // 三主线Boss特性初始化
   if (battle.bossTrait) {
@@ -485,6 +478,16 @@ export function enemyAction(run, battle) {
       addFloater(battle, "enemy", "会心一击");
     }
     p.hp = Math.max(0, p.hp - dmg);
+    // 无相秘甲：反弹25%伤害
+    if (run.equippedArmor && dmg > 0) {
+      const armor = DATA.armors[run.equippedArmor];
+      if (armor?.reflect) {
+        const reflectDmg = Math.floor(dmg * armor.reflect);
+        e.hp = Math.max(0, e.hp - reflectDmg);
+        battleLog(battle, `【无相秘甲】反弹${reflectDmg}伤害！`);
+        addFloater(battle, "enemy", `-${reflectDmg}`);
+      }
+    }
     applyEnemyTraitHit(battle, e, p);
     // 三主线Boss：命中时特性效果
     applyBossHitEffect(battle, p);
@@ -702,14 +705,6 @@ function applySkillEffects(run, battle, actor, target, skill, damage) {
     if (skill.style === "poison") stacks += trait.effects?.poisonBonus || 0;
   }
 
-  // 无相秘甲：免疫新负面
-  if (battle.immuneNewDebuffs) {
-    if (battle.wuxiangTurns > 0) {
-      // 仍然造成伤害和属性效果，但不叠加debuff
-      stacks = 0;
-    }
-  }
-
   // 三主线Boss特性：免疫新负面（drainQiImmuneBurst）
   if (actor === battle.player && target === battle.enemy && battle.bossTrait === "drainQiImmuneBurst") {
     if (battle.bossImmuneTurns > 0) {
@@ -726,10 +721,36 @@ function applySkillEffects(run, battle, actor, target, skill, damage) {
   if (skill.debuff === "bleed" && skill.style === "bleed") {
     const cap = getDebuffCap(run, weapon, "bleed");
     target.bleed = Math.min(cap, target.bleed + stacks);
+    // 25层流血引爆
+    if (target.bleed >= 25) {
+      let burstPct = 0.15;
+      // 血河断刃+饮血封喉刀 combo：引爆伤害提高至25%
+      if (actor === battle.player && run) {
+        const w = run.equippedWeapon ? DATA.weapons[run.equippedWeapon] : null;
+        if (w?.id === "blade_bleed_red" && skill.id === "blade_red_1") {
+          burstPct = 0.25;
+        }
+      }
+      const burstDmg = Math.floor(target.hp * burstPct);
+      target.hp = Math.max(0, target.hp - burstDmg);
+      target.bleed -= 25;
+      battleLog(battle, `血流如注！${target.name}流血崩裂，扣除${burstDmg}血量！`);
+      addFloater(battle, sideOf(battle, target), "血崩");
+    }
   }
   if (skill.debuff === "poison" && skill.style === "poison") {
     const cap = getDebuffCap(run, weapon, "poison");
     target.poison = Math.min(cap, target.poison + stacks);
+    // 25层中毒引爆
+    if (target.poison >= 25) {
+      const hpDmg = Math.floor(target.hp * 0.075);
+      const qiDmg = Math.floor(target.qi * 0.075);
+      target.hp = Math.max(0, target.hp - hpDmg);
+      target.qi = Math.max(0, target.qi - qiDmg);
+      target.poison -= 25;
+      battleLog(battle, `毒素爆发！${target.name}毒发攻心，扣除${hpDmg}血量、${qiDmg}内力！`);
+      addFloater(battle, sideOf(battle, target), "毒爆");
+    }
   }
   if (skill.debuff === "inner" && skill.style === "qiBreak") {
     const cap = getDebuffCap(run, weapon, "inner");
@@ -768,6 +789,19 @@ function applySkillEffects(run, battle, actor, target, skill, damage) {
     const collapse = Math.max(18, Math.floor(damage * 0.22 * boost));
     target.hp = Math.max(0, target.hp - collapse);
     battleLog(battle, `${target.name}内息崩散，额外受到${collapse}伤害。`);
+  }
+  // 虚玄无相功：攻击吸对方5%内力，自身增加等量
+  if (actor === battle.player && run?.activeInternalArts?.length) {
+    run.activeInternalArts.forEach(id => {
+      const art = DATA.internalArts[id];
+      if (art?.combatEffect === "stealQi" && target.qi > 0) {
+        const drainAmt = Math.max(1, Math.floor(target.qi * 0.05));
+        const actual = Math.min(drainAmt, target.qi);
+        target.qi -= actual;
+        actor.qi = Math.min(actor.stats.qi, actor.qi + actual);
+        battleLog(battle, `【虚玄无相功】${actor.name}吸取${target.name}内力${actual}点。`);
+      }
+    });
   }
   if (skill.style === "steal" && actor === battle.player) {
     // 每己方回合最多1次
@@ -955,6 +989,7 @@ function trueDamageBonus(run, skill) {
   const weapon = run.equippedWeapon ? DATA.weapons[run.equippedWeapon] : null;
   if (weapon && weapon.school === "lightness" && weapon.style === "lowKick") value += weapon.trueDamageBonus || 0;
   if (hasStyleMastery(run, skill.style)) value += 30;
+  if (skill.trueDamage) value += skill.trueDamage;
   return value;
 }
 
@@ -1059,11 +1094,6 @@ function endActorTurn(run, battle, actor) {
   if (actor.guard) actor.guard = 0;
   if (actor === battle.player) {
     battle.palmChainCount = 0;
-    // 无相秘甲回合递减
-    if (battle.wuxiangTurns > 0) {
-      battle.wuxiangTurns--;
-      if (battle.wuxiangTurns <= 0) battle.immuneNewDebuffs = false;
-    }
     actor.cleanseShield = Math.max(0, (actor.cleanseShield || 0) - 0.5);
   }
   actor.gauge = 0;

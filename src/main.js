@@ -45,7 +45,7 @@ import {
 } from "./systems/battleSystem.js";
 
 // ── Toast 系统：独立 DOM 元素，不受 renderApp 重建影响 ──
-// 堆叠模式：新 toast 不替换旧 toast，上推叠加，最多同时显示 3 条
+// 堆叠模式：最多同时显示 2 条，间距 32px
 let _toastEls = [];
 let _toastTimers = [];
 let _lastToast = "";
@@ -62,8 +62,8 @@ function showBattleTaunt(battle, rotVal) {
   if (!battle?.tauntText || battle === _lastTauntBattle) return;
   _lastTauntBattle = battle;
 
-  // 清理超过 3 条时移除最旧的
-  while (_toastEls.length >= 3) {
+  // 清理超过 2 条时移除最旧的
+  while (_toastEls.length >= 2) {
     const old = _toastEls.shift();
     if (old) old.remove();
     const oldT = _toastTimers.shift();
@@ -72,7 +72,7 @@ function showBattleTaunt(battle, rotVal) {
 
   // 将已有 toast 上移
   _toastEls.forEach((el, i) => {
-    el.style.bottom = `${16 + (i + 1) * 48}px`;
+    el.style.bottom = `${16 + (i + 1) * 32}px`;
   });
 
   const el = document.createElement("div");
@@ -90,7 +90,7 @@ function showBattleTaunt(battle, rotVal) {
       _toastEls.splice(idx, 1);
       _toastTimers.splice(idx, 1);
       _toastEls.forEach((e, i) => {
-        e.style.bottom = `${16 + i * 48}px`;
+        e.style.bottom = `${16 + i * 32}px`;
       });
     }
   }, 1000);
@@ -113,12 +113,12 @@ function render() {
   const appHasRot = app?.style.transform?.includes("rotate(90deg)");
   const rotVal = appHasRot ? "90deg" : "0deg";
 
-  // Toast：挂到 document.body，堆叠模式——新 toast 上推旧 toast，同时可见
+  // Toast：挂到 document.body，最多 2 条堆叠
   if (state.toast && state.toast !== _lastToast) {
     _lastToast = state.toast;
 
-    // 清理超过 3 条时移除最旧的
-    while (_toastEls.length >= 3) {
+    // 清理超过 2 条时移除最旧的
+    while (_toastEls.length >= 2) {
       const old = _toastEls.shift();
       if (old) old.remove();
       const oldT = _toastTimers.shift();
@@ -127,7 +127,7 @@ function render() {
 
     // 将已有 toast 上移
     _toastEls.forEach((el, i) => {
-      el.style.bottom = `${16 + (i + 1) * 48}px`;
+      el.style.bottom = `${16 + (i + 1) * 32}px`;
     });
 
     // 创建新 toast（最底部，后续被上推）
@@ -136,6 +136,9 @@ function render() {
     el.textContent = state.toast;
     el.style.setProperty("--rot", rotVal);
     el.style.bottom = "16px";
+    el.style.maxHeight = "2.4em";
+    el.style.overflow = "hidden";
+    el.style.lineHeight = "1.2em";
     document.body.appendChild(el);
     _toastEls.push(el);
 
@@ -147,7 +150,7 @@ function render() {
         _toastTimers.splice(idx, 1);
         // 重新排列剩余 toast
         _toastEls.forEach((e, i) => {
-          e.style.bottom = `${16 + i * 48}px`;
+          e.style.bottom = `${16 + i * 32}px`;
         });
       }
       state.toast = "";

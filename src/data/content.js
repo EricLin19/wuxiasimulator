@@ -54,11 +54,11 @@ function skill(id, name, school, rarity, power, qi, cd, train, debuff, debuffSta
   return { id, name, icon: icon || SCHOOLS[school].icon, school, rarity, power, qi, cd, train, debuff, debuffStacks, tags, statGain, trait, desc: trait.desc, battle: school !== "lightness" };
 }
 
-function qinggong(id, name, rarity, train, statGain, trait) {
+function qinggong(id, name, rarity, train, statGain, trait, trueDamage) {
   const power = rarity === "red" ? 170 : rarity === "orange" ? 110 : 62;
   const qi = rarity === "red" ? 125 : rarity === "orange" ? 78 : 42;
   const cd = rarity === "red" ? 3 : rarity === "orange" ? 2 : 1;
-  return { id, name, icon: SCHOOLS.lightness.icon, school: "lightness", rarity, power, qi, cd, train, debuff: null, debuffStacks: 0, tags: ["leg"], statGain, trait, desc: trait.desc, battle: true };
+  return { id, name, icon: SCHOOLS.lightness.icon, school: "lightness", rarity, power, qi, cd, train, debuff: null, debuffStacks: 0, tags: ["leg"], statGain, trait, desc: trait.desc, battle: true, trueDamage: trueDamage || 0 };
 }
 
 export const DATA = {
@@ -78,14 +78,14 @@ export const DATA = {
   skills: {
     // === 基础招式（角色自带）===
     mixedFist: skill("mixedFist", "断脉乱拳", "fist", "blue", 60, 40, 1, 3, "inner", 1, ["combo"], gain(2, 0, 0, 1, 0), { id: "roughChain", name: "乱拳连环", desc: "连击+2，暴击+1。", effects: { combo: 2, crit: 1 } }),
-    quickSlash: skill("quickSlash", "雁门快刀", "blade", "blue", 55, 45, 1, 3, "bleed", 1, ["crit"], gain(0, 0, 0, 2, 0, 0, 0, 0, 0), { id: "quickEdge", name: "快刃", desc: "暴击+2，出手速度+0.03。", effects: { crit: 2, speed: 0.03 } }),
+    quickSlash: skill("quickSlash", "雁门快刀", "blade", "blue", 55, 45, 1, 3, "bleed", 2, ["crit"], gain(0, 0, 0, 2, 0, 0, 0, 0, 0), { id: "quickEdge", name: "快刃", desc: "暴击+2，出手速度+0.03。", effects: { crit: 2, speed: 0.03 } }),
     shadowSting: skill("shadowSting", "影蛊刺", "hidden", "blue", 58, 45, 1, 3, "gu", 1, ["surehit"], gain(0, 2, 0, 0, 0, 0, 0, 0, 0), { id: "shadowStep", name: "影步", desc: "命中+2，出手速度+0.03。", effects: { hit: 2, speed: 0.03 } }),
-    springNeedle: skill("springNeedle", "青囊毒针", "hidden", "blue", 42, 45, 2, 3, "poison", 1, ["surehit", "heal"], gain(0, 2, 0, 0, 0, 0, 0, 0, 0), { id: "needleSense", name: "针感", desc: "命中+2，出手速度+0.03。", effects: { hit: 2, speed: 0.03 } }),
+    springNeedle: skill("springNeedle", "青囊毒针", "hidden", "blue", 42, 45, 2, 3, "poison", 2, ["surehit", "heal"], gain(0, 2, 0, 0, 0, 0, 0, 0, 0), { id: "needleSense", name: "针感", desc: "命中+2，出手速度+0.03。", effects: { hit: 2, speed: 0.03 } }),
 
     // === 刀法 ===
     // 流血路线: quickSlash(基础) -> blade_orange_1(进阶) -> blade_red_1(终极)
-    blade_orange_1: skill("blade_orange_1", "燃木刀法", "blade", "orange", 118, 85, 2, 4, "bleed", 3, ["crit"], gain(0, 1, 0, 5, 0, 0, 0, 0, 0), { id: "burningEdge", name: "烈焰刀意", desc: "命中+1，暴击+5，出手速度+0.05。", effects: { hit: 1, crit: 5, speed: 0.05 } }),
-    blade_red_1: skill("blade_red_1", "饮血封喉刀", "blade", "red", 180, 135, 3, 5, "bleed", 5, ["crit"], gain(0, 2, 1, 9, 0, 0, 0, 0, 0), { id: "bloodSeal", name: "血刃封喉", desc: "暴击+9，命中+2，闪避+1，出手速度+0.08，暴击倍率提高。", effects: { hit: 2, dodge: 1, crit: 9, speed: 0.08, critPower: 0.25 } }),
+    blade_orange_1: skill("blade_orange_1", "燃木刀法", "blade", "orange", 118, 85, 2, 4, "bleed", 5, ["crit"], gain(0, 1, 0, 5, 0, 0, 0, 0, 0), { id: "burningEdge", name: "烈焰刀意", desc: "命中+1，暴击+5，出手速度+0.05。", effects: { hit: 1, crit: 5, speed: 0.05 } }),
+    blade_red_1: skill("blade_red_1", "饮血封喉刀", "blade", "red", 180, 135, 3, 5, "bleed", 10, ["crit"], gain(0, 2, 1, 9, 0, 0, 0, 0, 0), { id: "bloodSeal", name: "血刃封喉", desc: "暴击+9，命中+2，闪避+1，出手速度+0.08，暴击倍率提高。", effects: { hit: 2, dodge: 1, crit: 9, speed: 0.08, critPower: 0.25 } }),
     // 寒冰路线: blade_blue_2(基础) -> blade_orange_2(进阶) -> blade_red_2(终极)
     blade_blue_2: skill("blade_blue_2", "寒枝刀", "blade", "blue", 62, 38, 1, 3, "frost", 1, ["crit"], gain(0, 1, 0, 2, 0, 0, 0, 0, 0), { id: "woodcutter", name: "寒枝挂霜", desc: "命中+1，暴击+2，出手速度+0.04。", effects: { hit: 1, crit: 2, speed: 0.04 } }),
     blade_orange_2: skill("blade_orange_2", "雪岭刀", "blade", "orange", 105, 75, 2, 4, "frost", 2, ["crit"], gain(0, 0, 1, 5, 0, 0, 0, 0, 0), { id: "snowRidge", name: "雪岭留痕", desc: "暴击+5，闪避+1，出手速度+0.04。", effects: { dodge: 1, crit: 5, speed: 0.04 } }),
@@ -97,8 +97,8 @@ export const DATA = {
 
     // === 暗器 ===
     // 淬毒路线: springNeedle(基础) -> hidden_orange_1(进阶) -> hidden_red_1(终极)
-    hidden_orange_1: skill("hidden_orange_1", "冰魄毒针", "hidden", "orange", 95, 80, 2, 4, "poison", 3, ["surehit"], gain(0, 6, 1, 0, 0, 0, 0, 0, 0), { id: "icePoison", name: "寒毒入脉", desc: "命中+6，闪避+1，出手速度+0.04。", effects: { hit: 6, dodge: 1, speed: 0.04 } }),
-    hidden_red_1: skill("hidden_red_1", "孔雀毒翎", "hidden", "red", 155, 130, 3, 5, "poison", 5, ["surehit"], gain(0, 10, 2, 2, 0, 0, 0, 0, 0), { id: "peacockPlume", name: "万羽齐发", desc: "命中+10，闪避+2，暴击+2，出手速度+0.08，中毒更深。", effects: { hit: 10, dodge: 2, crit: 2, speed: 0.08, poisonBonus: 1 } }),
+    hidden_orange_1: skill("hidden_orange_1", "冰魄毒针", "hidden", "orange", 95, 80, 2, 4, "poison", 5, ["surehit"], gain(0, 6, 1, 0, 0, 0, 0, 0, 0), { id: "icePoison", name: "寒毒入脉", desc: "命中+6，闪避+1，出手速度+0.04。", effects: { hit: 6, dodge: 1, speed: 0.04 } }),
+    hidden_red_1: skill("hidden_red_1", "孔雀毒翎", "hidden", "red", 155, 130, 3, 5, "poison", 10, ["surehit"], gain(0, 10, 2, 2, 0, 0, 0, 0, 0), { id: "peacockPlume", name: "万羽齐发", desc: "命中+10，闪避+2，暴击+2，出手速度+0.08，中毒更深。", effects: { hit: 10, dodge: 2, crit: 2, speed: 0.08, poisonBonus: 1 } }),
     // 下蛊路线: shadowSting(基础) -> hidden_orange_2(进阶) -> hidden_red_2(终极)
     hidden_orange_2: skill("hidden_orange_2", "生死蛊符", "hidden", "orange", 88, 90, 2, 4, "gu", 2, ["surehit"], gain(0, 5, 0, 1, 0, 0, 0, 0, 0), { id: "lifeTalisman", name: "符入骨髓", desc: "命中+5，暴击+1，出手速度+0.06。", effects: { hit: 5, crit: 1, speed: 0.06 } }),
     hidden_red_2: skill("hidden_red_2", "九窍蛊针", "hidden", "red", 145, 125, 3, 5, "gu", 4, ["surehit"], gain(0, 9, 2, 1, 0, 0, 0, 0, 0), { id: "nineGu", name: "九窍封息", desc: "命中+9，闪避+2，暴击+1，出手速度+0.07。", effects: { hit: 9, dodge: 2, crit: 1, speed: 0.07 } }),
@@ -113,9 +113,9 @@ export const DATA = {
     fist_orange_1: skill("fist_orange_1", "排云掌", "fist", "orange", 120, 90, 2, 4, "inner", 2, ["combo", "threeWaves"], gain(6, 1, 0, 3, 0), { id: "vajraPalm", name: "排云叠劲", desc: "连击+6，命中+1，暴击+3。", effects: { combo: 6, hit: 1, crit: 3 } }),
     fist_red_1: skill("fist_red_1", "惊涛掌", "fist", "red", 190, 145, 3, 5, "inner", 4, ["combo", "threeWaves"], gain(9, 2, 0, 5, 0), { id: "dragonPalm", name: "惊涛拍岸", desc: "连击+9，命中+2，暴击+5，暴击倍率提高。", effects: { combo: 9, hit: 2, crit: 5, critPower: 0.35 } }),
     // 暴击路线: fist_blue_3(基础) -> fist_orange_2(进阶) -> fist_red_2(终极)
-    fist_blue_3: skill("fist_blue_3", "太祖长拳", "fist", "blue", 58, 35, 1, 3, "inner", 1, ["combo"], gain(5, 1, 0, 0, 0), { id: "founderFist", name: "拳路绵密", desc: "连击+5，命中+1。", effects: { combo: 5, hit: 1 } }),
-    fist_orange_2: skill("fist_orange_2", "黯然掌", "fist", "orange", 105, 85, 2, 4, "inner", 3, ["combo"], gain(7, 0, 1, 2, 0), { id: "sadPalm", name: "情至无声", desc: "连击+7，闪避+1，暴击+2。", effects: { combo: 7, dodge: 1, crit: 2 } }),
-    fist_red_2: skill("fist_red_2", "碎星拳", "fist", "red", 178, 135, 3, 5, "inner", 3, ["combo"], gain(8, 2, 0, 9, 0), { id: "starCrush", name: "碎星暴劲", desc: "暴击+9，命中+2，连击+8，暴击倍率提高。", effects: { combo: 8, hit: 2, crit: 9, critPower: 0.3 } }),
+    fist_blue_3: skill("fist_blue_3", "太祖长拳", "fist", "blue", 58, 35, 1, 3, "inner", 1, ["combo"], gain(0, 0, 0, 5, 0), { id: "founderFist", name: "拳路刚猛", desc: "暴击+5。", effects: { crit: 5 } }),
+    fist_orange_2: skill("fist_orange_2", "黯魂掌", "fist", "orange", 105, 85, 2, 4, "inner", 3, ["combo"], gain(0, 0, 0, 10, 0), { id: "sadPalm", name: "黯魂夺魄", desc: "暴击+10，暴击倍率+0.5。", effects: { crit: 10, critPower: 0.5 } }),
+    fist_red_2: skill("fist_red_2", "碎星拳", "fist", "red", 178, 135, 3, 5, "inner", 3, ["combo"], gain(0, 0, 0, 20, 0), { id: "starCrush", name: "碎星暴劲", desc: "暴击+20，暴击倍率+1.5。", effects: { crit: 20, critPower: 1.5 } }),
     // 断脉路线: mixedFist(基础) -> fist_orange_3(进阶) -> fist_red_3(终极)
     fist_orange_3: skill("fist_orange_3", "截脉掌", "fist", "orange", 108, 82, 2, 4, "inner", 3, ["combo"], gain(5, 2, 0, 2, 0), { id: "cutMeridian", name: "截脉断息", desc: "连击+5，命中+2，暴击+2。", effects: { combo: 5, hit: 2, crit: 2 } }),
     fist_red_3: skill("fist_red_3", "断海掌", "fist", "red", 168, 130, 3, 5, "inner", 5, ["combo"], gain(8, 3, 0, 4, 0), { id: "seaBreak", name: "断海截息", desc: "连击+8，命中+3，暴击+4。", effects: { combo: 8, hit: 3, crit: 4 } }),
@@ -126,9 +126,9 @@ export const DATA = {
     light_orange_1: qinggong("light_orange_1", "游龙腿", "orange", 4, gain(0, 1, 7, 0, 0.12), { id: "manySteps", name: "百变身法", desc: "命中+1，闪避+7，出手速度+0.12。", effects: { hit: 1, dodge: 7, speed: 0.12 } }),
     light_red_1: qinggong("light_red_1", "凌波腿", "red", 5, gain(0, 2, 12, 0, 0.18), { id: "lingbo", name: "步生波纹", desc: "命中+2，闪避+12，出手速度+0.18。", effects: { hit: 2, dodge: 12, speed: 0.18 } }),
     // 下盘路线: light_blue_2(基础) -> light_orange_2(进阶) -> light_red_2(终极)
-    light_blue_2: qinggong("light_blue_2", "扫堂腿", "blue", 3, gain(0, 0, 4, 0, 0.06), { id: "swallowStep", name: "燕影回环", desc: "闪避+4，出手速度+0.06。", effects: { dodge: 4, speed: 0.06 } }),
-    light_orange_2: qinggong("light_orange_2", "盘龙腿", "orange", 4, gain(0, 0, 8, 0, 0.10), { id: "cloudLadder", name: "盘根折势", desc: "闪避+8，出手速度+0.10。", effects: { dodge: 8, speed: 0.1 } }),
-    light_red_2: qinggong("light_red_2", "碎岳沉桩腿", "red", 5, gain(0, 4, 3, 4, 0.08), { id: "mountainKick", name: "碎岳真劲", desc: "命中+4，闪避+3，暴击+4，出手速度+0.08。", effects: { hit: 4, dodge: 3, crit: 4, speed: 0.08 } }),
+    light_blue_2: qinggong("light_blue_2", "扫堂腿", "blue", 3, gain(0, 0, 4, 0, 0.06), { id: "swallowStep", name: "燕影回环", desc: "闪避+4，出手速度+0.06，真伤50。", effects: { dodge: 4, speed: 0.06 } }, 50),
+    light_orange_2: qinggong("light_orange_2", "盘龙腿", "orange", 4, gain(0, 0, 8, 0, 0.10), { id: "cloudLadder", name: "盘根折势", desc: "闪避+8，出手速度+0.10，真伤200。", effects: { dodge: 8, speed: 0.1 } }, 200),
+    light_red_2: qinggong("light_red_2", "碎岳沉桩腿", "red", 5, gain(0, 4, 3, 4, 0.08), { id: "mountainKick", name: "碎岳真劲", desc: "命中+4，闪避+3，暴击+4，出手速度+0.08，真伤500。", effects: { hit: 4, dodge: 3, crit: 4, speed: 0.08 } }, 500),
     // 偷盗路线: light_blue_3(基础) -> light_orange_3(进阶) -> light_red_3(终极)
     light_blue_3: qinggong("light_blue_3", "探囊腿", "blue", 3, gain(0, 1, 2, 0, 0.08), { id: "eightSteps", name: "步步抢先", desc: "命中+1，闪避+2，出手速度+0.08。", effects: { hit: 1, dodge: 2, speed: 0.08 } }),
     light_orange_3: qinggong("light_orange_3", "飞檐探云腿", "orange", 4, gain(0, 2, 4, 2, 0.16), { id: "cloudThief", name: "探云取利", desc: "命中+2，闪避+4，暴击+2，出手速度+0.16。", effects: { hit: 2, dodge: 4, crit: 2, speed: 0.16 } }),
@@ -169,9 +169,9 @@ export const DATA = {
   // 武器：按路线×品质拆分
   weapons: {
     // === 刀法 ===
-    blade_bleed_blue: { id: "blade_bleed_blue", name: "饮血雁翎刀", icon: "刀", school: "blade", rarity: "blue", style: "bleed", price: 260, atk: 12, desc: "流血刀。流血+1，流血上限+1。", debuffBonus: 1, bleedCapBonus: 1 },
-    blade_bleed_orange: { id: "blade_bleed_orange", name: "裂血长刀", icon: "刀", school: "blade", rarity: "orange", style: "bleed", price: 520, atk: 28, desc: "流血刀。流血+2，流血伤害+15%。", debuffBonus: 2, bleedDmgPct: 15 },
-    blade_bleed_red: { id: "blade_bleed_red", name: "血河断刃", icon: "刀", school: "blade", rarity: "red", style: "bleed", price: 980, atk: 58, desc: "流血刀。流血+4，流血上限+3，终极流血刀引爆伤害+25%。", debuffBonus: 4, bleedCapBonus: 3, bleedBurstPct: 25 },
+    blade_bleed_blue: { id: "blade_bleed_blue", name: "饮血雁翎刀", icon: "刀", school: "blade", rarity: "blue", style: "bleed", price: 260, atk: 12, desc: "流血刀。流血+2。", debuffBonus: 2 },
+    blade_bleed_orange: { id: "blade_bleed_orange", name: "裂血长刀", icon: "刀", school: "blade", rarity: "orange", style: "bleed", price: 520, atk: 28, desc: "流血刀。流血+5，流血伤害+15%。", debuffBonus: 5, bleedDmgPct: 15 },
+    blade_bleed_red: { id: "blade_bleed_red", name: "血河断刃", icon: "刀", school: "blade", rarity: "red", style: "bleed", price: 980, atk: 58, desc: "流血刀。流血+10，流血上限+3，终极流血刀引爆伤害+25%。", debuffBonus: 10, bleedCapBonus: 3, bleedBurstPct: 25 },
 
     blade_frost_blue: { id: "blade_frost_blue", name: "霜刃刀", icon: "刀", school: "blade", rarity: "blue", style: "frost", price: 260, atk: 12, desc: "寒冰刀。寒气+1。", frostBonus: 1 },
     blade_frost_orange: { id: "blade_frost_orange", name: "玄霜刀", icon: "刀", school: "blade", rarity: "orange", style: "frost", price: 520, atk: 28, desc: "寒冰刀。寒气+2，削内+15。", frostBonus: 2, qiBreakBonus: 15 },
@@ -187,8 +187,8 @@ export const DATA = {
     fist_combo_red: { id: "fist_combo_red", name: "惊浪拳套", icon: "拳", school: "fist", rarity: "red", style: "combo", price: 980, atk: 58, desc: "连击掌。连击+18，三叠浪额外出掌上限+1。", comboBonus: 18, palmChainBonus: 1 },
 
     fist_crit_blue: { id: "fist_crit_blue", name: "炽星拳套", icon: "拳", school: "fist", rarity: "blue", style: "critPalm", price: 260, atk: 12, desc: "暴击掌。暴击+4。", critBonus: 4 },
-    fist_crit_orange: { id: "fist_crit_orange", name: "纯阳拳甲", icon: "拳", school: "fist", rarity: "orange", style: "critPalm", price: 520, atk: 28, desc: "暴击掌。暴击+7，暴伤+0.2。", critBonus: 7, critPower: 0.2 },
-    fist_crit_red: { id: "fist_crit_red", name: "碎星拳套", icon: "拳", school: "fist", rarity: "red", style: "critPalm", price: 980, atk: 58, desc: "暴击掌。暴击+12，暴伤+0.35。", critBonus: 12, critPower: 0.35 },
+    fist_crit_orange: { id: "fist_crit_orange", name: "纯阳拳甲", icon: "拳", school: "fist", rarity: "orange", style: "critPalm", price: 520, atk: 28, desc: "暴击掌。暴击+8，暴伤+0.5。", critBonus: 8, critPower: 0.5 },
+    fist_crit_red: { id: "fist_crit_red", name: "碎星拳套", icon: "拳", school: "fist", rarity: "red", style: "critPalm", price: 980, atk: 58, desc: "暴击掌。暴击+16，暴伤+1。", critBonus: 16, critPower: 1 },
 
     fist_qibreak_blue: { id: "fist_qibreak_blue", name: "破劲拳套", icon: "拳", school: "fist", rarity: "blue", style: "qiBreak", price: 260, atk: 12, desc: "断脉掌。削内+8。", qiBreakBonus: 8 },
     fist_qibreak_orange: { id: "fist_qibreak_orange", name: "截脉臂甲", icon: "腕", school: "fist", rarity: "orange", style: "qiBreak", price: 520, atk: 28, desc: "断脉掌。削内+18。", qiBreakBonus: 18 },
@@ -199,9 +199,9 @@ export const DATA = {
     hidden_gu_orange: { id: "hidden_gu_orange", name: "夺魂针盒", icon: "镖", school: "hidden", rarity: "orange", style: "gu", price: 520, atk: 24, desc: "下蛊暗器。蛊+2，耗内增加。", guBonus: 2, guQiBonus: 1 },
     hidden_gu_red: { id: "hidden_gu_red", name: "九窍蛊匣", icon: "镖", school: "hidden", rarity: "red", style: "gu", price: 980, atk: 50, desc: "下蛊暗器。蛊+4，蛊上限+2。", guBonus: 4, guCapBonus: 2 },
 
-    hidden_poison_blue: { id: "hidden_poison_blue", name: "淬毒针匣", icon: "镖", school: "hidden", rarity: "blue", style: "poison", price: 260, atk: 10, desc: "淬毒暗器。毒+1。", poisonBonus: 1 },
-    hidden_poison_orange: { id: "hidden_poison_orange", name: "淬毒银针", icon: "镖", school: "hidden", rarity: "orange", style: "poison", price: 520, atk: 24, desc: "淬毒暗器。毒+2，毒伤+15%。", poisonBonus: 2, poisonDmgPct: 15 },
-    hidden_poison_red: { id: "hidden_poison_red", name: "孔雀毒匣", icon: "镖", school: "hidden", rarity: "red", style: "poison", price: 980, atk: 50, desc: "淬毒暗器。毒+4，毒上限+3。", poisonBonus: 4, poisonCapBonus: 3 },
+    hidden_poison_blue: { id: "hidden_poison_blue", name: "淬毒针匣", icon: "镖", school: "hidden", rarity: "blue", style: "poison", price: 260, atk: 10, desc: "淬毒暗器。毒+2。", poisonBonus: 2 },
+    hidden_poison_orange: { id: "hidden_poison_orange", name: "淬毒银针", icon: "镖", school: "hidden", rarity: "orange", style: "poison", price: 520, atk: 24, desc: "淬毒暗器。毒+5，毒伤+15%。", poisonBonus: 5, poisonDmgPct: 15 },
+    hidden_poison_red: { id: "hidden_poison_red", name: "孔雀毒匣", icon: "镖", school: "hidden", rarity: "red", style: "poison", price: 980, atk: 50, desc: "淬毒暗器。毒+10，毒上限+3。", poisonBonus: 10, poisonCapBonus: 3 },
 
     hidden_coin_blue: { id: "hidden_coin_blue", name: "金钱飞镖", icon: "镖", school: "hidden", rarity: "blue", style: "coin", price: 260, atk: 10, desc: "金钱暗器。金钱伤害+40。", coinDamageBonus: 40 },
     hidden_coin_orange: { id: "hidden_coin_orange", name: "贯钱镖", icon: "镖", school: "hidden", rarity: "orange", style: "coin", price: 520, atk: 24, desc: "金钱暗器。金钱伤害+120。", coinDamageBonus: 120 },
@@ -212,9 +212,9 @@ export const DATA = {
     leg_evasive_orange: { id: "leg_evasive_orange", name: "游龙靴", icon: "腿", school: "lightness", rarity: "orange", style: "evasive", price: 520, atk: 24, desc: "高闪避腿法。闪避+8，闪避回息提高。", dodgeBonus: 8, evasiveBoost: 1 },
     leg_evasive_red: { id: "leg_evasive_red", name: "踏浪战靴", icon: "腿", school: "lightness", rarity: "red", style: "evasive", price: 980, atk: 50, desc: "高闪避腿法。闪避+14，闪避收益每回合上限+1。", dodgeBonus: 14, evasiveCapBonus: 1 },
 
-    leg_low_blue: { id: "leg_low_blue", name: "破门靴", icon: "腿", school: "lightness", rarity: "blue", style: "lowKick", price: 260, atk: 10, desc: "下盘腿法。真伤+25。", trueDamageBonus: 25 },
-    leg_low_orange: { id: "leg_low_orange", name: "压山靴", icon: "腿", school: "lightness", rarity: "orange", style: "lowKick", price: 520, atk: 24, desc: "下盘腿法。真伤+90。", trueDamageBonus: 90 },
-    leg_low_red: { id: "leg_low_red", name: "断岳沉步靴", icon: "腿", school: "lightness", rarity: "red", style: "lowKick", price: 980, atk: 50, desc: "下盘腿法。真伤+220。", trueDamageBonus: 220 },
+    leg_low_blue: { id: "leg_low_blue", name: "破门靴", icon: "腿", school: "lightness", rarity: "blue", style: "lowKick", price: 260, atk: 10, desc: "下盘腿法。真伤+50。", trueDamageBonus: 50 },
+    leg_low_orange: { id: "leg_low_orange", name: "压山靴", icon: "腿", school: "lightness", rarity: "orange", style: "lowKick", price: 520, atk: 24, desc: "下盘腿法。真伤+200。", trueDamageBonus: 200 },
+    leg_low_red: { id: "leg_low_red", name: "断岳沉步靴", icon: "腿", school: "lightness", rarity: "red", style: "lowKick", price: 980, atk: 50, desc: "下盘腿法。真伤+500。", trueDamageBonus: 500 },
 
     leg_steal_blue: { id: "leg_steal_blue", name: "盗影靴", icon: "腿", school: "lightness", rarity: "blue", style: "steal", price: 260, atk: 10, desc: "偷盗腿法。速度+0.04，偷钱+10。", speedBonus: 0.04, moneyBonus: 10 },
     leg_steal_orange: { id: "leg_steal_orange", name: "飞檐靴", icon: "腿", school: "lightness", rarity: "orange", style: "steal", price: 520, atk: 24, desc: "偷盗腿法。速度+0.08，偷钱+35。", speedBonus: 0.08, moneyBonus: 35 },
@@ -225,11 +225,11 @@ export const DATA = {
     armor_light_blue: { id: "armor_light_blue", name: "青布护身衣", icon: "衣", rarity: "blue", price: 220, hp: 160, def: 5, desc: "轻便护甲。速度+0.02。", speedBonus: 0.02 },
     armor_mid_blue: { id: "armor_mid_blue", name: "铁线软甲", icon: "甲", rarity: "blue", price: 260, hp: 190, def: 6, desc: "软铁编织护甲。闪避+2。", dodgeBonus: 2 },
     armor_heavy_blue: { id: "armor_heavy_blue", name: "硬布背心", icon: "甲", rarity: "blue", price: 240, hp: 220, def: 7, desc: "厚布硬衬背心。", dodgeBonus: 0 },
-    armor_light_orange: { id: "armor_light_orange", name: "游云轻甲", icon: "衣", rarity: "orange", price: 480, hp: 360, def: 10, desc: "如云轻盈的护甲。速度+0.05。", speedBonus: 0.05 },
+    armor_light_orange: { id: "armor_light_orange", name: "游云轻甲", icon: "衣", rarity: "orange", price: 480, hp: 360, def: 10, desc: "如云轻盈的护甲。速度+0.10。", speedBonus: 0.10 },
     armor_heavy_orange: { id: "armor_heavy_orange", name: "玄铁胸甲", icon: "甲", rarity: "orange", price: 580, hp: 520, def: 14, desc: "厚重玄铁。暴击伤害降低15%。", critReduce: 0.15 },
     armor_guard_orange: { id: "armor_guard_orange", name: "护心鳞甲", icon: "甲", rarity: "orange", price: 520, hp: 440, def: 12, desc: "护心镜鳞甲。低于30%血时直接伤害-20%。", lowHpGuard: 0.2, lowHpThreshold: 0.3 },
     armor_dragon_red: { id: "armor_dragon_red", name: "龙鳞重甲", icon: "甲", rarity: "red", price: 980, hp: 1080, def: 20, desc: "龙鳞所铸重甲。战斗开始获得30%最大血量护体，每场一次。", dragonGuard: 0.3 },
-    armor_wuxiang_red: { id: "armor_wuxiang_red", name: "无相秘甲", icon: "衣", rarity: "red", price: 920, hp: 840, def: 18, desc: "无形无相。每场战斗前三个己方回合免疫新负面状态，不清已有负面。", immuneTurns: 3 },
+    armor_wuxiang_red: { id: "armor_wuxiang_red", name: "无相秘甲", icon: "衣", rarity: "red", price: 920, hp: 840, def: 18, desc: "无形无相。受到攻击时反弹25%伤害。", reflect: 0.25 },
     armor_tianheng_red: { id: "armor_tianheng_red", name: "天衡御心甲", icon: "甲", rarity: "red", price: 960, hp: 900, def: 22, desc: "御心之力。低于25%血时直接伤害-50%，持续伤害-25%。", lowHpGuard: 0.5, dotReduce: 0.25, lowHpThreshold: 0.25 }
   },
   enemies: [
@@ -393,7 +393,7 @@ export const INTERNAL_ARTS = {
   art_blue_6: { id: "art_blue_6", name: "龙象锻骨功", rarity: "blue", icon: "象", cultivateCost: 3, desc: "锻骨炼体，力大无穷。血量+150，攻击+7。", statGain: { hp: 150, atk: 7 } },
   art_blue_7: { id: "art_blue_7", name: "先天归元功", rarity: "blue", icon: "先", cultivateCost: 3, desc: "归元守一，内息绵绵。内力+70，命中+5，每回合恢复6%最大内力（上限10%）。", statGain: { qi: 70, hit: 5 }, combatEffect: "qiRegen", combatDesc: "每回合恢复6%最大内力" },
   art_blue_8: { id: "art_blue_8", name: "葵影残篇", rarity: "blue", icon: "葵", cultivateCost: 3, desc: "残卷仅有速功心法。闪避+6，出手速度+0.18。", statGain: { dodge: 6, speed: 0.18 } },
-  art_orange_1: { id: "art_orange_1", name: "虚玄无相功", rarity: "orange", icon: "相", cultivateCost: 4, desc: "无形无相，气随意转。内力+110，连击+6，招式内力消耗-30%（降耗最高40%）。", statGain: { qi: 110, combo: 6 }, combatEffect: "qiReduce", combatDesc: "所有招式内力消耗-30%" },
+  art_orange_1: { id: "art_orange_1", name: "虚玄无相功", rarity: "orange", icon: "相", cultivateCost: 4, desc: "无形无相，气随意转。内力+110，连击+6，每次攻击吸取对方5%内力，自己增加等量内力。", statGain: { qi: 110, combo: 6 }, combatEffect: "stealQi", combatDesc: "攻击吸5%内力+自身增加等量" },
   art_orange_2: { id: "art_orange_2", name: "纯阳正气诀", rarity: "orange", icon: "阳", cultivateCost: 4, desc: "纯阳之体，正气凛然。血量+300，攻击+10，暴击+4，暴击伤害+150%。", statGain: { hp: 300, atk: 10, crit: 4 }, combatEffect: "critUp", combatDesc: "暴击伤害+150%" },
   art_orange_3: { id: "art_orange_3", name: "玄霜真气", rarity: "orange", icon: "冰", cultivateCost: 4, desc: "玄霜入脉，寒意逼人。血量+180，内力+120，命中附加1层寒气（每己方回合最多1次）。", statGain: { hp: 180, qi: 120 }, combatEffect: "frostOnHit", combatDesc: "攻击/招式命中附加1层寒气（每回合最多1次）" },
   art_orange_4: { id: "art_orange_4", name: "摄元秘法", rarity: "orange", icon: "星", cultivateCost: 4, desc: "夺天地之元。血量+240，内力+100，命中吸取目标8%当前内力（上限40）。", statGain: { hp: 240, qi: 100 }, combatEffect: "drainQi", combatDesc: "攻击时汲取目标8%当前内力（上限40）" },
@@ -824,45 +824,45 @@ DATA.wandererGrowthEvents = {
 // ============================================================
 DATA.wandererMerchantPool = {
   manuals: [
-    { id: "quickSlash", name: "雁门快刀", school: "blade", rarity: "blue", style: "bleed", price: 180, desc: "快刀+流血是绿林散人最实用的打法。雁门快刀据说是边关逃兵带回来的刀法。" },
-    { id: "blade_orange_1", name: "燃木刀法", school: "blade", rarity: "orange", style: "bleed", price: 800, desc: "来自一个被武盟追杀了三年的老刀客。刀势焦灼，伤口更深。" },
-    { id: "blade_red_1", name: "饮血封喉刀", school: "blade", rarity: "red", style: "bleed", price: 2800, desc: "散人中间口耳相传的终极刀法——对手流血的速度就是你的活命时间。" },
-    { id: "fist_blue_3", name: "太祖长拳", school: "fist", rarity: "blue", style: "critPalm", price: 180, desc: "街头斗殴里打出来的拳法，不讲究招式讲究一拳下去对面得趴下。" },
-    { id: "fist_orange_2", name: "黯魂掌", school: "fist", rarity: "orange", style: "critPalm", price: 800, desc: "据传是韩铁衣在龙井谷改良的拳路，出招时带着一股子老子跟你拼命的蛮劲。" },
-    { id: "fist_red_2", name: "碎星拳", school: "fist", rarity: "red", style: "critPalm", price: 2800, desc: "重拳碎星，暴击倍率提高。散人没有门派——拳头就是最后的尊严。" },
-    { id: "springNeedle", name: "青囊毒针", school: "hidden", rarity: "blue", style: "poison", price: 180, desc: "散人没有门派资源，毒是最好的以小博大手段。来自江湖郎中的偏方。" },
-    { id: "hidden_orange_1", name: "冰魄毒针", school: "hidden", rarity: "orange", style: "poison", price: 800, desc: "据说是从武盟刑讯室流出来的配方——他们用来对付我们的，我们用来对付他们。" },
-    { id: "hidden_red_1", name: "孔雀毒翎", school: "hidden", rarity: "red", style: "poison", price: 2800, desc: "毒雨齐发，淬毒暗器终极式。" },
-    { id: "light_blue_2", name: "扫堂腿", school: "lightness", rarity: "blue", style: "lowKick", price: 180, desc: "每个散人都会的打架基本功。" },
-    { id: "light_orange_2", name: "盘龙腿", school: "lightness", rarity: "orange", style: "lowKick", price: 800, desc: "龙井谷一个瘸腿老散人教的——腿断了这辈子跑不了，那就把底盘练稳，谁来踢谁。" },
-    { id: "light_red_2", name: "碎岳沉桩腿", school: "lightness", rarity: "red", style: "lowKick", price: 2800, desc: "核心是站住了就是赢。" }
+    { id: "quickSlash", name: "雁门快刀", school: "blade", rarity: "blue", style: "bleed", price: 200, desc: "快刀+流血是绿林散人最实用的打法。雁门快刀据说是边关逃兵带回来的刀法。" },
+    { id: "blade_orange_1", name: "燃木刀法", school: "blade", rarity: "orange", style: "bleed", price: 500, desc: "来自一个被武盟追杀了三年的老刀客。刀势焦灼，伤口更深。" },
+    { id: "blade_red_1", name: "饮血封喉刀", school: "blade", rarity: "red", style: "bleed", price: 1500, desc: "散人中间口耳相传的终极刀法——对手流血的速度就是你的活命时间。" },
+    { id: "fist_blue_3", name: "太祖长拳", school: "fist", rarity: "blue", style: "critPalm", price: 200, desc: "街头斗殴里打出来的拳法，不讲究招式讲究一拳下去对面得趴下。" },
+    { id: "fist_orange_2", name: "黯魂掌", school: "fist", rarity: "orange", style: "critPalm", price: 600, desc: "据传是韩铁衣在龙井谷改良的拳路，出招时带着一股子老子跟你拼命的蛮劲。" },
+    { id: "fist_red_2", name: "碎星拳", school: "fist", rarity: "red", style: "critPalm", price: 1600, desc: "重拳碎星，暴击倍率提高。散人没有门派——拳头就是最后的尊严。" },
+    { id: "springNeedle", name: "青囊毒针", school: "hidden", rarity: "blue", style: "poison", price: 200, desc: "散人没有门派资源，毒是最好的以小博大手段。来自江湖郎中的偏方。" },
+    { id: "hidden_orange_1", name: "冰魄毒针", school: "hidden", rarity: "orange", style: "poison", price: 500, desc: "据说是从武盟刑讯室流出来的配方——他们用来对付我们的，我们用来对付他们。" },
+    { id: "hidden_red_1", name: "孔雀毒翎", school: "hidden", rarity: "red", style: "poison", price: 1500, desc: "毒雨齐发，淬毒暗器终极式。" },
+    { id: "light_blue_2", name: "扫堂腿", school: "lightness", rarity: "blue", style: "lowKick", price: 200, desc: "每个散人都会的打架基本功。" },
+    { id: "light_orange_2", name: "盘龙腿", school: "lightness", rarity: "orange", style: "lowKick", price: 500, desc: "龙井谷一个瘸腿老散人教的——腿断了这辈子跑不了，那就把底盘练稳，谁来踢谁。" },
+    { id: "light_red_2", name: "碎岳沉桩腿", school: "lightness", rarity: "red", style: "lowKick", price: 1500, desc: "核心是站住了就是赢。" }
   ],
   weapons: [
     { id: "blade_bleed_blue", name: "饮血雁翎刀", school: "blade", rarity: "blue", price: 550 },
     { id: "blade_bleed_orange", name: "裂血长刀", school: "blade", rarity: "orange", price: 1600 },
     { id: "blade_bleed_red", name: "血河断刃", school: "blade", rarity: "red", price: 4500 },
-    { id: "fist_crit_blue", name: "炽星拳套", school: "fist", rarity: "blue", price: 550 },
-    { id: "fist_crit_orange", name: "纯阳拳甲", school: "fist", rarity: "orange", price: 1600 },
-    { id: "fist_crit_red", name: "碎星拳套", school: "fist", rarity: "red", price: 4500 },
-    { id: "hidden_poison_blue", name: "淬毒针匣", school: "hidden", rarity: "blue", price: 450 },
-    { id: "hidden_poison_orange", name: "淬毒银针", school: "hidden", rarity: "orange", price: 1400 },
-    { id: "hidden_poison_red", name: "孔雀毒匣", school: "hidden", rarity: "red", price: 4000 },
-    { id: "leg_low_blue", name: "破门靴", school: "lightness", rarity: "blue", price: 450 },
-    { id: "leg_low_orange", name: "压山靴", school: "lightness", rarity: "orange", price: 1400 },
-    { id: "leg_low_red", name: "断岳沉步靴", school: "lightness", rarity: "red", price: 4000 }
+    { id: "fist_crit_blue", name: "炽星拳套", school: "fist", rarity: "blue", price: 400 },
+    { id: "fist_crit_orange", name: "纯阳拳甲", school: "fist", rarity: "orange", price: 1000 },
+    { id: "fist_crit_red", name: "碎星拳套", school: "fist", rarity: "red", price: 2000 },
+    { id: "hidden_poison_blue", name: "淬毒针匣", school: "hidden", rarity: "blue", price: 400 },
+    { id: "hidden_poison_orange", name: "淬毒银针", school: "hidden", rarity: "orange", price: 1000 },
+    { id: "hidden_poison_red", name: "孔雀毒匣", school: "hidden", rarity: "red", price: 2000 },
+    { id: "leg_low_blue", name: "破门靴", school: "lightness", rarity: "blue", price: 400 },
+    { id: "leg_low_orange", name: "压山靴", school: "lightness", rarity: "orange", price: 1000 },
+    { id: "leg_low_red", name: "断岳沉步靴", school: "lightness", rarity: "red", price: 2000 }
   ],
   armors: [
     { id: "armor_heavy_blue", name: "硬布背心", rarity: "blue", price: 600, desc: "散人的标准防具——粗布层层叠叠缝制，不美观但是实在。" },
-    { id: "armor_light_orange", name: "游云轻甲", rarity: "orange", price: 1500, desc: "据说是一个退役的武盟捕快卖给黑市的——穿上跑得快，跑路的时候派大用场。" },
-    { id: "armor_wuxiang_red", name: "无相秘甲", rarity: "red", price: 4800, desc: "据传来自楚宗玄的私人武库，被孟天衡暗中调包流出来的。" }
+    { id: "armor_light_orange", name: "游云轻甲", rarity: "orange", price: 1200, desc: "据说是一个退役的武盟捕快卖给黑市的——穿上跑得快，跑路的时候派大用场。" },
+    { id: "armor_wuxiang_red", name: "无相秘甲", rarity: "red", price: 2400, desc: "据传来自楚宗玄的私人武库，被孟天衡暗中调包流出来的。" }
   ],
   internalArts: [
-    { id: "art_blue_3", name: "罗汉镇岳功", rarity: "blue", price: 600, desc: "少林叛僧流传出来的站桩功夫，散人没有门派护体，只能靠自己扛。" },
+    { id: "art_blue_3", name: "罗汉镇岳功", rarity: "blue", price: 500, desc: "少林叛僧流传出来的站桩功夫，散人没有门派护体，只能靠自己扛。" },
     { id: "art_blue_4", name: "回照心经", rarity: "blue", price: 500, desc: "江湖药店常配的内功入门——不会这个功法你连毒都扛不住。" },
-    { id: "art_orange_1", name: "虚玄无相功", rarity: "orange", price: 1800, desc: "传说是一个偷遍江南的老贼头创的，内力运转不浪费一丝，真正的省着用。" },
-    { id: "art_orange_2", name: "纯阳正气诀", rarity: "orange", price: 2000, desc: "名字很正派，实则是散人对抗武盟压迫的底气——心中坦荡，气贯长虹。" },
-    { id: "art_red_2", name: "大罗洗髓经", rarity: "red", price: 5000, desc: "来自一个活了两甲子的老散人——洗掉过去的伤，重新站起来的功法。" },
-    { id: "art_red_1", name: "九曜真功", rarity: "red", price: 5000, desc: "孤本，孟天衡从总坛藏书阁偷出来的——他自己没练，因为不想欠武盟的人情。" }
+    { id: "art_orange_1", name: "虚玄无相功", rarity: "orange", price: 1500, desc: "传说是一个偷遍江南的老贼头创的，内力运转不浪费一丝，真正的省着用——每次攻击吸取对方内力。" },
+    { id: "art_orange_2", name: "纯阳正气诀", rarity: "orange", price: 1600, desc: "名字很正派，实则是散人对抗武盟压迫的底气——心中坦荡，气贯长虹。" },
+    { id: "art_red_2", name: "大罗洗髓经", rarity: "red", price: 3000, desc: "来自一个活了两甲子的老散人——洗掉过去的伤，重新站起来的功法。" },
+    { id: "art_red_1", name: "九曜真功", rarity: "red", price: 3200, desc: "孤本，孟天衡从总坛藏书阁偷出来的——他自己没练，因为不想欠武盟的人情。" }
   ],
   pills: [
     { id: "pill" },
