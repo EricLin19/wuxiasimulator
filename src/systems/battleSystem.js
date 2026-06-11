@@ -796,10 +796,10 @@ function applySkillEffects(run, battle, actor, target, skill, damage) {
       const art = DATA.internalArts[id];
       if (art?.combatEffect === "stealQi" && target.qi > 0) {
         const drainAmt = Math.max(1, Math.floor(target.qi * 0.05));
-        const actual = Math.min(drainAmt, target.qi);
-        target.qi -= actual;
-        actor.qi = Math.min(actor.stats.qi, actor.qi + actual);
-        battleLog(battle, `【虚玄无相功】${actor.name}吸取${target.name}内力${actual}点。`);
+        const drained = Math.min(drainAmt, target.qi);
+        target.qi -= drained;
+        actor.qi = Math.min(actor.stats.qi, actor.qi + drained);
+        battleLog(battle, `【虚玄无相功】${actor.name}吸取${target.name}内力${drained}点。`);
       }
     });
   }
