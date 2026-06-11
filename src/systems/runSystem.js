@@ -118,7 +118,17 @@ export function loadWandererStory(run) {
 }
 
 export function refreshEvents(run) {
-  // 三槽事件系统（v0.34三主线）
+  // 孤云逐浪线：每月生成6个奇遇，玩家六选三
+  if (run.storylineId === "wanderer") {
+    const growthEvents = makeWandererGrowthPool(run);
+    const riskEvents = makeWandererRiskPool(run);
+    const allEvents = [...growthEvents, ...riskEvents];
+    run.events = weightedPickMultiple(allEvents, 6);
+    run.eventRemaining = 3;
+    return;
+  }
+
+  // 三槽事件系统（v0.34三主线）：非孤云线维持不变
   const storyPool = makeStoryEventPool(run);
   const growthPool = makeGrowthEventPool(run);
   const riskPool = makeRiskEventPool(run);
@@ -421,8 +431,8 @@ function makeWandererGrowthPool(run) {
     });
   });
 
-  // 使用 category 权重做随机选择
-  return pickByWeight(events, monthAbsVal, availableHeritage.length, availableItem.length);
+  // 应用权重调整并返回全部事件（六选三系统将在上层统一抽取）
+  return applyEventWeights(events, availableHeritage.length, availableItem.length);
 }
 
 function makeWandererRiskPool(run) {
@@ -468,24 +478,21 @@ function makeWandererRiskPool(run) {
     });
   });
 
-  // 切磋/金钱各占30%全局权重
-  return pickByWeight(events);
+  // 应用权重调整并返回全部事件（六选三系统将在上层统一抽取）
+  return applyEventWeights(events);
 }
 
-// 按事件自带 weight 做加权抽取；若无可用传功/道具时修权纳入加属性
-function pickByWeight(events, monthAbsVal, heritageAvail, itemAvail) {
+// 对事件应用权重调整（传功/道具不可用时并入加属性），返回带 _w 的全部事件
+function applyEventWeights(events, heritageAvail, itemAvail) {
   if (!events.length) return [];
-  // heritageAvail/itemAvail 仅对 growth pool 传递，risk pool 不传
   const _ha = (heritageAvail !== undefined) ? heritageAvail : 99;
   const _ia = (itemAvail !== undefined) ? itemAvail : 99;
-  // 在 growth pool 层面，若某类不可用，其 weight 并入 stat
   const adjusted = events.map(e => {
     let w = e.weight || 10;
     if (e.category === "高手传功" && _ha === 0) w = 0;
     if (e.category === "道具" && _ia === 0) w = 0;
     return { ...e, _w: w };
   }).filter(e => e._w > 0);
-  // 计算 stat 需要吸收的额外权重
   const lostHeritage = (_ha === 0) ? 10 : 0;
   const lostItem = (_ia === 0) ? 10 : 0;
   const totalLost = lostHeritage + lostItem;
@@ -496,15 +503,47 @@ function pickByWeight(events, monthAbsVal, heritageAvail, itemAvail) {
       statEvents.forEach(e => { e._w += bonusPerStat; });
     }
   }
+  return adjusted;
+}
+
+// 加权抽取单个事件（旧接口兼容，非孤云线仍用）
+function pickByWeight(events, monthAbsVal, heritageAvail, itemAvail) {
+  const adjusted = applyEventWeights(events, heritageAvail, itemAvail);
+  if (!adjusted.length) return [];
   const totalW = adjusted.reduce((s, e) => s + e._w, 0);
-  if (totalW <= 0) return events; // fallback: 返回全部（不应该发生）
+  if (totalW <= 0) return [events[0]];
   const roll = Math.random() * totalW;
   let acc = 0;
   for (const e of adjusted) {
     acc += e._w;
-    if (roll < acc) return [e]; // sample 返回单元素数组
+    if (roll < acc) return [e];
   }
   return [adjusted[adjusted.length - 1]];
+}
+
+// 加权无放回抽取 n 个事件（六选三用）
+function weightedPickMultiple(events, n) {
+  if (!events.length) return [];
+  if (events.length <= n) return [...events];
+  const result = [];
+  const remaining = events.map(e => ({ ...e }));
+  for (let i = 0; i < n && remaining.length > 0; i++) {
+    const totalW = remaining.reduce((s, e) => s + (e._w || e.weight || 10), 0);
+    if (totalW <= 0) {
+      result.push(remaining.shift());
+      continue;
+    }
+    const roll = Math.random() * totalW;
+    let acc = 0;
+    let pickIdx = remaining.length - 1;
+    for (let j = 0; j < remaining.length; j++) {
+      acc += remaining[j]._w || remaining[j].weight || 10;
+      if (roll < acc) { pickIdx = j; break; }
+    }
+    result.push(remaining[pickIdx]);
+    remaining.splice(pickIdx, 1);
+  }
+  return result;
 }
 
 export function refreshManuals(run) {
@@ -861,8 +900,9 @@ export function resolveEvent(run, eventId, actions) {
     event.apply({ run, ...actions });
   }
   if (event.type !== "merchant" && event.type !== "battle") {
-    if (run.eventRemaining > 0) refillOneEvent(run);
-    if (run.eventRemaining === 0) log(run, "本月随机事件已处理完。");
+    // 孤云线六选三无需补充，非孤云线维持旧 refill 机制
+    if (run.storylineId !== "wanderer" && run.eventRemaining > 0) refillOneEvent(run);
+    if (run.eventRemaining === 0) log(run, "本月奇遇已处理完。");
   }
   saveRun(run);
   return true;
@@ -1088,14 +1128,14 @@ export function resolveStoryChoice(run, eventId, choice, actions) {
     run.storyFlags[eventId] = true;
   }
 
-  if (run.eventRemaining > 0) refillOneEvent(run);
-  if (run.eventRemaining === 0) log(run, "本月随机事件已处理完。");
+  if (run.storylineId !== "wanderer" && run.eventRemaining > 0) refillOneEvent(run);
+  if (run.eventRemaining === 0) log(run, "本月奇遇已处理完。");
   saveRun(run);
   return true;
 }
 
 export function finishDeferredEvent(run) {
-  if (run.eventRemaining > 0) refillOneEvent(run);
+  if (run.storylineId !== "wanderer" && run.eventRemaining > 0) refillOneEvent(run);
   saveRun(run);
 }
 

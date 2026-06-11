@@ -288,7 +288,7 @@ function renderMetaModal(modal, state, actions, close) {
 }
 
 function renderEventsModal(modal, run, actions, close) {
-  const CATEGORY_COLORS = { "主线": "#c0392b", "高手传功": "#d4a056", "高手遗物": "#a855f7", "切磋": "#e74c3c", "维度增加": "#2ecc71", "金钱代价": "#f39c12", "小Boss": "#8e44ad" };
+  const CATEGORY_COLORS = { "主线": "#c0392b", "高手传功": "#d4a056", "高手遗物": "#a855f7", "切磋": "#e74c3c", "维度增加": "#2ecc71", "金钱代价": "#f39c12", "金钱": "#f39c12", "道具": "#27ae60", "属性": "#2ecc71", "小Boss": "#8e44ad" };
   // 主线事件威胁值 + 两条路线文案
   const STORY_CHOICES = {
     // wanderer
@@ -310,7 +310,7 @@ function renderEventsModal(modal, run, actions, close) {
     "orthodox_ruin": { threat: 2, acceptName: "闯入祭坛", acceptLog: "你闯入祭坛打乱仪式，与鬼教教徒正面交锋。", acceptReward: "暴击+3，经验+150", rejectName: "集结同门", rejectLog: "你花钱组织同门力量，围剿祭坛。", rejectType: "pay", rejectCost: 300 },
     "orthodox_bell": { threat: 3, acceptName: "破阵灭鬼", acceptLog: "你独自闯入鬼教总坛，以钟声为号发起最后一战。", acceptReward: "全属性+3，经验+250", rejectName: "天衡剑阵", rejectLog: "你召集天衡剑阵同门联合发动剑阵反击鬼教。", rejectType: "battle_mini" }
   };
-  modal.innerHTML = `<div class="modal-head"><h2 class="modal-title">江湖奇遇</h2>${close}</div><div class="event-count">可参与事件数：${run.eventRemaining}</div><div class="event-grid"></div>`;
+  modal.innerHTML = `<div class="modal-head"><h2 class="modal-title">江湖奇遇</h2>${close}</div><div class="event-count">可参与事件数：${run.eventRemaining} / ${run.events.length}（六选三）</div><div class="event-grid"></div>`;
   run.events.forEach(e => {
     const card = el("div", "event-card");
     const catColor = CATEGORY_COLORS[e.category] || "#888";
