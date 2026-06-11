@@ -872,12 +872,7 @@ DATA.wandererMerchantPool = {
     { id: "qiPill" },
     { id: "yuanPowder" },
     { id: "statPill" }
-  ],
-  refreshRules: {
-    y1: { quality: "蓝为主，小概率橙", interval: 3, desc: "每3月刷新" },
-    y2: { quality: "蓝~橙，小概率红", interval: 2, desc: "每2月刷新" },
-    y3: { quality: "橙~红，小概率终极", interval: 1, desc: "每月刷新" }
-  }
+  ]
 };
 
 // 主线故事事件执行函数映射（在 runSystem.js 中实现，这里只定义数据结构）

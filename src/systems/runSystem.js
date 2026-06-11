@@ -579,7 +579,8 @@ export function refreshManuals(run) {
     manuals.push(one);
   }
   run.manuals = manuals.slice(0, 4);
-  refreshMerchantStock(run);
+  // 孤云线武林商人由刷新按钮手动控制，不在此处触发
+  if (run.storylineId !== "wanderer") refreshMerchantStock(run);
 }
 
 export function getAvailableManuals(run) {
@@ -587,60 +588,68 @@ export function getAvailableManuals(run) {
 }
 
 // ============================================================
-// 孤云逐浪 专属武林商人
+// 孤云逐浪 专属武林商人（四象限栏位系统）
+// 左边上：外功秘籍×6 | 左边下：内功秘籍×2
+// 右边上：装备×3(武器+防具) | 右边下：丹药×5
+// 全部等概率，不分年份。刷新次数=1+散人决心。
 // ============================================================
-function refreshWandererMerchant(run) {
+
+// 工具函数：等概率无放回抽取 n 个
+function pickRandom(arr, n, filterFn) {
+  let avail = filterFn ? [...arr].filter(filterFn) : [...arr];
+  const result = [];
+  for (let i = 0; i < n && avail.length > 0; i++) {
+    const idx = Math.floor(Math.random() * avail.length);
+    result.push(avail[idx]);
+    avail.splice(idx, 1);
+  }
+  return result;
+}
+
+function generateWandererMerchantStock(run) {
   const pool = DATA.wandererMerchantPool;
   if (!pool) return;
-  const yr = run.year;
-  // 年份质量过滤
-  const qualityOk = (q) => {
-    if (yr === 1) return q === "blue" || (Math.random() < 0.15 && q === "orange");
-    if (yr === 2) return q === "blue" || q === "orange" || (Math.random() < 0.1 && q === "red");
-    return q === "orange" || q === "red";
-  };
-  // 秘籍：1~2本，排除已学会的
-  const availManuals = (pool.manuals || []).filter(m => qualityOk(m.rarity) && !run.skills.includes(m.id) && !run.trainingSkills.includes(m.id));
-  const manualCount = Math.random() < 0.5 ? 1 : 2;
-  const manuals = [];
-  for (let i = 0; i < manualCount && availManuals.length; i++) {
-    const idx = Math.floor(Math.random() * availManuals.length);
-    const m = availManuals.splice(idx, 1)[0];
-    manuals.push({ kind: "manual", id: m.id, price: m.price });
-  }
-  // 武器：1~2把，优先匹配学派
-  const availWeapons = (pool.weapons || []).filter(w => qualityOk(w.rarity));
-  const matchingWeapons = run.selectedSchool ? availWeapons.filter(w => w.school === run.selectedSchool) : availWeapons;
-  const weaponPool = matchingWeapons.length ? matchingWeapons : availWeapons;
-  const weaponCount = Math.random() < 0.5 ? 1 : 2;
-  const weapons = [];
-  for (let i = 0; i < weaponCount && weaponPool.length; i++) {
-    const idx = Math.floor(Math.random() * weaponPool.length);
-    const w = weaponPool.splice(idx, 1)[0];
-    weapons.push({ kind: "weapon", id: w.id, price: w.price });
-  }
-  // 防具：1件
-  const availArmors = (pool.armors || []).filter(a => qualityOk(a.rarity));
-  const armorIdx = availArmors.length ? Math.floor(Math.random() * availArmors.length) : -1;
-  const armors = armorIdx >= 0 ? [{ kind: "armor", id: availArmors[armorIdx].id, price: availArmors[armorIdx].price }] : [];
-  // 内功：1本
-  const availArts = (pool.internalArts || []).filter(a => qualityOk(a.rarity) && !run.internalArts.includes(a.id));
-  const artIdx = availArts.length ? Math.floor(Math.random() * availArts.length) : -1;
-  const arts = artIdx >= 0 ? [{ kind: "internalArt", id: availArts[artIdx].id, price: availArts[artIdx].price }] : [];
-  // 丹药：3~5颗
-  const pillCount = 3 + Math.floor(Math.random() * 3); // 3-5
-  const pills = [];
-  const pillPool = [...(pool.pills || [])];
-  for (let i = 0; i < pillCount && pillPool.length; i++) {
-    const idx = Math.floor(Math.random() * pillPool.length);
-    pills.push({ kind: "item", id: pillPool[idx].id });
-    pillPool.splice(idx, 1);
-  }
-  run.merchantStock = [...manuals, ...weapons, ...armors, ...arts, ...pills];
+
+  // 外功秘籍 ×6（排除已学会的，等概率）
+  const manuals = pickRandom(pool.manuals || [], 6,
+    m => !run.skills.includes(m.id) && !run.trainingSkills.includes(m.id)
+  ).map(m => ({ kind: "manual", id: m.id, price: m.price }));
+
+  // 内功秘籍 ×2（排除已拥有的，等概率）
+  const arts = pickRandom(pool.internalArts || [], 2,
+    a => !run.internalArts.includes(a.id)
+  ).map(a => ({ kind: "internalArt", id: a.id, price: a.price }));
+
+  // 装备 ×3（武器+防具合并池，等概率）
+  const allEquip = [
+    ...(pool.weapons || []).map(w => ({ kind: "weapon", ...w })),
+    ...(pool.armors || []).map(a => ({ kind: "armor", ...a }))
+  ];
+  const equipment = pickRandom(allEquip, 3).map(e =>
+    ({ kind: e.kind, id: e.id, price: e.price }));
+
+  // 丹药 ×5（等概率）
+  const pills = pickRandom([...(pool.pills || [])], 5).map(p =>
+    ({ kind: "item", id: p.id }));
+
+  run.merchantStock = [...manuals, ...arts, ...equipment, ...pills];
+}
+
+function initWandererMerchant(run) {
+  generateWandererMerchantStock(run);
+  run._merchantRefreshes = 1 + (run.wandererResolve || 0);
+}
+
+export function refreshWandererMerchantAction(run) {
+  if ((run._merchantRefreshes || 0) <= 0) return { ok: false, message: "本月刷新次数已用完" };
+  run._merchantRefreshes--;
+  generateWandererMerchantStock(run);
+  saveRun(run);
+  return { ok: true };
 }
 
 export function refreshMerchantStock(run) {
-  if (run.storylineId === "wanderer") return refreshWandererMerchant(run);
+  if (run.storylineId === "wanderer") return initWandererMerchant(run);
   const rarity = run.year >= 3 ? "red" : run.year >= 2 ? "orange" : "blue";
   // 内功：随机2本同稀有度
   const artPool = Object.values(DATA.internalArts).filter(a => a.rarity === rarity && !run.internalArts.includes(a.id));

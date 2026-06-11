@@ -25,7 +25,8 @@ import {
   spendAp,
   settleRun,
   toggleActiveSkill,
-  getBattleDifficulty
+  getBattleDifficulty,
+  refreshWandererMerchantAction
 } from "./systems/runSystem.js";
 import { buildRewardChoices, takeReward } from "./systems/rewardSystem.js";
 import { syncMusicForState, setVolume as audioSetVolume } from "./systems/audioSystem.js";
@@ -413,6 +414,11 @@ const actions = {
   closeMerchant: () => {
     finishDeferredEvent(state.run);
     state.modal = null;
+    render();
+  },
+  refreshMerchant: () => {
+    const result = refreshWandererMerchantAction(state.run);
+    if (!result.ok) return showToast(result.message);
     render();
   },
   endMonth: () => {
