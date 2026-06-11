@@ -206,7 +206,7 @@ function scaleEnemyStats(stats) {
 }
 
 function makeUnit(name, icon, stats, hp, qi, skills, items) {
-  return { name, icon, stats, hp, qi, gauge: 0, skills, items, cooldowns: {}, auto: false, bleed: 0, poison: 0, inner: 0, frost: 0, hamstring: 0, gu: 0, guard: 0, cleanseShield: 0 };
+  return { name, icon, stats, hp, qi, gauge: 0, skills, items, cooldowns: {}, auto: false, bleed: 0, poison: 0, inner: 0, frost: 0, hamstring: 0, gu: 0, guard: 0, cleanseShield: 0, tempBuffs: {} };
 }
 
 export function tickBattle(battle, dt) {
@@ -254,6 +254,15 @@ export function useSkill(run, battle, skillId) {
   p.qi -= qiCost;
   if (moneyCost) run.money -= moneyCost;
   p.cooldowns[skillId] = skill.cd;
+  // 自用Buff秘籍：不攻击，给自己上Buff
+  if (skill.isSelfBuff) {
+    if (!p.tempBuffs) p.tempBuffs = {};
+    const b = skill.selfBuff;
+    p.tempBuffs[b.type] = { ...b };
+    battleLog(battle, `${p.name}施展${skill.name}！效果持续${b.duration}回合。`);
+    addFloater(battle, "player", skill.name);
+    return endActorTurn(run, battle, p);
+  }
   const result = resolveAttack(run, battle, p, battle.enemy, skill);
   if (result.comboTriggered && triggerThreeWaves(run, battle, p, skillId)) {
     return checkBattleEnd(battle);
@@ -815,7 +824,7 @@ function applySkillEffects(run, battle, actor, target, skill, damage) {
   }
   // 终极技能即时效果（红武立即触发）
   if (skill.rarity === "red") {
-    if (skill.style === "bleed") {
+    if (skill.style === "bleed" && !skill.noImmediateSettle) {
       const bleedDmg = target.bleed * BLEED_DMG;
       if (bleedDmg > 0) {
         target.hp = Math.max(0, target.hp - bleedDmg);
@@ -845,7 +854,7 @@ function applySkillEffects(run, battle, actor, target, skill, damage) {
         addFloater(battle, sideOf(battle, target), "筋断");
       }
     }
-    if (skill.style === "poison") {
+    if (skill.style === "poison" && !skill.noImmediateSettle) {
       const poisonDmg = target.poison * POISON_DMG;
       const poisonQiLoss = target.poison * POISON_QI;
       if (poisonDmg > 0 || poisonQiLoss > 0) {
@@ -917,7 +926,7 @@ function calcDamage(run, battle, actor, target, skill) {
   // 暴击（毒/真伤/金钱不暴击）
   const noCrit = skill.style === "poison" || skill.style === "lowKick" || skill.style === "coin";
   if (!noCrit && Math.random() * 100 < critChance(run, actor, skill)) {
-    let cm = critMultiplier(run, skill);
+    let cm = critMultiplier(run, skill, actor);
     (run.activeInternalArts || []).forEach(id => {
       const art = DATA.internalArts[id];
       if (art?.combatEffect === "critUp") cm += 1.5;
@@ -946,6 +955,8 @@ function effectiveAtk(unit) {
   let atk = unit.stats.atk;
   if (unit.poison > 0) atk -= unit.poison * 2;
   if (unit.hamstring > 0) atk -= unit.hamstring * HAMSTRING_ATK;
+  // 临时Buff：攻击力加成
+  if (unit.tempBuffs?.atk) atk = Math.floor(atk * unit.tempBuffs.atk.mult);
   // 断筋最低降至65%
   const minAtk = Math.floor(unit.stats.atk * ATK_MIN_HAMSTRING);
   return Math.max(minAtk, Math.max(1, atk));
@@ -1027,6 +1038,8 @@ function effectiveSpeed(unit, battle = null) {
   if (unit.frost > 0) spd -= unit.frost * FROST_SLOW;
   if (unit.hamstring > 0) spd -= unit.hamstring * HAMSTRING_SLOW;
   if (unit.gu > 0) spd -= unit.gu * 0.02;
+  // 临时Buff：速度加成
+  if (unit.tempBuffs?.speed) spd *= unit.tempBuffs.speed.mult;
   // hamstringCap Boss特性：玩家速度最低被压到70%（而非默认的60%）
   if (unit === battle?.player && battle?.bossTrait === "hamstringCap") {
     const minSpd = unit.stats.speed * 0.7;
@@ -1042,17 +1055,21 @@ function critChance(run, actor, skill) {
   const weapon = run.equippedWeapon ? DATA.weapons[run.equippedWeapon] : null;
   if (weapon && weapon.school === skill.school && weapon.style === skill.style) value += weapon.critBonus || 0;
   if (hasStyleMastery(run, skill.style) && skill.style === "critPalm") value += 8;
+  // 临时Buff：暴击概率加成
+  if (actor.tempBuffs?.crit) value += actor.tempBuffs.crit.critAdd || 0;
   // 暴击率软上限65%
   return clamp(value, 0, 65);
 }
 
-function critMultiplier(run, skill) {
+function critMultiplier(run, skill, actor = null) {
   let value = 2;
   for (const trait of run.skillTraits || []) value += trait.effects?.critPower || 0;
   const weapon = run.equippedWeapon ? DATA.weapons[run.equippedWeapon] : null;
   if (weapon && weapon.school === skill.school && weapon.style === skill.style) value += weapon.critPower || 0;
   if (hasStyleMastery(run, skill.style) && skill.style === "critPalm") value += 0.2;
   if (skill.school === "blade") value += 0.1;
+  // 临时Buff：暴击倍率加成
+  if (actor?.tempBuffs?.crit) value += actor.tempBuffs.crit.critPowerAdd || 0;
   return clamp(value, 2, 2.8);
 }
 
@@ -1061,6 +1078,8 @@ function comboChance(run, skill, actor) {
   const weapon = run.equippedWeapon ? DATA.weapons[run.equippedWeapon] : null;
   let value = actor.stats.combo;
   if (weapon && weapon.school === "fist" && weapon.style === "combo") value += weapon.comboBonus || 0;
+  // 临时Buff：连击概率加成
+  if (actor.tempBuffs?.crit) value += actor.tempBuffs.crit.comboAdd || 0;
   return clamp(value, 0, 85);
 }
 
@@ -1097,6 +1116,15 @@ function endActorTurn(run, battle, actor) {
     actor.cleanseShield = Math.max(0, (actor.cleanseShield || 0) - 0.5);
   }
   actor.gauge = 0;
+  // 临时Buff持续时间递减
+  if (actor.tempBuffs) {
+    for (const [type, buff] of Object.entries(actor.tempBuffs)) {
+      buff.duration--;
+      if (buff.duration <= 0) {
+        delete actor.tempBuffs[type];
+      }
+    }
+  }
   battle.phase = "running";
   battle.actor = null;
   return checkBattleEnd(battle);

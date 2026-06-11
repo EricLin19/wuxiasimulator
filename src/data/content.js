@@ -33,7 +33,8 @@ export const STYLE_LABELS = {
   coin: "金钱",
   evasive: "高闪避",
   lowKick: "下盘",
-  steal: "偷盗"
+  steal: "偷盗",
+  buff: "增益"
 };
 
 export const RARITIES = {
@@ -50,8 +51,8 @@ function gain(combo=0, hit=0, dodge=0, crit=0, speed=0, atk=0, def=0, hp=0, qi=0
   return { combo, hit, dodge, crit, speed, atk, def, hp, qi };
 }
 
-function skill(id, name, school, rarity, power, qi, cd, train, debuff, debuffStacks, tags, statGain, trait, icon) {
-  return { id, name, icon: icon || SCHOOLS[school].icon, school, rarity, power, qi, cd, train, debuff, debuffStacks, tags, statGain, trait, desc: trait.desc, battle: school !== "lightness" };
+function skill(id, name, school, rarity, power, qi, cd, train, debuff, debuffStacks, tags, statGain, trait, icon, opts = {}) {
+  return { id, name, icon: icon || SCHOOLS[school].icon, school, rarity, power, qi, cd, train, debuff, debuffStacks, tags, statGain, trait, desc: trait.desc, battle: school !== "lightness", ...opts };
 }
 
 function qinggong(id, name, rarity, train, statGain, trait, trueDamage) {
@@ -85,7 +86,7 @@ export const DATA = {
     // === 刀法 ===
     // 流血路线: quickSlash(基础) -> blade_orange_1(进阶) -> blade_red_1(终极)
     blade_orange_1: skill("blade_orange_1", "燃木刀法", "blade", "orange", 118, 85, 2, 4, "bleed", 5, ["crit"], gain(0, 1, 0, 5, 0, 0, 0, 0, 0), { id: "burningEdge", name: "烈焰刀意", desc: "命中+1，暴击+5，出手速度+0.05。", effects: { hit: 1, crit: 5, speed: 0.05 } }),
-    blade_red_1: skill("blade_red_1", "饮血封喉刀", "blade", "red", 180, 135, 3, 5, "bleed", 10, ["crit"], gain(0, 2, 1, 9, 0, 0, 0, 0, 0), { id: "bloodSeal", name: "血刃封喉", desc: "暴击+9，命中+2，闪避+1，出手速度+0.08，暴击倍率提高。", effects: { hit: 2, dodge: 1, crit: 9, speed: 0.08, critPower: 0.25 } }),
+    blade_red_1: skill("blade_red_1", "饮血封喉刀", "blade", "red", 180, 135, 3, 5, "bleed", 10, ["crit"], gain(0, 2, 1, 9, 0, 0, 0, 0, 0), { id: "bloodSeal", name: "血刃封喉", desc: "暴击+9，命中+2，闪避+1，出手速度+0.08，暴击倍率提高。", effects: { hit: 2, dodge: 1, crit: 9, speed: 0.08, critPower: 0.25 } }, { noImmediateSettle: true }),
     // 寒冰路线: blade_blue_2(基础) -> blade_orange_2(进阶) -> blade_red_2(终极)
     blade_blue_2: skill("blade_blue_2", "寒枝刀", "blade", "blue", 62, 38, 1, 3, "frost", 1, ["crit"], gain(0, 1, 0, 2, 0, 0, 0, 0, 0), { id: "woodcutter", name: "寒枝挂霜", desc: "命中+1，暴击+2，出手速度+0.04。", effects: { hit: 1, crit: 2, speed: 0.04 } }),
     blade_orange_2: skill("blade_orange_2", "雪岭刀", "blade", "orange", 105, 75, 2, 4, "frost", 2, ["crit"], gain(0, 0, 1, 5, 0, 0, 0, 0, 0), { id: "snowRidge", name: "雪岭留痕", desc: "暴击+5，闪避+1，出手速度+0.04。", effects: { dodge: 1, crit: 5, speed: 0.04 } }),
@@ -98,7 +99,7 @@ export const DATA = {
     // === 暗器 ===
     // 淬毒路线: springNeedle(基础) -> hidden_orange_1(进阶) -> hidden_red_1(终极)
     hidden_orange_1: skill("hidden_orange_1", "冰魄毒针", "hidden", "orange", 95, 80, 2, 4, "poison", 5, ["surehit"], gain(0, 6, 1, 0, 0, 0, 0, 0, 0), { id: "icePoison", name: "寒毒入脉", desc: "命中+6，闪避+1，出手速度+0.04。", effects: { hit: 6, dodge: 1, speed: 0.04 } }),
-    hidden_red_1: skill("hidden_red_1", "孔雀毒翎", "hidden", "red", 155, 130, 3, 5, "poison", 10, ["surehit"], gain(0, 10, 2, 2, 0, 0, 0, 0, 0), { id: "peacockPlume", name: "万羽齐发", desc: "命中+10，闪避+2，暴击+2，出手速度+0.08，中毒更深。", effects: { hit: 10, dodge: 2, crit: 2, speed: 0.08, poisonBonus: 1 } }),
+    hidden_red_1: skill("hidden_red_1", "孔雀毒翎", "hidden", "red", 155, 130, 3, 5, "poison", 10, ["surehit"], gain(0, 10, 2, 2, 0, 0, 0, 0, 0), { id: "peacockPlume", name: "万羽齐发", desc: "命中+10，闪避+2，暴击+2，出手速度+0.08，中毒更深。", effects: { hit: 10, dodge: 2, crit: 2, speed: 0.08, poisonBonus: 1 } }, { noImmediateSettle: true }),
     // 下蛊路线: shadowSting(基础) -> hidden_orange_2(进阶) -> hidden_red_2(终极)
     hidden_orange_2: skill("hidden_orange_2", "生死蛊符", "hidden", "orange", 88, 90, 2, 4, "gu", 2, ["surehit"], gain(0, 5, 0, 1, 0, 0, 0, 0, 0), { id: "lifeTalisman", name: "符入骨髓", desc: "命中+5，暴击+1，出手速度+0.06。", effects: { hit: 5, crit: 1, speed: 0.06 } }),
     hidden_red_2: skill("hidden_red_2", "九窍蛊针", "hidden", "red", 145, 125, 3, 5, "gu", 4, ["surehit"], gain(0, 9, 2, 1, 0, 0, 0, 0, 0), { id: "nineGu", name: "九窍封息", desc: "命中+9，闪避+2，暴击+1，出手速度+0.07。", effects: { hit: 9, dodge: 2, crit: 1, speed: 0.07 } }),
@@ -132,7 +133,35 @@ export const DATA = {
     // 偷盗路线: light_blue_3(基础) -> light_orange_3(进阶) -> light_red_3(终极)
     light_blue_3: qinggong("light_blue_3", "探囊腿", "blue", 3, gain(0, 1, 2, 0, 0.08), { id: "eightSteps", name: "步步抢先", desc: "命中+1，闪避+2，出手速度+0.08。", effects: { hit: 1, dodge: 2, speed: 0.08 } }),
     light_orange_3: qinggong("light_orange_3", "飞檐探云腿", "orange", 4, gain(0, 2, 4, 2, 0.16), { id: "cloudThief", name: "探云取利", desc: "命中+2，闪避+4，暴击+2，出手速度+0.16。", effects: { hit: 2, dodge: 4, crit: 2, speed: 0.16 } }),
-    light_red_3: qinggong("light_red_3", "摘星无影腿", "red", 5, gain(0, 3, 8, 3, 0.22), { id: "starThief", name: "摘星掠影", desc: "命中+3，闪避+8，暴击+3，出手速度+0.22。", effects: { hit: 3, dodge: 8, crit: 3, speed: 0.22 } })
+    light_red_3: qinggong("light_red_3", "摘星无影腿", "red", 5, gain(0, 3, 8, 3, 0.22), { id: "starThief", name: "摘星掠影", desc: "命中+3，闪避+8，暴击+3，出手速度+0.22。", effects: { hit: 3, dodge: 8, crit: 3, speed: 0.22 } }),
+    // === 攻击型秘籍（自用Buff，修炼后可在战斗中使用）===
+    manual_speed: {
+      id: "manual_speed", name: "唯快不破", icon: "速",
+      school: "none", rarity: "blue", power: 0, qi: 0, cd: 0,
+      train: 1, debuff: null, debuffStacks: 0, tags: ["selfBuff"],
+      style: "buff", styleName: "增益",
+      isSelfBuff: true, battle: true, statGain: null, trait: null,
+      selfBuff: { type: "speed", mult: 3, duration: 5 },
+      desc: "读条速度提升3倍，持续5回合。"
+    },
+    manual_atk: {
+      id: "manual_atk", name: "力大无穷", icon: "力",
+      school: "none", rarity: "blue", power: 0, qi: 0, cd: 0,
+      train: 1, debuff: null, debuffStacks: 0, tags: ["selfBuff"],
+      style: "buff", styleName: "增益",
+      isSelfBuff: true, battle: true, statGain: null, trait: null,
+      selfBuff: { type: "atk", mult: 2, duration: 5 },
+      desc: "攻击力提升2倍，持续5回合。"
+    },
+    manual_crit: {
+      id: "manual_crit", name: "屠杀盛宴", icon: "杀",
+      school: "none", rarity: "blue", power: 0, qi: 0, cd: 0,
+      train: 1, debuff: null, debuffStacks: 0, tags: ["selfBuff"],
+      style: "buff", styleName: "增益",
+      isSelfBuff: true, battle: true, statGain: null, trait: null,
+      selfBuff: { type: "crit", critAdd: 100, comboAdd: 100, critPowerAdd: 1, duration: 5 },
+      desc: "暴击概率+100%，连击概率+100%，暴击倍率+1.0，持续5回合。"
+    }
   },
   strategies: [],
   traits: [
@@ -835,7 +864,10 @@ DATA.wandererMerchantPool = {
     { id: "hidden_red_1", name: "孔雀毒翎", school: "hidden", rarity: "red", style: "poison", price: 1500, desc: "毒雨齐发，淬毒暗器终极式。" },
     { id: "light_blue_2", name: "扫堂腿", school: "lightness", rarity: "blue", style: "lowKick", price: 200, desc: "每个散人都会的打架基本功。" },
     { id: "light_orange_2", name: "盘龙腿", school: "lightness", rarity: "orange", style: "lowKick", price: 500, desc: "龙井谷一个瘸腿老散人教的——腿断了这辈子跑不了，那就把底盘练稳，谁来踢谁。" },
-    { id: "light_red_2", name: "碎岳沉桩腿", school: "lightness", rarity: "red", style: "lowKick", price: 1500, desc: "核心是站住了就是赢。" }
+    { id: "light_red_2", name: "碎岳沉桩腿", school: "lightness", rarity: "red", style: "lowKick", price: 1500, desc: "核心是站住了就是赢。" },
+    { id: "manual_speed", name: "唯快不破", school: "none", rarity: "blue", style: "buff", price: 500, desc: "天下武功，唯快不破。读条速度提升3倍，持续5回合。" },
+    { id: "manual_atk", name: "力大无穷", school: "none", rarity: "blue", style: "buff", price: 500, desc: "一力降十会。攻击力提升2倍，持续5回合。" },
+    { id: "manual_crit", name: "屠杀盛宴", school: "none", rarity: "blue", style: "buff", price: 500, desc: "杀意沸腾之时，无坚不摧。暴击/连击概率双倍，暴击倍率+1，持续5回合。" }
   ],
   weapons: [
     { id: "blade_bleed_blue", name: "饮血雁翎刀", school: "blade", rarity: "blue", price: 550 },
