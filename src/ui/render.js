@@ -562,19 +562,22 @@ function renderGoalsModal(modal, run, close) {
   const bossTraitDesc = yearBoss?.bossTraitDesc || "";
   const totalMonths = 36; // 3年
   const progress = Math.min(100, Math.floor(currentMonth / totalMonths * 100));
-  // 威胁值威胁度
-  const threatLevel = threatVal >= 9 ? "【威势压人】Boss全面增强" : threatVal >= 6 ? "【暗流涌动】Boss明显变强" : threatVal >= 3 ? "【山雨欲来】Boss略微增强" : "";
+  // 威胁值威胁度（维度缩放 + Boss档位加成）
+  const threatLevel = threatVal >= 9 ? "【威势压人】" : threatVal >= 6 ? "【暗流涌动】" : threatVal >= 3 ? "【山雨欲来】" : "";
+  const threatDimPct = threatVal > 0 ? ` 敌方属性+${(threatVal * 0.05).toFixed(2)}%` : "";
   // 散人决心
   const resolve = run.wandererResolve || 0;
-  const resolveLevel = resolve >= 9 ? "【散人齐心】Boss大幅削弱" : resolve >= 6 ? "【散人暗助】Boss明显削弱" : resolve >= 3 ? "【散人初聚】Boss略微削弱" : "";
+  const resolveLevel = resolve >= 9 ? "【散人齐心】" : resolve >= 6 ? "【散人暗助】" : resolve >= 3 ? "【散人初聚】" : "";
+  const resolveDimPct = resolve > 0 ? ` 我方属性+${(resolve * 0.05).toFixed(2)}%` : "";
   const resolveColor = resolve >= 6 ? "#2ecc71" : resolve >= 3 ? "#27ae60" : "#888";
   modal.innerHTML = `<div class="modal-head"><h2 class="modal-title">本局目标</h2>${close}</div><div class="goal-panel"><div class="boss-portrait">${bossPortraitImg ? `<img src="${bossPortraitImg}" alt="${bossName}" loading="lazy" decoding="async">` : bossIcon}</div><div>
     <h2>主线：${storylineName}</h2>
-    <p style="color:${threatColor};margin:6px 0">${threatName}：${threatVal} ${threatLevel}</p>
-    <p style="color:${resolveColor};margin:6px 0">散人决心：${resolve} ${resolveLevel}</p>
+    <p style="color:${threatColor};margin:6px 0">${threatName}：${threatVal} ${threatLevel}<span style="font-size:12px">${threatDimPct}</span></p>
+    <p style="color:${resolveColor};margin:6px 0">散人决心：${resolve} ${resolveLevel}<span style="font-size:12px">${resolveDimPct}</span></p>
     <div style="background:#f5e6d3;padding:8px;margin:8px 0;border-left:3px solid #c0392b;font-size:13px;line-height:1.5">
-      <b>威胁值说明：</b>每月主线事件可选择<b>"顺应"</b>（获得奖励但威胁+1~3）或<b>"抗争"</b>（战斗/付钱换取威胁不增）。<br>
-      威胁值越高，年末Boss越强：<span style="color:#f39c12">3-5山雨欲来</span>→<span style="color:#e67e22">6-8暗流涌动</span>→<span style="color:#e74c3c">9+威势压人</span>。
+      <b>${threatName}：</b>每+1使战斗中<b>敌方全属性+0.05%</b>（武盟维度增强）。主线选择"顺应"增加威视。<br>
+      <b>散人决心：</b>每+1使战斗中<b>我方全属性+0.05%</b>（散人维度增强）。主线"抗争"战斗胜利增加决心。<br>
+      <span style="font-size:12px;color:#999">威视越高，年底Boss额外获得档位加成；决心越高，年底Boss额外获得档位削弱。</span>
     </div>
     <h3>今年Boss：${bossName}</h3>
     ${bossTraitDesc ? `<p style="color:#e74c3c;font-style:italic">特性：${bossTraitDesc}</p>` : ""}
