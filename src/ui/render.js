@@ -110,6 +110,9 @@ function renderSelect(state, actions) {
 }
 
 function renderAllocate(state, actions) {
+  // 保存当前滚动位置（DOM 尚未替换）
+  const _savedScroll = document.querySelector('.allocate-list')?.scrollTop || 0;
+
   const screen = el("div", "screen allocate-layout");
   const selected = DATA.characters.find(c => c.id === state.selectedCharacter);
   const alloc = state.perRunAllocations || {};
@@ -184,6 +187,15 @@ function renderAllocate(state, actions) {
   right.querySelector("[data-act=reset-alloc]").onclick = actions.resetAllocations;
   right.querySelector("[data-act=confirm-alloc]").onclick = actions.confirmAllocate;
   screen.append(left, right);
+
+  // 恢复滚动位置（DOM 已替换后）
+  if (_savedScroll > 0) {
+    requestAnimationFrame(() => {
+      const newList = screen.querySelector('.allocate-list') || document.querySelector('.allocate-list');
+      if (newList) newList.scrollTop = _savedScroll;
+    });
+  }
+
   return screen;
 }
 
