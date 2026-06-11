@@ -432,9 +432,9 @@ DATA.storylines = {
     threatName: "内廷疑云",
     threatDesc: "内廷爪牙渗透日深",
     bosses: {
-      1: { id: "constable_boss_y1", name: "东厂档头·韩玉阙", icon: "镖", portraitImage: "assets/portraits_pixel/han_yuque_pixel_320.webp", year: 1, hp: 1850, qi: 700, atk: 100, def: 58, combo: 5, hit: 86, dodge: 10, crit: 10, speed: 1.60, boss: true, bossTrait: "highHitPoison", bossTraitDesc: "暗器命中高；毒层结算后自然衰减" },
-      2: { id: "constable_boss_y2", name: "锦衣指挥使·沈镇岳", icon: "刀", portraitImage: "assets/portraits_pixel/shen_zhenyue_pixel_320.webp", year: 2, hp: 3600, qi: 980, atk: 165, def: 92, combo: 6, hit: 88, dodge: 12, crit: 20, speed: 1.62, boss: true, bossTrait: "critBreakDef", bossTraitDesc: "暴击破防；玩家防御最多被压到75%" },
-      3: { id: "constable_final", name: "司礼监掌印·魏承恩", icon: "魔", portraitImage: "assets/portraits_pixel/wei_chengen_pixel_320.webp", year: 3, hp: 7200, qi: 2300, atk: 210, def: 145, combo: 7, hit: 95, dodge: 20, crit: 18, speed: 1.82, boss: true, bossTrait: "drainQiImmuneBurst", bossTraitDesc: "每回合吸内；前3回合免疫负面；内力低时爆发" }
+      1: { id: "constable_boss_y1", name: "东厂档头·韩玉阙", icon: "镖", portraitImage: "assets/portraits_pixel/han_yuque_pixel_320.webp", year: 1, hp: 1850, qi: 700, atk: 100, def: 58, combo: 5, hit: 86, dodge: 10, crit: 10, speed: 1.60, boss: true, bossTrait: "highHitPoison", bossTraitDesc: "暗器命中高；毒层结算后自然衰减", taunt: "六扇门的鹰犬，也敢查厂公的事？" },
+      2: { id: "constable_boss_y2", name: "锦衣指挥使·沈镇岳", icon: "刀", portraitImage: "assets/portraits_pixel/shen_zhenyue_pixel_320.webp", year: 2, hp: 3600, qi: 980, atk: 165, def: 92, combo: 6, hit: 88, dodge: 12, crit: 20, speed: 1.62, boss: true, bossTrait: "critBreakDef", bossTraitDesc: "暴击破防；玩家防御最多被压到75%", taunt: "绣春刀下，没有破不了的案子——也没有杀不得的人。" },
+      3: { id: "constable_final", name: "司礼监掌印·魏承恩", icon: "魔", portraitImage: "assets/portraits_pixel/wei_chengen_pixel_320.webp", year: 3, hp: 7200, qi: 2300, atk: 210, def: 145, combo: 7, hit: 95, dodge: 20, crit: 18, speed: 1.82, boss: true, bossTrait: "drainQiImmuneBurst", bossTraitDesc: "每回合吸内；前3回合免疫负面；内力低时爆发", taunt: "咱家在这宫墙里活了四十年——你一个小捕快，也配来挡咱家的路？" }
     },
     events: [
       { id: "constable_edict", name: "密诏夜传", category: "主线", icon: "诏", desc: "内廷密使深夜造访，传了一道密诏：要你秘密调查锦衣卫中的叛党。", type: "story", yearMin: 1, yearMax: 3 },
@@ -450,9 +450,9 @@ DATA.storylines = {
     threatName: "鬼教阴影",
     threatDesc: "鬼教势力暗中蔓延",
     bosses: {
-      1: { id: "orthodox_boss_y1", name: "鬼教香主·白无咎", icon: "毒", portraitImage: "assets/portraits_pixel/bai_wujiu_pixel_320.webp", year: 1, hp: 1900, qi: 760, atk: 96, def: 60, combo: 5, hit: 78, dodge: 12, crit: 10, speed: 1.52, boss: true, bossTrait: "poisonGuPerTurn", bossTraitDesc: "每回合毒+1蛊+1；每回合只衰减一种负面" },
-      2: { id: "orthodox_boss_y2", name: "黑莲护法·桑暮雨", icon: "魔", portraitImage: "assets/portraits_pixel/sang_muyu_pixel_320.webp", year: 2, hp: 3900, qi: 1200, atk: 145, def: 95, combo: 6, hit: 84, dodge: 16, crit: 14, speed: 1.65, boss: true, bossTrait: "drainQiLowShield", bossTraitDesc: "命中吸内；低血获得15%护体" },
-      3: { id: "orthodox_final", name: "鬼教掌门·夜摩罗", icon: "魔", portraitImage: "assets/portraits_pixel/ye_moluo_pixel_320.webp", year: 3, hp: 7800, qi: 2200, atk: 220, def: 150, combo: 8, hit: 90, dodge: 22, crit: 20, speed: 1.78, boss: true, bossTrait: "poisonGuCapCleanse", bossTraitDesc: "毒蛊上限+3；50%血时净化并回血20%" }
+      1: { id: "orthodox_boss_y1", name: "鬼教香主·白无咎", icon: "毒", portraitImage: "assets/portraits_pixel/bai_wujiu_pixel_320.webp", year: 1, hp: 1900, qi: 760, atk: 96, def: 60, combo: 5, hit: 78, dodge: 12, crit: 10, speed: 1.52, boss: true, bossTrait: "poisonGuPerTurn", bossTraitDesc: "每回合毒+1蛊+1；每回合只衰减一种负面", taunt: "正道的光，照不进黑莲的影。你的命，归我门下。" },
+      2: { id: "orthodox_boss_y2", name: "黑莲护法·桑暮雨", icon: "魔", portraitImage: "assets/portraits_pixel/sang_muyu_pixel_320.webp", year: 2, hp: 3900, qi: 1200, atk: 145, def: 95, combo: 6, hit: 84, dodge: 16, crit: 14, speed: 1.65, boss: true, bossTrait: "drainQiLowShield", bossTraitDesc: "命中吸内；低血获得15%护体", taunt: "黑莲开处无活口——你的内力，归我。" },
+      3: { id: "orthodox_final", name: "鬼教掌门·夜摩罗", icon: "魔", portraitImage: "assets/portraits_pixel/ye_moluo_pixel_320.webp", year: 3, hp: 7800, qi: 2200, atk: 220, def: 150, combo: 8, hit: 90, dodge: 22, crit: 20, speed: 1.78, boss: true, bossTrait: "poisonGuCapCleanse", bossTraitDesc: "毒蛊上限+3；50%血时净化并回血20%", taunt: "正道三百年，杀不尽黑莲一朵。今夜之后，再无天衡。" }
     },
     events: [
       { id: "orthodox_plague", name: "村镇蛊疫", category: "主线", icon: "疫", desc: "山脚村镇突然爆发怪病，村民高烧不退，似是蛊毒作祟。", type: "story", yearMin: 1, yearMax: 2 },

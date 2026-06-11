@@ -297,7 +297,29 @@ export function refreshEvents(run) {
 | `src/data/content.js` | 新增 storylines、主线 Boss、小 Boss 数据 |
 | `src/systems/runSystem.js` | 每月事件池固定加入一个主线事件；年末 Boss 根据角色选择 |
 | `src/systems/battleSystem.js` | 支持 Boss 特性、护体、阶段机制、威胁值加成 |
-| `src/ui/render.js` | 显示当前主线名、威胁值、主线事件标签、Boss 背景 |
+| `src/ui/render.js` | 显示当前主线名、威胁值、主线事件标签、Boss 背景、角色页散人决心 |
 | `IMPLEMENTATION_BALANCE_TABLES.md` | 同步新增主线、Boss、主线事件表 |
 | `src/ui/render.js` 或版本配置位置 | 每次 push 前递增版本号 |
+
+---
+
+## 9. v0.35 更新
+
+### 9.1 剧情战斗动态奖励
+主线偶数月战斗胜利后，除固定 battleReward 外，额外按剩余血量比例动态奖励金钱和经验：
+- 公式：`baseReward = floor(敌人血量 × 0.06) × perfMult(血量%) × diffMult`
+- 表现系数：`0.4 + 剩余血量% × 0.6`，血量越高奖励越多
+- 详见 `IMPLEMENTATION_BALANCE_TABLES.md` 第 9 节
+
+### 9.2 全 Boss 嘴炮补齐
+捕快线和正派线的 6 个年终 Boss 补全了 taunt（嘴炮）字段：韩玉阙、沈镇岳、魏承恩、白无咎、桑暮雨、夜摩罗。
+
+### 9.3 散人决心角色页显示
+角色属性弹窗（renderCharacterModal）中，孤云线显示散人决心：当前值/10、级别称号、全属性加成百分比。
+
+### 9.4 Toast 堆叠通知
+通知系统由替换制改为堆叠制，最多 3 条同时可见，新通知上推旧通知。
+
+### 9.5 升级溢出保护
+`gainExp()` 末尾增加 HP/内力上限钳制，防止连续多级升级后当前值超过最大值。
 

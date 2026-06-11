@@ -1338,6 +1338,9 @@ export function gainExp(run, amount) {
     log(run, `地位提升为${getRankTitle(run)}，四项属性提升。`);
     leveled = true;
   }
+  // 防止升级后当前血量/内力超过上限（连续多级时累计溢出）
+  if (run.hp > run.stats.hp) run.hp = run.stats.hp;
+  if (run.qi > run.stats.qi) run.qi = run.stats.qi;
   return leveled;
 }
 

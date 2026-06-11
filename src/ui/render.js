@@ -615,12 +615,18 @@ function renderCharacterModal(modal, run, actions, close) {
   const sl = DATA.storylines?.[run.storylineId];
   const storylineInfo = sl ? `<h3>主线剧情</h3><p>${sl.name}　<span style="color:#f39c12">${sl.threatName}：${run.mainThreat || 0}</span></p><p style="font-size:12px;color:#999">${sl.threatDesc}</p>` : "";
 
+  // 散人决心（仅孤云线）
+  const resolve = run.wandererResolve || 0;
+  const resolveLevel = resolve >= 9 ? "齐心" : resolve >= 6 ? "暗助" : resolve >= 3 ? "初聚" : "";
+  const resolveInfo = run.storylineId === "wanderer" ? `<h3>散人决心</h3><p style="color:${resolve >= 6 ? '#2ecc71' : resolve >= 3 ? '#27ae60' : '#888'}">${resolve}/10${resolveLevel ? ` 【散人${resolveLevel}】` : ""}${resolve > 0 ? `　我方属性+${resolve * 5}%` : ""}</p><p style="font-size:12px;color:#999">每+1战斗中我方全属性+5%。主线"抗争"胜利增加决心。</p>` : "";
+
   modal.innerHTML = `
     <div class="modal-head"><h2 class="modal-title">角色属性</h2>${close}</div>
     <div class="character-sheet">
       <div><div class="portrait">${run.character.portraitImage ? `<img src="${run.character.portraitImage}" alt="${run.character.name}" loading="lazy" decoding="async">` : run.character.icon}</div><div class="name">${run.character.name}</div><div class="desc">${run.character.faction}｜${"★".repeat(Math.min(8, run.rankStars))}</div></div>
       <div>
         <div class="stats-grid">${STAT_KEYS.map(k => statLine(k, k === "hp" ? `${run.hp}/${run.stats.hp}` : k === "qi" ? `${run.qi}/${run.stats.qi}` : run.stats[k])).join("")}</div>
+        ${resolveInfo}
         <h3>上场招式（最多4个）</h3><div class="list skill-select-list"></div>
         <h3>特性</h3><p>${traitNames}</p>
         <h3>当前流派</h3><p>${run.selectedSchool ? schoolName(run.selectedSchool) : "尚未确定"}</p>

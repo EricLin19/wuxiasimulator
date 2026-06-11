@@ -45,8 +45,9 @@ import {
 } from "./systems/battleSystem.js";
 
 // ── Toast 系统：独立 DOM 元素，不受 renderApp 重建影响 ──
-let _toastEl = null;
-let _toastTimer = null;
+// 堆叠模式：新 toast 不替换旧 toast，上推叠加，最多同时显示 3 条
+let _toastEls = [];
+let _toastTimers = [];
 let _lastToast = "";
 
 function showToast(text) {
@@ -55,9 +56,46 @@ function showToast(text) {
 }
 
 // ── Battle 嘴炮系统：独立 DOM，每场战斗只显示一次 ──
-let _tauntEl = null;
-let _tauntTimer = null;
 let _lastTauntBattle = null;
+
+function showBattleTaunt(battle, rotVal) {
+  if (!battle?.tauntText || battle === _lastTauntBattle) return;
+  _lastTauntBattle = battle;
+
+  // 清理超过 3 条时移除最旧的
+  while (_toastEls.length >= 3) {
+    const old = _toastEls.shift();
+    if (old) old.remove();
+    const oldT = _toastTimers.shift();
+    if (oldT) clearTimeout(oldT);
+  }
+
+  // 将已有 toast 上移
+  _toastEls.forEach((el, i) => {
+    el.style.bottom = `${16 + (i + 1) * 48}px`;
+  });
+
+  const el = document.createElement("div");
+  el.className = "toast";
+  el.textContent = `【${battle.enemy.name}】"${battle.tauntText}"`;
+  el.style.setProperty("--rot", rotVal);
+  el.style.bottom = "16px";
+  document.body.appendChild(el);
+  _toastEls.push(el);
+
+  const timer = setTimeout(() => {
+    const idx = _toastEls.indexOf(el);
+    if (idx >= 0) {
+      el.remove();
+      _toastEls.splice(idx, 1);
+      _toastTimers.splice(idx, 1);
+      _toastEls.forEach((e, i) => {
+        e.style.bottom = `${16 + i * 48}px`;
+      });
+    }
+  }, 1000);
+  _toastTimers.push(timer);
+}
 
 let _lastRenderTime = 0;
 function render() {
@@ -75,40 +113,52 @@ function render() {
   const appHasRot = app?.style.transform?.includes("rotate(90deg)");
   const rotVal = appHasRot ? "90deg" : "0deg";
 
-  // Toast：挂到 document.body（避免 renderApp 的 innerHTML="" 清空）
+  // Toast：挂到 document.body，堆叠模式——新 toast 上推旧 toast，同时可见
   if (state.toast && state.toast !== _lastToast) {
     _lastToast = state.toast;
-    if (_toastEl) { _toastEl.remove(); _toastEl = null; }
-    clearTimeout(_toastTimer);
 
-    _toastEl = document.createElement("div");
-    _toastEl.className = "toast";
-    _toastEl.textContent = state.toast;
-    _toastEl.style.setProperty("--rot", rotVal);
-    document.body.appendChild(_toastEl);
+    // 清理超过 3 条时移除最旧的
+    while (_toastEls.length >= 3) {
+      const old = _toastEls.shift();
+      if (old) old.remove();
+      const oldT = _toastTimers.shift();
+      if (oldT) clearTimeout(oldT);
+    }
 
-    _toastTimer = setTimeout(() => {
-      if (_toastEl) { _toastEl.remove(); _toastEl = null; }
+    // 将已有 toast 上移
+    _toastEls.forEach((el, i) => {
+      el.style.bottom = `${16 + (i + 1) * 48}px`;
+    });
+
+    // 创建新 toast（最底部，后续被上推）
+    const el = document.createElement("div");
+    el.className = "toast";
+    el.textContent = state.toast;
+    el.style.setProperty("--rot", rotVal);
+    el.style.bottom = "16px";
+    document.body.appendChild(el);
+    _toastEls.push(el);
+
+    const timer = setTimeout(() => {
+      const idx = _toastEls.indexOf(el);
+      if (idx >= 0) {
+        el.remove();
+        _toastEls.splice(idx, 1);
+        _toastTimers.splice(idx, 1);
+        // 重新排列剩余 toast
+        _toastEls.forEach((e, i) => {
+          e.style.bottom = `${16 + i * 48}px`;
+        });
+      }
       state.toast = "";
       _lastToast = "";
     }, 1000);
+    _toastTimers.push(timer);
   }
 
-  // 战斗嘴炮：挂到 document.body（避免 renderApp 的 innerHTML="" 清空）
+  // 战斗嘴炮：复用同一堆叠系统
   if (state.battle?.tauntText && state.battle !== _lastTauntBattle) {
-    _lastTauntBattle = state.battle;
-    if (_tauntEl) { _tauntEl.remove(); _tauntEl = null; }
-    clearTimeout(_tauntTimer);
-
-    _tauntEl = document.createElement("div");
-    _tauntEl.className = "toast";
-    _tauntEl.textContent = `【${state.battle.enemy.name}】"${state.battle.tauntText}"`;
-    _tauntEl.style.setProperty("--rot", rotVal);
-    document.body.appendChild(_tauntEl);
-
-    _tauntTimer = setTimeout(() => {
-      if (_tauntEl) { _tauntEl.remove(); _tauntEl = null; }
-    }, 1000);
+    showBattleTaunt(state.battle, rotVal);
   }
 }
 
@@ -229,6 +279,22 @@ function resolveBattleResult(result) {
         if (rew.def) state.run.stats.def += rew.def;
         if (rew.int) state.run.stats.int = (state.run.stats.int || 0) + rew.int;
         if (rew.agi) state.run.stats.agi = (state.run.stats.agi || 0) + rew.agi;
+      }
+      // 动态奖励：按剩余血量比例加钱和经验（沿用普通战斗公式，乘以血量表现系数）
+      {
+        const enemyHp = battle.enemy.stats.hp;
+        const hpRatio = battle.player.hp / Math.max(1, battle.player.stats.hp);
+        const perfMult = 0.4 + hpRatio * 0.6; // 血量越低奖励越少（最低 40%）
+        const diff = getBattleDifficulty(battle.player.stats.hp, battle.enemy.stats.hp);
+        const baseReward = Math.floor(enemyHp * 0.06);
+        const dynMoney = scaleMoney(state.run, Math.floor(baseReward * perfMult * diff.moneyMult));
+        const dynExp = Math.floor(baseReward * perfMult * diff.expMult);
+        state.run.money += dynMoney;
+        if (dynExp > 0) {
+          const leveled = gainExp(state.run, dynExp);
+          log(state.run, `表现加成：+${dynMoney}◎ +${dynExp}武学阅历（剩余血量${Math.round(hpRatio*100)}%，${diff.label}难度）`);
+          if (leveled && !state.modal) state.modal = { type: "reward", options: buildRewardChoices(state.run) };
+        }
       }
       // 赢：散人决心+1
       state.run.wandererResolve = Math.min(10, (state.run.wandererResolve || 0) + 1);
