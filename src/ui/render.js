@@ -496,11 +496,11 @@ function renderMerchantModal(modal, run, actions, isHall = false) {
         <div class="merchant-col">
           <h3>外功秘籍</h3></div>
         <div class="merchant-col">
-          <h3>装备</h3></div>
+          <h3>丹药</h3></div>
         <div class="merchant-col">
           <h3>内功秘籍</h3></div>
         <div class="merchant-col">
-          <h3>丹药</h3></div>
+          <h3>装备</h3></div>
       </div>
     </div>`;
 
@@ -519,7 +519,7 @@ function renderMerchantModal(modal, run, actions, isHall = false) {
       if (owned) row.querySelector("button").disabled = true;
       cols[0].appendChild(row);
     });
-    // 装备 ×3（武器+防具）→ cols[1]（右上）
+    // 装备 ×3（武器+防具）→ cols[3]（右下）
     run.merchantStock.filter(e => e.kind === "weapon" || e.kind === "armor").forEach(entry => {
       let obj, icon, name, desc, meta, btnLabel;
       if (entry.kind === "weapon") {
@@ -535,7 +535,7 @@ function renderMerchantModal(modal, run, actions, isHall = false) {
       }
       const row = rowCard(icon, name, meta, btnLabel, () => actions.buyShopEntry(entry));
       if ((entry.kind === "armor" && run.armors.includes(entry.id))) row.querySelector("button").disabled = true;
-      cols[1].appendChild(row);
+      cols[3].appendChild(row);
     });
     // 内功秘籍 ×2 → cols[2]（左下）
     run.merchantStock.filter(e => e.kind === "internalArt").forEach(entry => {
@@ -547,12 +547,12 @@ function renderMerchantModal(modal, run, actions, isHall = false) {
       if (owned) row.querySelector("button").disabled = true;
       cols[2].appendChild(row);
     });
-    // 丹药 ×5
+    // 丹药 ×5 → cols[1]（右上）
     run.merchantStock.filter(e => e.kind === "item").forEach(entry => {
       const obj = DATA.items[entry.id];
       if (!obj) return;
       const row = rowCard(obj.icon, obj.name, obj.desc, `${obj.price}◎`, () => actions.buyShopEntry(entry));
-      cols[3].appendChild(row);
+      cols[1].appendChild(row);
     });
 
     // 刷新按钮事件
@@ -577,7 +577,7 @@ function renderMerchantModal(modal, run, actions, isHall = false) {
       if (owned) row.querySelector("button").disabled = true;
       cols[2].appendChild(row);
     });
-    // 装备 → cols[1]（右上）
+    // 装备 → cols[3]（右下）
     run.merchantStock.filter(e => e.kind === "weapon" || e.kind === "armor").forEach(entry => {
       let obj, icon, name, desc;
       if (entry.kind === "weapon") {
@@ -587,13 +587,13 @@ function renderMerchantModal(modal, run, actions, isHall = false) {
         obj = DATA.armors[entry.id];
         icon = obj?.icon || "甲"; name = obj?.name || entry.id; desc = obj?.desc || "";
       }
-      cols[1].appendChild(rowCard(icon, name, desc, `${obj.price}◎`, () => actions.buyShopEntry(entry)));
+      cols[3].appendChild(rowCard(icon, name, desc, `${obj.price}◎`, () => actions.buyShopEntry(entry)));
     });
-    // 丹药 → cols[3]（右下）
+    // 丹药 → cols[1]（右上）
     run.merchantStock.filter(e => e.kind === "item").forEach(entry => {
       const obj = DATA.items[entry.id];
       if (!obj) return;
-      cols[3].appendChild(rowCard(obj.icon, obj.name, obj.desc, `${obj.price}◎`, () => actions.buyShopEntry(entry)));
+      cols[1].appendChild(rowCard(obj.icon, obj.name, obj.desc, `${obj.price}◎`, () => actions.buyShopEntry(entry)));
     });
   }
 
