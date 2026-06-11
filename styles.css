@@ -1183,8 +1183,8 @@ button {
 .merchant-main {
   flex: 1;
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  grid-template-rows: auto auto;
+  grid-template-columns: 1fr 1fr 1fr 1fr;
+  grid-template-rows: auto;
   gap: 10px;
 }
 
@@ -1218,28 +1218,28 @@ button {
 }
 
 .merchant-col .row-card {
-  min-height: 62px;
-  grid-template-columns: 52px 1fr auto;
-  gap: 6px;
-  padding: 6px;
+  min-height: 54px;
+  grid-template-columns: 40px 1fr auto;
+  gap: 4px;
+  padding: 4px;
 }
 
 .merchant-col .icon-box {
-  width: 48px;
-  height: 48px;
-  font-size: 24px;
+  width: 36px;
+  height: 36px;
+  font-size: 18px;
   flex-shrink: 0;
 }
 
 .merchant-col .row-title {
-  font-size: 17px;
+  font-size: 14px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
 .merchant-col .row-meta {
-  font-size: 13px;
+  font-size: 11px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -1705,13 +1705,15 @@ body.mobile-viewport .wanderer-run-layout .center-stage {
 .allocate-layout {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 20px;
-  height: 100%;
+  gap: 16px;
+  height: calc(100% - 20px);
+  margin-top: -12px;
+  align-content: start;
 }
 
 .allocate-layout .panel {
   min-height: 0;
-  padding: 16px;
+  padding: 10px;
   overflow: hidden;
 }
 
@@ -1720,40 +1722,42 @@ body.mobile-viewport .wanderer-run-layout .center-stage {
   flex-direction: column;
   align-items: center;
   overflow-y: auto;
+  padding-top: 6px;
 }
 
 .allocate-layout .allocate-right {
   display: flex;
   flex-direction: column;
   overflow: visible;
-  padding-bottom: 12px;
+  padding-bottom: 8px;
+  padding-top: 6px;
 }
 
 .allocate-list {
   flex: 1 1 auto;
   overflow-y: auto;
   display: grid;
-  gap: 8px;
+  gap: 5px;
   padding-right: 4px;
   min-height: 0;
 }
 
 .allocate-portrait {
-  width: 240px;
-  height: 292px;
+  width: 200px;
+  height: 244px;
   flex-shrink: 0;
 }
 
 .allocate-stats {
   grid-template-columns: repeat(3, 1fr) !important;
-  gap: 6px !important;
+  gap: 4px !important;
   width: 100%;
-  margin-top: 10px !important;
+  margin-top: 6px !important;
 }
 
 .allocate-stats .stat-line {
-  padding: 4px 6px;
-  font-size: 14px;
+  padding: 2px 4px;
+  font-size: 13px;
   font-weight: 700;
 }
 

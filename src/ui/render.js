@@ -486,9 +486,11 @@ function renderMerchantModal(modal, run, actions, isHall = false) {
   const isWanderer = run.storylineId === "wanderer";
   const refreshes = run._merchantRefreshes || 0;
 
-  // 标题栏：只有标题+离开
+  // 标题栏：标题 + 刷新(孤云线) + 离开
   modal.innerHTML = `<div class="modal-head"><h2 class="modal-title">武林商人</h2>
-    <button class="btn red small" data-done>离开</button></div>
+    <div style="display:flex;gap:8px;align-items:center">
+    ${isWanderer ? `<button class="btn small" data-refresh style="background:#d4a056;color:#2c2c1a;font-weight:700" ${refreshes <= 0 ? "disabled" : ""}>刷新 ${refreshes}</button>` : ""}
+    <button class="btn red small" data-done>离开</button></div></div>
     <div class="merchant-body">
       <div class="merchant-main">
         <div class="merchant-col">
@@ -500,7 +502,6 @@ function renderMerchantModal(modal, run, actions, isHall = false) {
         <div class="merchant-col">
           <h3>丹药</h3></div>
       </div>
-      ${isWanderer ? `<div class="merchant-refresh-area"><button class="btn small" data-refresh style="background:#d4a056;color:#2c2c1a;font-weight:700" ${refreshes <= 0 ? "disabled" : ""}>刷新 ${refreshes}</button></div>` : ""}
     </div>`;
 
   const cols = modal.querySelectorAll(".merchant-col");
@@ -511,26 +512,28 @@ function renderMerchantModal(modal, run, actions, isHall = false) {
     run.merchantStock.filter(e => e.kind === "manual").forEach(entry => {
       const s = DATA.skills[entry.id];
       if (!s) return;
-      const label = run.skills.includes(entry.id) || run.trainingSkills.includes(entry.id) ? "已拥有" : `${entry.price}◎`;
-      const btnLabel = run.skills.includes(entry.id) || run.trainingSkills.includes(entry.id) ? "已拥有" : "购买";
-      const row = rowCard(s.icon || "秘", skillDisplayName(s), s.desc, btnLabel, () => actions.buyManual(entry.id));
-      if (run.skills.includes(entry.id) || run.trainingSkills.includes(entry.id)) row.querySelector("button").disabled = true;
+      const owned = run.skills.includes(entry.id) || run.trainingSkills.includes(entry.id);
+      const btnLabel = owned ? "已拥有" : "购买";
+      const meta = owned ? s.desc : `${entry.price}◎ · ${s.desc}`;
+      const row = rowCard(s.icon || "秘", skillDisplayName(s), meta, btnLabel, () => actions.buyManual(entry.id));
+      if (owned) row.querySelector("button").disabled = true;
       cols[0].appendChild(row);
     });
     // 装备 ×3（武器+防具）→ cols[1]（右上）
     run.merchantStock.filter(e => e.kind === "weapon" || e.kind === "armor").forEach(entry => {
-      let obj, icon, name, desc, label, btnLabel;
+      let obj, icon, name, desc, meta, btnLabel;
       if (entry.kind === "weapon") {
         obj = DATA.weapons[entry.id];
         icon = obj?.icon || "武"; name = obj?.name || entry.id; desc = obj?.desc || "";
-        label = `${entry.price}◎`; btnLabel = "购买";
+        meta = `${entry.price}◎ · ${desc}`; btnLabel = "购买";
       } else {
         obj = DATA.armors[entry.id];
         icon = obj?.icon || "甲"; name = obj?.name || entry.id; desc = obj?.desc || "";
-        label = run.armors.includes(entry.id) ? "已拥有" : `${entry.price}◎`;
-        btnLabel = run.armors.includes(entry.id) ? "已拥有" : "购买";
+        const owned = run.armors.includes(entry.id);
+        meta = owned ? desc : `${entry.price}◎ · ${desc}`;
+        btnLabel = owned ? "已拥有" : "购买";
       }
-      const row = rowCard(icon, name, desc, btnLabel, () => actions.buyShopEntry(entry));
+      const row = rowCard(icon, name, meta, btnLabel, () => actions.buyShopEntry(entry));
       if ((entry.kind === "armor" && run.armors.includes(entry.id))) row.querySelector("button").disabled = true;
       cols[1].appendChild(row);
     });
