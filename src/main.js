@@ -317,7 +317,20 @@ const actions = {
     state.run = saved;
     state.run.activeSkills ||= state.run.skills.filter(id => DATA.skills[id]?.battle !== false).slice(0, 4);
     state.run.internalArts ||= [];
-    state.run.activeInternalArt = state.run.activeInternalArt || null;
+    // 双内功迁移：旧版 activeInternalArt（单ID）→ activeInternalArts（数组）
+    if (state.run.activeInternalArt && typeof state.run.activeInternalArt === "string") {
+      state.run.activeInternalArts = [state.run.activeInternalArt];
+      delete state.run.activeInternalArt;
+    }
+    state.run.activeInternalArts ||= [];
+    // cultivatedArts 从 artProgress 推导（修炼完成的）
+    if (!state.run.cultivatedArts) {
+      state.run.cultivatedArts = [];
+      for (const [id, prog] of Object.entries(state.run.artProgress || {})) {
+        const art = DATA.internalArts[id];
+        if (art && prog >= (art.cultivateCost || 0)) state.run.cultivatedArts.push(id);
+      }
+    }
     state.run.armors ||= [];
     state.run.equippedArmor = state.run.equippedArmor || null;
     state.run.apUsedThisMonth = state.run.apUsedThisMonth || false;

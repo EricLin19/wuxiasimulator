@@ -482,7 +482,7 @@ function renderCharacterModal(modal, run, actions, close) {
         ${storylineInfo}
         <h3>装备武器</h3><p>${equippedWeaponText}</p>
         <h3>装备防具</h3><p>${equippedArmorText}</p>
-        <h3>已装备内功</h3><p>${run.activeInternalArt ? traitChip(DATA.internalArts[run.activeInternalArt].name, DATA.internalArts[run.activeInternalArt].desc) : "未装备"}</p>
+        <h3>已装备内功</h3><p>${(run.activeInternalArts || []).length ? run.activeInternalArts.map(id => traitChip(DATA.internalArts[id]?.name || id, DATA.internalArts[id]?.desc || "")).join("") : "未装备"}</p>
         <h3>已学内功（${(run.internalArts || []).length}本）</h3>
         <div class="list internal-art-list"></div>
       </div>
@@ -505,7 +505,8 @@ function renderCharacterModal(modal, run, actions, close) {
       if (!art) return;
       const progress = run.artProgress?.[id] || 0;
       const cultivated = progress >= (art.cultivateCost || 0);
-      const btnLabel = cultivated ? (run.activeInternalArt === id ? "已装备" : "装备") : `参悟(${progress}/${art.cultivateCost})`;
+      const equipped = (run.activeInternalArts || []).includes(id);
+      const btnLabel = cultivated ? (equipped ? "已装备" : "装备") : `参悟(${progress}/${art.cultivateCost})`;
       const btnAction = cultivated ? () => actions.equipInternalArt(id) : () => actions.trainArt(id);
       artList.appendChild(rowCard(art.icon, `【${rarityName(art.rarity)}】${art.name}${cultivated ? "" : " 未修成"}`, art.desc, btnLabel, btnAction));
     });
@@ -541,7 +542,7 @@ function renderBackpackModal(modal, run, actions, close) {
   Object.entries(artCounts).forEach(([id, count]) => {
     const art = DATA.internalArts[id];
     if (!art) return;
-    list.appendChild(rowCard(art.icon, `【${rarityName(art.rarity)}】${art.name} x${count}`, art.desc, run.activeInternalArt === id ? "已装备" : "装备", () => actions.equipInternalArt(id)));
+    list.appendChild(rowCard(art.icon, `【${rarityName(art.rarity)}】${art.name} x${count}`, art.desc, (run.activeInternalArts || []).includes(id) ? "已装备" : "装备", () => actions.equipInternalArt(id)));
   });
 }
 

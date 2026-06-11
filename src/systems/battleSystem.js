@@ -28,6 +28,21 @@ export function createBattle(run, enemyTemplate, isBoss = false) {
   const enemyStats = scaleEnemyStats(clone(enemyTemplate));
   const pStats = clone(run.stats);
 
+  // 威视/决心维度缩放
+  // 威视每点使武盟全部维度+0.05%，决心每点使散人全部维度+0.05%
+  const threatMult = 1 + (run.mainThreat || 0) * 0.0005;
+  const resolveMult = 1 + (run.wandererResolve || 0) * 0.0005;
+  if (threatMult !== 1) {
+    for (const k of ["hp", "atk", "def", "hit", "dodge", "crit", "speed"]) {
+      if (enemyStats[k] !== undefined) enemyStats[k] = Number((enemyStats[k] * threatMult).toFixed(2));
+    }
+  }
+  if (resolveMult !== 1) {
+    for (const k of ["hp", "atk", "def", "hit", "dodge", "crit", "speed"]) {
+      if (pStats[k] !== undefined) pStats[k] = Number((pStats[k] * resolveMult).toFixed(2));
+    }
+  }
+
   // Weapon stat bonus
   if (run.equippedWeapon) {
     const weapon = DATA.weapons[run.equippedWeapon];
@@ -83,16 +98,16 @@ export function createBattle(run, enemyTemplate, isBoss = false) {
   let dragonGuardHp = 0;
 
   // 内功效果：战斗开始
-  if (run.activeInternalArt) {
-    const art = DATA.internalArts[run.activeInternalArt];
+  (run.activeInternalArts || []).forEach(id => {
+    const art = DATA.internalArts[id];
     if (art?.combatEffect === "healOnStart") {
-      pHp = Math.min(pStats.hp, pHp + Math.floor(pStats.hp * 0.15));
+      pHp = Math.min(pStats.hp, pHp + Math.floor(pStats.hp * 0.35));
     }
     if (art?.combatEffect === "bigHealStart") {
       pHp = Math.min(pStats.hp, pHp + Math.floor(pStats.hp * 0.25));
       pQi = Math.min(pStats.qi, pQi + Math.floor(pStats.qi * 0.15));
     }
-  }
+  });
 
   // 防具效果：龙鳞重甲护体
   if (run.equippedArmor) {
@@ -166,8 +181,8 @@ export function createBattle(run, enemyTemplate, isBoss = false) {
   }
 
   // 大罗洗髓经：开场净化
-  if (run.activeInternalArt) {
-    const art = DATA.internalArts[run.activeInternalArt];
+  (run.activeInternalArts || []).forEach(id => {
+    const art = DATA.internalArts[id];
     if (art?.combatEffect === "cleanse") {
       battle.player.bleed = 0;
       battle.player.poison = 0;
@@ -175,10 +190,10 @@ export function createBattle(run, enemyTemplate, isBoss = false) {
       battle.player.frost = 0;
       battle.player.hamstring = 0;
       battle.player.gu = 0;
-      battle.player.cleanseShield = 2; // 前2回合负面抵抗
-      battleLog(battle, `【大罗洗髓经】净化所有负面状态，前2己方回合负面抵抗。`);
+      battle.player.cleanseShield = 10; // 前10己方回合免疫负面
+      battleLog(battle, `【大罗洗髓经】净化所有负面状态，前10己方回合免疫负面。`);
     }
-  }
+  });
 
   if (enemyStats.traitName) battle.log.unshift(`${enemyTemplate.name}特性：${enemyStats.traitName}。${enemyStats.traitDesc || ""}`);
   // 嘴炮：敌人进入战斗的专属台词（存为独立字段，由 renderBattle 一次性展示）
@@ -434,11 +449,11 @@ export function enemyAction(run, battle) {
         addFloater(battle, "player", `-${drain}内力`);
       }
     }
-    // 罗汉镇岳功：受到直接伤害-3%
-    if (run.activeInternalArt) {
-      const art = DATA.internalArts[run.activeInternalArt];
-      if (art?.combatEffect === "dmgReduce") dmg = Math.floor(dmg * 0.97);
-    }
+    // 罗汉镇岳功：受到直接伤害-10%
+    (run.activeInternalArts || []).forEach(id => {
+      const art = DATA.internalArts[id];
+      if (art?.combatEffect === "dmgReduce") dmg = Math.floor(dmg * 0.90);
+    });
     // 防具：低血量减伤
     if (run.equippedArmor) {
       const armor = DATA.armors[run.equippedArmor];
@@ -476,13 +491,13 @@ export function enemyAction(run, battle) {
     battleLog(battle, `${e.name}出手，造成${dmg}伤害。`);
 
     // 玄元龙象功：受伤害转内力
-    if (run.activeInternalArt) {
-      const art = DATA.internalArts[run.activeInternalArt];
+    (run.activeInternalArts || []).forEach(id => {
+      const art = DATA.internalArts[id];
       if (art?.combatEffect === "dmgToQi") {
         const qiGain = Math.floor(dmg * 0.2);
         p.qi = Math.min(p.stats.qi, p.qi + qiGain);
       }
-    }
+    });
   }
   return endActorTurn(run, battle, e);
 }
@@ -497,7 +512,7 @@ function enemyBasicAttack(run, battle, e, p) {
   const dmg = Math.max(1, Math.floor(effectiveAtk(e) * 0.3 + 8 - enemyEffectiveDef(e, p) * 0.25));
   p.hp = Math.max(0, p.hp - dmg);
   if (e.stats.trait === "qiSuppress") {
-    const artReduce = battle.run?.activeInternalArt && DATA.internalArts[battle.run.activeInternalArt]?.combatEffect === "debuffReduce";
+    const artReduce = (battle.run?.activeInternalArts || []).some(id => DATA.internalArts[id]?.combatEffect === "debuffReduce");
     drainPlayerQi(battle, e, p, artReduce ? 9 : 18);
   }
   battleLog(battle, `${e.name}普通攻击，造成${dmg}伤害。`);
@@ -514,7 +529,7 @@ function enemyEffectiveDef(e, p) {
 
 function applyEnemyTraitHit(battle, e, p) {
   const run = battle.run;
-  const artReduce = run?.activeInternalArt && DATA.internalArts[run.activeInternalArt]?.combatEffect === "debuffReduce";
+  const artReduce = (run?.activeInternalArts || []).some(id => DATA.internalArts[id]?.combatEffect === "debuffReduce");
   if (e.stats.trait === "armorBreak") {
     const reduction = artReduce ? 1 : 2;
     p.stats.def = Math.max(0, p.stats.def - reduction);
@@ -627,20 +642,39 @@ function applyTurnStart(battle, unit) {
   }
 
   // 内功效果：玩家回合开始（回血上限6%最大血量，回内上限10%最大内力）
-  if (unit === battle.player && battle.run?.activeInternalArt) {
-    const art = DATA.internalArts[battle.run.activeInternalArt];
-    if (art?.combatEffect === "healOnTurn") {
-      const healAmt = Math.floor(unit.stats.hp * 0.05);
-      unit.hp = Math.min(unit.stats.hp, unit.hp + healAmt);
-      battleLog(battle, `【${art.name}】${unit.name}恢复${healAmt}血量。`);
+  if (unit === battle.player && battle.run?.activeInternalArts?.length) {
+    battle.run.activeInternalArts.forEach(id => {
+      const art = DATA.internalArts[id];
+      if (!art) return;
+      if (art.combatEffect === "healOnTurn") {
+        const healAmt = Math.floor(unit.stats.hp * 0.05);
+        unit.hp = Math.min(unit.stats.hp, unit.hp + healAmt);
+        const qiAmt = Math.floor(unit.stats.qi * 0.05);
+        unit.qi = Math.min(unit.stats.qi, unit.qi + qiAmt);
+        battleLog(battle, `【${art.name}】${unit.name}恢复${healAmt}血量、${qiAmt}内力。`);
+      }
+      if (art.combatEffect === "qiRegen") {
+        const qiAmt = Math.floor(unit.stats.qi * 0.06);
+        unit.qi = Math.min(unit.stats.qi, unit.qi + qiAmt);
+        battleLog(battle, `【${art.name}】${unit.name}恢复${qiAmt}内力。`);
+      }
+      if (art.combatEffect === "cleanse" && unit.cleanseShield > 0) {
+        unit.cleanseShield--;
+      }
+    });
+  }
+
+  // 特性效果：铁衣锻体 + 静息（每回合恢复）
+  if (unit === battle.player && battle.run) {
+    if (battle.run.traits.includes("tieyi_body_tempering")) {
+      const hpAmt = Math.floor(unit.stats.hp * 0.05);
+      unit.hp = Math.min(unit.stats.hp, unit.hp + hpAmt);
+      battleLog(battle, `【铁衣锻体】${unit.name}恢复${hpAmt}血量。`);
     }
-    if (art?.combatEffect === "qiRegen") {
-      const qiAmt = Math.floor(unit.stats.qi * 0.06);
+    if (battle.run.traits.includes("jingxi")) {
+      const qiAmt = Math.floor(unit.stats.qi * 0.05);
       unit.qi = Math.min(unit.stats.qi, unit.qi + qiAmt);
-      battleLog(battle, `【${art.name}】${unit.name}恢复${qiAmt}内力。`);
-    }
-    if (art?.combatEffect === "cleanse" && unit.cleanseShield > 0) {
-      unit.cleanseShield--;
+      battleLog(battle, `【静息】${unit.name}恢复${qiAmt}内力。`);
     }
   }
 
@@ -663,6 +697,7 @@ function applySkillEffects(run, battle, actor, target, skill, damage) {
 
   if (hasStyleMastery(run, skill.style) && ["bleed", "frost", "hamstring", "gu", "poison"].includes(skill.style)) stacks += 1;
   if (run.traits.includes("nightPoison") && skill.debuff === "poison") stacks += 1;
+  if (run.traits.includes("tieyi_blood_debt") && skill.style === "bleed") stacks += 3;
   for (const trait of run.skillTraits || []) {
     if (skill.style === "poison") stacks += trait.effects?.poisonBonus || 0;
   }
@@ -800,20 +835,23 @@ function applySkillEffects(run, battle, actor, target, skill, damage) {
   }
 
   // 内功效果：命中时
-  if (actor === battle.player && battle.run?.activeInternalArt) {
-    const art = DATA.internalArts[battle.run.activeInternalArt];
-    if (art?.combatEffect === "frostOnHit" && battle.turnTrackers.frostHits < 1) {
-      const cap = getDebuffCap(run, weapon, "frost");
-      target.frost = Math.min(cap, target.frost + 1);
-      battleLog(battle, `【${art.name}】${target.name}被附加1层寒气！`);
-      battle.turnTrackers.frostHits++;
-    }
-    if (art?.combatEffect === "drainQi") {
-      const drain = Math.min(target.qi, Math.floor(target.qi * 0.08), 40);
-      target.qi -= drain;
-      actor.qi = Math.min(actor.stats.qi, actor.qi + drain);
-      if (drain > 0) battleLog(battle, `【${art.name}】汲取${target.name}${drain}点内力！`);
-    }
+  if (actor === battle.player && battle.run?.activeInternalArts?.length) {
+    battle.run.activeInternalArts.forEach(id => {
+      const art = DATA.internalArts[id];
+      if (!art) return;
+      if (art.combatEffect === "frostOnHit" && battle.turnTrackers.frostHits < 1) {
+        const cap = getDebuffCap(run, weapon, "frost");
+        target.frost = Math.min(cap, target.frost + 1);
+        battleLog(battle, `【${art.name}】${target.name}被附加1层寒气！`);
+        battle.turnTrackers.frostHits++;
+      }
+      if (art.combatEffect === "drainQi") {
+        const drain = Math.min(target.qi, Math.floor(target.qi * 0.08), 40);
+        target.qi -= drain;
+        actor.qi = Math.min(actor.stats.qi, actor.qi + drain);
+        if (drain > 0) battleLog(battle, `【${art.name}】汲取${target.name}${drain}点内力！`);
+      }
+    });
   }
 }
 
@@ -846,10 +884,10 @@ function calcDamage(run, battle, actor, target, skill) {
   const noCrit = skill.style === "poison" || skill.style === "lowKick" || skill.style === "coin";
   if (!noCrit && Math.random() * 100 < critChance(run, actor, skill)) {
     let cm = critMultiplier(run, skill);
-    if (run.activeInternalArt) {
-      const art = DATA.internalArts[run.activeInternalArt];
-      if (art?.combatEffect === "critUp") cm += 0.2;
-    }
+    (run.activeInternalArts || []).forEach(id => {
+      const art = DATA.internalArts[id];
+      if (art?.combatEffect === "critUp") cm += 1.5;
+    });
     dmg = Math.floor(dmg * cm);
     battleLog(battle, "暴击！");
     addFloater(battle, sideOf(battle, actor), "会心一击");
@@ -888,11 +926,11 @@ function baseSkillDamage(run, actor, target, skill) {
 function skillQiCost(actor, skill, run) {
   if (skill.tags?.includes("coin")) return 0;
   let cost = skill.qi + (actor.gu || 0) * GU_QI_COST;
-  // 虚玄无相功：招式内力消耗-12%（降耗最高22%）
-  if (run?.activeInternalArt) {
-    const art = DATA.internalArts[run.activeInternalArt];
-    if (art?.combatEffect === "qiReduce") cost = Math.floor(cost * 0.88);
-  }
+  // 虚玄无相功：招式内力消耗-30%（降耗最高40%）
+  (run?.activeInternalArts || []).forEach(id => {
+    const art = DATA.internalArts[id];
+    if (art?.combatEffect === "qiReduce") cost = Math.floor(cost * 0.70);
+  });
   return cost;
 }
 
