@@ -745,9 +745,9 @@ function computeEventDifficulty(run, event) {
   let enemyHp = 0;
   // 孤云逐浪专属打斗事件：映射到三大通用年份池
   const wandererFightPool = {
-    wanderer_fight_remnant: "ambush", wanderer_fight_escort: "ambush",
-    wanderer_fight_bounty: "bandit", wanderer_fight_camp: "bandit",
-    wanderer_fight_traitor: "fighter", wanderer_fight_arena: "fighter"
+    wanderer_fight_ambush: "ambush",
+    wanderer_fight_bandit: "bandit",
+    wanderer_fight_fighter: "fighter"
   };
   const wp = DATA.wandererEnemyPool;
   if (wandererFightPool[event.id] && wp?.grunts) {

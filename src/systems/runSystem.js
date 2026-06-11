@@ -68,6 +68,7 @@ export function createRun(characterId, treasureId, meta) {
     storylineId: characterId,
     mainThreat: 0,
     wandererResolve: 0,
+    collectedHeritages: [],
     storyFlags: {},
     log: [],
     finished: false
@@ -309,108 +310,139 @@ function makeRiskEventPool(run) {
 function makeWandererGrowthPool(run) {
   const g = DATA.wandererGrowthEvents;
   if (!g) return [];
-  const monthAbs = (run.year - 1) * 12 + run.month;
+  const monthAbsVal = (run.year - 1) * 12 + run.month;
   const events = [];
-  // --- 传功 (heritage, 条件过滤) ---
-  for (const h of (g.heritage || [])) {
-    if (h.id === "wanderer_heritage_tieyi" && monthAbs < 10) continue;
-    if (h.id === "wanderer_heritage_meng" && monthAbs < 16) continue;
+
+  // --- 传功 (heritage): 按月解锁 + 每局限领一次 ---
+  const availableHeritage = (g.heritage || []).filter(h => {
+    if (monthAbsVal < h.unlockMonth) return false;
+    if (run.collectedHeritages.includes(h.id)) return false;
+    return true;
+  });
+  availableHeritage.forEach(h => {
+    const eff = h.effect || {};
+    // 构建 apply 函数（统一处理效果字段）
+    const applyFn = ({ run: r }) => {
+      if (eff.traitGain && !r.traits.includes(eff.traitGain)) r.traits.push(eff.traitGain);
+      if (eff.defUp) r.stats.def += eff.defUp;
+      if (eff.qiUp) { r.stats.qi += eff.qiUp; r.qi += eff.qiUp; }
+      if (eff.hpUp) { r.stats.hp += eff.hpUp; r.hp += eff.hpUp; }
+      if (eff.crit) r.stats.crit += eff.crit;
+      if (eff.combo) r.stats.combo += eff.combo;
+      if (eff.hit) r.stats.hit += eff.hit;
+      if (eff.dodge) r.stats.dodge += eff.dodge;
+      if (eff.speed) r.stats.speed += eff.speed;
+      r.collectedHeritages.push(h.id);
+      log(r, `${h.name}！${eff.desc || ""}`);
+    };
     events.push({
-      id: h.id, name: h.name, category: "高手传功", icon: "传", desc: h.desc,
-      apply: h.id === "wanderer_heritage_tieyi"
-        ? (({ run: r }) => {
-            if (!r.traits.includes("tieyi_legacy")) r.traits.push("tieyi_legacy");
-            r.stats.def += 10;
-            log(r, "感悟铁衣遗志！防御+10，获得特性「铁衣遗志」：流血招式层数+3。");
-          })
-        : (({ run: r }) => {
-            r.stats.qi += 80; r.qi += 80;
-            if (!r.traits.includes("clearMind")) r.traits.push("clearMind");
-            log(r, "研读灰袍手札！内力上限+80，获得特性「明心」：负面状态-20%。");
-          })
+      id: h.id, name: h.name, category: "高手传功", icon: "传", desc: h.desc, weight: 10,
+      apply: applyFn
     });
-  }
-  // --- 道具 (item, 条件过滤) ---
-  for (const it of (g.item || [])) {
-    if (it.id === "wanderer_item_relic" && monthAbs < 6) continue;
-    if (it.id === "wanderer_item_merchant" && monthAbs < 6) continue;
-    events.push({
-      id: it.id, name: it.name, category: "道具", icon: "遗", desc: it.desc,
-      apply: it.id === "wanderer_item_relic"
-        ? (({ run: r }) => {
-            r.items.push("pill", "pill", "statPill", "statPill");
-            log(r, "发现外编队遗物！获得金疮药×2、小还丹×2。");
-          })
-        : (({ run: r }) => {
-            // 游商秘货：花钱买防具或直接得硬布背心
-            const cost = Math.floor((run.year >= 2 ? 0.6 : 0.5) * (600 + (run.year - 1) * 200));
-            if (r.money >= 200) {
-              r.money -= 200;
-              r.armors.push("armor_heavy_blue");
-              log(r, `游商秘货！花200金获得硬布背心。`);
+  });
+
+  // --- 道具 (item): 按月/年解锁 ---
+  const availableItem = (g.item || []).filter(it => {
+    if (monthAbsVal < it.unlockMonth) return false;
+    if (it.unlockYear && run.year < it.unlockYear) return false;
+    return true;
+  });
+  availableItem.forEach(it => {
+    if (it.id === "wanderer_item_relic") {
+      events.push({
+        id: it.id, name: it.name, category: "道具", icon: "遗", desc: it.desc, weight: 10,
+        apply: (({ run: r }) => {
+          // 随机1~2件消耗品，低价值品概率更高
+          const lowPool = ["pill", "pill", "qiWine", "qiWine", "apPowder"];
+          const highPool = ["statPill", "bigPill", "qiPill"];
+          const pool = Math.random() < 0.75 ? lowPool : highPool;
+          const item = pool[Math.floor(Math.random() * pool.length)];
+          r.items.push(item);
+          const itemName = (DATA.items[item] || {}).name || "丹药";
+          if (Math.random() < 0.4) {
+            const pool2 = Math.random() < 0.75 ? lowPool : highPool;
+            const item2 = pool2[Math.floor(Math.random() * pool2.length)];
+            r.items.push(item2);
+            const itemName2 = (DATA.items[item2] || {}).name || "丹药";
+            log(r, `散人遗物！获得${itemName}、${itemName2}。`);
+          } else {
+            log(r, `散人遗物！获得${itemName}。`);
+          }
+        })
+      });
+    } else if (it.id === "wanderer_item_merchant") {
+      events.push({
+        id: it.id, name: it.name, category: "道具", icon: "商", desc: it.desc, weight: 10,
+        apply: (({ run: r }) => {
+          // 五折买随机武器或防具
+          const yrRarity = ["blue", "orange", "red"][Math.min(run.year - 1, 2)];
+          const isWeapon = Math.random() < 0.5;
+          let pool, item;
+          if (isWeapon) {
+            pool = Object.values(DATA.weapons).filter(w => w.rarity === yrRarity);
+          } else {
+            pool = Object.values(DATA.armors).filter(a => a.rarity === yrRarity);
+          }
+          if (pool.length) {
+            item = pool[Math.floor(Math.random() * pool.length)];
+            const price = Math.floor(item.price * 0.5);
+            if (r.money >= price) {
+              r.money -= price;
+              if (isWeapon) { r.weapons.push(item.id); }
+              else { r.armors.push(item.id); }
+              log(r, `游商秘货！花${price}金（五折）购得${item.name}。`);
             } else {
-              r.money += scaleMoney(r, 80);
-              log(r, "游商见你钱不够，丢下几枚散碎银两走了。");
+              r.money += scaleMoney(r, 40);
+              log(r, `游商见你钱不够，丢下几枚碎银走了。获得${scaleMoney(r, 40)}金钱。`);
             }
-          })
-    });
-  }
-  // --- 属性 (stat, 按年份梯度，含月份过滤) ---
-  const statYrVals = { 1: [120, 28, 2, 3], 2: [168, 39, 3, 4], 3: [240, 56, 4, 5] };
-  const statKeys = ["hp", "qi", "dodge", "hit"];
-  const statMonthMin = [10, 10, 10, 25]; // hp=M10, qi=M10, dodge=M10, hit=M25
-  (g.stat || []).forEach((s, i) => {
-    if (monthAbs < statMonthMin[i]) return;
+          } else {
+            r.money += scaleMoney(r, 60);
+            log(r, `游商今日无货，给你介绍了一单生意。获得${scaleMoney(r, 60)}金钱。`);
+          }
+        })
+      });
+    }
+  });
+
+  // --- 加属性 (stat): 按月解锁（全从M1起）---
+  const statYrIdx = Math.min(run.year, 3) - 1;
+  (g.stat || []).forEach(s => {
+    if (monthAbsVal < s.unlockMonth) return;
+    const v = s.values ? (s.values[`y${run.year}`] || s.values.y1 || 0) : 0;
     events.push({
-      id: s.id, name: s.name, category: "属性", icon: "体", desc: s.desc,
+      id: s.id, name: s.name, category: "属性", icon: "体", desc: s.desc, weight: 20,
       apply: (({ run: r }) => {
-        const v = (statYrVals[run.year] || statYrVals[1])[i];
         if (s.statKey === "hp") { r.stats.hp += v; r.hp += v; }
         else if (s.statKey === "qi") { r.stats.qi += v; r.qi += v; }
         else { r.stats[s.statKey] += v; }
-        log(r, `${s.name}！${s.statKey === "hp" ? "血量上限" : s.statKey === "qi" ? "内力上限" : STAT_LABELS[s.statKey] || s.statKey}+${v}。`);
+        log(r, `${s.name}！${STAT_LABELS[s.statKey] || s.statKey}+${v}。`);
       })
     });
   });
-  return events;
+
+  // 使用 category 权重做随机选择
+  return pickByWeight(events, monthAbsVal, availableHeritage.length, availableItem.length);
 }
 
 function makeWandererRiskPool(run) {
   const g = DATA.wandererGrowthEvents;
   if (!g) return [];
-  const monthAbs = (run.year - 1) * 12 + run.month;
+  const monthAbsVal = (run.year - 1) * 12 + run.month;
   const events = [];
-  // --- 孤云专属敌人池 ---
-  const wp = DATA.wandererEnemyPool;
-  // 按 fight 事件 ID 映射到三大通用池（林中伏击/悬赏缉拿/擂台切磋）（林中伏击/悬赏缉拿/擂台切磋）
-  const POOLS = { ambush: "ambush", bandit: "bandit", fighter: "fighter" };
-  const fightEnemyMap = {
-    wanderer_fight_remnant:  { pool: POOLS.ambush,  count: run.year >= 2 ? 3 : 2, desc: "林中伏击" },
-    wanderer_fight_escort:   { pool: POOLS.ambush,  count: run.year >= 2 ? 4 : 3, desc: "林中伏击" },
-    wanderer_fight_bounty:   { pool: POOLS.bandit,  count: run.year >= 2 ? 4 : 3, desc: "悬赏缉拿" },
-    wanderer_fight_camp:     { pool: POOLS.bandit,  count: run.year >= 2 ? 3 : 2, desc: "悬赏缉拿" },
-    wanderer_fight_traitor:  { pool: POOLS.fighter, count: 2, desc: "擂台切磋" },
-    wanderer_fight_arena:    { pool: POOLS.fighter, count: 1, desc: "擂台切磋" }
-  };
-  // --- 打斗 (fight, 按年份+月份过滤，使用孤云专属敌人) ---
-  const fightMonthMin = {
-    wanderer_fight_remnant: 13, wanderer_fight_bounty: 20,
-    wanderer_fight_traitor: 6, wanderer_fight_arena: 6,
-    wanderer_fight_escort: 6, wanderer_fight_camp: 16
-  };
+  const yrIdx = Math.min(run.year, 3) - 1;
+
+  // --- 切磋打斗 (fight): 三个通用池 ---
   (g.fight || []).forEach(f => {
-    if (f.years && !f.years.includes(run.year)) return;
-    if (fightMonthMin[f.id] && monthAbs < fightMonthMin[f.id]) return;
-    const mapping = fightEnemyMap[f.id];
-    if (!mapping) return;
-    const yr = Math.min(run.year, 3);
-    const lookupId = `wanderer_grunt_${mapping.pool}_yr${yr}`;
+    if (monthAbsVal < f.unlockMonth) return;
+    const wp = DATA.wandererEnemyPool;
+    if (!wp) return;
+    const lookupId = `wanderer_grunt_${f.pool}_yr${run.year}`;
     const enemy = wp.grunts.find(e => e.id === lookupId);
     if (!enemy) return;
-    const num = mapping.count;
+    const num = (f.count || [2,2,2])[yrIdx] || 2;
     events.push({
-      id: f.id, name: f.name, category: "切磋", icon: "战",
-      desc: `${f.desc}（${mapping.desc}×${num}）`,
+      id: f.id, name: f.name, category: "切磋", icon: "战", weight: 30,
+      desc: `${f.desc}（${f.name}×${num}）`,
       apply: (({ run: r, startBattle }) => {
         const template = { ...enemy };
         template.name = `${template.name}${num > 1 ? "×" + num : ""}`;
@@ -418,28 +450,60 @@ function makeWandererRiskPool(run) {
       })
     });
   });
-  // --- 金钱 (coin, 按年份过滤) ---
-  const coinYrMap = { 1: 0, 2: 1, 3: 2 };
+
+  // --- 金钱 (coin): 按月/年解锁 ---
   (g.coin || []).forEach(c => {
-    const yrIdx = coinYrMap[run.year] || 0;
+    if (c.unlockMonth && monthAbsVal < c.unlockMonth) return;
+    if (c.unlockYear && run.year < c.unlockYear) return;
     const reward = c.reward || {};
     const amount = reward[`y${run.year}`] || reward.y1 || 100;
-    // 条件过滤
-    if (c.id === "wanderer_coin_escort" && monthAbs < 10) return;
-    if (c.id === "wanderer_coin_rebuild" && monthAbs < 10) return;
-    if (c.id === "wanderer_coin_intel" && (monthAbs < 16 || run.year < 2)) return;
-    if (c.id === "wanderer_coin_fangping" && monthAbs < 2) return;
-    if (c.id === "wanderer_coin_labor" && monthAbs < 13) return;
-    if (c.id === "wanderer_coin_market" && monthAbs < 6) return;
     events.push({
-      id: c.id, name: c.name, category: "金钱", icon: "钱", desc: c.desc,
+      id: c.id, name: c.name, category: "金钱", icon: "钱", weight: 30,
+      desc: c.desc,
       apply: (({ run: r }) => {
         r.money += amount;
         log(r, `${c.name}！获得${amount}金钱。${c.bonusDesc ? "（" + c.bonusDesc + "）" : ""}`);
       })
     });
   });
-  return events;
+
+  // 切磋/金钱各占30%全局权重
+  return pickByWeight(events);
+}
+
+// 按事件自带 weight 做加权抽取；若无可用传功/道具时修权纳入加属性
+function pickByWeight(events, monthAbsVal, heritageAvail, itemAvail) {
+  if (!events.length) return [];
+  // heritageAvail/itemAvail 仅对 growth pool 传递，risk pool 不传
+  const _ha = (heritageAvail !== undefined) ? heritageAvail : 99;
+  const _ia = (itemAvail !== undefined) ? itemAvail : 99;
+  // 在 growth pool 层面，若某类不可用，其 weight 并入 stat
+  const adjusted = events.map(e => {
+    let w = e.weight || 10;
+    if (e.category === "高手传功" && _ha === 0) w = 0;
+    if (e.category === "道具" && _ia === 0) w = 0;
+    return { ...e, _w: w };
+  }).filter(e => e._w > 0);
+  // 计算 stat 需要吸收的额外权重
+  const lostHeritage = (_ha === 0) ? 10 : 0;
+  const lostItem = (_ia === 0) ? 10 : 0;
+  const totalLost = lostHeritage + lostItem;
+  if (totalLost > 0) {
+    const statEvents = adjusted.filter(e => e.category === "属性");
+    if (statEvents.length) {
+      const bonusPerStat = totalLost / statEvents.length;
+      statEvents.forEach(e => { e._w += bonusPerStat; });
+    }
+  }
+  const totalW = adjusted.reduce((s, e) => s + e._w, 0);
+  if (totalW <= 0) return events; // fallback: 返回全部（不应该发生）
+  const roll = Math.random() * totalW;
+  let acc = 0;
+  for (const e of adjusted) {
+    acc += e._w;
+    if (roll < acc) return [e]; // sample 返回单元素数组
+  }
+  return [adjusted[adjusted.length - 1]];
 }
 
 export function refreshManuals(run) {
