@@ -1207,9 +1207,6 @@ button {
   display: grid;
   gap: 3px;
   align-content: start;
-  width: 535px;
-  max-height: 420px;
-  overflow: hidden;
 }
 
 .merchant-col h3 {
@@ -1221,10 +1218,28 @@ button {
 }
 
 .merchant-col .row-card {
+  position: relative;
   min-height: 48px;
-  grid-template-columns: 36px 1fr auto;
+  grid-template-columns: 36px 1fr;
   gap: 4px;
-  padding: 3px;
+  padding: 3px 62px 3px 6px;
+}
+
+/* 文字容器允许省略号生效 */
+.merchant-col .row-card > :nth-child(2) {
+  overflow: hidden;
+  min-width: 0;
+}
+
+.merchant-col .row-card button {
+  position: absolute;
+  right: 6px;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 2;
+  margin: 0;
+  white-space: nowrap;
+  font-size: 13px;
 }
 
 .merchant-col .icon-box {
