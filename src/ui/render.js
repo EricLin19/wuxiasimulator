@@ -486,9 +486,6 @@ function renderMerchantModal(modal, run, actions, isHall = false) {
   const isWanderer = run.storylineId === "wanderer";
   const refreshes = run._merchantRefreshes || 0;
 
-  // 武林商人页面收窄至 ~560px，每个卡片约280px（原来的1/2）
-  modal.style.maxWidth = "580px";
-
   // 标题栏：标题 + 刷新(孤云线) + 离开
   modal.innerHTML = `<div class="modal-head"><h2 class="modal-title">武林商人</h2>
     <div style="display:flex;gap:8px;align-items:center">
