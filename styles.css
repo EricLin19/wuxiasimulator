@@ -1205,7 +1205,7 @@ button {
 /* 旧版兼容（非孤云线） */
 .merchant-col {
   display: grid;
-  gap: 8px;
+  gap: 6px;
   align-content: start;
 }
 
@@ -1218,13 +1218,31 @@ button {
 }
 
 .merchant-col .row-card {
-  min-height: 68px;
+  min-height: 62px;
+  grid-template-columns: 52px 1fr auto;
+  gap: 6px;
+  padding: 6px;
 }
 
 .merchant-col .icon-box {
-  width: 56px;
-  height: 56px;
-  font-size: 28px;
+  width: 48px;
+  height: 48px;
+  font-size: 24px;
+  flex-shrink: 0;
+}
+
+.merchant-col .row-title {
+  font-size: 17px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.merchant-col .row-meta {
+  font-size: 13px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .modal-head {
@@ -1704,10 +1722,11 @@ body.mobile-viewport .wanderer-run-layout .center-stage {
   overflow-y: auto;
 }
 
-.allocate-right {
+.allocate-layout .allocate-right {
   display: flex;
   flex-direction: column;
-  overflow: hidden;
+  overflow: visible;
+  padding-bottom: 12px;
 }
 
 .allocate-list {

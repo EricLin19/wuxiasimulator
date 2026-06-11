@@ -494,9 +494,9 @@ function renderMerchantModal(modal, run, actions, isHall = false) {
         <div class="merchant-col">
           <h3>外功秘籍</h3></div>
         <div class="merchant-col">
-          <h3>内功秘籍</h3></div>
-        <div class="merchant-col">
           <h3>装备</h3></div>
+        <div class="merchant-col">
+          <h3>内功秘籍</h3></div>
         <div class="merchant-col">
           <h3>丹药</h3></div>
       </div>
@@ -517,17 +517,7 @@ function renderMerchantModal(modal, run, actions, isHall = false) {
       if (run.skills.includes(entry.id) || run.trainingSkills.includes(entry.id)) row.querySelector("button").disabled = true;
       cols[0].appendChild(row);
     });
-    // 内功秘籍 ×2
-    run.merchantStock.filter(e => e.kind === "internalArt").forEach(entry => {
-      const art = DATA.internalArts[entry.id];
-      if (!art) return;
-      const price = getInternalArtPrice(run, entry.id);
-      const owned = run.internalArts.includes(entry.id);
-      const row = rowCard(art.icon, `【${art.rarity === "red" ? "绝" : art.rarity === "orange" ? "上" : "中"}】${art.name}`, art.desc, owned ? "已拥有" : `${price}◎ 购买`, () => actions.buyInternalArt(entry.id));
-      if (owned) row.querySelector("button").disabled = true;
-      cols[1].appendChild(row);
-    });
-    // 装备 ×3（武器+防具）
+    // 装备 ×3（武器+防具）→ cols[1]（右上）
     run.merchantStock.filter(e => e.kind === "weapon" || e.kind === "armor").forEach(entry => {
       let obj, icon, name, desc, label, btnLabel;
       if (entry.kind === "weapon") {
@@ -542,6 +532,16 @@ function renderMerchantModal(modal, run, actions, isHall = false) {
       }
       const row = rowCard(icon, name, desc, btnLabel, () => actions.buyShopEntry(entry));
       if ((entry.kind === "armor" && run.armors.includes(entry.id))) row.querySelector("button").disabled = true;
+      cols[1].appendChild(row);
+    });
+    // 内功秘籍 ×2 → cols[2]（左下）
+    run.merchantStock.filter(e => e.kind === "internalArt").forEach(entry => {
+      const art = DATA.internalArts[entry.id];
+      if (!art) return;
+      const price = getInternalArtPrice(run, entry.id);
+      const owned = run.internalArts.includes(entry.id);
+      const row = rowCard(art.icon, `【${art.rarity === "red" ? "绝" : art.rarity === "orange" ? "上" : "中"}】${art.name}`, art.desc, owned ? "已拥有" : `${price}◎ 购买`, () => actions.buyInternalArt(entry.id));
+      if (owned) row.querySelector("button").disabled = true;
       cols[2].appendChild(row);
     });
     // 丹药 ×5
@@ -564,7 +564,7 @@ function renderMerchantModal(modal, run, actions, isHall = false) {
       const price = Math.floor((s.rarity === "red" ? 900 : s.rarity === "orange" ? 520 : 300) * (run.treasure.effect === "manualMastery" ? 0.82 : 1));
       cols[0].appendChild(rowCard(s.icon || "秘", skillDisplayName(s), s.desc, `${price}◎`, () => actions.buyManual(id)));
     });
-    // 内功秘籍
+    // 内功秘籍 → cols[2]（左下）
     run.merchantStock.filter(e => e.kind === "internalArt").forEach(entry => {
       const art = DATA.internalArts[entry.id];
       if (!art) return;
@@ -572,9 +572,9 @@ function renderMerchantModal(modal, run, actions, isHall = false) {
       const owned = run.internalArts.includes(entry.id);
       const row = rowCard(art.icon, `【${art.rarity === "red" ? "绝" : art.rarity === "orange" ? "上" : "中"}】${art.name}`, art.desc, owned ? "已拥有" : `${price}◎ 购买`, () => actions.buyInternalArt(entry.id));
       if (owned) row.querySelector("button").disabled = true;
-      cols[1].appendChild(row);
+      cols[2].appendChild(row);
     });
-    // 装备
+    // 装备 → cols[1]（右上）
     run.merchantStock.filter(e => e.kind === "weapon" || e.kind === "armor").forEach(entry => {
       let obj, icon, name, desc;
       if (entry.kind === "weapon") {
@@ -584,9 +584,9 @@ function renderMerchantModal(modal, run, actions, isHall = false) {
         obj = DATA.armors[entry.id];
         icon = obj?.icon || "甲"; name = obj?.name || entry.id; desc = obj?.desc || "";
       }
-      cols[2].appendChild(rowCard(icon, name, desc, `${obj.price}◎`, () => actions.buyShopEntry(entry)));
+      cols[1].appendChild(rowCard(icon, name, desc, `${obj.price}◎`, () => actions.buyShopEntry(entry)));
     });
-    // 丹药
+    // 丹药 → cols[3]（右下）
     run.merchantStock.filter(e => e.kind === "item").forEach(entry => {
       const obj = DATA.items[entry.id];
       if (!obj) return;
