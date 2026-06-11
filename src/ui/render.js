@@ -486,6 +486,9 @@ function renderMerchantModal(modal, run, actions, isHall = false) {
   const isWanderer = run.storylineId === "wanderer";
   const refreshes = run._merchantRefreshes || 0;
 
+  // 武林商人页面收窄至 ~560px，每个卡片约280px（原来的1/2）
+  modal.style.maxWidth = "580px";
+
   // 标题栏：标题 + 刷新(孤云线) + 离开
   modal.innerHTML = `<div class="modal-head"><h2 class="modal-title">武林商人</h2>
     <div style="display:flex;gap:8px;align-items:center">
@@ -513,8 +516,8 @@ function renderMerchantModal(modal, run, actions, isHall = false) {
       const s = DATA.skills[entry.id];
       if (!s) return;
       const owned = run.skills.includes(entry.id) || run.trainingSkills.includes(entry.id);
-      const btnLabel = owned ? "已拥有" : "购买";
-      const meta = owned ? s.desc : `${entry.price}◎ · ${s.desc}`;
+      const btnLabel = owned ? "已拥有" : `${entry.price}◎`;
+      const meta = owned ? s.desc : s.desc;
       const row = rowCard(s.icon || "秘", skillDisplayName(s), meta, btnLabel, () => actions.buyManual(entry.id));
       if (owned) row.querySelector("button").disabled = true;
       cols[0].appendChild(row);
@@ -525,13 +528,13 @@ function renderMerchantModal(modal, run, actions, isHall = false) {
       if (entry.kind === "weapon") {
         obj = DATA.weapons[entry.id];
         icon = obj?.icon || "武"; name = obj?.name || entry.id; desc = obj?.desc || "";
-        meta = `${entry.price}◎ · ${desc}`; btnLabel = "购买";
+        meta = desc; btnLabel = `${entry.price}◎`;
       } else {
         obj = DATA.armors[entry.id];
         icon = obj?.icon || "甲"; name = obj?.name || entry.id; desc = obj?.desc || "";
         const owned = run.armors.includes(entry.id);
-        meta = owned ? desc : `${entry.price}◎ · ${desc}`;
-        btnLabel = owned ? "已拥有" : "购买";
+        meta = desc;
+        btnLabel = owned ? "已拥有" : `${entry.price}◎`;
       }
       const row = rowCard(icon, name, meta, btnLabel, () => actions.buyShopEntry(entry));
       if ((entry.kind === "armor" && run.armors.includes(entry.id))) row.querySelector("button").disabled = true;
@@ -543,7 +546,7 @@ function renderMerchantModal(modal, run, actions, isHall = false) {
       if (!art) return;
       const price = getInternalArtPrice(run, entry.id);
       const owned = run.internalArts.includes(entry.id);
-      const row = rowCard(art.icon, `【${art.rarity === "red" ? "绝" : art.rarity === "orange" ? "上" : "中"}】${art.name}`, art.desc, owned ? "已拥有" : `${price}◎ 购买`, () => actions.buyInternalArt(entry.id));
+      const row = rowCard(art.icon, `【${art.rarity === "red" ? "绝" : art.rarity === "orange" ? "上" : "中"}】${art.name}`, art.desc, owned ? "已拥有" : `${price}◎`, () => actions.buyInternalArt(entry.id));
       if (owned) row.querySelector("button").disabled = true;
       cols[2].appendChild(row);
     });
@@ -573,7 +576,7 @@ function renderMerchantModal(modal, run, actions, isHall = false) {
       if (!art) return;
       const price = getInternalArtPrice(run, entry.id);
       const owned = run.internalArts.includes(entry.id);
-      const row = rowCard(art.icon, `【${art.rarity === "red" ? "绝" : art.rarity === "orange" ? "上" : "中"}】${art.name}`, art.desc, owned ? "已拥有" : `${price}◎ 购买`, () => actions.buyInternalArt(entry.id));
+      const row = rowCard(art.icon, `【${art.rarity === "red" ? "绝" : art.rarity === "orange" ? "上" : "中"}】${art.name}`, art.desc, owned ? "已拥有" : `${price}◎`, () => actions.buyInternalArt(entry.id));
       if (owned) row.querySelector("button").disabled = true;
       cols[2].appendChild(row);
     });
