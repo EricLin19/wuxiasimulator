@@ -29,17 +29,17 @@ export function createBattle(run, enemyTemplate, isBoss = false) {
   const pStats = clone(run.stats);
 
   // 威视/决心维度缩放
-  // 威视每点使武盟全部维度+0.05%，决心每点使散人全部维度+0.05%
-  const threatMult = 1 + (run.mainThreat || 0) * 0.0005;
-  const resolveMult = 1 + (run.wandererResolve || 0) * 0.0005;
+  // 威视每点使武盟全部维度+5%，决心每点使散人全部维度+5%，全部取整
+  const threatMult = 1 + (run.mainThreat || 0) * 0.05;
+  const resolveMult = 1 + (run.wandererResolve || 0) * 0.05;
   if (threatMult !== 1) {
     for (const k of ["hp", "atk", "def", "hit", "dodge", "crit", "speed"]) {
-      if (enemyStats[k] !== undefined) enemyStats[k] = Number((enemyStats[k] * threatMult).toFixed(2));
+      if (enemyStats[k] !== undefined) enemyStats[k] = Math.round(enemyStats[k] * threatMult);
     }
   }
   if (resolveMult !== 1) {
     for (const k of ["hp", "atk", "def", "hit", "dodge", "crit", "speed"]) {
-      if (pStats[k] !== undefined) pStats[k] = Number((pStats[k] * resolveMult).toFixed(2));
+      if (pStats[k] !== undefined) pStats[k] = Math.round(pStats[k] * resolveMult);
     }
   }
 

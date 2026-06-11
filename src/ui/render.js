@@ -42,6 +42,7 @@ export function renderApp(state, actions) {
   app.innerHTML = "";
   if (state.screen === "menu") app.appendChild(renderMenu(state, actions));
   if (state.screen === "select") app.appendChild(renderSelect(state, actions));
+  if (state.screen === "allocate") app.appendChild(renderAllocate(state, actions));
   if (state.screen === "run") app.appendChild(renderRun(state, actions));
   if (state.screen === "battle") app.appendChild(renderBattle(state, actions));
   if (state.screen === "settlement") app.appendChild(renderSettlement(state, actions));
@@ -104,6 +105,64 @@ function renderSelect(state, actions) {
     right.querySelector(".treasure-cards").appendChild(card);
   });
   right.querySelector(".start-run-btn").onclick = actions.startRun;
+  screen.append(left, right);
+  return screen;
+}
+
+function renderAllocate(state, actions) {
+  const screen = el("div", "screen select-layout");
+  const selected = DATA.characters.find(c => c.id === state.selectedCharacter);
+  const alloc = state.perRunAllocations || {};
+  const points = state.allocPoints || 0;
+  const allKeys = [...STAT_KEYS, "money"];
+  const ALLOC_BONUS = {
+    hp: 90, qi: 30, atk: 3, def: 3, combo: 2, hit: 3, dodge: 1, crit: 2, speed: 0.04,
+    money: 100
+  };
+  const ALLOC_HELP = {
+    hp: "局外每点：血量+90", qi: "局外每点：内力+30",
+    atk: "局外每点：攻击+3", def: "局外每点：防御+3",
+    combo: "局外每点：连击+2", hit: "局外每点：命中+3",
+    dodge: "局外每点：闪避+1", crit: "局外每点：暴击+2",
+    speed: "局外每点：出手速度+0.04", money: "局外每点：开局金钱+100"
+  };
+
+  const left = el("div", "panel");
+  left.style.padding = "18px";
+  left.innerHTML = `<h2 class="section-title">${selected.name}</h2>
+    <div class="portrait character-portrait large">${selected.portraitImage ? `<img src="${selected.portraitImage}" alt="${selected.name}" loading="lazy" decoding="async">` : `<span>${selected.icon}</span>`}</div>
+    <div class="desc">${selected.traitText}</div>
+    <div class="stats-grid">${STAT_KEYS.map(k => statLine(k, selected.stats[k])).join("")}</div>`;
+
+  const right = el("div", "panel select-detail");
+  right.style.padding = "18px";
+  right.innerHTML = `
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+      <h2 class="section-title" style="margin:0">局外点数分配</h2>
+      <div style="display:flex;gap:8px;align-items:center">
+        <span style="background:#2c2c1a;color:#f39c12;padding:4px 12px;border-radius:6px;font-weight:700;font-size:15px">剩余：${points} 点</span>
+        <button class="btn secondary small" data-act="reset-alloc">重置</button>
+      </div>
+    </div>
+    <div class="list"></div>
+    <button class="btn green" style="width:100%;margin-top:12px;font-size:16px;padding:12px" data-act="confirm-alloc">确定（${points > 0 ? `还有${points}点未分配` : "开始冒险"})</button>`;
+
+  const list = right.querySelector(".list");
+  allKeys.forEach(key => {
+    const pts = alloc[key] || 0;
+    const bonus = pts * ALLOC_BONUS[key];
+    const bonusText = key === "speed" ? `+${bonus.toFixed(2)}` : `+${Math.round(bonus)}`;
+    const row = el("div", "row-card");
+    row.innerHTML = `<div class="icon-box">${pts}</div><div><div class="row-title">${STAT_LABELS[key] || "金钱"} ${pts > 0 ? bonusText : ""}</div><div class="row-meta">${ALLOC_HELP[key]}</div></div><div style="display:flex;gap:4px"><button class="btn red small" data-act="decr">-</button><button class="btn green small" data-act="incr">+</button></div>`;
+    row.querySelector("[data-act=incr]").onclick = () => actions.allocatePoint(key);
+    row.querySelector("[data-act=decr]").onclick = () => actions.deallocatePoint(key);
+    if (pts <= 0) row.querySelector("[data-act=decr]").disabled = true;
+    if (points <= 0) row.querySelector("[data-act=incr]").disabled = true;
+    list.appendChild(row);
+  });
+
+  right.querySelector("[data-act=reset-alloc]").onclick = actions.resetAllocations;
+  right.querySelector("[data-act=confirm-alloc]").onclick = actions.confirmAllocate;
   screen.append(left, right);
   return screen;
 }
@@ -564,20 +623,20 @@ function renderGoalsModal(modal, run, close) {
   const progress = Math.min(100, Math.floor(currentMonth / totalMonths * 100));
   // 威胁值威胁度（维度缩放 + Boss档位加成）
   const threatLevel = threatVal >= 9 ? "【威势压人】" : threatVal >= 6 ? "【暗流涌动】" : threatVal >= 3 ? "【山雨欲来】" : "";
-  const threatDimPct = threatVal > 0 ? ` 敌方属性+${(threatVal * 0.05).toFixed(2)}%` : "";
+  const threatDimPct = threatVal > 0 ? ` 敌方属性+${threatVal * 5}%` : "";
   // 散人决心
   const resolve = run.wandererResolve || 0;
   const resolveLevel = resolve >= 9 ? "【散人齐心】" : resolve >= 6 ? "【散人暗助】" : resolve >= 3 ? "【散人初聚】" : "";
-  const resolveDimPct = resolve > 0 ? ` 我方属性+${(resolve * 0.05).toFixed(2)}%` : "";
+  const resolveDimPct = resolve > 0 ? ` 我方属性+${resolve * 5}%` : "";
   const resolveColor = resolve >= 6 ? "#2ecc71" : resolve >= 3 ? "#27ae60" : "#888";
   modal.innerHTML = `<div class="modal-head"><h2 class="modal-title">本局目标</h2>${close}</div><div class="goal-panel"><div class="boss-portrait">${bossPortraitImg ? `<img src="${bossPortraitImg}" alt="${bossName}" loading="lazy" decoding="async">` : bossIcon}</div><div>
     <h2>主线：${storylineName}</h2>
     <p style="color:${threatColor};margin:6px 0">${threatName}：${threatVal} ${threatLevel}<span style="font-size:12px">${threatDimPct}</span></p>
     <p style="color:${resolveColor};margin:6px 0">散人决心：${resolve} ${resolveLevel}<span style="font-size:12px">${resolveDimPct}</span></p>
     <div style="background:#f5e6d3;padding:8px;margin:8px 0;border-left:3px solid #c0392b;font-size:13px;line-height:1.5">
-      <b>${threatName}：</b>每+1使战斗中<b>敌方全属性+0.05%</b>（武盟维度增强）。主线选择"顺应"增加威视。<br>
-      <b>散人决心：</b>每+1使战斗中<b>我方全属性+0.05%</b>（散人维度增强）。主线"抗争"战斗胜利增加决心。<br>
-      <span style="font-size:12px;color:#999">威视越高，年底Boss额外获得档位加成；决心越高，年底Boss额外获得档位削弱。</span>
+      <b>${threatName}：</b>每+1使战斗中<b>敌方全属性+5%</b>（武盟维度增强）。主线选择"顺应"增加威视。<br>
+      <b>散人决心：</b>每+1使战斗中<b>我方全属性+5%</b>（散人维度增强）。主线"抗争"战斗胜利增加决心。<br>
+      <span style="font-size:12px;color:#999">属性加成四舍五入取整。威视越高，年底Boss额外获得档位加成；决心越高，年底Boss额外获得档位削弱。</span>
     </div>
     <h3>今年Boss：${bossName}</h3>
     ${bossTraitDesc ? `<p style="color:#e74c3c;font-style:italic">特性：${bossTraitDesc}</p>` : ""}

@@ -10,5 +10,7 @@ export const state = {
   toast: "",
   meta: loadMeta(),
   settlement: null,
-  musicVolume: 0.5
+  musicVolume: 0.5,
+  perRunAllocations: null,
+  allocPoints: 15
 };

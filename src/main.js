@@ -345,7 +345,35 @@ const actions = {
   selectCharacter: id => { state.selectedCharacter = id; render(); },
   selectTreasure: id => { state.selectedTreasure = id; render(); },
   startRun: () => {
-    state.run = createRun(state.selectedCharacter, state.selectedTreasure, state.meta);
+    // 选完角色后进入局外点数分配页
+    const ZERO_ALLOC = { hp: 0, qi: 0, atk: 0, def: 0, combo: 0, hit: 0, dodge: 0, crit: 0, speed: 0, money: 0 };
+    state.perRunAllocations = { ...ZERO_ALLOC };
+    state.allocPoints = 15;
+    state.screen = "allocate";
+    state.modal = null;
+    render();
+  },
+  allocatePoint: key => {
+    if (state.allocPoints <= 0) return showToast("没有可分配点数");
+    state.perRunAllocations ||= {};
+    state.perRunAllocations[key] = (state.perRunAllocations[key] || 0) + 1;
+    state.allocPoints--;
+    render();
+  },
+  deallocatePoint: key => {
+    if (!state.perRunAllocations || (state.perRunAllocations[key] || 0) <= 0) return;
+    state.perRunAllocations[key]--;
+    state.allocPoints++;
+    render();
+  },
+  resetAllocations: () => {
+    const ZERO_ALLOC = { hp: 0, qi: 0, atk: 0, def: 0, combo: 0, hit: 0, dodge: 0, crit: 0, speed: 0, money: 0 };
+    state.perRunAllocations = { ...ZERO_ALLOC };
+    state.allocPoints = 15;
+    render();
+  },
+  confirmAllocate: () => {
+    state.run = createRun(state.selectedCharacter, state.selectedTreasure, state.meta, state.perRunAllocations);
     state.screen = "run";
     state.modal = null;
     render();

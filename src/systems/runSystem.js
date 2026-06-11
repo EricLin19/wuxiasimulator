@@ -7,7 +7,7 @@ const COMBAT_SCHOOLS = ["blade", "hidden", "fist", "lightness"];
 const ALL_SCHOOLS = ["blade", "hidden", "fist", "lightness"];
 export const RANK_TITLES = ["初窥门径", "驾轻就熟", "略有小成", "融会贯通", "炉火纯青", "所向披靡", "傲视群雄", "一代宗师", "天人合一", "天人之上"];
 
-export function createRun(characterId, treasureId, meta) {
+export function createRun(characterId, treasureId, meta, perRunAllocations) {
   const character = DATA.characters.find(x => x.id === characterId);
   const treasure = DATA.treasures.find(x => x.id === treasureId);
   const stats = clone(character.stats);
@@ -24,6 +24,11 @@ export function createRun(characterId, treasureId, meta) {
   }
   applyMetaAllocations(stats, meta.allocations || {});
   const moneyBonus = (meta.allocations.money || 0) * 100;
+  // 局外点数分配（开局15点）
+  if (perRunAllocations) {
+    applyMetaAllocations(stats, perRunAllocations);
+    money += (perRunAllocations.money || 0) * 100;
+  }
 
   const run = {
     id: Date.now(),
