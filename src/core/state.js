@@ -12,5 +12,6 @@ export const state = {
   settlement: null,
   musicVolume: 0.5,
   perRunAllocations: null,
-  allocPoints: 15
+  allocPoints: 15,
+  extraAllocPoints: 0  // 死亡累积的额外开局点数
 };

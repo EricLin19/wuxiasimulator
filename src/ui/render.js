@@ -110,7 +110,7 @@ function renderSelect(state, actions) {
 }
 
 function renderAllocate(state, actions) {
-  const screen = el("div", "screen select-layout");
+  const screen = el("div", "screen allocate-layout");
   const selected = DATA.characters.find(c => c.id === state.selectedCharacter);
   const alloc = state.perRunAllocations || {};
   const points = state.allocPoints || 0;
@@ -120,34 +120,54 @@ function renderAllocate(state, actions) {
     money: 100
   };
   const ALLOC_HELP = {
-    hp: "局外每点：血量+90", qi: "局外每点：内力+30",
-    atk: "局外每点：攻击+3", def: "局外每点：防御+3",
-    combo: "局外每点：连击+2", hit: "局外每点：命中+3",
-    dodge: "局外每点：闪避+1", crit: "局外每点：暴击+2",
-    speed: "局外每点：出手速度+0.04", money: "局外每点：开局金钱+100"
+    hp: "每点：血量+90", qi: "每点：内力+30",
+    atk: "每点：攻击+3", def: "每点：防御+3",
+    combo: "每点：连击+2", hit: "每点：命中+3",
+    dodge: "每点：闪避+1", crit: "每点：暴击+2",
+    speed: "每点：出手速度+0.04", money: "每点：开局金钱+100"
   };
 
-  const left = el("div", "panel");
-  left.style.padding = "18px";
-  left.innerHTML = `<h2 class="section-title">${selected.name}</h2>
-    <div class="portrait character-portrait large">${selected.portraitImage ? `<img src="${selected.portraitImage}" alt="${selected.name}" loading="lazy" decoding="async">` : `<span>${selected.icon}</span>`}</div>
-    <div class="desc">${selected.traitText}</div>
-    <div class="stats-grid">${STAT_KEYS.map(k => statLine(k, selected.stats[k])).join("")}</div>`;
+  // 计算调整后属性（实时反映分配）
+  const adjStats = { ...selected.stats };
+  for (const key of STAT_KEYS) {
+    const pts = alloc[key] || 0;
+    if (key === "speed") {
+      adjStats[key] = Number((adjStats[key] + pts * 0.04).toFixed(2));
+    } else {
+      adjStats[key] += pts * (ALLOC_BONUS[key] || 0);
+    }
+  }
 
-  const right = el("div", "panel select-detail");
-  right.style.padding = "18px";
+  // === 左侧：角色信息（放大版） ===
+  const left = el("div", "panel allocate-left");
+  left.innerHTML = `
+    <h2 class="section-title">${selected.name}</h2>
+    <div class="portrait character-portrait allocate-portrait">${selected.portraitImage ? `<img src="${selected.portraitImage}" alt="${selected.name}" loading="lazy" decoding="async">` : `<span>${selected.icon}</span>`}</div>
+    <div class="desc" style="font-size:15px;text-align:center">${selected.traitText}</div>
+    <div class="stats-grid allocate-stats">${STAT_KEYS.map(k => {
+      const base = selected.stats[k];
+      const adj = adjStats[k];
+      const changed = adj !== base;
+      return `<div class="stat-line${changed ? " stat-changed" : ""}"><span>${STAT_LABELS[k]}</span><b>${changed ? `${base} → <span style="color:#27ae60">${k === "speed" ? adj.toFixed(2) : Math.round(adj)}</span>` : (k === "speed" ? base.toFixed(2) : base)}</b></div>`;
+    }).join("")}</div>
+    <div style="margin-top:8px;text-align:center;color:#f39c12;font-weight:700;font-size:14px">
+      开局金钱：${300 + (alloc.money || 0) * 100}◎ ${(alloc.money || 0) > 0 ? `<span style="color:#27ae60">(+${(alloc.money || 0) * 100})</span>` : ""}
+    </div>`;
+
+  // === 右侧：分配面板（可滚动） ===
+  const right = el("div", "panel allocate-right");
   right.innerHTML = `
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
-      <h2 class="section-title" style="margin:0">局外点数分配</h2>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+      <h2 class="section-title" style="margin:0">开局点数分配</h2>
       <div style="display:flex;gap:8px;align-items:center">
         <span style="background:#2c2c1a;color:#f39c12;padding:4px 12px;border-radius:6px;font-weight:700;font-size:15px">剩余：${points} 点</span>
         <button class="btn secondary small" data-act="reset-alloc">重置</button>
       </div>
     </div>
-    <div class="list"></div>
-    <button class="btn green" style="width:100%;margin-top:12px;font-size:16px;padding:12px" data-act="confirm-alloc">确定（${points > 0 ? `还有${points}点未分配` : "开始冒险"})</button>`;
+    <div class="allocate-list"></div>
+    <button class="btn green" style="width:100%;margin-top:10px;font-size:16px;padding:12px" data-act="confirm-alloc">确定（${points > 0 ? `还有${points}点未分配` : "开始冒险"}）</button>`;
 
-  const list = right.querySelector(".list");
+  const list = right.querySelector(".allocate-list");
   allKeys.forEach(key => {
     const pts = alloc[key] || 0;
     const bonus = pts * ALLOC_BONUS[key];
@@ -308,7 +328,7 @@ function renderModal(state, actions) {
     meta: () => renderMetaModal(modal, state, actions, close),
     events: () => renderEventsModal(modal, run, actions, close),
     training: () => renderTrainingModal(modal, run, actions, close),
-    hall: () => renderMerchantModal(modal, run, actions, true, close),
+    hall: () => renderMerchantModal(modal, run, actions, true),
     reward: () => renderRewardModal(modal, state, actions),
     merchant: () => renderMerchantModal(modal, run, actions, false),
     character: () => renderCharacterModal(modal, run, actions, close),
@@ -438,8 +458,6 @@ function renderTrainingModal(modal, run, actions, close) {
   modal.querySelector(".list").appendChild(rowCard("气", "内力吐纳", "内力上限+30，经验+35，消耗1行动", "修炼", () => actions.trainStat("qi")));
 }
 
-// renderHallModal 已合并至 renderMerchantModal
-
 function renderRewardModal(modal, state, actions) {
   modal.innerHTML = `<h2 class="section-title">请选择突破奖励</h2><div class="reward-grid"></div>`;
   const TYPE_COLORS = {
@@ -464,91 +482,97 @@ function renderRewardModal(modal, state, actions) {
   });
 }
 
-function renderMerchantModal(modal, run, actions, isHall = false, close = "") {
+function renderMerchantModal(modal, run, actions, isHall = false) {
   const isWanderer = run.storylineId === "wanderer";
   const refreshes = run._merchantRefreshes || 0;
 
-  // 顶部栏
-  let headerRight = close
-    ? close
-    : `<div style="display:flex;gap:8px;align-items:center">`;
-  if (isWanderer) {
-    headerRight += `<button class="btn small" data-refresh style="background:#d4a056;color:#2c2c1a;font-weight:700" ${refreshes <= 0 ? "disabled" : ""}>刷新 ${refreshes}</button>`;
-  }
-  headerRight += `<button class="btn red small" data-done>离开</button>`;
-  if (!close) headerRight += `</div>`;
-
-  modal.innerHTML = `<div class="modal-head"><h2 class="modal-title">武林商人</h2>${headerRight}</div>
-    <div class="merchant-layout">
-      <div class="merchant-quad">
-        <div class="merchant-quad-header"><h3>外功秘籍</h3><span class="merchant-slot-count">${isWanderer ? "6" : run.manuals.length}</span></div>
-        <div class="merchant-grid manuals-grid"></div>
+  // 标题栏：只有标题+离开
+  modal.innerHTML = `<div class="modal-head"><h2 class="modal-title">武林商人</h2>
+    <button class="btn red small" data-done>离开</button></div>
+    <div class="merchant-body">
+      <div class="merchant-main">
+        <div class="merchant-col">
+          <h3>外功秘籍</h3></div>
+        <div class="merchant-col">
+          <h3>内功秘籍</h3></div>
+        <div class="merchant-col">
+          <h3>装备</h3></div>
+        <div class="merchant-col">
+          <h3>丹药</h3></div>
       </div>
-      <div class="merchant-quad">
-        <div class="merchant-quad-header"><h3>装备</h3><span class="merchant-slot-count">${isWanderer ? "3" : ""}</span></div>
-        <div class="merchant-grid equipment-grid"></div>
-      </div>
-      <div class="merchant-quad">
-        <div class="merchant-quad-header"><h3>内功秘籍</h3><span class="merchant-slot-count">${isWanderer ? "2" : ""}</span></div>
-        <div class="merchant-grid arts-grid"></div>
-      </div>
-      <div class="merchant-quad">
-        <div class="merchant-quad-header"><h3>丹药</h3><span class="merchant-slot-count">${isWanderer ? "5" : ""}</span></div>
-        <div class="merchant-grid pills-grid"></div>
-      </div>
+      ${isWanderer ? `<div class="merchant-refresh-area"><button class="btn small" data-refresh style="background:#d4a056;color:#2c2c1a;font-weight:700" ${refreshes <= 0 ? "disabled" : ""}>刷新 ${refreshes}</button></div>` : ""}
     </div>`;
 
-  const grids = modal.querySelectorAll(".merchant-grid");
+  const cols = modal.querySelectorAll(".merchant-col");
 
   if (isWanderer) {
-    // --- 孤云线：四象限布局，全部来自 merchantStock ---
-    // 外功秘籍
+    // === 孤云线：恢复rowCard布局，6/2/3/5 ===
+    // 外功秘籍 ×6
     run.merchantStock.filter(e => e.kind === "manual").forEach(entry => {
       const s = DATA.skills[entry.id];
       if (!s) return;
       const label = run.skills.includes(entry.id) || run.trainingSkills.includes(entry.id) ? "已拥有" : `${entry.price}◎`;
-      grids[0].appendChild(merchantCard(s.icon || "秘", s.name, s.desc, label, () => actions.buyManual(entry.id)));
+      const btnLabel = run.skills.includes(entry.id) || run.trainingSkills.includes(entry.id) ? "已拥有" : "购买";
+      const row = rowCard(s.icon || "秘", skillDisplayName(s), s.desc, btnLabel, () => actions.buyManual(entry.id));
+      if (run.skills.includes(entry.id) || run.trainingSkills.includes(entry.id)) row.querySelector("button").disabled = true;
+      cols[0].appendChild(row);
     });
-    // 装备（武器+防具）
+    // 内功秘籍 ×2
+    run.merchantStock.filter(e => e.kind === "internalArt").forEach(entry => {
+      const art = DATA.internalArts[entry.id];
+      if (!art) return;
+      const price = getInternalArtPrice(run, entry.id);
+      const owned = run.internalArts.includes(entry.id);
+      const row = rowCard(art.icon, `【${art.rarity === "red" ? "绝" : art.rarity === "orange" ? "上" : "中"}】${art.name}`, art.desc, owned ? "已拥有" : `${price}◎ 购买`, () => actions.buyInternalArt(entry.id));
+      if (owned) row.querySelector("button").disabled = true;
+      cols[1].appendChild(row);
+    });
+    // 装备 ×3（武器+防具）
     run.merchantStock.filter(e => e.kind === "weapon" || e.kind === "armor").forEach(entry => {
-      let obj, icon, name, desc, label;
+      let obj, icon, name, desc, label, btnLabel;
       if (entry.kind === "weapon") {
         obj = DATA.weapons[entry.id];
         icon = obj?.icon || "武"; name = obj?.name || entry.id; desc = obj?.desc || "";
-        label = `${entry.price}◎`;
+        label = `${entry.price}◎`; btnLabel = "购买";
       } else {
         obj = DATA.armors[entry.id];
         icon = obj?.icon || "甲"; name = obj?.name || entry.id; desc = obj?.desc || "";
         label = run.armors.includes(entry.id) ? "已拥有" : `${entry.price}◎`;
+        btnLabel = run.armors.includes(entry.id) ? "已拥有" : "购买";
       }
-      grids[1].appendChild(merchantCard(icon, name, desc, label, () => actions.buyShopEntry(entry)));
+      const row = rowCard(icon, name, desc, btnLabel, () => actions.buyShopEntry(entry));
+      if ((entry.kind === "armor" && run.armors.includes(entry.id))) row.querySelector("button").disabled = true;
+      cols[2].appendChild(row);
+    });
+    // 丹药 ×5
+    run.merchantStock.filter(e => e.kind === "item").forEach(entry => {
+      const obj = DATA.items[entry.id];
+      if (!obj) return;
+      const row = rowCard(obj.icon, obj.name, obj.desc, `${obj.price}◎`, () => actions.buyShopEntry(entry));
+      cols[3].appendChild(row);
+    });
+
+    // 刷新按钮事件
+    const refreshBtn = modal.querySelector("[data-refresh]");
+    if (refreshBtn) refreshBtn.onclick = () => actions.refreshMerchant();
+  } else {
+    // === 非孤云线：保持兼容 ===
+    // 外功秘籍
+    run.manuals.forEach(id => {
+      const s = DATA.skills[id];
+      if (!s) return;
+      const price = Math.floor((s.rarity === "red" ? 900 : s.rarity === "orange" ? 520 : 300) * (run.treasure.effect === "manualMastery" ? 0.82 : 1));
+      cols[0].appendChild(rowCard(s.icon || "秘", skillDisplayName(s), s.desc, `${price}◎`, () => actions.buyManual(id)));
     });
     // 内功秘籍
     run.merchantStock.filter(e => e.kind === "internalArt").forEach(entry => {
       const art = DATA.internalArts[entry.id];
       if (!art) return;
       const price = getInternalArtPrice(run, entry.id);
-      const label = run.internalArts.includes(entry.id) ? "已拥有" : `${price}◎`;
-      grids[2].appendChild(merchantCard(art.icon, art.name, art.desc, label, () => actions.buyInternalArt(entry.id)));
-    });
-    // 丹药
-    run.merchantStock.filter(e => e.kind === "item").forEach(entry => {
-      const obj = DATA.items[entry.id];
-      if (!obj) return;
-      grids[3].appendChild(merchantCard(obj.icon, obj.name, obj.desc, `${obj.price}◎`, () => actions.buyShopEntry(entry)));
-    });
-
-    // 刷新按钮
-    const refreshBtn = modal.querySelector("[data-refresh]");
-    if (refreshBtn) refreshBtn.onclick = () => actions.refreshMerchant();
-  } else {
-    // --- 非孤云线：保持旧布局兼容 ---
-    // 外功秘籍（来自 run.manuals）
-    run.manuals.forEach(id => {
-      const s = DATA.skills[id];
-      if (!s) return;
-      const price = Math.floor((s.rarity === "red" ? 900 : s.rarity === "orange" ? 520 : 300) * (run.treasure.effect === "manualMastery" ? 0.82 : 1));
-      grids[0].appendChild(merchantCard(s.icon || "秘", s.name, s.desc, `${price}◎`, () => actions.buyManual(id)));
+      const owned = run.internalArts.includes(entry.id);
+      const row = rowCard(art.icon, `【${art.rarity === "red" ? "绝" : art.rarity === "orange" ? "上" : "中"}】${art.name}`, art.desc, owned ? "已拥有" : `${price}◎ 购买`, () => actions.buyInternalArt(entry.id));
+      if (owned) row.querySelector("button").disabled = true;
+      cols[1].appendChild(row);
     });
     // 装备
     run.merchantStock.filter(e => e.kind === "weapon" || e.kind === "armor").forEach(entry => {
@@ -560,36 +584,17 @@ function renderMerchantModal(modal, run, actions, isHall = false, close = "") {
         obj = DATA.armors[entry.id];
         icon = obj?.icon || "甲"; name = obj?.name || entry.id; desc = obj?.desc || "";
       }
-      grids[1].appendChild(merchantCard(icon, name, desc, `${obj.price}◎`, () => actions.buyShopEntry(entry)));
-    });
-    // 内功秘籍
-    run.merchantStock.filter(e => e.kind === "internalArt").forEach(entry => {
-      const art = DATA.internalArts[entry.id];
-      if (!art) return;
-      const price = getInternalArtPrice(run, entry.id);
-      const label = run.internalArts.includes(entry.id) ? "已拥有" : `${price}◎`;
-      grids[2].appendChild(merchantCard(art.icon, art.name, art.desc, label, () => actions.buyInternalArt(entry.id)));
+      cols[2].appendChild(rowCard(icon, name, desc, `${obj.price}◎`, () => actions.buyShopEntry(entry)));
     });
     // 丹药
     run.merchantStock.filter(e => e.kind === "item").forEach(entry => {
       const obj = DATA.items[entry.id];
       if (!obj) return;
-      grids[3].appendChild(merchantCard(obj.icon, obj.name, obj.desc, `${obj.price}◎`, () => actions.buyShopEntry(entry)));
+      cols[3].appendChild(rowCard(obj.icon, obj.name, obj.desc, `${obj.price}◎`, () => actions.buyShopEntry(entry)));
     });
   }
 
-  if (!isHall || !close) modal.querySelector("[data-done]").onclick = actions.closeMerchant;
-}
-
-// 紧凑型商人卡片（适配四象限网格）
-function merchantCard(icon, name, desc, price, onclick) {
-  const card = el("div", "merchant-card");
-  card.innerHTML = `<div class="merchant-card-icon">${icon}</div>
-    <div class="merchant-card-name">${name}</div>
-    <div class="merchant-card-price">${price}</div>`;
-  card.onclick = onclick;
-  card.title = desc;
-  return card;
+  modal.querySelector("[data-done]").onclick = actions.closeMerchant;
 }
 
 function renderCharacterModal(modal, run, actions, close) {

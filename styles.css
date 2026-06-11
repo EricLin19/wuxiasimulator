@@ -1173,98 +1173,33 @@ button {
   pointer-events: auto;
 }
 
-/* === 武林商人 四象限布局 === */
-.merchant-layout {
+/* === 武林商人 列式布局 === */
+.merchant-body {
+  display: flex;
+  gap: 0;
+  align-items: flex-start;
+}
+
+.merchant-main {
+  flex: 1;
   display: grid;
   grid-template-columns: 1fr 1fr;
   grid-template-rows: auto auto;
   gap: 10px;
 }
 
-.merchant-quad {
-  background: #faf3e0;
-  border-radius: 8px;
-  padding: 8px;
-}
-
-.merchant-quad-header {
+.merchant-refresh-area {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  border-bottom: 2px solid var(--line-soft);
-  padding-bottom: 4px;
-  margin-bottom: 6px;
-}
-
-.merchant-quad-header h3 {
-  margin: 0;
-  font-size: 16px;
-  color: var(--brown);
-}
-
-.merchant-slot-count {
-  font-size: 12px;
-  color: #999;
-  font-weight: 700;
-}
-
-.merchant-grid {
-  display: grid;
-  gap: 5px;
-}
-
-.manuals-grid { grid-template-columns: repeat(3, 1fr); }
-.equipment-grid { grid-template-columns: repeat(3, 1fr); }
-.arts-grid { grid-template-columns: repeat(2, 1fr); }
-.pills-grid { grid-template-columns: repeat(5, 1fr); }
-
-/* 紧凑型商人卡片 */
-.merchant-card {
-  background: #fff;
-  border: 1px solid var(--line-soft);
-  border-radius: 6px;
-  padding: 6px 4px;
-  text-align: center;
-  cursor: pointer;
-  transition: transform 0.1s, box-shadow 0.1s;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 2px;
-  min-width: 0;
-}
-
-.merchant-card:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 2px 6px rgba(0,0,0,0.12);
-}
-
-.merchant-card-icon {
-  font-size: 22px;
-  width: 36px;
-  height: 36px;
-  display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: center;
-  background: #f5e6d3;
-  border-radius: 4px;
+  padding: 8px 0 0 10px;
+  flex-shrink: 0;
 }
 
-.merchant-card-name {
-  font-size: 11px;
-  font-weight: 700;
-  color: var(--brown);
-  line-height: 1.2;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  max-width: 100%;
-}
-
-.merchant-card-price {
-  font-size: 12px;
-  color: #f39c12;
-  font-weight: 700;
+.merchant-refresh-area .btn {
+  font-size: 16px;
+  padding: 8px 14px;
+  min-height: 38px;
 }
 
 /* 旧版兼容（非孤云线） */
@@ -1744,4 +1679,89 @@ body.mobile-viewport .wanderer-run-layout {
 body.mobile-viewport .wanderer-run-layout .center-stage {
   align-content: start;
   grid-template-rows: minmax(0, 1fr) auto auto;
+}
+
+/* ============================================================
+   开局点数分配页面
+   ============================================================ */
+.allocate-layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  height: 100%;
+}
+
+.allocate-layout .panel {
+  min-height: 0;
+  padding: 16px;
+  overflow: hidden;
+}
+
+.allocate-left {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  overflow-y: auto;
+}
+
+.allocate-right {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.allocate-list {
+  flex: 1 1 auto;
+  overflow-y: auto;
+  display: grid;
+  gap: 8px;
+  padding-right: 4px;
+  min-height: 0;
+}
+
+.allocate-portrait {
+  width: 240px;
+  height: 292px;
+  flex-shrink: 0;
+}
+
+.allocate-stats {
+  grid-template-columns: repeat(3, 1fr) !important;
+  gap: 6px !important;
+  width: 100%;
+  margin-top: 10px !important;
+}
+
+.allocate-stats .stat-line {
+  padding: 4px 6px;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.allocate-stats .stat-changed {
+  background: #5a7a45;
+}
+
+body.mobile-viewport .allocate-layout {
+  grid-template-columns: 1.2fr 1fr;
+  gap: 8px;
+}
+
+body.mobile-viewport .allocate-layout .section-title {
+  font-size: 24px;
+  margin-bottom: 6px;
+}
+
+body.mobile-viewport .allocate-portrait {
+  width: 180px;
+  height: 220px;
+}
+
+body.mobile-viewport .allocate-stats .stat-line {
+  padding: 2px 4px;
+  font-size: 12px;
+}
+
+body.mobile-viewport .allocate-list {
+  gap: 5px;
 }

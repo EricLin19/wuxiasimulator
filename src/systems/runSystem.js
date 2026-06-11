@@ -1598,6 +1598,10 @@ export function settleRun(state, result, reason) {
   }
   const points = result === "win" ? 5 : Math.max(1, Math.floor(reached / 8));
   meta.metaPoints += points;
+  // 失败时额外累积1点开局点数（下次可在分配页使用）
+  if (result !== "win") {
+    state.extraAllocPoints = (state.extraAllocPoints || 0) + 1;
+  }
   saveMeta(meta);
   clearRun();
   state.settlement = { result, reason, points };

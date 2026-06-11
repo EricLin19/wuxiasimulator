@@ -346,10 +346,11 @@ const actions = {
   selectCharacter: id => { state.selectedCharacter = id; render(); },
   selectTreasure: id => { state.selectedTreasure = id; render(); },
   startRun: () => {
-    // 选完角色后进入局外点数分配页
-    const ZERO_ALLOC = { hp: 0, qi: 0, atk: 0, def: 0, combo: 0, hit: 0, dodge: 0, crit: 0, speed: 0, money: 0 };
-    state.perRunAllocations = { ...ZERO_ALLOC };
-    state.allocPoints = 15;
+    // 选完角色后进入开局点数分配页（保留上次分配记忆）
+    state.perRunAllocations ||= {};
+    const total = 15 + (state.extraAllocPoints || 0);
+    const used = Object.values(state.perRunAllocations).reduce((s, v) => s + (v || 0), 0);
+    state.allocPoints = Math.max(0, total - used);
     state.screen = "allocate";
     state.modal = null;
     render();
@@ -368,13 +369,13 @@ const actions = {
     render();
   },
   resetAllocations: () => {
-    const ZERO_ALLOC = { hp: 0, qi: 0, atk: 0, def: 0, combo: 0, hit: 0, dodge: 0, crit: 0, speed: 0, money: 0 };
-    state.perRunAllocations = { ...ZERO_ALLOC };
-    state.allocPoints = 15;
+    state.perRunAllocations = {};
+    state.allocPoints = 15 + (state.extraAllocPoints || 0);
     render();
   },
   confirmAllocate: () => {
     state.run = createRun(state.selectedCharacter, state.selectedTreasure, state.meta, state.perRunAllocations);
+    state.extraAllocPoints = 0; // 消耗累积的额外点数
     state.screen = "run";
     state.modal = null;
     render();
