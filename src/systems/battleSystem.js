@@ -620,9 +620,15 @@ export function fleeAction(run, battle) {
 }
 
 function applyTurnStart(battle, unit) {
-  // 流血结算（每层10伤害，结算后-1）
+  // 天衡御心甲：持续伤害降低
+  let dotReduceMult = 1;
+  if (unit === battle.player && battle.run?.equippedArmor) {
+    const armor = DATA.armors[battle.run.equippedArmor];
+    if (armor?.dotReduce) dotReduceMult = 1 - armor.dotReduce;
+  }
+  // 流血结算（每层15伤害，结算后-1）
   if (unit.bleed > 0) {
-    const dmg = unit.bleed * BLEED_DMG;
+    const dmg = Math.floor(unit.bleed * BLEED_DMG * dotReduceMult);
     unit.hp = Math.max(0, unit.hp - dmg);
     battleLog(battle, `${unit.name}流血发作，受到${dmg}伤害。`);
     unit.bleed = Math.max(0, unit.bleed - 1);
@@ -636,22 +642,22 @@ function applyTurnStart(battle, unit) {
   }
   // 寒气结算（每层削内6，结算后-1）
   if (unit.frost > 0) {
-    const loss = unit.frost * FROST_QI;
+    const loss = Math.floor(unit.frost * FROST_QI * dotReduceMult);
     unit.qi = Math.max(0, unit.qi - loss);
     battleLog(battle, `${unit.name}寒气侵脉，失去${loss}内力。`);
     unit.frost = Math.max(0, unit.frost - 1);
   }
   // 蛊结算（每层耗内6，目标行动后-1）
   if (unit.gu > 0) {
-    const loss = unit.gu * GU_QI_COST;
+    const loss = Math.floor(unit.gu * GU_QI_COST * dotReduceMult);
     unit.qi = Math.max(0, unit.qi - loss);
     battleLog(battle, `${unit.name}蛊息扰动，失去${loss}内力。`);
     unit.gu = Math.max(0, unit.gu - 1);
   }
   // 中毒结算（每层毒伤8，每层削内4，结算后-1）
   if (unit.poison > 0) {
-    const dmg = unit.poison * POISON_DMG;
-    const qiLoss = unit.poison * POISON_QI;
+    const dmg = Math.floor(unit.poison * POISON_DMG * dotReduceMult);
+    const qiLoss = Math.floor(unit.poison * POISON_QI * dotReduceMult);
     unit.hp = Math.max(0, unit.hp - dmg);
     unit.qi = Math.max(0, unit.qi - qiLoss);
     battleLog(battle, `${unit.name}毒发攻心，受到${dmg}伤害并流失${qiLoss}内力。`);

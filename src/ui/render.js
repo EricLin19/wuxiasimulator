@@ -1,6 +1,6 @@
 import { DATA, STAT_LABELS, STAT_KEYS, SCHOOLS, RARITIES } from "../data/content.js";
 import { monthAbs } from "../core/utils.js";
-import { expNeed, getRankTitle, getInternalArtPrice, getBattleDifficulty } from "../systems/runSystem.js";
+import { expNeed, getRankTitle, getInternalArtPrice, getBattleDifficulty, getArmorStats } from "../systems/runSystem.js";
 
 // v5.10：战斗角色详情弹窗状态（避免被每帧重新渲染销毁）
 let _battleDetailSide = null; // "player" | "enemy" | null
@@ -236,7 +236,7 @@ function renderRun(state, actions) {
     </div>
     <div class="center-stage">
       <div class="hero-status-story">
-        ${bar(run.hp, run.stats.hp, `${run.hp}/${run.stats.hp}`)}
+        ${bar(run.hp, run.stats.hp + getArmorStats(run).hp, `${run.hp}/${run.stats.hp + getArmorStats(run).hp}`)}
         ${bar(run.martialExp, expNeed(run.level), `经验 ${run.martialExp}/${expNeed(run.level)}｜${getRankTitle(run)}`, "exp-fill")}
       </div>
       <div class="bottom-actions">
@@ -312,7 +312,7 @@ function renderWandererRun(state, actions) {
   // 血量和经验条（仅两条）
   const barsDiv = el("div", "story-bars");
   barsDiv.innerHTML = `
-    ${bar(run.hp, run.stats.hp, `${run.hp}/${run.stats.hp}`)}
+    ${bar(run.hp, run.stats.hp + getArmorStats(run).hp, `${run.hp}/${run.stats.hp + getArmorStats(run).hp}`)}
     ${bar(run.martialExp, expNeed(run.level), `经验 ${run.martialExp}/${expNeed(run.level)}｜${getRankTitle(run)}`, "exp-fill")}
   `;
 
@@ -645,7 +645,10 @@ function renderCharacterModal(modal, run, actions, close) {
     <div class="character-sheet">
       <div><div class="portrait">${run.character.portraitImage ? `<img src="${run.character.portraitImage}" alt="${run.character.name}" loading="lazy" decoding="async">` : run.character.icon}</div><div class="name">${run.character.name}</div><div class="desc">${run.character.faction}｜${"★".repeat(Math.min(8, run.rankStars))}</div></div>
       <div>
-        <div class="stats-grid">${STAT_KEYS.map(k => statLine(k, k === "hp" ? `${run.hp}/${run.stats.hp}` : k === "qi" ? `${run.qi}/${run.stats.qi}` : run.stats[k])).join("")}</div>
+        <div class="stats-grid">${(() => {
+          const armor = getArmorStats(run);
+          return STAT_KEYS.map(k => statLine(k, k === "hp" ? `${run.hp}/${run.stats.hp + armor.hp}` : k === "qi" ? `${run.qi}/${run.stats.qi}` : k === "def" ? run.stats.def + armor.def : k === "dodge" ? run.stats.dodge + armor.dodge : k === "speed" ? Number((run.stats.speed + armor.speed).toFixed(2)) : run.stats[k])).join("");
+        })()}</div>
         ${resolveInfo}
         <h3>上场招式（最多4个）</h3><div class="list skill-select-list"></div>
         <h3>特性</h3><p>${traitNames}</p>
@@ -1040,7 +1043,7 @@ function computeEventDifficulty(run, event) {
     enemyHp = pool.length ? pool.reduce((s, e) => s + (e.hp || 0), 0) / pool.length * 2 : 600;
   }
   if (!enemyHp) return null;
-  return getBattleDifficulty(run.stats.hp, enemyHp);
+  return getBattleDifficulty(run.stats.hp + getArmorStats(run).hp, enemyHp);
 }
 
 function debugRow(title, meta, id) {

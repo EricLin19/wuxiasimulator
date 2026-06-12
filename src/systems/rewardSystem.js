@@ -1,5 +1,6 @@
 import { DATA, RARITIES, STAT_LABELS, SCHOOLS } from "../data/content.js";
 import { sample, rand } from "../core/utils.js";
+import { getArmorStats } from "./runSystem.js";
 
 // 防御：防止 ES 模块加载异常或运行时数据污染导致 undefined 访问崩溃
 const _R = (rarity) => RARITIES && RARITIES[rarity] ? RARITIES[rarity] : null;
@@ -293,7 +294,7 @@ function takeInternalArtReward(run, option) {
     for (const [key, value] of Object.entries(art.statGain || {})) {
       run.stats[key] = Number(((run.stats[key] || 0) + value).toFixed(2));
     }
-    run.hp = Math.min(run.hp + (art.statGain?.hp || 0), run.stats.hp);
+    run.hp = Math.min(run.hp + (art.statGain?.hp || 0), run.stats.hp + getArmorStats(run).hp);
     run.qi = Math.min(run.qi + (art.statGain?.qi || 0), run.stats.qi);
   }
   return `突破奖励：获得内功《${art.name}》。${art.desc}`;

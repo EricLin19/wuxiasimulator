@@ -105,7 +105,7 @@ export function applyMonthStart(run) {
   if (run.traits.includes("clearMind")) run.ap += 1;
   if (run.treasure.effect === "monthRecover" || run.traits.includes("healer")) {
     const amount = run.treasure.effect === "monthRecover" ? 135 : 90;
-    run.hp = Math.min(run.stats.hp, run.hp + amount);
+    run.hp = Math.min(run.stats.hp + getArmorStats(run).hp, run.hp + amount);
     run.qi = Math.min(run.stats.qi, run.qi + amount);
   }
   // 加载当前月份剧情（孤云逐浪线）
@@ -1374,7 +1374,8 @@ export function gainExp(run, amount) {
     leveled = true;
   }
   // 防止升级后当前血量/内力超过上限（连续多级时累计溢出）
-  if (run.hp > run.stats.hp) run.hp = run.stats.hp;
+  const armorHp = getArmorStats(run).hp;
+  if (run.hp > run.stats.hp + armorHp) run.hp = run.stats.hp + armorHp;
   if (run.qi > run.stats.qi) run.qi = run.stats.qi;
   return leveled;
 }
@@ -1506,8 +1507,9 @@ function applyArtStats(run, art, add) {
     run.stats[key] = Number(((run.stats[key] || 0) + value * sign).toFixed(2));
   }
   if (art.statGain.hp) {
-    if (add) run.hp = Math.min(run.hp + art.statGain.hp, run.stats.hp);
-    else run.hp = Math.min(run.hp, run.stats.hp);
+    const maxHp = run.stats.hp + getArmorStats(run).hp;
+    if (add) run.hp = Math.min(run.hp + art.statGain.hp, maxHp);
+    else run.hp = Math.min(run.hp, maxHp);
   }
   if (art.statGain.qi) {
     if (add) run.qi = Math.min(run.qi + art.statGain.qi, run.stats.qi);
@@ -1551,7 +1553,7 @@ export function useBagItem(run, itemId) {
   const item = DATA.items[itemId];
   if (!item) { run.items.splice(idx, 1); return { ok: false, message: "道具数据异常，已清除" }; }
   run.items.splice(idx, 1);
-  if (item.type === "heal") run.hp = Math.min(run.stats.hp, run.hp + Math.floor(run.stats.hp * (item.hpPct || 0.2)));
+  if (item.type === "heal") run.hp = Math.min(run.stats.hp + getArmorStats(run).hp, run.hp + Math.floor(run.stats.hp * (item.hpPct || 0.2)));
   if (item.type === "qi") run.qi = Math.min(run.stats.qi, run.qi + Math.floor(run.stats.qi * (item.qiPct || 0.25)));
   if (item.type === "stat") {
     for (const key of STAT_KEYS) run.stats[key] = Number(((run.stats[key] || 0) + (item[key] || 0)).toFixed(2));
@@ -1565,7 +1567,7 @@ export function useBagItem(run, itemId) {
     if (run.apUsedThisMonth) return { ok: false, message: "本月已使用过行动点丹药" };
     run.ap += item.ap || 3;
     run.apUsedThisMonth = true;
-    run.hp = Math.min(run.stats.hp, run.hp + Math.floor(run.stats.hp * (item.hpPct || 0.2)));
+    run.hp = Math.min(run.stats.hp + getArmorStats(run).hp, run.hp + Math.floor(run.stats.hp * (item.hpPct || 0.2)));
     run.qi = Math.min(run.stats.qi, run.qi + Math.floor(run.stats.qi * (item.qiPct || 0.2)));
   }
   log(run, `使用${item.name}。`);
@@ -1579,6 +1581,18 @@ export function equipWeapon(run, weaponId) {
   log(run, `装备${DATA.weapons[weaponId]?.name || "???"}。`);
   saveRun(run);
   return { ok: true };
+}
+
+/** 获取当前装备防具提供的属性加成 */
+export function getArmorStats(run) {
+  const armor = run.equippedArmor ? DATA.armors[run.equippedArmor] : null;
+  if (!armor) return { hp: 0, def: 0, dodge: 0, speed: 0 };
+  return {
+    hp: armor.hp || 0,
+    def: armor.def || 0,
+    dodge: armor.dodgeBonus || 0,
+    speed: armor.speedBonus || 0
+  };
 }
 
 export function buyArmor(run, armorId) {

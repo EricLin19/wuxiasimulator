@@ -19,6 +19,7 @@ import {
   equipWeapon,
   buyArmor,
   equipArmor,
+  getArmorStats,
   gainExp,
   scaleMoney,
   log,
@@ -335,7 +336,8 @@ function resolveBattleResult(result) {
       // 输：武盟威慑+1，不结束游戏
       state.run.mainThreat = (state.run.mainThreat || 0) + 1;
       log(state.run, `败给${battle.enemy.name}。武盟威慑 +1（当前：${state.run.mainThreat}）`);
-      state.run.hp = Math.max(1, Math.floor(state.run.stats.hp * 0.3)); // 残血存活
+      const maxHp = state.run.stats.hp + getArmorStats(state.run).hp;
+      state.run.hp = Math.max(1, Math.floor(maxHp * 0.3)); // 残血存活
       state.run.qi = 0;
 
       // M36最终Boss败：展示结局选择（可能有限）
