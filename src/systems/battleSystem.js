@@ -25,6 +25,8 @@ const SPEED_MIN_FROST = 0.6;
 const ATK_MIN_HAMSTRING = 0.65;
 
 export function createBattle(run, enemyTemplate, isBoss = false) {
+  if (!run || !run.stats) { console.error("[createBattle] run or run.stats is undefined"); return null; }
+  if (!enemyTemplate) { console.error("[createBattle] enemyTemplate is undefined"); return null; }
   const enemyStats = scaleEnemyStats(clone(enemyTemplate));
   const pStats = clone(run.stats);
 
@@ -536,7 +538,8 @@ function enemySkillDamage(battle, e, p) {
 }
 
 function enemyEffectiveDef(battle, e, p) {
-  const armorBreak = battle.bossTraits?.includes("armorBreak") || e.stats.trait === "armorBreak";
+  if (!battle || !e || !p) { console.error("[enemyEffectiveDef] battle/e/p is undefined", {battle:!!battle, e:!!e, p:!!p}); return 0; }
+  const armorBreak = battle.bossTraits?.includes("armorBreak") || e.stats?.trait === "armorBreak";
   if (!armorBreak) return effectiveDef(p);
   return Math.floor(effectiveDef(p) * 0.50);
 }
@@ -958,6 +961,7 @@ function hitChance(actor, target) {
 }
 
 function effectiveAtk(unit) {
+  if (!unit || !unit.stats) { console.error("[effectiveAtk] unit or unit.stats is undefined"); return 1; }
   let atk = unit.stats.atk;
   if (unit.poison > 0) atk -= unit.poison * 2;
   if (unit.hamstring > 0) atk -= unit.hamstring * HAMSTRING_ATK;
@@ -1027,18 +1031,22 @@ function stealMoneyValue(run, skill) {
 }
 
 function effectiveDef(unit) {
+  if (!unit || !unit.stats) { console.error("[effectiveDef] unit or unit.stats is undefined"); return 0; }
   return Math.max(0, unit.stats.def - unit.poison * 2);
 }
 
 function effectiveHit(unit) {
+  if (!unit || !unit.stats) { console.error("[effectiveHit] unit or unit.stats is undefined"); return 1; }
   return Math.max(1, unit.stats.hit - unit.poison * 2);
 }
 
 function effectiveDodge(unit) {
+  if (!unit || !unit.stats) { console.error("[effectiveDodge] unit or unit.stats is undefined"); return 0; }
   return Math.max(0, unit.stats.dodge - unit.poison * 2);
 }
 
 function effectiveSpeed(unit, battle = null) {
+  if (!unit || !unit.stats) { console.error("[effectiveSpeed] unit or unit.stats is undefined"); return 1; }
   let spd = unit.stats.speed;
   if (unit.poison > 0) spd -= unit.poison * 0.04;
   if (unit.frost > 0) spd -= unit.frost * FROST_SLOW;

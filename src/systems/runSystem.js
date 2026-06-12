@@ -562,11 +562,11 @@ export function refreshManuals(run) {
   }
   const manuals = [];
   if (run.selectedSchool) {
-    const locked = available.filter(id => DATA.skills[id].school === run.selectedSchool);
+    const locked = available.filter(id => DATA.skills[id]?.school === run.selectedSchool);
     manuals.push(...sample(locked, 2));
     const otherSchools = ALL_SCHOOLS.filter(s => s !== run.selectedSchool);
     for (const school of sample(otherSchools, 2)) {
-      const one = sample(available.filter(id => DATA.skills[id].school === school && !manuals.includes(id)), 1)[0];
+      const one = sample(available.filter(id => DATA.skills[id]?.school === school && !manuals.includes(id)), 1)[0];
       if (one) manuals.push(one);
     }
   } else {
@@ -586,7 +586,12 @@ export function refreshManuals(run) {
 }
 
 export function getAvailableManuals(run) {
-  return DATA.manuals.filter(id => RARITIES[DATA.skills[id].rarity].year <= run.year);
+  return DATA.manuals.filter(id => {
+    const skill = DATA.skills[id];
+    if (!skill) return false;
+    const rInfo = RARITIES[skill.rarity];
+    return rInfo && rInfo.year <= run.year;
+  });
 }
 
 // ============================================================
@@ -1388,6 +1393,7 @@ export function buyShopEntry(run, entry) {
 
 export function buyItem(run, itemId) {
   const item = DATA.items[itemId];
+  if (!item) return { ok: false, message: "道具不存在" };
   let price = item.price;
   if (run.traits.includes("merchantFriend")) price = Math.floor(price * 0.85);
   if (run.treasure.effect === "healPlus") price = Math.floor(price * 0.95);
@@ -1401,6 +1407,7 @@ export function buyItem(run, itemId) {
 
 export function buyWeapon(run, weaponId) {
   const weapon = DATA.weapons[weaponId];
+  if (!weapon) return { ok: false, message: "武器不存在" };
   // 孤云逐浪使用商人池专属定价（与 buyManual / buyInternalArt 一致）
   let price;
   if (run.storylineId === "wanderer") {
@@ -1553,7 +1560,7 @@ export function useBagItem(run, itemId) {
 export function equipWeapon(run, weaponId) {
   if (!run.weapons.includes(weaponId)) return { ok: false, message: "没有该武器" };
   run.equippedWeapon = weaponId;
-  log(run, `装备${DATA.weapons[weaponId].name}。`);
+  log(run, `装备${DATA.weapons[weaponId]?.name || "???"}。`);
   saveRun(run);
   return { ok: true };
 }
@@ -1581,7 +1588,7 @@ export function buyArmor(run, armorId) {
 export function equipArmor(run, armorId) {
   if (!run.armors.includes(armorId)) return { ok: false, message: "没有该防具" };
   run.equippedArmor = armorId;
-  log(run, `装备${DATA.armors[armorId].name}。`);
+  log(run, `装备${DATA.armors[armorId]?.name || "???"}。`);
   saveRun(run);
   return { ok: true };
 }

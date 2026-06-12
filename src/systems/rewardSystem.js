@@ -319,6 +319,12 @@ function autoEquipWeapon(run) {
 
   // 比较当前装备和新武器，选择更好的
   const current = DATA.weapons[run.equippedWeapon];
+  if (!current) {
+    // 装备ID指向已移除的武器，降级为首个有效武器
+    const firstValid = run.weapons.find(id => DATA.weapons[id]);
+    run.equippedWeapon = firstValid || null;
+    return;
+  }
   let bestWeapon = current;
   let bestId = run.equippedWeapon;
 
@@ -349,6 +355,11 @@ function autoEquipArmor(run) {
   }
 
   const current = DATA.armors[run.equippedArmor];
+  if (!current) {
+    const firstValid = run.armors.find(id => DATA.armors[id]);
+    run.equippedArmor = firstValid || null;
+    return;
+  }
   let bestArmor = current;
   let bestId = run.equippedArmor;
 
