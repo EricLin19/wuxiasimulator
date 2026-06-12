@@ -2,6 +2,9 @@ import { DATA, STAT_LABELS, STAT_KEYS, SCHOOLS, RARITIES } from "../data/content
 import { monthAbs } from "../core/utils.js";
 import { expNeed, getRankTitle, getInternalArtPrice, getBattleDifficulty } from "../systems/runSystem.js";
 
+// v5.10：战斗角色详情弹窗状态（避免被每帧重新渲染销毁）
+let _battleDetailSide = null; // "player" | "enemy" | null
+
 // 特性描述弹窗（替代 alert，避免手机横屏旋转）
 window.__showTraitDesc = function (el) {
   const name = el.dataset.traitName || "";
@@ -35,14 +38,30 @@ const STAT_HELP = {
 export function renderApp(state, actions) {
   const app = document.getElementById("app");
   let savedScrollTop = 0;
+  let allocateScrollTop = 0;
   if (state.modal && state.screen !== "battle") {
     const oldModal = app.querySelector(".modal");
     if (oldModal) savedScrollTop = oldModal.scrollTop;
   }
+  // v5.10 fix：在清除DOM之前保存分配页面滚动位置
+  if (state.screen === "allocate") {
+    const oldList = app.querySelector(".allocate-list");
+    if (oldList) allocateScrollTop = oldList.scrollTop;
+  }
   app.innerHTML = "";
   if (state.screen === "menu") app.appendChild(renderMenu(state, actions));
   if (state.screen === "select") app.appendChild(renderSelect(state, actions));
-  if (state.screen === "allocate") app.appendChild(renderAllocate(state, actions));
+  if (state.screen === "allocate") {
+    const screen = renderAllocate(state, actions);
+    app.appendChild(screen);
+    // 恢复分配页面滚动位置
+    if (allocateScrollTop > 0) {
+      requestAnimationFrame(() => {
+        const newList = screen.querySelector(".allocate-list");
+        if (newList) newList.scrollTop = allocateScrollTop;
+      });
+    }
+  }
   if (state.screen === "run") app.appendChild(renderRun(state, actions));
   if (state.screen === "battle") app.appendChild(renderBattle(state, actions));
   if (state.screen === "settlement") app.appendChild(renderSettlement(state, actions));
@@ -110,9 +129,6 @@ function renderSelect(state, actions) {
 }
 
 function renderAllocate(state, actions) {
-  // 保存当前滚动位置（DOM 尚未替换）
-  const _savedScroll = document.querySelector('.allocate-list')?.scrollTop || 0;
-
   const screen = el("div", "screen allocate-layout");
   const selected = DATA.characters.find(c => c.id === state.selectedCharacter);
   const alloc = state.perRunAllocations || {};
@@ -187,14 +203,6 @@ function renderAllocate(state, actions) {
   right.querySelector("[data-act=reset-alloc]").onclick = actions.resetAllocations;
   right.querySelector("[data-act=confirm-alloc]").onclick = actions.confirmAllocate;
   screen.append(left, right);
-
-  // 恢复滚动位置（DOM 已替换后）
-  if (_savedScroll > 0) {
-    requestAnimationFrame(() => {
-      const newList = screen.querySelector('.allocate-list') || document.querySelector('.allocate-list');
-      if (newList) newList.scrollTop = _savedScroll;
-    });
-  }
 
   return screen;
 }
@@ -799,15 +807,23 @@ function renderBattle(state, actions) {
   root.querySelector("[data-itemmenu]").onclick = actions.openItemMenu;
   root.querySelector("[data-flee]").disabled = b.phase !== "waitPlayer";
   root.querySelector("[data-flee]").onclick = actions.fleeAction;
-  // 点击角色框显示详细buff/debuff状态
+  // 点击角色框显示详细buff/debuff状态（v5.10：通过模块变量持久化，避免被每帧重新渲染销毁）
   root.querySelectorAll(".fighter-panel").forEach(panel => {
     panel.style.cursor = "pointer";
     panel.onclick = () => {
       const side = panel.dataset.side;
-      const unit = side === "player" ? b.player : b.enemy;
-      showUnitPopup(unit, side, root);
+      // toggle：再次点击同一角色则关闭
+      _battleDetailSide = _battleDetailSide === side ? null : side;
+      renderApp(state, actions); // 重新渲染以显示/隐藏弹窗
     };
   });
+
+  // 如果当前需要显示角色详情弹窗，渲染它
+  if (_battleDetailSide) {
+    const unit = _battleDetailSide === "player" ? b.player : b.enemy;
+    root.appendChild(buildUnitDetailPopup(unit, _battleDetailSide, state, actions));
+  }
+
   return root;
 }
 
@@ -844,36 +860,38 @@ function debuffBadges(unit) {
   return badges.join("");
 }
 
-// 战斗中点击角色框弹出详情（特性/内功/buff/debuff）
-function showUnitPopup(unit, side, root) {
-  // toggle：再次点击同一角色则关闭
-  const old = root.querySelector(".unit-detail-popup");
-  if (old) { old.remove(); return; }
-
+// 战斗中角色详情弹窗（v5.10：返回DOM元素，避免被每帧重新渲染销毁）
+function buildUnitDetailPopup(unit, side, state, actions) {
   const isPlayer = side === "player";
-  let html = `<div class="unit-detail-popup"><span class="close-btn" onclick="this.parentElement.remove()">✕</span>`;
-  html += `<h4>${unit.name}（${side === "player" ? "主角" : "敌人"}）</h4>`;
+  const popup = el("div", "unit-detail-popup");
+  popup.innerHTML = `<span class="close-btn">✕</span><h4>${unit.name}（${side === "player" ? "主角" : "敌人"}）</h4>`;
+  popup.querySelector(".close-btn").onclick = () => {
+    _battleDetailSide = null;
+    renderApp(state, actions);
+  };
 
   // 特性
   if (isPlayer && state.run.traits) {
     const traitArr = state.run.traits.map(tid => DATA.traits.find(t => t.id === tid)).filter(Boolean);
     if (traitArr.length) {
-      html += `<div class="detail-row"><b>特性</b>：`;
-      html += traitArr.map(t => `<span class="buff-badge" title="${escapeHtml(t.desc || "")}">${t.name}</span>`).join(" ");
-      html += `</div>`;
+      const row = el("div", "detail-row");
+      row.innerHTML = `<b>特性</b>：` + traitArr.map(t => `<span class="buff-badge" title="${escapeHtml(t.desc || "")}">${t.name}</span>`).join(" ");
+      popup.appendChild(row);
     }
   }
   if (!isPlayer && unit.stats.traitName) {
-    html += `<div class="detail-row"><b>Boss特性</b>：<span class="debuff-badge enemy-trait">${unit.stats.traitName}</span></div>`;
+    const row = el("div", "detail-row");
+    row.innerHTML = `<b>Boss特性</b>：<span class="debuff-badge enemy-trait">${unit.stats.traitName}</span>`;
+    popup.appendChild(row);
   }
 
   // 内功
   if (isPlayer && state.run.activeInternalArts) {
     const arts = state.run.activeInternalArts.map(aid => DATA.internalArts[aid]).filter(Boolean);
     if (arts.length) {
-      html += `<div class="detail-row"><b>内功</b>：`;
-      html += arts.map(a => `<span class="buff-badge art-badge" title="${escapeHtml(a.desc || "")}">${a.icon} ${a.name}</span>`).join(" ");
-      html += `</div>`;
+      const row = el("div", "detail-row");
+      row.innerHTML = `<b>内功</b>：` + arts.map(a => `<span class="buff-badge art-badge" title="${escapeHtml(a.desc || "")}">${a.icon} ${a.name}</span>`).join(" ");
+      popup.appendChild(row);
     }
   }
 
@@ -886,7 +904,9 @@ function showUnitPopup(unit, side, root) {
       if (type === "speed") effect = `速度×${buff.mult}，剩余${buff.duration}回合`;
       if (type === "atk") effect = `攻击×${buff.mult}，剩余${buff.duration}回合`;
       if (type === "crit") effect = `暴击+${buff.critAdd}% 连击+${buff.comboAdd}% 暴击倍率+${buff.critPowerAdd}，剩余${buff.duration}回合`;
-      html += `<div class="detail-row"><b>${label}</b>：${effect}</div>`;
+      const row = el("div", "detail-row");
+      row.innerHTML = `<b>${label}</b>：${effect}`;
+      popup.appendChild(row);
     }
   }
 
@@ -894,12 +914,14 @@ function showUnitPopup(unit, side, root) {
   const debuffLabels = { bleed: "流血", poison: "中毒", inner: "内伤", frost: "寒气", hamstring: "断筋", gu: "蛊" };
   for (const [type, label] of Object.entries(debuffLabels)) {
     if (unit[type]) {
-      html += `<div class="detail-row"><span class="debuff-badge">${label} ${unit[type]}</span>：${type === "bleed" ? `行动开始受到${unit[type]*12}伤害` : type === "poison" ? "降攻/防/命/闪/速" : type === "inner" ? "行动开始失去内力" : type === "frost" ? "降速+失去内力" : type === "hamstring" ? "降速+削攻" : "提高招式消耗+扰乱"}</div>`;
+      const row = el("div", "detail-row");
+      const detail = type === "bleed" ? `行动开始受到${unit[type]*12}伤害` : type === "poison" ? "降攻/防/命/闪/速" : type === "inner" ? "行动开始失去内力" : type === "frost" ? "降速+失去内力" : type === "hamstring" ? "降速+削攻" : "提高招式消耗+扰乱";
+      row.innerHTML = `<span class="debuff-badge">${label} ${unit[type]}</span>：${detail}`;
+      popup.appendChild(row);
     }
   }
 
-  html += `</div>`;
-  root.insertAdjacentHTML("beforeend", html);
+  return popup;
 }
 
 function renderBattleItemsModal(modal, run, battle, actions) {

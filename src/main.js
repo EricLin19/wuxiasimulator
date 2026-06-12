@@ -49,15 +49,20 @@ import {
 //        同时多个toast时自动排队，防止重叠
 let _toastQueue      = [];   // 等待显示的toast文本队列
 let _toastActive      = [];   // 当前正在显示的{el,text}，最多3条
-let _lastToast        = "";
-let _lastTauntBattle  = null;
+let _lastToastText    = "";  // 最近一次toast文本（时间窗口去重）
+let _lastToastTime    = 0;   // 最近一次toast时间戳（ms）
 
 const TOAST_GAP = 48;  // 每条toast之间的间距(px)
-const TOAST_BOTTOM = 16;  // 最底部toast距离视窗底部(px)
+const TOAST_BOTTOM = 16; // 最底部toast距离视窗底部(px)
+const TOAST_DEDUP_MS = 2000; // 同一文本去重时间窗口（2秒内不重复）
 
 function showToast(text) {
-  if (!text || text === _lastToast) return;
-  _lastToast = text;
+  if (!text) return;
+  const now = Date.now();
+  // 2秒内同一文本不重复显示（时间窗口去重，非永久）
+  if (text === _lastToastText && now - _lastToastTime < TOAST_DEDUP_MS) return;
+  _lastToastText = text;
+  _lastToastTime = now;
   _toastQueue.push(text);
   processToastQueue();
 }
@@ -107,12 +112,22 @@ function _repositionToasts() {
 }
 
 // ── Battle 嘴炮：复用同一队列系统 ──
+let _lastTauntBattle = null;
+let _lastTauntTime = 0;
+
 function showBattleTaunt(battle, rotVal) {
-  if (!battle?.tauntText || battle === _lastTauntBattle) return;
+  if (!battle?.tauntText) return;
+  const now = Date.now();
+  // 同一场战斗只显示一次嘴炮（3秒内不重复）
+  if (battle === _lastTauntBattle && now - _lastTauntTime < 3000) return;
   _lastTauntBattle = battle;
+  _lastTauntTime = now;
   const text = `【${battle.enemy.name}】"${battle.tauntText}"`;
-  if (!text || text === _lastToast) return;
-  _lastToast = text;
+  if (!text) return;
+  // 也受全局toast去重窗口约束
+  if (text === _lastToastText && now - _lastToastTime < TOAST_DEDUP_MS) return;
+  _lastToastText = text;
+  _lastToastTime = now;
   _toastQueue.push(text);
   processToastQueue();
 }
