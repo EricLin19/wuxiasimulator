@@ -496,7 +496,7 @@ function renderRewardModal(modal, state, actions) {
 
 function renderMerchantModal(modal, run, actions, isHall = false) {
   const isWanderer = run.storylineId === "wanderer";
-  const refreshes = run._merchantRefreshes || 0;
+  const refreshes = Math.max(0, 1 + (run.wandererResolve || 0) - (run._merchantRefreshesUsed || 0));
 
   // 标题栏：标题 + 刷新(孤云线) + 离开
   modal.innerHTML = `<div class="modal-head"><h2 class="modal-title">武林商人</h2>

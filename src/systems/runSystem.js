@@ -593,7 +593,7 @@ export function getAvailableManuals(run) {
 // 孤云逐浪 专属武林商人（四象限栏位系统）
 // 左边上：外功秘籍×6 | 左边下：内功秘籍×2
 // 右边上：装备×3(武器+防具) | 右边下：丹药×5
-// 全部等概率，不分年份。刷新次数=1+散人决心。
+// 全部等概率，不分年份。刷新次数=1+散人决心，动态计算（散人决心+1自动获得+1刷新）。
 // ============================================================
 
 // 工具函数：等概率无放回抽取 n 个
@@ -639,12 +639,21 @@ function generateWandererMerchantStock(run) {
 
 function initWandererMerchant(run) {
   generateWandererMerchantStock(run);
-  run._merchantRefreshes = 1 + (run.wandererResolve || 0);
+  // 向后兼容：旧存档的 _merchantRefreshes（绝对值）→ _merchantRefreshesUsed（已用次数）
+  if (run._merchantRefreshesUsed === undefined && run._merchantRefreshes !== undefined) {
+    const maxRef = 1 + (run.wandererResolve || 0);
+    run._merchantRefreshesUsed = Math.max(0, maxRef - run._merchantRefreshes);
+    delete run._merchantRefreshes;
+  } else {
+    run._merchantRefreshesUsed = run._merchantRefreshesUsed || 0;
+  }
 }
 
 export function refreshWandererMerchantAction(run) {
-  if ((run._merchantRefreshes || 0) <= 0) return { ok: false, message: "本月刷新次数已用完" };
-  run._merchantRefreshes--;
+  const maxRefreshes = 1 + (run.wandererResolve || 0);
+  const used = run._merchantRefreshesUsed || 0;
+  if (used >= maxRefreshes) return { ok: false, message: "本月刷新次数已用完" };
+  run._merchantRefreshesUsed = used + 1;
   generateWandererMerchantStock(run);
   saveRun(run);
   return { ok: true };
