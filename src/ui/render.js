@@ -27,7 +27,7 @@ const STAT_HELP = {
   qi: "局外每点：新局内力+30（等价于1次行动点修炼）",
   atk: "局外每点：新局攻击+3（等价于1次行动点修炼）",
   def: "局外每点：新局防御+3（等价于1次行动点修炼）",
-  combo: "局外每点：新局连击+2",
+  combo: "局外每点：新局连击+4",
   hit: "局外每点：新局命中+3。实际命中=100+命中-闪避",
   dodge: "局外每点：新局闪避+1",
   crit: "局外每点：新局暴击+2",
@@ -135,13 +135,13 @@ function renderAllocate(state, actions) {
   const points = state.allocPoints || 0;
   const allKeys = [...STAT_KEYS, "money"];
   const ALLOC_BONUS = {
-    hp: 90, qi: 30, atk: 3, def: 3, combo: 2, hit: 3, dodge: 1, crit: 2, speed: 0.04,
+    hp: 90, qi: 30, atk: 3, def: 3, combo: 8, hit: 3, dodge: 1, crit: 2, speed: 0.04,
     money: 100
   };
   const ALLOC_HELP = {
     hp: "每点：血量+90", qi: "每点：内力+30",
     atk: "每点：攻击+3", def: "每点：防御+3",
-    combo: "每点：连击+2", hit: "每点：命中+3",
+    combo: "每点：连击+4", hit: "每点：命中+3",
     dodge: "每点：闪避+1", crit: "每点：暴击+2",
     speed: "每点：出手速度+0.04", money: "每点：开局金钱+100"
   };
@@ -363,7 +363,7 @@ function renderModal(state, actions) {
 }
 
 const META_BONUS = {
-  hp: 90, qi: 30, atk: 3, def: 3, combo: 2, hit: 3, dodge: 1, crit: 2, speed: 0.04,
+  hp: 90, qi: 30, atk: 3, def: 3, combo: 8, hit: 3, dodge: 1, crit: 2, speed: 0.04,
   money: 100
 };
 
@@ -780,7 +780,7 @@ function renderBattle(state, actions) {
     <div class="battle-top">${fighterPanel(state.run, b.player)}<div class="gauge-lane"><div class="gauge-dot" style="left:${b.player.gauge}%">${b.player.name.charAt(0)}</div><div class="gauge-dot" style="left:${b.enemy.gauge}%">${b.enemy.name.charAt(0)}</div><div class="speed-label speed-toggle" data-speedbtn>速度x${b.speed || 1}</div></div>${fighterPanel(null, b.enemy)}</div>
     <div class="fighter player">${b.playerPortrait ? `<img src="${b.playerPortrait}" alt="${b.player.name}" loading="lazy" decoding="async">` : b.player.icon}</div><div class="fighter enemy">${b.enemyPortrait ? `<img src="${b.enemyPortrait}" alt="${b.enemy.name}" loading="lazy" decoding="async">` : b.enemy.icon}</div>
     ${b.bossTraits?.length ? `<div class="boss-trait-bar">${b.bossTraits.map(t => `<span class="debuff-badge enemy-trait">${t}</span>`).join("")}${b.bossShield > 0 ? `<span class="debuff-badge" title="护体">护体 ${b.bossShield}</span>` : ""}${b.bossImmuneTurns > 0 ? `<span class="debuff-badge" title="免疫负面">免疫 ${b.bossImmuneTurns}回合</span>` : ""}</div>` : ""}
-    ${(b.floaters || []).map(f => `<div class="combat-floater ${f.side}">${f.text}</div>`).join("")}
+    ${(b.floaters || []).map(f => f.type ? `<div class="damage-pop ${f.side} ${f.type}">${f.text}</div>` : `<div class="combat-floater ${f.side}">${f.text}</div>`).join("")}
     <div class="battle-bottom"><div class="battle-tools"><button class="btn secondary" data-basic>普攻</button><button class="btn secondary" data-rest>调息</button><button class="btn secondary" data-itemmenu>道具</button><button class="btn red" data-flee>逃跑</button></div><div class="skill-row"></div><div class="battle-log">${b.log.map(x => `<div>${x}</div>`).join("")}</div></div>`;
   const skillRow = root.querySelector(".skill-row");
   b.player.skills.forEach(id => {

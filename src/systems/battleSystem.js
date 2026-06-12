@@ -279,7 +279,7 @@ export function useSkill(run, battle, skillId) {
     return endActorTurn(run, battle, p);
   }
   const result = resolveAttack(run, battle, p, battle.enemy, skill);
-  if (result.comboTriggered && triggerThreeWaves(run, battle, p, skillId)) {
+  if (result.comboTriggered && DATA.skills[skillId]?.tags?.includes("threeWaves") && triggerThreeWaves(run, battle, p, skillId)) {
     return checkBattleEnd(battle);
   }
   return endActorTurn(run, battle, p);
@@ -300,6 +300,7 @@ export function basicAttack(run, battle) {
     const weaponAtk = weapon ? Math.floor(weapon.atk * 0.4) : 0;
     const dmg = Math.max(1, Math.floor((effectiveAtk(p) - weaponAtk + (weapon ? Math.floor(weapon.atk * 0.4) : 0)) * 0.35 + 10 - effectiveDef(target) * 0.25));
     target.hp = Math.max(0, target.hp - dmg);
+    addFloater(battle, "enemy", `-${dmg}`, "normal");
     battleLog(battle, `${p.name}普通攻击，造成${dmg}伤害。`);
   }
   return endActorTurn(run, battle, p);
@@ -328,6 +329,9 @@ function resolveAttack(run, battle, actor, target, skill) {
   }
 
   target.hp = Math.max(0, target.hp - dmg);
+  const _isCrit = battle._lastCrit;
+  battle._lastCrit = false;
+  addFloater(battle, sideOf(battle, target), `-${dmg}`, _isCrit ? "crit" : "normal");
   applySkillEffects(run, battle, actor, target, skill, dmg);
   battleLog(battle, `${actor.name}施展${skill.name}，造成${dmg}伤害。`);
   if (skill.tags?.includes("heal")) heal(run, actor, 70);
@@ -337,21 +341,23 @@ function resolveAttack(run, battle, actor, target, skill) {
   if (target === battle.enemy) checkBossPhaseTriggers(battle);
 
   let comboTriggered = false;
-  if (skill.tags?.includes("combo")) {
-    let chain = 1;
-    let chance = comboChance(run, skill, actor);
-    while (target.hp > 0 && Math.random() * 100 < chance) {
-      chain++;
-      comboTriggered = true;
-      const comboDmg = Math.max(1, Math.floor(dmg * 0.45));
-      target.hp = Math.max(0, target.hp - comboDmg);
-      battleLog(battle, `连击触发，追加${comboDmg}伤害。`);
-      addFloater(battle, sideOf(battle, actor), "连击");
-      chance *= 0.5;
-      if (chain >= 5) break; // 单次最多5连
-    }
-    if (chain > 1) addFloater(battle, sideOf(battle, actor), `${chain}连击`);
+  let chain = 1;
+  let chance = comboChance(run, skill, actor);
+  while (target.hp > 0 && Math.random() * 100 < chance) {
+    chain++;
+    comboTriggered = true;
+    const dmgMult = 0.5 / Math.pow(2, chain - 2); // 第2击0.5，第3击0.25
+    const comboDmg = Math.max(1, Math.floor(dmg * dmgMult));
+    target.hp = Math.max(0, target.hp - comboDmg);
+    // 连击额外攻击也触发技能效果，数值减半
+    applySkillEffects(run, battle, actor, target, skill, comboDmg, dmgMult);
+    battleLog(battle, `连击触发，追加${comboDmg}伤害。`);
+    addFloater(battle, sideOf(battle, target), `-${comboDmg}`, "normal");
+    if (chain === 2) addFloater(battle, sideOf(battle, actor), "连击！", "crit");
+    chance *= 0.5;
+    if (chain >= 3) break; // 最多3次（含初始攻击）
   }
+  if (chain > 1) addFloater(battle, sideOf(battle, actor), `${chain}连击`);
   return { comboTriggered };
 }
 
@@ -360,8 +366,8 @@ function triggerThreeWaves(run, battle, actor, usedSkillId) {
   for (const id of THREE_WAVES_PALMS) {
     if (id !== usedSkillId) actor.cooldowns[id] = Math.max(0, (actor.cooldowns[id] || 0) - 1);
   }
-  battleLog(battle, "长江三叠浪触发，另外两掌冷却-1。");
-  addFloater(battle, sideOf(battle, actor), "三叠浪");
+  battleLog(battle, `${actor.name}掌势未尽，可继续出掌。`);
+  addFloater(battle, sideOf(battle, actor), "连击");
 
   battle.palmChainCount = (battle.palmChainCount || 0) + 1;
   // 每己方回合最多额外出掌2次（红武+1）
@@ -463,7 +469,7 @@ export function enemyAction(run, battle) {
         p.qi = Math.max(0, p.qi - drain);
         e.qi = Math.min(e.stats.qi, e.qi + drain);
         battleLog(battle, `${e.name}吸取了你的内力${drain}点！`);
-        addFloater(battle, "player", `-${drain}内力`);
+        addFloater(battle, "player", `-${drain}`, "qi");
       }
     }
     // 罗汉镇岳功：受到直接伤害-10%
@@ -505,7 +511,7 @@ export function enemyAction(run, battle) {
     if (Math.random() * 100 < e.stats.crit) {
       dmg = Math.floor(dmg * critMult);
       battleLog(battle, `${e.name}暴击！`);
-      addFloater(battle, "enemy", "会心一击");
+      battle._enemyLastCrit = true;
       if (run.equippedArmor) {
         const a = DATA.armors[run.equippedArmor];
         if (a?.critReduce) {
@@ -514,6 +520,9 @@ export function enemyAction(run, battle) {
       }
     }
     p.hp = Math.max(0, p.hp - dmg);
+    const _eCrit = battle._enemyLastCrit;
+    battle._enemyLastCrit = false;
+    addFloater(battle, "player", `-${dmg}`, _eCrit ? "crit" : "normal");
     // 无相秘甲：反弹25%伤害
     if (run.equippedArmor && dmg > 0) {
       const armor = DATA.armors[run.equippedArmor];
@@ -521,7 +530,7 @@ export function enemyAction(run, battle) {
         const reflectDmg = Math.floor(dmg * armor.reflect);
         e.hp = Math.max(0, e.hp - reflectDmg);
         battleLog(battle, `【无相秘甲】反弹${reflectDmg}伤害！`);
-        addFloater(battle, "enemy", `-${reflectDmg}`);
+        addFloater(battle, "enemy", `-${reflectDmg}`, "reflect");
       }
     }
     applyEnemyTraitHit(battle, e, p);
@@ -595,7 +604,7 @@ function drainPlayerQi(battle, e, p, amount) {
   const loss = Math.min(p.qi, amount);
   p.qi = Math.max(0, p.qi - amount);
   battleLog(battle, `${e.name}拳劲断脉，${p.name}内力-${loss}。`);
-  addFloater(battle, "player", "内力压制");
+  addFloater(battle, "player", `-${loss}`, "qi");
 }
 
 function triggerEvasiveLeg(run, battle, unit) {
@@ -614,7 +623,8 @@ function triggerEvasiveLeg(run, battle, unit) {
   unit.hp = Math.min(unit.stats.hp, unit.hp + hpAmt);
   unit.qi = Math.min(unit.stats.qi, unit.qi + qiAmt);
   battleLog(battle, `${unit.name}身法回旋，闪避后冷却-1并调息。`);
-  addFloater(battle, "player", "回身调息");
+  addFloater(battle, "player", `+${hpAmt}`, "heal");
+  if (qiAmt > 0) addFloater(battle, "player", `+${qiAmt}`, "qi");
 }
 
 export function toggleAuto(battle) {
@@ -654,6 +664,7 @@ function applyTurnStart(battle, unit) {
   if (unit.bleed > 0) {
     const dmg = Math.floor(unit.bleed * BLEED_DMG * dotReduceMult);
     unit.hp = Math.max(0, unit.hp - dmg);
+    addFloater(battle, unit === battle.player ? "player" : "enemy", `-${dmg}`, "bleed");
     battleLog(battle, `${unit.name}流血发作，受到${dmg}伤害。`);
     unit.bleed = Math.max(0, unit.bleed - 1);
   }
@@ -661,6 +672,7 @@ function applyTurnStart(battle, unit) {
   if (unit.inner > 0) {
     const loss = unit.inner * 14;
     unit.qi = Math.max(0, unit.qi - loss);
+    addFloater(battle, unit === battle.player ? "player" : "enemy", `-${loss}`, "qi");
     battleLog(battle, `${unit.name}内伤牵动，失去${loss}内力。`);
     unit.inner = Math.max(0, unit.inner - 1);
   }
@@ -668,6 +680,7 @@ function applyTurnStart(battle, unit) {
   if (unit.frost > 0) {
     const loss = Math.floor(unit.frost * FROST_QI * dotReduceMult);
     unit.qi = Math.max(0, unit.qi - loss);
+    addFloater(battle, unit === battle.player ? "player" : "enemy", `-${loss}`, "qi");
     battleLog(battle, `${unit.name}寒气侵脉，失去${loss}内力。`);
     unit.frost = Math.max(0, unit.frost - 1);
   }
@@ -675,6 +688,7 @@ function applyTurnStart(battle, unit) {
   if (unit.gu > 0) {
     const loss = Math.floor(unit.gu * GU_QI_COST * dotReduceMult);
     unit.qi = Math.max(0, unit.qi - loss);
+    addFloater(battle, unit === battle.player ? "player" : "enemy", `-${loss}`, "qi");
     battleLog(battle, `${unit.name}蛊息扰动，失去${loss}内力。`);
     unit.gu = Math.max(0, unit.gu - 1);
   }
@@ -684,6 +698,8 @@ function applyTurnStart(battle, unit) {
     const qiLoss = Math.floor(unit.poison * POISON_QI * dotReduceMult);
     unit.hp = Math.max(0, unit.hp - dmg);
     unit.qi = Math.max(0, unit.qi - qiLoss);
+    addFloater(battle, unit === battle.player ? "player" : "enemy", `-${dmg}`, "poison");
+    if (qiLoss > 0) addFloater(battle, unit === battle.player ? "player" : "enemy", `-${qiLoss}`, "qi");
     battleLog(battle, `${unit.name}毒发攻心，受到${dmg}伤害并流失${qiLoss}内力。`);
     unit.poison = Math.max(0, unit.poison - 1);
   }
@@ -733,7 +749,7 @@ function applyTurnStart(battle, unit) {
   if (unit === battle.enemy) checkBossPhaseTriggers(battle);
 }
 
-function applySkillEffects(run, battle, actor, target, skill, damage) {
+function applySkillEffects(run, battle, actor, target, skill, damage, multiplier = 1) {
   let stacks = skill.debuffStacks || 1;
   const weapon = run.equippedWeapon ? DATA.weapons[run.equippedWeapon] : null;
 
@@ -753,6 +769,9 @@ function applySkillEffects(run, battle, actor, target, skill, damage) {
     if (skill.style === "poison") stacks += trait.effects?.poisonBonus || 0;
   }
 
+  // 连击额外攻击：所有stacks减半（取整）
+  if (multiplier < 1) stacks = Math.max(0, Math.round(stacks * multiplier));
+
   // 三主线Boss特性：免疫新负面（drainQiImmuneBurst）
   if (actor === battle.player && target === battle.enemy && battle.bossTraits.includes("drainQiImmuneBurst")) {
     if (battle.bossImmuneTurns > 0) {
@@ -769,8 +788,8 @@ function applySkillEffects(run, battle, actor, target, skill, damage) {
   if (skill.debuff === "bleed" && skill.style === "bleed") {
     const cap = getDebuffCap(run, weapon, "bleed");
     target.bleed = Math.min(cap, target.bleed + stacks);
-    // 25层流血引爆
-    if (target.bleed >= 25) {
+    // 25层流血引爆（仅首次命中触发，连击额外攻击不触发）
+    if (multiplier >= 1 && target.bleed >= 25) {
       let burstPct = 0.15;
       // 血河断刃+饮血封喉刀 combo：引爆伤害提高至25%
       if (actor === battle.player && run) {
@@ -781,16 +800,16 @@ function applySkillEffects(run, battle, actor, target, skill, damage) {
       }
       const burstDmg = Math.floor(target.hp * burstPct);
       target.hp = Math.max(0, target.hp - burstDmg);
+      addFloater(battle, sideOf(battle, target), `-${burstDmg}`, "bleed");
       target.bleed -= 25;
       battleLog(battle, `血流如注！${target.name}流血崩裂，扣除${burstDmg}血量！`);
-      addFloater(battle, sideOf(battle, target), "血崩");
     }
   }
   if (skill.debuff === "poison" && skill.style === "poison") {
     const cap = getDebuffCap(run, weapon, "poison");
     target.poison = Math.min(cap, target.poison + stacks);
-    // 25层中毒引爆
-    if (target.poison >= 25) {
+    // 25层中毒引爆（仅首次命中触发，连击额外攻击不触发）
+    if (multiplier >= 1 && target.poison >= 25) {
       let hpPct = 0.075;
       let qiPct = 0.075;
       if (actor === battle.player && run) {
@@ -806,7 +825,8 @@ function applySkillEffects(run, battle, actor, target, skill, damage) {
       target.qi = Math.max(0, target.qi - qiDmg);
       target.poison -= 25;
       battleLog(battle, `毒素爆发！${target.name}毒发攻心，扣除${hpDmg}血量、${qiDmg}内力！`);
-      addFloater(battle, sideOf(battle, target), "毒爆");
+      addFloater(battle, sideOf(battle, target), `-${hpDmg}`, "poison");
+      if (qiDmg > 0) addFloater(battle, sideOf(battle, target), `-${qiDmg}`, "qi");
     }
   }
   if (skill.debuff === "inner" && skill.style === "qiBreak") {
@@ -870,8 +890,8 @@ function applySkillEffects(run, battle, actor, target, skill, damage) {
       battle.turnTrackers.stealTriggers++;
     }
   }
-  // 终极技能即时效果（红武立即触发）
-  if (skill.rarity === "red") {
+  // 终极技能即时效果（红武立即触发，仅首次命中触发）
+  if (multiplier >= 1 && skill.rarity === "red") {
     if (skill.style === "bleed" && !skill.noImmediateSettle) {
       const bleedDmg = target.bleed * BLEED_DMG;
       if (bleedDmg > 0) {
@@ -883,7 +903,8 @@ function applySkillEffects(run, battle, actor, target, skill, damage) {
           target.hp = Math.max(0, target.hp - burstExtra);
         }
         battleLog(battle, `血刃封喉！${target.name}流血立即结算，受到${bleedDmg}${burstExtra ? `（+${burstExtra}引爆）` : ""}伤害。`);
-        addFloater(battle, sideOf(battle, target), "血崩");
+        addFloater(battle, sideOf(battle, target), `-${bleedDmg}`, "bleed");
+        if (burstExtra > 0) addFloater(battle, sideOf(battle, target), `-${burstExtra}`, "bleed");
       }
     }
     if (skill.style === "frost") {
@@ -891,7 +912,7 @@ function applySkillEffects(run, battle, actor, target, skill, damage) {
       if (frostDrain > 0) {
         target.qi = Math.max(0, target.qi - frostDrain);
         battleLog(battle, `寒意彻骨！${target.name}内力立即流失${frostDrain}。`);
-        addFloater(battle, sideOf(battle, target), "寒噬");
+        addFloater(battle, sideOf(battle, target), `-${frostDrain}`, "qi");
       }
     }
     if (skill.style === "hamstring") {
@@ -909,7 +930,8 @@ function applySkillEffects(run, battle, actor, target, skill, damage) {
         target.hp = Math.max(0, target.hp - poisonDmg);
         target.qi = Math.max(0, target.qi - poisonQiLoss);
         battleLog(battle, `毒发攻心！${target.name}毒伤立即结算，受到${poisonDmg}伤害并流失${poisonQiLoss}内力。`);
-        addFloater(battle, sideOf(battle, target), "毒爆");
+        addFloater(battle, sideOf(battle, target), `-${poisonDmg}`, "poison");
+        if (poisonQiLoss > 0) addFloater(battle, sideOf(battle, target), `-${poisonQiLoss}`, "qi");
       }
     }
     if (skill.style === "gu") {
@@ -982,7 +1004,7 @@ function calcDamage(run, battle, actor, target, skill) {
     });
     dmg = Math.floor(dmg * cm);
     battleLog(battle, "暴击！");
-    addFloater(battle, sideOf(battle, actor), "会心一击");
+    battle._lastCrit = true;
   }
   if (target.guard) dmg = Math.floor(dmg * 0.55);
   return dmg;
@@ -1128,7 +1150,6 @@ function critMultiplier(run, skill, actor = null) {
 }
 
 function comboChance(run, skill, actor) {
-  if (skill.style !== "combo") return 0;
   const weapon = run.equippedWeapon ? DATA.weapons[run.equippedWeapon] : null;
   let value = actor.stats.combo;
   if (weapon && weapon.school === "fist" && weapon.style === "combo") value += weapon.comboBonus || 0;
@@ -1147,9 +1168,9 @@ function battleLog(battle, text) {
   battle.log = battle.log.slice(0, 40);
 }
 
-function addFloater(battle, side, text) {
+function addFloater(battle, side, text, type) {
   battle.floaters ||= [];
-  battle.floaters.push({ id: Date.now() + Math.random(), side, text });
+  battle.floaters.push({ id: Date.now() + Math.random(), side, text, type: type || "" });
   battle.floaters = battle.floaters.slice(-8);
   setTimeout(() => {
     battle.floaters = (battle.floaters || []).filter(f => f.text !== text || f.side !== side);
