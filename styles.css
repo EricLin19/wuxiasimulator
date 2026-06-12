@@ -1683,16 +1683,18 @@ button {
 }
 
 /* ============================================================
-   Toast 系统 v5.12：90°旋转 + 屏幕居中 + Y轴上移渐消
+   Toast 系统 v5.16：桌面/手机端分离
+   桌面：无旋转，横向文字，top竖直移动
+   手机：90°旋转，left动画（旋转后=屏幕竖直移动）
    ============================================================ */
 .toast {
-  --rot: 90deg;
+  --rot: 0deg;
   position: fixed;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%) rotate(var(--rot));
   width: max-content;
-  max-width: 60vh;
+  max-width: 80vw;
   padding: 10px 18px;
   background: #fffdf4;
   border: 3px solid var(--line);
@@ -1705,12 +1707,8 @@ button {
   color: #2c1810;
   box-shadow: 0 4px 20px rgba(0,0,0,.25);
   pointer-events: none;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  /* Y轴上移+渐消通过CSS transition驱动 */
-  transition: top 0.5s ease-in, opacity 0.5s ease-in;
   opacity: 1;
+  transition: top 0.5s ease-in, opacity 0.5s ease-in;
   animation: toastIn .2s ease-out;
 }
 
@@ -1719,13 +1717,26 @@ button {
   to   { opacity: 1; transform: translate(-50%, -50%) rotate(var(--rot)) scale(1); }
 }
 
+/* 手机端：90°旋转 + left动画(旋转后变屏幕竖直) */
+body.mobile-viewport .toast {
+  --rot: 90deg;
+  max-width: 60vh;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition: left 0.5s ease-in, opacity 0.5s ease-in;
+}
+
 /* 嘴炮 toast 特殊样式 */
 .toast.toast-taunt {
   background: #2c1810;
   color: #f5ddb2;
   border-color: var(--line-soft);
-  max-width: 80vh;
   font-size: 14px;
+}
+
+body.mobile-viewport .toast.toast-taunt {
+  max-width: 80vh;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;

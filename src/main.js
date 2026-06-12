@@ -44,7 +44,8 @@ import {
   fleeAction as battleFleeAction
 } from "./systems/battleSystem.js";
 
-// ── Toast 系统 v5.12：90°旋转 + 屏幕居中 + Y轴上移 + 自适应文本 ──
+// ── Toast 系统 v5.16：桌面/手机端分离 ──
+// 桌面：无旋转，top竖直移动 | 手机：90°旋转，left动画(旋转后=屏幕竖直)
 // 机制：每条toast独立生命周期（timer驱动，不依赖animationend事件）
 //       停留1.2s → CSS transition上移96px+渐消0.5s → 自动清理
 //       最多3条同时显示，超出自动挤掉最旧的；当前可见文本去重
@@ -53,8 +54,12 @@ let _toastActive = [];
 const TOAST_GAP      = 48;   // 堆叠间距(px)
 const TOAST_STAY_MS   = 1200; // 停留时间(ms)
 const TOAST_EXIT_MS   = 500;  // 退出动画时长(ms)
-const TOAST_EXIT_DY   = 96;   // 退出时Y轴上移量(px)
+const TOAST_EXIT_DY   = 96;   // 退出时位移量(px)
 const TOAST_MAX       = 3;    // 最多同时显示条数
+
+function _toastAxis() {
+  return document.body.classList.contains("mobile-viewport") ? "left" : "top";
+}
 
 function showToast(text, isTaunt) {
   if (!text) return;
@@ -66,13 +71,14 @@ function showToast(text, isTaunt) {
   el.textContent = text;
   document.body.appendChild(el);
 
+  const axis = _toastAxis();
   const idx = _toastActive.length;
-  el.style.top = `calc(50% - ${idx * TOAST_GAP}px)`;
-  const entry = { el, text };
+  el.style[axis] = `calc(50% - ${idx * TOAST_GAP}px)`;
+  const entry = { el, text, axis };
 
-  // 1.2s后：Y轴上移 + 渐消（CSS transition驱动）
+  // 1.2s后：上移 + 渐消（CSS transition驱动）
   entry.stayTimer = setTimeout(() => {
-    el.style.top = `calc(50% - ${idx * TOAST_GAP + TOAST_EXIT_DY}px)`;
+    el.style[axis] = `calc(50% - ${idx * TOAST_GAP + TOAST_EXIT_DY}px)`;
     el.style.opacity = "0";
   }, TOAST_STAY_MS);
 
@@ -103,9 +109,9 @@ function _cleanupToast(entry, immediate) {
   entry.el.remove();
   const idx = _toastActive.indexOf(entry);
   if (idx >= 0) _toastActive.splice(idx, 1);
-  // 重排剩余
+  // 重排剩余（用各自记录的axis，因为横竖屏可能在运行中切换）
   _toastActive.forEach((t, i) => {
-    t.el.style.top = `calc(50% - ${i * TOAST_GAP}px)`;
+    t.el.style[t.axis] = `calc(50% - ${i * TOAST_GAP}px)`;
   });
 }
 
