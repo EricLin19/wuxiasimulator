@@ -1,4 +1,4 @@
-import { DATA, RARITIES, STAT_LABELS } from "../data/content.js";
+import { DATA, RARITIES, STAT_LABELS, SCHOOLS } from "../data/content.js";
 import { sample, rand } from "../core/utils.js";
 
 /**
@@ -98,7 +98,7 @@ function buildSkillReward(run) {
     type: "武学秘籍",
     icon: skill.icon || "秘",
     name: skill.name,
-    desc: `${DATA.SCHOOLS[skill.school]?.name || "武学"}·${skill.tierName || ""}：${skill.desc}`,
+    desc: `${SCHOOLS[skill.school]?.name || "武学"}·${skill.tierName || ""}：${skill.desc}`,
     data: { id: skillId, ...skill }
   };
 }
