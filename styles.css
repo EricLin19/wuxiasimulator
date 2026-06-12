@@ -1686,11 +1686,11 @@ button {
    Toast 系统 v5.9：自适应文本 + 排队 + 上移渐消
    ============================================================ */
 .toast {
-  --rot: 0deg;
+  --rot: 90deg;
   position: fixed;
+  top: 50%;
   left: 50%;
-  transform: translateX(-50%) rotate(var(--rot));
-  bottom: 16px;
+  transform: translate(-50%, -50%) rotate(var(--rot));
   min-width: 160px;
   max-width: min(72vw, 420px);
   padding: 10px 18px;
@@ -1716,12 +1716,12 @@ button {
 }
 
 @keyframes toastIn {
-  from { opacity: 0; transform: translateX(-50%) rotate(var(--rot)) translateY(12px); }
-  to   { opacity: 1; transform: translateX(-50%) rotate(var(--rot)) translateY(0); }
+  from { opacity: 0; transform: translate(-50%, -50%) rotate(var(--rot)) scale(0.85); }
+  to   { opacity: 1; transform: translate(-50%, -50%) rotate(var(--rot)) scale(1); }
 }
 
 @keyframes toastOut {
-  to { opacity: 0; transform: translateX(-50%) rotate(var(--rot)) translateY(-48px); }
+  to { opacity: 0; transform: translate(-50%, -50%) rotate(var(--rot)) scale(0.85); }
 }
 
 /* 嘴炮 toast 加一个特殊样式区分 */

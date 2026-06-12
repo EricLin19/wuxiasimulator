@@ -44,16 +44,15 @@ import {
   fleeAction as battleFleeAction
 } from "./systems/battleSystem.js";
 
-// ── Toast 系统 v5.9：队列 + 自适应文本 + 上移渐消 ──
-// 机制：底部堆叠最多3条，每条停留1.2s后上移48px并渐消（0.5s）
+// ── Toast 系统 v5.11：90°旋转 + 屏幕居中 + 队列 + 自适应文本 + 缩放渐消 ──
+// 机制：居中堆叠最多3条，每条停留1.2s后缩小渐消（0.5s）
 //        同时多个toast时自动排队，防止重叠
 let _toastQueue      = [];   // 等待显示的toast文本队列
 let _toastActive      = [];   // 当前正在显示的{el,text}，最多3条
 let _lastToastText    = "";  // 最近一次toast文本（时间窗口去重）
 let _lastToastTime    = 0;   // 最近一次toast时间戳（ms）
 
-const TOAST_GAP = 48;  // 每条toast之间的间距(px)
-const TOAST_BOTTOM = 16; // 最底部toast距离视窗底部(px)
+const TOAST_GAP = 48;  // 每条toast之间的间距(px) — 从屏幕中央向上堆叠
 const TOAST_DEDUP_MS = 2000; // 同一文本去重时间窗口（2秒内不重复）
 
 function showToast(text) {
@@ -76,8 +75,8 @@ function processToastQueue() {
 
   const text = _toastQueue.shift();
   const el = _createToastEl(text, false);
-  const idx = _toastActive.length;  // 新toast的索引（0=最底）
-  el.style.bottom = `${TOAST_BOTTOM + idx * TOAST_GAP}px`;
+  const idx = _toastActive.length;  // 新toast的索引（0=居中）
+  el.style.top = `calc(50% - ${idx * TOAST_GAP}px)`;
   _toastActive.push({ el, text });
 
   // 1.2秒后开始退出动画（上移+渐消）
@@ -107,7 +106,7 @@ function _createToastEl(text, isTaunt) {
 
 function _repositionToasts() {
   _toastActive.forEach((t, i) => {
-    t.el.style.bottom = `${TOAST_BOTTOM + i * TOAST_GAP}px`;
+    t.el.style.top = `calc(50% - ${i * TOAST_GAP}px)`;
   });
 }
 
