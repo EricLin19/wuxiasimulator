@@ -13,7 +13,7 @@ const DEBUFF_CAPS = {
   hamstring: 10,
   gu: 6
 };
-const BLEED_DMG = 10;
+const BLEED_DMG = 15;
 const POISON_DMG = 8;
 const POISON_QI = 4;
 const FROST_SLOW = 0.02;
@@ -761,8 +761,17 @@ function applySkillEffects(run, battle, actor, target, skill, damage) {
     target.poison = Math.min(cap, target.poison + stacks);
     // 25层中毒引爆
     if (target.poison >= 25) {
-      const hpDmg = Math.floor(target.hp * 0.075);
-      const qiDmg = Math.floor(target.qi * 0.075);
+      let hpPct = 0.075;
+      let qiPct = 0.075;
+      if (actor === battle.player && run) {
+        const w = run.equippedWeapon ? DATA.weapons[run.equippedWeapon] : null;
+        if (w?.id === "hidden_poison_red" && skill.id === "hidden_red_1") {
+          hpPct = 0.15;
+          qiPct = 0.15;
+        }
+      }
+      const hpDmg = Math.floor(target.hp * hpPct);
+      const qiDmg = Math.floor(target.qi * qiPct);
       target.hp = Math.max(0, target.hp - hpDmg);
       target.qi = Math.max(0, target.qi - qiDmg);
       target.poison -= 25;
@@ -918,6 +927,7 @@ function getDebuffCap(run, weapon, type) {
   }
   if (hasStyleMastery(run, type)) {
     if (type === "bleed") cap += 7;
+    if (type === "poison") cap += 7;
   }
   return cap;
 }
@@ -932,8 +942,8 @@ function calcDamage(run, battle, actor, target, skill) {
   }
   if (run.traits.includes("force")) dmg = Math.floor(dmg * 1.02);
 
-  // 暴击（毒/真伤/金钱不暴击）
-  const noCrit = skill.style === "poison" || skill.style === "lowKick" || skill.style === "coin";
+  // 暴击（毒/流血/真伤/金钱不暴击）
+  const noCrit = skill.style === "poison" || skill.style === "bleed" || skill.style === "lowKick" || skill.style === "coin";
   if (!noCrit && Math.random() * 100 < critChance(run, actor, skill)) {
     let cm = critMultiplier(run, skill, actor);
     (run.activeInternalArts || []).forEach(id => {
