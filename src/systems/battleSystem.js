@@ -191,6 +191,18 @@ export function createBattle(run, enemyTemplate, isBoss = false) {
     }
   });
 
+  // 防具开场公告
+  if (battle.dragonGuardHp > 0) {
+    const armor = DATA.armors[run.equippedArmor];
+    battleLog(battle, `【${armor.name}】获得护体，吸收${battle.dragonGuardHp}伤害！`);
+  }
+  if (run.equippedArmor) {
+    const armor = DATA.armors[run.equippedArmor];
+    if (armor?.dotReduce) {
+      battleLog(battle, `【${armor.name}】持续伤害降低${Math.floor(armor.dotReduce * 100)}%。`);
+    }
+  }
+
   if (enemyStats.traitName) battle.log.unshift(`${enemyTemplate.name}特性：${enemyStats.traitName}。${enemyStats.traitDesc || ""}`);
   // 嘴炮：敌人进入战斗的专属台词（存为独立字段，由 renderBattle 一次性展示）
   battle.tauntText = enemyTemplate.taunt || null;
@@ -463,7 +475,9 @@ export function enemyAction(run, battle) {
     if (run.equippedArmor) {
       const armor = DATA.armors[run.equippedArmor];
       if (armor?.lowHpGuard && p.hp / p.stats.hp <= (armor.lowHpThreshold || 0.3)) {
+        const reduced = dmg - Math.floor(dmg * (1 - armor.lowHpGuard));
         dmg = Math.floor(dmg * (1 - armor.lowHpGuard));
+        battleLog(battle, `【${armor.name}】低血减伤，伤害降低${Math.floor(armor.lowHpGuard * 100)}%！`);
       }
     }
     if (p.guard) dmg = Math.floor(dmg * 0.55);
@@ -472,6 +486,10 @@ export function enemyAction(run, battle) {
       const absorbed = Math.min(dmg, battle.dragonGuardHp);
       battle.dragonGuardHp -= absorbed;
       dmg -= absorbed;
+      if (absorbed > 0) {
+        battleLog(battle, `【龙鳞重甲】护体吸收${absorbed}伤害！（剩余护体${battle.dragonGuardHp}）`);
+        addFloater(battle, "player", "护体");
+      }
       if (dmg <= 0) {
         battleLog(battle, `${e.name}的攻击被护体完全吸收！`);
         addFloater(battle, "player", "护体");
@@ -488,6 +506,12 @@ export function enemyAction(run, battle) {
       dmg = Math.floor(dmg * critMult);
       battleLog(battle, `${e.name}暴击！`);
       addFloater(battle, "enemy", "会心一击");
+      if (run.equippedArmor) {
+        const a = DATA.armors[run.equippedArmor];
+        if (a?.critReduce) {
+          battleLog(battle, `【${a.name}】暴击伤害降低！`);
+        }
+      }
     }
     p.hp = Math.max(0, p.hp - dmg);
     // 无相秘甲：反弹25%伤害
@@ -1284,10 +1308,15 @@ function applyBossTurnMechanics(battle) {
           const absorbed = Math.min(actualDmg, battle.dragonGuardHp);
           battle.dragonGuardHp -= absorbed;
           actualDmg -= absorbed;
-          if (absorbed > 0) addFloater(battle, "player", "护体");
+          if (absorbed > 0) {
+            battleLog(battle, `【龙鳞重甲】护体吸收${absorbed}伤害！（剩余护体${battle.dragonGuardHp}）`);
+            addFloater(battle, "player", "护体");
+          }
         }
         if (armor?.lowHpGuard && p.hp / p.stats.hp <= (armor.lowHpThreshold || 0.3)) {
+          const reduced = actualDmg - Math.floor(actualDmg * (1 - armor.lowHpGuard));
           actualDmg = Math.floor(actualDmg * (1 - armor.lowHpGuard));
+          battleLog(battle, `【${armor.name}】低血减伤，伤害降低${Math.floor(armor.lowHpGuard * 100)}%！`);
         }
       }
       if (p.guard) actualDmg = Math.floor(actualDmg * 0.55);
