@@ -1,6 +1,10 @@
 import { DATA, RARITIES, STAT_LABELS, SCHOOLS } from "../data/content.js";
 import { sample, rand } from "../core/utils.js";
 
+// 防御：防止 ES 模块加载异常或运行时数据污染导致 undefined 访问崩溃
+const _R = (rarity) => RARITIES && RARITIES[rarity] ? RARITIES[rarity] : null;
+const _S = (school) => (SCHOOLS && SCHOOLS[school] ? SCHOOLS[school].name : null) || "武学";
+
 /**
  * 生成突破奖励三选一
  * 根据当前年份和进度，混合不同类型的奖励
@@ -78,7 +82,7 @@ function buildSkillReward(run) {
     if (!s) return false;
     if (run.skills.includes(id)) return false;
     if (run.trainingSkills.includes(id)) return false;
-    if (RARITIES[s.rarity].year > run.year) return false;
+    const r = _R(s.rarity); if (r && r.year > run.year) return false;
     // 孤云线：只保留专属池中的秘籍
     if (wandererSkillIds && !wandererSkillIds.includes(id)) return false;
     return true;
@@ -98,7 +102,7 @@ function buildSkillReward(run) {
     type: "武学秘籍",
     icon: skill.icon || "秘",
     name: skill.name,
-    desc: `${SCHOOLS[skill.school]?.name || "武学"}·${skill.tierName || ""}：${skill.desc}`,
+    desc: `${_S(skill.school)}·${skill.tierName || ""}：${skill.desc}`,
     data: { id: skillId, ...skill }
   };
 }
@@ -111,7 +115,7 @@ function buildWeaponReward(run) {
 
   const available = Object.values(DATA.weapons || {}).filter(w => {
     if (run.weapons.includes(w.id)) return false;
-    if (RARITIES[w.rarity].year > run.year) return false;
+    const wr = _R(w.rarity); if (wr && wr.year > run.year) return false;
     // 孤云线：只保留专属池中的武器
     if (wandererWeaponIds && !wandererWeaponIds.includes(w.id)) return false;
     return true;
@@ -144,7 +148,7 @@ function buildArmorReward(run) {
 
   const available = Object.values(DATA.armors || {}).filter(a => {
     if (run.armors.includes(a.id)) return false;
-    if (RARITIES[a.rarity].year > run.year) return false;
+    const ar = _R(a.rarity); if (ar && ar.year > run.year) return false;
     // 孤云线：只保留专属池中的防具
     if (wandererArmorIds && !wandererArmorIds.includes(a.id)) return false;
     return true;
@@ -171,7 +175,7 @@ function buildInternalArtReward(run) {
 
   const available = Object.values(DATA.internalArts || {}).filter(a => {
     if (run.internalArts.includes(a.id)) return false;
-    if (RARITIES[a.rarity].year > run.year) return false;
+    const ar2 = _R(a.rarity); if (ar2 && ar2.year > run.year) return false;
     // 孤云线：只保留专属池中的内功
     if (wandererArtIds && !wandererArtIds.includes(a.id)) return false;
     return true;
@@ -321,9 +325,12 @@ function autoEquipWeapon(run) {
   for (const id of run.weapons) {
     const w = DATA.weapons[id];
     if (!w) continue;
-    if (!bestWeapon || w.atk > bestWeapon.atk || RARITIES[w.rarity].rank > RARITIES[bestWeapon.rarity].rank) {
+    if (!bestWeapon || w.atk > bestWeapon.atk) {
       bestWeapon = w;
       bestId = id;
+    } else {
+      const wR = _R(w.rarity); const bR = _R(bestWeapon.rarity);
+      if (wR && bR && wR.rank > bR.rank) { bestWeapon = w; bestId = id; }
     }
   }
 
@@ -350,9 +357,12 @@ function autoEquipArmor(run) {
     if (!a) continue;
     const currentValue = (bestArmor?.hp || 0) + (bestArmor?.def || 0) * 10;
     const newValue = (a.hp || 0) + (a.def || 0) * 10;
-    if (newValue > currentValue || RARITIES[a.rarity].rank > RARITIES[bestArmor?.rarity || "blue"].rank) {
+    if (newValue > currentValue) {
       bestArmor = a;
       bestId = id;
+    } else {
+      const aR = _R(a.rarity); const bAR = _R(bestArmor?.rarity || "blue");
+      if (aR && bAR && aR.rank > bAR.rank) { bestArmor = a; bestId = id; }
     }
   }
 
