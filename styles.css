@@ -1683,7 +1683,7 @@ button {
 }
 
 /* ============================================================
-   Toast 系统 v5.9：自适应文本 + 排队 + 上移渐消
+   Toast 系统 v5.12：90°旋转 + 屏幕居中 + Y轴上移渐消
    ============================================================ */
 .toast {
   --rot: 90deg;
@@ -1691,9 +1691,8 @@ button {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%) rotate(var(--rot));
-  min-width: auto;
-  max-width: 60vh;
   width: max-content;
+  max-width: 60vh;
   padding: 10px 18px;
   background: #fffdf4;
   border: 3px solid var(--line);
@@ -1705,16 +1704,14 @@ button {
   line-height: 1.5;
   color: #2c1810;
   box-shadow: 0 4px 20px rgba(0,0,0,.25);
-  animation: toastIn .2s ease-out;
   pointer-events: none;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  transition: none;
-}
-
-.toast.toast-out {
-  animation: toastOut .5s ease-in forwards;
+  /* Y轴上移+渐消通过CSS transition驱动 */
+  transition: top 0.5s ease-in, opacity 0.5s ease-in;
+  opacity: 1;
+  animation: toastIn .2s ease-out;
 }
 
 @keyframes toastIn {
@@ -1722,11 +1719,7 @@ button {
   to   { opacity: 1; transform: translate(-50%, -50%) rotate(var(--rot)) scale(1); }
 }
 
-@keyframes toastOut {
-  to { opacity: 0; transform: translate(-50%, -50%) rotate(var(--rot)) scale(0.85); }
-}
-
-/* 嘴炮 toast 加一个特殊样式区分 */
+/* 嘴炮 toast 特殊样式 */
 .toast.toast-taunt {
   background: #2c1810;
   color: #f5ddb2;

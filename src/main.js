@@ -44,91 +44,82 @@ import {
   fleeAction as battleFleeAction
 } from "./systems/battleSystem.js";
 
-// ── Toast 系统 v5.11：90°旋转 + 屏幕居中 + 队列 + 自适应文本 + 缩放渐消 ──
-// 机制：居中堆叠最多3条，每条停留1.2s后缩小渐消（0.5s）
-//        同时多个toast时自动排队，防止重叠
-let _toastQueue      = [];   // 等待显示的toast文本队列
-let _toastActive      = [];   // 当前正在显示的{el,text}，最多3条
-let _lastToastText    = "";  // 最近一次toast文本（时间窗口去重）
-let _lastToastTime    = 0;   // 最近一次toast时间戳（ms）
+// ── Toast 系统 v5.12：90°旋转 + 屏幕居中 + Y轴上移 + 自适应文本 ──
+// 机制：每条toast独立生命周期（timer驱动，不依赖animationend事件）
+//       停留1.2s → CSS transition上移96px+渐消0.5s → 自动清理
+//       最多3条同时显示，超出自动挤掉最旧的；当前可见文本去重
+let _toastActive = [];
 
-const TOAST_GAP = 48;  // 每条toast之间的间距(px) — 从屏幕中央向上堆叠
-const TOAST_DEDUP_MS = 2000; // 同一文本去重时间窗口（2秒内不重复）
+const TOAST_GAP      = 48;   // 堆叠间距(px)
+const TOAST_STAY_MS   = 1200; // 停留时间(ms)
+const TOAST_EXIT_MS   = 500;  // 退出动画时长(ms)
+const TOAST_EXIT_DY   = 96;   // 退出时Y轴上移量(px)
+const TOAST_MAX       = 3;    // 最多同时显示条数
 
-function showToast(text) {
+function showToast(text, isTaunt) {
   if (!text) return;
-  const now = Date.now();
-  // 2秒内同一文本不重复显示（时间窗口去重，非永久）
-  if (text === _lastToastText && now - _lastToastTime < TOAST_DEDUP_MS) return;
-  _lastToastText = text;
-  _lastToastTime = now;
-  _toastQueue.push(text);
-  processToastQueue();
-}
-// 供 runSystem.js 的 log() 调用（避免循环依赖）
-if (typeof window !== "undefined") window.__showToast = showToast;
+  // 去重：当前正在显示的toast中已有相同文本则跳过
+  if (_toastActive.some(t => t.text === text)) return;
 
-function processToastQueue() {
-  // 当前活跃已满3条时等待，不消费队列
-  if (_toastActive.length >= 3) return;
-  if (_toastQueue.length === 0) return;
-
-  const text = _toastQueue.shift();
-  const el = _createToastEl(text, false);
-  const idx = _toastActive.length;  // 新toast的索引（0=居中）
-  el.style.top = `calc(50% - ${idx * TOAST_GAP}px)`;
-  _toastActive.push({ el, text });
-
-  // 1.2秒后开始退出动画（上移+渐消）
-  const exitTimer = setTimeout(() => {
-    el.classList.add("toast-out");
-  }, 1200);
-
-  // 退出动画结束后移除DOM，重新排列剩余toast
-  el.addEventListener("animationend", (e) => {
-    if (e.animationName === "toastOut") {
-      clearTimeout(exitTimer);
-      el.remove();
-      _toastActive = _toastActive.filter(t => t.el !== el);
-      _repositionToasts();
-      processToastQueue();   // 消费队列中下一个
-    }
-  }, { once: true });
-}
-
-function _createToastEl(text, isTaunt) {
   const el = document.createElement("div");
-  el.className = "toast" + (isTaunt ? " toast-taunt" : "");
+  el.className = isTaunt ? "toast toast-taunt" : "toast";
   el.textContent = text;
   document.body.appendChild(el);
-  return el;
-}
 
-function _repositionToasts() {
+  const idx = _toastActive.length;
+  el.style.top = `calc(50% - ${idx * TOAST_GAP}px)`;
+  const entry = { el, text };
+
+  // 1.2s后：Y轴上移 + 渐消（CSS transition驱动）
+  entry.stayTimer = setTimeout(() => {
+    el.style.top = `calc(50% - ${idx * TOAST_GAP + TOAST_EXIT_DY}px)`;
+    el.style.opacity = "0";
+  }, TOAST_STAY_MS);
+
+  // 保险：总时长后强制清理（防止transitionend不触发）
+  entry.deadTimer = setTimeout(() => {
+    _cleanupToast(entry);
+  }, TOAST_STAY_MS + TOAST_EXIT_MS + 150);
+
+  // transitionend触发时清理（比deadTimer先到）
+  el.addEventListener("transitionend", (e) => {
+    if (e.propertyName === "opacity") {
+      _cleanupToast(entry);
+    }
+  }, { once: true });
+
+  _toastActive.push(entry);
+
+  // 超过上限：立即挤掉最旧的
+  if (_toastActive.length > TOAST_MAX) {
+    _cleanupToast(_toastActive[0], true);
+  }
+}
+if (typeof window !== "undefined") window.__showToast = showToast;
+
+function _cleanupToast(entry, immediate) {
+  clearTimeout(entry.stayTimer);
+  clearTimeout(entry.deadTimer);
+  entry.el.remove();
+  const idx = _toastActive.indexOf(entry);
+  if (idx >= 0) _toastActive.splice(idx, 1);
+  // 重排剩余
   _toastActive.forEach((t, i) => {
     t.el.style.top = `calc(50% - ${i * TOAST_GAP}px)`;
   });
 }
 
-// ── Battle 嘴炮：复用同一队列系统 ──
+// ── Battle 嘴炮 ──
 let _lastTauntBattle = null;
 let _lastTauntTime = 0;
 
-function showBattleTaunt(battle, rotVal) {
+function showBattleTaunt(battle) {
   if (!battle?.tauntText) return;
   const now = Date.now();
-  // 同一场战斗只显示一次嘴炮（3秒内不重复）
   if (battle === _lastTauntBattle && now - _lastTauntTime < 3000) return;
   _lastTauntBattle = battle;
   _lastTauntTime = now;
-  const text = `【${battle.enemy.name}】"${battle.tauntText}"`;
-  if (!text) return;
-  // 也受全局toast去重窗口约束
-  if (text === _lastToastText && now - _lastToastTime < TOAST_DEDUP_MS) return;
-  _lastToastText = text;
-  _lastToastTime = now;
-  _toastQueue.push(text);
-  processToastQueue();
+  showToast(`【${battle.enemy.name}】"${battle.tauntText}"`, true);
 }
 
 let _lastRenderTime = 0;
