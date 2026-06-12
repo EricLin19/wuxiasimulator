@@ -18,7 +18,8 @@ export const SCHOOLS = {
   blade: { id: "blade", name: "刀法", debuff: "流血", icon: "刀" },
   hidden: { id: "hidden", name: "暗器", debuff: "中毒", icon: "镖" },
   fist: { id: "fist", name: "拳掌", debuff: "内伤", icon: "拳" },
-  lightness: { id: "lightness", name: "腿法", debuff: "身法", icon: "腿" }
+  lightness: { id: "lightness", name: "腿法", debuff: "身法", icon: "腿" },
+  none: { id: "none", name: "通用", debuff: null, icon: "秘" }
 };
 
 export const STYLE_LABELS = {
