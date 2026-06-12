@@ -1691,8 +1691,9 @@ button {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%) rotate(var(--rot));
-  min-width: 160px;
-  max-width: min(72vw, 420px);
+  min-width: auto;
+  max-width: 60vh;
+  width: max-content;
   padding: 10px 18px;
   background: #fffdf4;
   border: 3px solid var(--line);
@@ -1706,8 +1707,9 @@ button {
   box-shadow: 0 4px 20px rgba(0,0,0,.25);
   animation: toastIn .2s ease-out;
   pointer-events: none;
-  word-break: break-all;
-  white-space: normal;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
   transition: none;
 }
 
@@ -1729,9 +1731,11 @@ button {
   background: #2c1810;
   color: #f5ddb2;
   border-color: var(--line-soft);
-  max-width: min(80vw, 500px);
+  max-width: 80vh;
   font-size: 14px;
-  white-space: pre-wrap;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .trait-chip {
