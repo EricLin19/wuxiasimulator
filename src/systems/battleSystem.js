@@ -6,10 +6,10 @@ const MAX_PALM_CHAIN_ACTIONS = 3; // arm can increase to 4
 
 // Debuff caps
 const DEBUFF_CAPS = {
-  bleed: 30,
-  poison: 30,
+  bleed: 15,
+  poison: 15,
   inner: 12,
-  frost: 10,
+  frost: 15,
   hamstring: 10,
   gu: 6
 };
@@ -186,8 +186,8 @@ export function createBattle(run, enemyTemplate, isBoss = false) {
       battle.player.frost = 0;
       battle.player.hamstring = 0;
       battle.player.gu = 0;
-      battle.player.cleanseShield = 10; // 前10己方回合免疫负面
-      battleLog(battle, `【大罗洗髓经】净化所有负面状态，前10己方回合免疫负面。`);
+      battle.player.cleanseShield = 5; // 前5己方回合免疫负面
+      battleLog(battle, `【大罗洗髓经】净化所有负面状态，前5己方回合免疫负面。`);
     }
   });
 
@@ -1127,7 +1127,6 @@ function endActorTurn(run, battle, actor) {
   if (actor.guard) actor.guard = 0;
   if (actor === battle.player) {
     battle.palmChainCount = 0;
-    actor.cleanseShield = Math.max(0, (actor.cleanseShield || 0) - 0.5);
   }
   actor.gauge = 0;
   // 临时Buff持续时间递减
@@ -1224,7 +1223,8 @@ function applyBossTurnMechanics(battle) {
 
   // ======== 小Boss特性（v5.18更新数值）========
   if (trait === "miniBleed") {
-    // 每回合流血+5
+    // 每回合流血+5（大罗洗髓经免疫期间跳过）
+    if (p.cleanseShield > 0) return;
     const cap = getDebuffCap(battle.run, null, "bleed");
     p.bleed = Math.min(cap, p.bleed + 5);
     battleLog(battle, `${e.name}的刀锋带来流血！`);
@@ -1232,7 +1232,8 @@ function applyBossTurnMechanics(battle) {
   }
 
   if (trait === "miniFrost") {
-    // 每回合寒气+5
+    // 每回合寒气+5（大罗洗髓经免疫期间跳过）
+    if (p.cleanseShield > 0) return;
     const cap = getDebuffCap(battle.run, null, "frost");
     p.frost = Math.min(cap, p.frost + 5);
     battleLog(battle, `${e.name}的剑锋带来寒气！`);
@@ -1282,6 +1283,8 @@ function applyBossTurnMechanics(battle) {
 
   // ======== miniPoison（v5.18新增）：每回合中毒+5 ========
   if (trait === "miniPoison") {
+    // （大罗洗髓经免疫期间跳过）
+    if (p.cleanseShield > 0) return;
     const cap = getDebuffCap(battle.run, null, "poison");
     p.poison = Math.min(cap, p.poison + 5);
     battleLog(battle, `${e.name}的攻势带来毒素！`);

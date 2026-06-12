@@ -304,19 +304,19 @@ export const DATA = {
     { id: "main_m6_zhou_tong", name: "铁手·周通", icon: "拳", portraitImage: "assets/portraits_guyun_pixel/main_m6_zhou_tong_pixel_320.webp", hp: 1000, qi: 320, atk: 70, def: 28, combo: 5, hit: 70, dodge: 6, crit: 10, speed: 1.25, rank: 2, boss: true, bossTraits: ["armorBreak"], bossTraitDesc: "玩家DEF剩50%；每次命中玩家DEF-5%", taunt: "奉命'劝导'拒册散人。劝不听的话——我这双手套开过不少瓢。" },
     { id: "main_m8_ma_rulong", name: "先锋营统领·马如龙", icon: "将", portraitImage: "assets/portraits_guyun_pixel/main_m8_ma_rulong_pixel_320.webp", hp: 1500, qi: 420, atk: 85, def: 34, combo: 4, hit: 72, dodge: 7, crit: 9, speed: 1.30, rank: 2, taunt: "先锋营在此！散人还不束手就擒？" },
     { id: "main_m10_yang_zhen", name: "护法副将·杨震", icon: "将", portraitImage: "assets/portraits_guyun_pixel/main_m10_yang_zhen_pixel_320.webp", hp: 2000, qi: 520, atk: 100, def: 40, combo: 4, hit: 75, dodge: 8, crit: 10, speed: 1.35, rank: 3, boss: true, bossTraits: ["miniArmor"], bossTraitDesc: "开场护体盾30%HP，高防稳守", taunt: "左护法点名要你的人头。自己交出来，免得多受皮肉苦。" },
-    { id: "main_m12_zhao_chongyue", name: "杭州堂主·赵崇岳", icon: "刀", portraitImage: "assets/portraits_guyun_pixel/main_m12_zhao_chongyue_pixel_320.webp", hp: 4000, qi: 1200, atk: 120, def: 48, combo: 5, hit: 80, dodge: 10, crit: 14, speed: 1.50, rank: 5, boss: true, bossTraits: ["lowHpBerserk", "miniFrost", "miniBleed", "miniPoison"], bossTraitDesc: "≤30%HP：ATK×1.5,SPEED×3；每回合寒气+5、流血+5、中毒+5", taunt: "知不知道因为你一个人，我少赚了多少银子？" },
+    { id: "main_m12_zhao_chongyue", name: "杭州堂主·赵崇岳", icon: "刀", portraitImage: "assets/portraits_guyun_pixel/main_m12_zhao_chongyue_pixel_320.webp", hp: 4000, qi: 1200, atk: 120, def: 48, combo: 5, hit: 80, dodge: 10, crit: 14, speed: 1.50, rank: 5, boss: true, bossTraits: ["lowHpBerserk", "miniArmor", "miniBleed"], bossTraitDesc: "≤30%HP：ATK×1.5,SPEED×3；开场护体30%HP；每回合流血+5", taunt: "知不知道因为你一个人，我少赚了多少银子？" },
     { id: "main_m14_du_wei", name: "沈千山帐前哨长·杜威", icon: "哨", portraitImage: "assets/portraits_guyun_pixel/main_m14_du_wei_pixel_320.webp", hp: 2500, qi: 600, atk: 110, def: 44, combo: 4, hit: 74, dodge: 9, crit: 10, speed: 1.40, rank: 3, taunt: "左护法的眼睛无处不在。你藏不住的。" },
     { id: "main_m16_liu_changqing", name: "寒剑·柳长卿", icon: "剑", portraitImage: "assets/portraits_guyun_pixel/main_m16_liu_changqing_pixel_320.webp", hp: 3000, qi: 750, atk: 125, def: 50, combo: 5, hit: 76, dodge: 14, crit: 14, speed: 1.50, rank: 3, boss: true, bossTraits: ["miniFrost"], bossTraitDesc: "每回合玩家寒气+5，减速削内", taunt: "你的剑法，比传闻中弱。" },
     { id: "main_m18_qin_lie", name: "夜袭队长·秦烈", icon: "袭", portraitImage: "assets/portraits_guyun_pixel/main_m18_qin_lie_pixel_320.webp", hp: 3500, qi: 780, atk: 140, def: 56, combo: 5, hit: 78, dodge: 10, crit: 12, speed: 1.48, rank: 4, taunt: "夜长梦多——速战速决，一个不留。" },
     { id: "main_m20_cui_ming", name: "「血手」崔命", icon: "血", portraitImage: "assets/portraits_guyun_pixel/main_m20_cui_ming_pixel_320.webp", hp: 4000, qi: 850, atk: 155, def: 62, combo: 4, hit: 80, dodge: 12, crit: 14, speed: 1.52, rank: 4, boss: true, bossTraits: ["miniBleed", "miniPoison"], bossTraitDesc: "每回合玩家流血+5、中毒+5", taunt: "五千两是你的命价——但我不急着收，先玩玩。" },
     { id: "main_m22_ye_gu", name: "无影·叶孤", icon: "影", portraitImage: "assets/portraits_guyun_pixel/main_m22_ye_gu_pixel_320.webp", hp: 4500, qi: 1000, atk: 170, def: 68, combo: 7, hit: 88, dodge: 50, crit: 18, speed: 1.80, rank: 4, boss: true, bossTraits: ["highDodge"], bossTraitDesc: "基础DODGE=50；≤50%HP：DODGE×1.5", taunt: "我要的不是你的命，是那份名单。交出来，你可以活。" },
-    { id: "main_m24_shen_qianshan", name: "左护法·沈千山", icon: "戟", portraitImage: "assets/portraits_guyun_pixel/main_m24_shen_qianshan_pixel_320.webp", hp: 8000, qi: 2400, atk: 200, def: 80, combo: 6, hit: 88, dodge: 14, crit: 18, speed: 1.65, rank: 7, boss: true, bossTraits: ["berserkSummon", "miniFrost", "miniBleed", "miniPoison"], bossTraitDesc: "≤70%HP：ATK×1.2,SPEED×1.5；≤30%HP：ATK×1.5,SPEED×3；每回合寒气+5、流血+5、中毒+5", taunt: "把所有人当资源配置——包括你我。区别只是价格不同。" },
+    { id: "main_m24_shen_qianshan", name: "左护法·沈千山", icon: "戟", portraitImage: "assets/portraits_guyun_pixel/main_m24_shen_qianshan_pixel_320.webp", hp: 8000, qi: 2400, atk: 200, def: 80, combo: 6, hit: 88, dodge: 14, crit: 18, speed: 1.65, rank: 7, boss: true, bossTraits: ["berserkSummon", "miniFrost", "miniPoison"], bossTraitDesc: "≤70%HP：ATK×1.2,SPEED×1.5；≤30%HP：ATK×1.5,SPEED×3；每回合寒气+5、中毒+5", taunt: "把所有人当资源配置——包括你我。区别只是价格不同。" },
     { id: "main_m26_qian_biao", name: "狂刀·钱彪", icon: "刀", portraitImage: "assets/portraits_guyun_pixel/main_m26_qian_biao_pixel_320.webp", hp: 5000, qi: 1100, atk: 185, def: 74, combo: 5, hit: 82, dodge: 10, crit: 14, speed: 1.60, rank: 5, boss: true, bossTraits: ["lowHpBerserk"], bossTraitDesc: "≤30%HP：ATK×1.5,SPEED×3", taunt: "统领建立的新秩序，需要你们这些散人做出点牺牲。" },
     { id: "main_m28_wei_yue", name: "精英卫队长·卫岳", icon: "卫", portraitImage: "assets/portraits_guyun_pixel/main_m28_wei_yue_pixel_320.webp", hp: 5500, qi: 1200, atk: 200, def: 80, combo: 5, hit: 84, dodge: 10, crit: 15, speed: 1.65, rank: 5, taunt: "总坛禁卫在此。擅入者，踏过我的尸体。" },
     { id: "main_m30_huo_feng", name: "烽火统领·霍烽", icon: "烽", portraitImage: "assets/portraits_guyun_pixel/main_m30_huo_feng_pixel_320.webp", hp: 6000, qi: 1400, atk: 215, def: 86, combo: 5, hit: 85, dodge: 9, crit: 16, speed: 1.70, rank: 6, boss: true, bossTraits: ["armorBreak"], bossTraitDesc: "玩家DEF剩50%；每次命中玩家DEF-5%", taunt: "太行外围百里之内，没有我的狼烟传不到的信号。" },
     { id: "main_m32_gongsun_lie", name: "右护法·公孙烈", icon: "枪", portraitImage: "assets/portraits_guyun_pixel/main_m32_gongsun_lie_pixel_320.webp", hp: 6500, qi: 1600, atk: 230, def: 92, combo: 6, hit: 85, dodge: 10, crit: 16, speed: 1.75, rank: 6, boss: true, bossTraits: ["armorBreak"], bossTraitDesc: "玩家DEF剩50%；每次命中玩家DEF-5%", taunt: "统领说打谁就打谁。我不问为什么。" },
     { id: "main_m34_yan_tie", name: "地牢典狱长·阎铁", icon: "狱", portraitImage: "assets/portraits_guyun_pixel/main_m34_yan_tie_pixel_320.webp", hp: 7000, qi: 1800, atk: 245, def: 98, combo: 4, hit: 88, dodge: 12, crit: 14, speed: 1.80, rank: 6, boss: true, bossTraits: ["pointStrike"], bossTraitDesc: "50%概率打穴：额外伤害=ATK×50%，玩家SPEED×0.5", taunt: "来了就别走了。地牢的铁链还有空位。" },
-    { id: "main_m36_chu_zongxuan", name: "武盟统领·楚宗玄", icon: "魔", portraitImage: "assets/portraits_guyun_pixel/main_m36_chu_zongxuan_pixel_320.webp", hp: 15000, qi: 4000, atk: 280, def: 112, combo: 8, hit: 95, dodge: 20, crit: 24, speed: 2.00, rank: 10, boss: true, bossTraits: ["shieldPurityBerserk", "miniFrost", "miniBleed", "miniPoison"], bossTraitDesc: "开场25%护体；≤50%HP净化+回血20%；≤15%HP ATK×2,SPEED×4,DEF×0.5；每回合寒气+5、流血+5、中毒+5", taunt: "维持一个能救千万人的机构需要代价。每年几百个散人变成数字——我觉得值得。" }
+    { id: "main_m36_chu_zongxuan", name: "武盟统领·楚宗玄", icon: "魔", portraitImage: "assets/portraits_guyun_pixel/main_m36_chu_zongxuan_pixel_320.webp", hp: 15000, qi: 4000, atk: 280, def: 112, combo: 8, hit: 95, dodge: 20, crit: 24, speed: 2.00, rank: 10, boss: true, bossTraits: ["shieldPurityBerserk", "pointStrike"], bossTraitDesc: "开场25%护体；≤50%HP净化+回血20%；≤15%HP ATK×2,SPEED×4,DEF×0.5；50%打穴封行动", taunt: "维持一个能救千万人的机构需要代价。每年几百个散人变成数字——我觉得值得。" }
   ],
   bosses: [
     { id: "boss_y1", name: "青竹寨主", icon: "刀", year: 1, hp: 560, qi: 260, atk: 78, def: 42, combo: 4, hit: 68, dodge: 4, crit: 10, speed: 1.35, boss: true, taunt: "这山头我说了算，你一个散人敢来送死？" },
@@ -429,7 +429,7 @@ export const INTERNAL_ARTS = {
   art_orange_3: { id: "art_orange_3", name: "玄霜真气", rarity: "orange", icon: "冰", cultivateCost: 4, desc: "玄霜入脉，寒意逼人。血量+180，内力+120，命中附加1层寒气（每己方回合最多1次）。", statGain: { hp: 180, qi: 120 }, combatEffect: "frostOnHit", combatDesc: "攻击/招式命中附加1层寒气（每回合最多1次）" },
   art_orange_4: { id: "art_orange_4", name: "摄元秘法", rarity: "orange", icon: "星", cultivateCost: 4, desc: "夺天地之元。血量+240，内力+100，命中吸取目标8%当前内力（上限40）。", statGain: { hp: 240, qi: 100 }, combatEffect: "drainQi", combatDesc: "攻击时汲取目标8%当前内力（上限40）" },
   art_red_1: { id: "art_red_1", name: "九曜真功", rarity: "red", icon: "曜", cultivateCost: 5, desc: "九曜盈体，生生不息。血量+1500，内力+300，每回合恢复5%最大血量与5%最大内力。", statGain: { hp: 1500, qi: 300 }, combatEffect: "healOnTurn", combatDesc: "每回合恢复5%血量+5%内力" },
-  art_red_2: { id: "art_red_2", name: "大罗洗髓经", rarity: "red", icon: "髓", cultivateCost: 5, desc: "脱胎换骨，洗尽铅华。血量+520，内力+160，全属性+6，前10己方回合免疫负面效果。", statGain: { hp: 520, qi: 160, atk: 6, def: 6, hit: 6, dodge: 6, crit: 6, speed: 0.06 }, combatEffect: "cleanse", combatDesc: "开场净化+前10己方回合免疫负面" },
+  art_red_2: { id: "art_red_2", name: "大罗洗髓经", rarity: "red", icon: "髓", cultivateCost: 5, desc: "脱胎换骨，洗尽铅华。血量+520，内力+160，全属性+6，前5己方回合免疫负面效果。", statGain: { hp: 520, qi: 160, atk: 6, def: 6, hit: 6, dodge: 6, crit: 6, speed: 0.06 }, combatEffect: "cleanse", combatDesc: "开场净化+前5己方回合免疫负面" },
   art_red_3: { id: "art_red_3", name: "天衡神照经", rarity: "red", icon: "衡", cultivateCost: 5, desc: "天衡运转，神照万象。血量+600，内力+220，战斗开始恢复25%血量和15%内力。", statGain: { hp: 600, qi: 220 }, combatEffect: "bigHealStart", combatDesc: "战斗开始恢复25%血量+15%内力" },
   art_red_4: { id: "art_red_4", name: "玄元龙象功", rarity: "red", icon: "龙", cultivateCost: 5, desc: "龙象之力，转化万钧。血量+480，内力+160，攻击+14，受直接伤害的20%转为内力。", statGain: { hp: 480, qi: 160, atk: 14 }, combatEffect: "dmgToQi", combatDesc: "受直接伤害的20%转为内力" }
 };
@@ -445,9 +445,9 @@ DATA.storylines = {
     threatName: "武盟威势",
     threatDesc: "武盟对散人的压迫日增",
     bosses: {
-      1: { id: "wanderer_boss_y1", name: "杭州堂主·赵崇岳", icon: "刀", portraitImage: "assets/portraits_guyun_pixel/main_m12_zhao_chongyue_pixel_320.webp", year: 1, hp: 4000, qi: 1200, atk: 120, def: 48, combo: 5, hit: 80, dodge: 10, crit: 14, speed: 1.50, boss: true, bossTraits: ["lowHpBerserk", "miniFrost", "miniBleed", "miniPoison"], bossTraitDesc: "≤30%HP：ATK×1.5,SPEED×3；每回合寒气+5、流血+5、中毒+5", taunt: "知不知道因为你一个人，我少赚了多少银子？" },
-      2: { id: "wanderer_boss_y2", name: "左护法·沈千山", icon: "戟", portraitImage: "assets/portraits_guyun_pixel/main_m24_shen_qianshan_pixel_320.webp", year: 2, hp: 8000, qi: 2400, atk: 200, def: 80, combo: 6, hit: 88, dodge: 14, crit: 18, speed: 1.65, boss: true, bossTraits: ["berserkSummon", "miniFrost", "miniBleed", "miniPoison"], bossTraitDesc: "≤70%HP：ATK×1.2,SPEED×1.5；≤30%HP：ATK×1.5,SPEED×3；每回合寒气+5、流血+5、中毒+5", taunt: "把所有人当资源配置，包括你我，区别只是价格不同。" },
-      3: { id: "wanderer_final", name: "武盟统领·楚宗玄", icon: "魔", portraitImage: "assets/portraits_guyun_pixel/main_m36_chu_zongxuan_pixel_320.webp", year: 3, hp: 15000, qi: 4000, atk: 280, def: 112, combo: 8, hit: 95, dodge: 20, crit: 24, speed: 2.00, boss: true, bossTraits: ["shieldPurityBerserk", "miniFrost", "miniBleed", "miniPoison"], bossTraitDesc: "开场25%护体；≤50%HP净化+回血20%；≤15%HP ATK×2,SPEED×4,DEF×0.5；每回合寒气+5、流血+5、中毒+5", taunt: "维持一个能救千万人的机构需要代价。每年几百个散人变成数字——我觉得值得。" }
+      1: { id: "wanderer_boss_y1", name: "杭州堂主·赵崇岳", icon: "刀", portraitImage: "assets/portraits_guyun_pixel/main_m12_zhao_chongyue_pixel_320.webp", year: 1, hp: 4000, qi: 1200, atk: 120, def: 48, combo: 5, hit: 80, dodge: 10, crit: 14, speed: 1.50, boss: true, bossTraits: ["lowHpBerserk", "miniArmor", "miniBleed"], bossTraitDesc: "≤30%HP：ATK×1.5,SPEED×3；开场护体30%HP；每回合流血+5", taunt: "知不知道因为你一个人，我少赚了多少银子？" },
+      2: { id: "wanderer_boss_y2", name: "左护法·沈千山", icon: "戟", portraitImage: "assets/portraits_guyun_pixel/main_m24_shen_qianshan_pixel_320.webp", year: 2, hp: 8000, qi: 2400, atk: 200, def: 80, combo: 6, hit: 88, dodge: 14, crit: 18, speed: 1.65, boss: true, bossTraits: ["berserkSummon", "miniFrost", "miniPoison"], bossTraitDesc: "≤70%HP：ATK×1.2,SPEED×1.5；≤30%HP：ATK×1.5,SPEED×3；每回合寒气+5、中毒+5", taunt: "把所有人当资源配置，包括你我，区别只是价格不同。" },
+      3: { id: "wanderer_final", name: "武盟统领·楚宗玄", icon: "魔", portraitImage: "assets/portraits_guyun_pixel/main_m36_chu_zongxuan_pixel_320.webp", year: 3, hp: 15000, qi: 4000, atk: 280, def: 112, combo: 8, hit: 95, dodge: 20, crit: 24, speed: 2.00, boss: true, bossTraits: ["shieldPurityBerserk", "pointStrike"], bossTraitDesc: "开场25%护体；≤50%HP净化+回血20%；≤15%HP ATK×2,SPEED×4,DEF×0.5；50%打穴封行动", taunt: "维持一个能救千万人的机构需要代价。每年几百个散人变成数字——我觉得值得。" }
     },
     events: [
       { id: "wanderer_notice", name: "武盟征帖", category: "主线", icon: "帖", desc: "武盟命散人入册听调，不从者视为武林公敌。", type: "story", yearMin: 1, yearMax: 3 },
@@ -799,7 +799,7 @@ DATA.wandererGrowthEvents = {
       unlockMonth: 10,
       desc: "韩铁衣生前搭了一条散人自己的物资线——从山里收药材，运到城郊黑市换粮食。武盟封锁之后这条线断了。一个老镖头找到你：「路不好走，但货得送。沿路的散人都指着这批粮食。」他递过来一张皱巴巴的路线图——上面标注的每一个安全点，都是韩铁衣拿血换来的。",
       reward: { y1: 150, y2: 210, y3: 300 },
-      bonusDesc: "运气好可额外获得跑镖途中捡到的随机丹药×1"
+      autoReward: { type: "item", ids: ["pill", "qiWine"], desc: "金疮药+回气酒各1" }
     },
     {
       id: "wanderer_coin_rebuild",
@@ -808,7 +808,7 @@ DATA.wandererGrowthEvents = {
       unlockMonth: 10,
       desc: "血战之后的龙井谷需要重建。散人里面老的小的都有，能扛能打的没几个。你卷起袖子搬石头、修棚子、挖水沟——干的都是最重的体力活。天黑收工时一个老妇人端来一碗热汤：「小伙子，我们家男人要是还活着，也是你这把年纪。」",
       reward: { y1: 120, y2: 180, y3: 260 },
-      bonusDesc: "额外小幅提升散人营地士气"
+      autoReward: { type: "stat", stats: { crit: 2 }, desc: "暴击+2" }
     },
     {
       id: "wanderer_coin_intel",
@@ -817,7 +817,8 @@ DATA.wandererGrowthEvents = {
       unlockMonth: 16,
       unlockYear: 2,
       desc: "一个从不露面的人托人送来一封信和十两银子。信上只有几个字：「城西茶楼，申时，留意左手戴铁指环的人。」你去看了——那人和武盟的人接头，说出了三个散人据点的位置。你把他摁在巷子里的时候，他塞过来一包银子：「兄弟别杀我，我知道更多。」五天后，又有人送来一封信，银子里夹了一张纸条：「干得不错。——孟」",
-      reward: { y2: 240, y3: 360 }
+      reward: { y2: 240, y3: 360 },
+      autoReward: { type: "stat", stats: { dodge: 2 }, desc: "闪避+2" }
     },
     {
       id: "wanderer_coin_fangping",
@@ -826,7 +827,7 @@ DATA.wandererGrowthEvents = {
       unlockMonth: 2,
       desc: "方平在村口朝你招手：「别绷着一张脸了，出来挣点钱。」他接了一单江湖活——给一个退隐的老拳师修院子。活不累，但老拳师看你们手脚麻利，多结了工钱不说还指点了几招：「年轻人，拳头是最后的东西。靠力气吃饭不丢人。」方平把银子分你一半：「下次换个来钱快的，这个老家伙太能唠了。」",
       reward: { y1: 180, y2: 250, y3: 350 },
-      bonusDesc: "有概率随机属性临时+1（老拳师指点）"
+      autoReward: { type: "stat", stats: { speed: 0.04 }, desc: "出手速度+0.04" }
     },
     {
       id: "wanderer_coin_labor",
@@ -835,7 +836,7 @@ DATA.wandererGrowthEvents = {
       unlockMonth: 13,
       desc: "混进武盟的安置营当临时杂工——搬货、扫地、倒马桶。一天累死累活只挣几个铜板，但你趁着干活把安置营的布局摸了个透：看守换班时间、仓库位置、哪面墙最矮。走的时候领班骂你偷懒，你低着头不吭声——心里已经把救人的路线画好了。",
       reward: { y1: 100, y2: 160, y3: 240 },
-      bonusDesc: "下次安置营相关战斗时命中+5（地形情报加成）"
+      autoReward: { type: "stat", stats: { hit: 3 }, desc: "命中+3" }
     },
     {
       id: "wanderer_coin_market",
@@ -844,7 +845,7 @@ DATA.wandererGrowthEvents = {
       unlockMonth: 6,
       desc: "散人营地外有个小集市——卖草药的、修兵器的、缝衣服的，全是散人自己。今天人手不够，你帮忙搬货、跑腿送东西、替一个不识字的大娘读账本。一天下来腿都跑细了，但集市的散人们凑了一包碎银子塞给你，一个老裁缝还顺手给你缝好了袖口的破洞。",
       reward: { y1: 130, y2: 190, y3: 280 },
-      bonusDesc: "有概率获得「散人缝补」：下次战斗中受到的第一次伤害-15%"
+      autoReward: { type: "stat", stats: { combo: 2 }, desc: "连击+2" }
     }
   ]
 };

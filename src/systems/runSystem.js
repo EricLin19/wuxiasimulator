@@ -480,7 +480,23 @@ function makeWandererRiskPool(run) {
       desc: c.desc,
       apply: (({ run: r }) => {
         r.money += amount;
-        log(r, `${c.name}！获得${amount}金钱。${c.bonusDesc ? "（" + c.bonusDesc + "）" : ""}`);
+        // 固定额外奖励
+        const ar = c.autoReward;
+        let bonusLog = "";
+        if (ar) {
+          if (ar.type === "item" && ar.ids) {
+            ar.ids.forEach(iid => { r.items.push(iid); });
+            bonusLog = ar.desc || "";
+          } else if (ar.type === "stat" && ar.stats) {
+            for (const [k, v] of Object.entries(ar.stats)) {
+              if (k === "hp") { r.stats.hp += v; r.hp += v; }
+              else if (k === "qi") { r.stats.qi += v; r.qi += v; }
+              else { r.stats[k] += v; }
+            }
+            bonusLog = ar.desc || "";
+          }
+        }
+        log(r, `${c.name}！获得${amount}金钱。${bonusLog ? "额外：" + bonusLog : ""}`);
       })
     });
   });
