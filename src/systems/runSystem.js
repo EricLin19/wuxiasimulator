@@ -1401,8 +1401,16 @@ export function buyItem(run, itemId) {
 
 export function buyWeapon(run, weaponId) {
   const weapon = DATA.weapons[weaponId];
-  if (run.money < weapon.price) return { ok: false, message: "金钱不足" };
-  run.money -= weapon.price;
+  // 孤云逐浪使用商人池专属定价（与 buyManual / buyInternalArt 一致）
+  let price;
+  if (run.storylineId === "wanderer") {
+    const wpWeapon = (DATA.wandererMerchantPool?.weapons || []).find(w => w.id === weaponId);
+    price = wpWeapon ? wpWeapon.price : weapon.price;
+  } else {
+    price = weapon.price;
+  }
+  if (run.money < price) return { ok: false, message: "金钱不足" };
+  run.money -= price;
   run.weapons.push(weaponId);
   log(run, `购买武器：${weapon.name}。`);
   saveRun(run);
@@ -1553,9 +1561,17 @@ export function equipWeapon(run, weaponId) {
 export function buyArmor(run, armorId) {
   const armor = DATA.armors[armorId];
   if (!armor) return { ok: false, message: "不存在该防具" };
-  if (run.money < armor.price) return { ok: false, message: "金钱不足" };
   if (run.armors.includes(armorId)) return { ok: false, message: "已经拥有" };
-  run.money -= armor.price;
+  // 孤云逐浪使用商人池专属定价
+  let price;
+  if (run.storylineId === "wanderer") {
+    const wpArmor = (DATA.wandererMerchantPool?.armors || []).find(a => a.id === armorId);
+    price = wpArmor ? wpArmor.price : armor.price;
+  } else {
+    price = armor.price;
+  }
+  if (run.money < price) return { ok: false, message: "金钱不足" };
+  run.money -= price;
   run.armors.push(armorId);
   log(run, `购买防具：${armor.name}。`);
   saveRun(run);
