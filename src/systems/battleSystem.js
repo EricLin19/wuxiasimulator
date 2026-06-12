@@ -136,8 +136,9 @@ export function createBattle(run, enemyTemplate, isBoss = false) {
     dragonGuardHp,
     wuxiangTurns: 0,
     immuneNewDebuffs: false,
-    // Boss trait tracking (三主线Boss特性)
-    bossTrait: enemyTemplate.bossTrait || null,
+    // Boss trait tracking (三主线Boss特性) — v5.18：多trait数组
+    bossTraits: [...(enemyTemplate.bossTraits || (enemyTemplate.bossTrait ? [enemyTemplate.bossTrait] : []))],
+    bossTrait: (enemyTemplate.bossTraits || [])[0] || enemyTemplate.bossTrait || null,
     bossTurnCounter: 0,
     bossPhaseTriggered: {},
     bossShield: 0,
@@ -150,24 +151,24 @@ export function createBattle(run, enemyTemplate, isBoss = false) {
   // 战斗开始：初始化 battle 对象完成
 
   // 三主线Boss特性初始化
-  if (battle.bossTrait) {
+  if (battle.bossTraits.length) {
     // shieldCleanseCounter：开场25%护体
-    if (battle.bossTrait === "shieldCleanseCounter") {
+    if (battle.bossTraits.includes("shieldCleanseCounter")) {
       battle.bossShield = Math.floor(enemyStats.hp * 0.25);
       battleLog(battle, `${enemyTemplate.name}获得护体，吸收${battle.bossShield}伤害！`);
     }
-    // miniArmor：开场20%护体
-    if (battle.bossTrait === "miniArmor") {
-      battle.bossShield = Math.floor(enemyStats.hp * 0.2);
+    // miniArmor：开场30%护体
+    if (battle.bossTraits.includes("miniArmor")) {
+      battle.bossShield = Math.floor(enemyStats.hp * 0.3);
       battleLog(battle, `${enemyTemplate.name}获得护体，吸收${battle.bossShield}伤害！`);
     }
     // shieldPurityBerserk：开场25%护体
-    if (battle.bossTrait === "shieldPurityBerserk") {
+    if (battle.bossTraits.includes("shieldPurityBerserk")) {
       battle.bossShield = Math.floor(enemyStats.hp * 0.25);
-      battleLog(battle, `${enemyTemplate.name}天罡气场护体，吸收${battle.bossShield}伤害！`);
+      battleLog(battle, `${battle.bossTraitName || enemyTemplate.name}天罡气场护体，吸收${battle.bossShield}伤害！`);
     }
     // drainQiImmuneBurst：前3回合免疫负面
-    if (battle.bossTrait === "drainQiImmuneBurst") {
+    if (battle.bossTraits.includes("drainQiImmuneBurst")) {
       battle.bossImmuneTurns = 3;
       battleLog(battle, `${enemyTemplate.name}内力护体，前3回合免疫负面！`);
     }
@@ -440,9 +441,9 @@ export function enemyAction(run, battle) {
     addFloater(battle, "player", "miss");
     triggerEvasiveLeg(run, battle, p);
   } else {
-    let dmg = enemySkillDamage(e, p);
+    let dmg = enemySkillDamage(battle, e, p);
     // Boss trait: drainQiLowShield - 命中吸内
-    if (battle.bossTrait === "drainQiLowShield") {
+    if (battle.bossTraits.includes("drainQiLowShield")) {
       const drain = Math.max(1, Math.floor(p.qi * 0.08));
       if (drain > 0 && p.qi > 0) {
         p.qi = Math.max(0, p.qi - drain);
@@ -530,23 +531,28 @@ function enemyBasicAttack(run, battle, e, p) {
   battleLog(battle, `${e.name}普通攻击，造成${dmg}伤害。`);
 }
 
-function enemySkillDamage(e, p) {
-  return Math.max(1, effectiveAtk(e) + 35 - enemyEffectiveDef(e, p));
+function enemySkillDamage(battle, e, p) {
+  return Math.max(1, effectiveAtk(e) + 35 - enemyEffectiveDef(battle, e, p));
 }
 
-function enemyEffectiveDef(e, p) {
-  if (e.stats.trait !== "armorBreak") return effectiveDef(p);
-  return Math.floor(effectiveDef(p) * 0.55);
+function enemyEffectiveDef(battle, e, p) {
+  const armorBreak = battle.bossTraits?.includes("armorBreak") || e.stats.trait === "armorBreak";
+  if (!armorBreak) return effectiveDef(p);
+  return Math.floor(effectiveDef(p) * 0.50);
 }
 
 function applyEnemyTraitHit(battle, e, p) {
   const run = battle.run;
   const artReduce = (run?.activeInternalArts || []).some(id => DATA.internalArts[id]?.combatEffect === "debuffReduce");
-  if (e.stats.trait === "armorBreak") {
-    const reduction = artReduce ? 1 : 2;
+  // bossTraits armorBreak：每次命中玩家DEF -5%（含旧e.stats.trait兼容）
+  if (battle.bossTraits?.includes("armorBreak") || e.stats.trait === "armorBreak") {
+    const reduction = Math.max(1, Math.round(p.stats.def * 0.05));
+    const before = p.stats.def;
     p.stats.def = Math.max(0, p.stats.def - reduction);
-    battleLog(battle, `${e.name}裂甲入骨，${p.name}防御-${reduction}。${artReduce ? "【紫霄清心诀】减轻负面。" : ""}`);
-    addFloater(battle, "player", "破防");
+    if (p.stats.def !== before) {
+      battleLog(battle, `${e.name}裂甲入骨，${p.name}防御-${reduction}（${Math.round(p.stats.def / (run.stats?.def || 1) * 100)}%）。`);
+      addFloater(battle, "player", `破防-${reduction}`);
+    }
   }
   if (e.stats.trait === "qiSuppress") {
     if (battle.enemyActionCount > 5) {
@@ -715,7 +721,7 @@ function applySkillEffects(run, battle, actor, target, skill, damage) {
   }
 
   // 三主线Boss特性：免疫新负面（drainQiImmuneBurst）
-  if (actor === battle.player && target === battle.enemy && battle.bossTrait === "drainQiImmuneBurst") {
+  if (actor === battle.player && target === battle.enemy && battle.bossTraits.includes("drainQiImmuneBurst")) {
     if (battle.bossImmuneTurns > 0) {
       stacks = 0; // 免疫新负面
     }
@@ -1041,7 +1047,7 @@ function effectiveSpeed(unit, battle = null) {
   // 临时Buff：速度加成
   if (unit.tempBuffs?.speed) spd *= unit.tempBuffs.speed.mult;
   // hamstringCap Boss特性：玩家速度最低被压到70%（而非默认的60%）
-  if (unit === battle?.player && battle?.bossTrait === "hamstringCap") {
+  if (unit === battle?.player && battle?.bossTraits?.includes("hamstringCap")) {
     const minSpd = unit.stats.speed * 0.7;
     return Math.max(minSpd, Math.max(0.25, spd));
   }
@@ -1140,14 +1146,16 @@ function checkBattleEnd(battle) {
 // 三主线Boss特性系统（v0.34）
 // ============================================================
 
-// 每回合Boss行动前调用：应用持续特性
+// 每回合Boss行动前调用：应用持续特性（v5.18：多trait迭代）
 function applyBossTurnMechanics(battle) {
   const e = battle.enemy;
   const p = battle.player;
-  const trait = battle.bossTrait;
-  if (!trait) return;
+  const traits = battle.bossTraits;
+  if (!traits || !traits.length) return;
   battle.bossTurnCounter = (battle.bossTurnCounter || 0) + 1;
   const turn = battle.bossTurnCounter;
+
+  for (const trait of traits) {
 
   if (trait === "bleedPer3") {
     // 每3回合对玩家叠加2层流血
@@ -1203,23 +1211,24 @@ function applyBossTurnMechanics(battle) {
 
   if (trait === "drainQiLowShield") {
     // 命中吸内（在enemyAction中处理）
-    // 这里只处理低血护体检测（在checkBossPhaseTriggers中处理）
+    // 低血护体检测在checkBossPhaseTriggers中
   }
 
-  // ======== 小Boss特性 ========
+  // ======== 小Boss特性（v5.18更新数值）========
   if (trait === "miniBleed") {
-    // 流血+2，上限10
-    p.bleed = Math.min(10, p.bleed + 2);
+    // 每回合流血+5
+    const cap = getDebuffCap(battle.run, null, "bleed");
+    p.bleed = Math.min(cap, p.bleed + 5);
     battleLog(battle, `${e.name}的刀锋带来流血！`);
-    addFloater(battle, "player", "流血+2");
+    addFloater(battle, "player", "流血+5");
   }
 
   if (trait === "miniFrost") {
-    // 高闪避（已在stats中），寒气+1
+    // 每回合寒气+5
     const cap = getDebuffCap(battle.run, null, "frost");
-    p.frost = Math.min(cap, p.frost + 1);
+    p.frost = Math.min(cap, p.frost + 5);
     battleLog(battle, `${e.name}的剑锋带来寒气！`);
-    addFloater(battle, "player", "寒气+1");
+    addFloater(battle, "player", "寒气+5");
   }
 
   if (trait === "miniHamstring") {
@@ -1242,8 +1251,7 @@ function applyBossTurnMechanics(battle) {
   if (trait === "miniCoin") {
     // 每2回合一次必中固定伤害
     if (turn % 2 === 0) {
-      const coinDmg = 220; // 固定必中伤害
-      // 伤害可能被减伤装备削弱
+      const coinDmg = 220;
       let actualDmg = coinDmg;
       if (battle.run.equippedArmor) {
         const armor = DATA.armors[battle.run.equippedArmor];
@@ -1263,28 +1271,33 @@ function applyBossTurnMechanics(battle) {
       addFloater(battle, "player", `-${actualDmg}必中`);
     }
   }
+
+  // ======== miniPoison（v5.18新增）：每回合中毒+5 ========
+  if (trait === "miniPoison") {
+    const cap = getDebuffCap(battle.run, null, "poison");
+    p.poison = Math.min(cap, p.poison + 5);
+    battleLog(battle, `${e.name}的攻势带来毒素！`);
+    addFloater(battle, "player", "中毒+5");
+  }
+
+  } // end for trait loop
 }
 
-// 检查Boss阶段触发（HP百分比）
+// 检查Boss阶段触发（HP百分比）— v5.18：多trait迭代+数值更新
 function checkBossPhaseTriggers(battle) {
   const e = battle.enemy;
   const p = battle.player;
-  const trait = battle.bossTrait;
-  if (!trait) return;
+  const traits = battle.bossTraits;
+  if (!traits || !traits.length) return;
 
   const hpPct = e.hp / e.stats.hp;
+
+  for (const trait of traits) {
 
   // shieldCleanseCounter：50%血净化一次并回血
   if (trait === "shieldCleanseCounter" && hpPct <= 0.5 && !battle.bossPhaseTriggered["50pct"]) {
     battle.bossPhaseTriggered["50pct"] = true;
-    // 净化
-    e.bleed = 0;
-    e.poison = 0;
-    e.inner = 0;
-    e.frost = 0;
-    e.hamstring = 0;
-    e.gu = 0;
-    // 回血20%
+    e.bleed = 0; e.poison = 0; e.inner = 0; e.frost = 0; e.hamstring = 0; e.gu = 0;
     const healAmt = Math.floor(e.stats.hp * 0.2);
     e.hp = Math.min(e.stats.hp, e.hp + healAmt);
     battleLog(battle, `${e.name}净化了所有负面状态，恢复了${healAmt}血量！`);
@@ -1294,12 +1307,7 @@ function checkBossPhaseTriggers(battle) {
   // poisonGuCapCleanse：50%血时净化并回血20%
   if (trait === "poisonGuCapCleanse" && hpPct <= 0.5 && !battle.bossPhaseTriggered["50pct"]) {
     battle.bossPhaseTriggered["50pct"] = true;
-    e.bleed = 0;
-    e.poison = 0;
-    e.inner = 0;
-    e.frost = 0;
-    e.hamstring = 0;
-    e.gu = 0;
+    e.bleed = 0; e.poison = 0; e.inner = 0; e.frost = 0; e.hamstring = 0; e.gu = 0;
     const healAmt = Math.floor(e.stats.hp * 0.2);
     e.hp = Math.min(e.stats.hp, e.hp + healAmt);
     battleLog(battle, `${e.name}净化了所有负面状态，恢复了${healAmt}血量！`);
@@ -1322,34 +1330,34 @@ function checkBossPhaseTriggers(battle) {
     addFloater(battle, "enemy", "狂暴");
   }
 
-  // === 孤云逐浪线 Boss 阶段触发 ===
+  // === 孤云逐浪线 Boss 阶段触发（v5.18数值更新）===
 
-  // lowHpBerserk：30%血攻速双升（赵崇岳/钱彪）
+  // lowHpBerserk：≤30%HP→ATK×1.5, SPEED×3（赵崇岳/钱彪）
   if (trait === "lowHpBerserk" && hpPct <= 0.3 && !battle.bossPhaseTriggered["berserk30"]) {
     battle.bossPhaseTriggered["berserk30"] = true;
-    e.stats.atk = Math.floor(e.stats.atk * 1.3);
-    e.stats.speed += 0.08;
+    e.stats.atk = Math.round(e.stats.atk * 1.5);
+    e.stats.speed = Math.round(e.stats.speed * 3 * 100) / 100;
     battleLog(battle, `${e.name}陷入狂暴，攻速双升！`);
     addFloater(battle, "enemy", "狂暴");
   }
 
-  // berserkSummon：70%血全开，30%血召唤护卫（沈千山）
+  // berserkSummon：≤70%HP→ATK×1.2,SPEED×1.5；≤30%HP→ATK×1.5,SPEED×3（沈千山）
   if (trait === "berserkSummon" && hpPct <= 0.7 && !battle.bossPhaseTriggered["fullPower"]) {
     battle.bossPhaseTriggered["fullPower"] = true;
-    e.stats.atk = Math.floor(e.stats.atk * 1.15);
-    e.stats.speed += 0.05;
+    e.stats.atk = Math.round(e.stats.atk * 1.2);
+    e.stats.speed = Math.round(e.stats.speed * 1.5 * 100) / 100;
     battleLog(battle, `${e.name}实力全开，攻击与速度提升！`);
     addFloater(battle, "enemy", "全开");
   }
   if (trait === "berserkSummon" && hpPct <= 0.3 && !battle.bossPhaseTriggered["summonGuard"]) {
     battle.bossPhaseTriggered["summonGuard"] = true;
-    e.stats.atk = Math.floor(e.stats.atk * 1.2);
-    e.stats.def = Math.floor(e.stats.def * 1.15);
-    battleLog(battle, `${e.name}召来亲卫助阵，攻防齐升！`);
+    e.stats.atk = Math.round(e.stats.atk * 1.5);
+    e.stats.speed = Math.round(e.stats.speed * 3 * 100) / 100;
+    battleLog(battle, `${e.name}召来亲卫助阵，攻速暴增！`);
     addFloater(battle, "enemy", "召唤护卫");
   }
 
-  // shieldPurityBerserk：50%血天罡净化，15%血燃命（楚宗玄）
+  // shieldPurityBerserk：≤50%HP净化+回血20%；≤15%HP ATK×2,SPEED×4,DEF×0.5（楚宗玄）
   if (trait === "shieldPurityBerserk" && hpPct <= 0.5 && !battle.bossPhaseTriggered["purityCleanse"]) {
     battle.bossPhaseTriggered["purityCleanse"] = true;
     e.bleed = 0; e.poison = 0; e.inner = 0; e.frost = 0; e.hamstring = 0; e.gu = 0;
@@ -1360,38 +1368,45 @@ function checkBossPhaseTriggers(battle) {
   }
   if (trait === "shieldPurityBerserk" && hpPct <= 0.15 && !battle.bossPhaseTriggered["burnLife"]) {
     battle.bossPhaseTriggered["burnLife"] = true;
-    e.stats.atk = Math.floor(e.stats.atk * 2);
-    e.stats.def = 0;
-    battleLog(battle, `${e.name}燃尽防御换至强一击！攻击翻倍，防御归零！`);
+    e.stats.atk = Math.round(e.stats.atk * 2);
+    e.stats.speed = Math.round(e.stats.speed * 4 * 100) / 100;
+    e.stats.def = Math.round(e.stats.def * 0.5);
+    battleLog(battle, `${e.name}燃尽防御换至强一击！攻击×2，速度×4，防御×0.5！`);
     addFloater(battle, "enemy", "燃命一击");
   }
 
-  // highDodge：50%血闪避再升（叶孤）
+  // highDodge：≤50%HP→DODGE×1.5（叶孤）
   if (trait === "highDodge" && hpPct <= 0.5 && !battle.bossPhaseTriggered["shadowStep"]) {
     battle.bossPhaseTriggered["shadowStep"] = true;
-    e.stats.dodge += 5;
-    battleLog(battle, `${e.name}身法如影，闪避再升！`);
+    e.stats.dodge = Math.round(e.stats.dodge * 1.5);
+    battleLog(battle, `${e.name}身法如影，闪避×1.5！`);
     addFloater(battle, "enemy", "闪避↑");
   }
+
+  } // end for trait loop
 }
 
-// 计算Boss特性造成的防御忽略（bleedPer3等）
+// 计算Boss特性造成的防御忽略（v5.18：多trait迭代）
 function bossDefIgnore(battle) {
-  const trait = battle.bossTrait;
-  if (trait === "bleedPer3") return 0.15; // 直接伤害附带轻破防15%
+  const traits = battle.bossTraits;
+  if (!traits?.length) return 0;
+  for (const trait of traits) {
+    if (trait === "bleedPer3") return 0.15; // 直接伤害附带轻破防15%
+  }
   return 0;
 }
 
-// 应用Boss特性：命中时额外效果
+// 应用Boss特性：命中时额外效果（v5.18：多trait迭代+数值更新）
 function applyBossHitEffect(battle, target) {
-  const trait = battle.bossTrait;
+  const traits = battle.bossTraits;
   const e = battle.enemy;
-  if (!trait || target !== battle.player) return;
+  if (!traits?.length || target !== battle.player) return;
+
+  for (const trait of traits) {
 
   if (trait === "critBreakDef") {
     // 暴击破防：玩家防御最多被压到75%原始值
     const minDef = Math.floor(battle.player.stats.def * 0.75);
-    // 每次命中降低2点防御
     const actualDef = battle.player.stats.def;
     if (actualDef > minDef) {
       battle.player.stats.def = Math.max(minDef, battle.player.stats.def - 3);
@@ -1406,7 +1421,6 @@ function applyBossHitEffect(battle, target) {
     // 断筋上限+2：命中附加断筋效果
     const cap = getDebuffCap(battle.run, null, "hamstring") + 2;
     target.hamstring = Math.min(cap, target.hamstring + 2);
-    // 同时削攻
     target.stats.atk = Math.max(
       Math.floor(target.stats.atk * ATK_MIN_HAMSTRING),
       target.stats.atk - HAMSTRING_ATK * 2
@@ -1415,15 +1429,17 @@ function applyBossHitEffect(battle, target) {
     addFloater(battle, "player", "断筋+2");
   }
 
-  // pointStrike：30%概率打穴封行动（阎铁/地牢看守长）
+  // pointStrike：50%概率打穴：额外伤害=ATK×50%，玩家SPEED×0.5（阎铁）
   if (trait === "pointStrike") {
-    if (Math.random() < 0.3) {
-      const extraDmg = Math.floor(e.stats.atk * 0.3);
+    if (Math.random() < 0.5) {
+      const extraDmg = Math.round(e.stats.atk * 0.5);
       target.hp = Math.max(0, target.hp - extraDmg);
-      target.stats.speed = Math.max(0.5, target.stats.speed - 0.25);
-      battleLog(battle, `${e.name}判官笔精准打穴！你行动受阻，受到${extraDmg}贯穿伤害！`);
+      target.stats.speed = Math.max(0.25, Math.round(target.stats.speed * 0.5 * 100) / 100);
+      battleLog(battle, `${e.name}判官笔精准打穴！你行动受阻，受到${extraDmg}贯穿伤害，速度减半！`);
       addFloater(battle, "player", "穴道被封");
     }
   }
+
+  } // end for trait loop
 }
 
