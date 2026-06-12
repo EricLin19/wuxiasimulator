@@ -522,7 +522,7 @@ function enemyBasicAttack(run, battle, e, p) {
     triggerEvasiveLeg(run, battle, p);
     return;
   }
-  const dmg = Math.max(1, Math.floor(effectiveAtk(e) * 0.3 + 8 - enemyEffectiveDef(e, p) * 0.25));
+  const dmg = Math.max(1, Math.floor(effectiveAtk(e) * 0.3 + 8 - enemyEffectiveDef(battle, e, p) * 0.25));
   p.hp = Math.max(0, p.hp - dmg);
   if (e.stats.trait === "qiSuppress") {
     const artReduce = (battle.run?.activeInternalArts || []).some(id => DATA.internalArts[id]?.combatEffect === "debuffReduce");
