@@ -138,30 +138,30 @@ export const DATA = {
     // === 攻击型秘籍（自用Buff，修炼后可在战斗中使用）===
     manual_speed: {
       id: "manual_speed", name: "唯快不破", icon: "速",
-      school: "none", rarity: "blue", power: 0, qi: 0, cd: 0,
-      train: 1, debuff: null, debuffStacks: 0, tags: ["selfBuff"],
+      school: "none", rarity: "blue", power: 0, qi: 50, cd: 0,
+      train: 3, debuff: null, debuffStacks: 0, tags: ["selfBuff"],
       style: "buff", styleName: "增益",
       isSelfBuff: true, battle: true, statGain: null, trait: null,
-      selfBuff: { type: "speed", mult: 3, duration: 5 },
-      desc: "读条速度提升3倍，持续5回合。"
+      selfBuff: { type: "speed", mult: 3, duration: 3 },
+      desc: "读条速度提升3倍，持续3回合。消耗内力50。"
     },
     manual_atk: {
       id: "manual_atk", name: "力大无穷", icon: "力",
-      school: "none", rarity: "blue", power: 0, qi: 0, cd: 0,
-      train: 1, debuff: null, debuffStacks: 0, tags: ["selfBuff"],
+      school: "none", rarity: "blue", power: 0, qi: 50, cd: 0,
+      train: 3, debuff: null, debuffStacks: 0, tags: ["selfBuff"],
       style: "buff", styleName: "增益",
       isSelfBuff: true, battle: true, statGain: null, trait: null,
-      selfBuff: { type: "atk", mult: 2, duration: 5 },
-      desc: "攻击力提升2倍，持续5回合。"
+      selfBuff: { type: "atk", mult: 2, duration: 3 },
+      desc: "攻击力提升2倍，持续3回合。消耗内力50。"
     },
     manual_crit: {
       id: "manual_crit", name: "屠杀盛宴", icon: "杀",
-      school: "none", rarity: "blue", power: 0, qi: 0, cd: 0,
-      train: 1, debuff: null, debuffStacks: 0, tags: ["selfBuff"],
+      school: "none", rarity: "blue", power: 0, qi: 50, cd: 0,
+      train: 3, debuff: null, debuffStacks: 0, tags: ["selfBuff"],
       style: "buff", styleName: "增益",
       isSelfBuff: true, battle: true, statGain: null, trait: null,
-      selfBuff: { type: "crit", critAdd: 100, comboAdd: 100, critPowerAdd: 1, duration: 5 },
-      desc: "暴击概率+100%，连击概率+100%，暴击倍率+1.0，持续5回合。"
+      selfBuff: { type: "crit", critAdd: 100, comboAdd: 100, critPowerAdd: 1, duration: 3 },
+      desc: "暴击概率+100%，连击概率+100%，暴击倍率+1.0，持续3回合。消耗内力50。"
     }
   },
   strategies: [],

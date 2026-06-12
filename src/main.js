@@ -44,57 +44,77 @@ import {
   fleeAction as battleFleeAction
 } from "./systems/battleSystem.js";
 
-// ── Toast 系统：独立 DOM 元素，不受 renderApp 重建影响 ──
-// 堆叠模式：最多同时显示 2 条，间距 32px
-let _toastEls = [];
-let _toastTimers = [];
-let _lastToast = "";
+// ── Toast 系统 v5.9：队列 + 自适应文本 + 上移渐消 ──
+// 机制：底部堆叠最多3条，每条停留1.2s后上移48px并渐消（0.5s）
+//        同时多个toast时自动排队，防止重叠
+let _toastQueue      = [];   // 等待显示的toast文本队列
+let _toastActive      = [];   // 当前正在显示的{el,text}，最多3条
+let _lastToast        = "";
+let _lastTauntBattle  = null;
+
+const TOAST_GAP = 48;  // 每条toast之间的间距(px)
+const TOAST_BOTTOM = 16;  // 最底部toast距离视窗底部(px)
 
 function showToast(text) {
-  state.toast = text;
-  render();
+  if (!text || text === _lastToast) return;
+  _lastToast = text;
+  _toastQueue.push(text);
+  processToastQueue();
+}
+// 供 runSystem.js 的 log() 调用（避免循环依赖）
+if (typeof window !== "undefined") window.__showToast = showToast;
+
+function processToastQueue() {
+  // 当前活跃已满3条时等待，不消费队列
+  if (_toastActive.length >= 3) return;
+  if (_toastQueue.length === 0) return;
+
+  const text = _toastQueue.shift();
+  const el = _createToastEl(text, false);
+  const idx = _toastActive.length;  // 新toast的索引（0=最底）
+  el.style.bottom = `${TOAST_BOTTOM + idx * TOAST_GAP}px`;
+  _toastActive.push({ el, text });
+
+  // 1.2秒后开始退出动画（上移+渐消）
+  const exitTimer = setTimeout(() => {
+    el.classList.add("toast-out");
+  }, 1200);
+
+  // 退出动画结束后移除DOM，重新排列剩余toast
+  el.addEventListener("animationend", (e) => {
+    if (e.animationName === "toastOut") {
+      clearTimeout(exitTimer);
+      el.remove();
+      _toastActive = _toastActive.filter(t => t.el !== el);
+      _repositionToasts();
+      processToastQueue();   // 消费队列中下一个
+    }
+  }, { once: true });
 }
 
-// ── Battle 嘴炮系统：独立 DOM，每场战斗只显示一次 ──
-let _lastTauntBattle = null;
+function _createToastEl(text, isTaunt) {
+  const el = document.createElement("div");
+  el.className = "toast" + (isTaunt ? " toast-taunt" : "");
+  el.textContent = text;
+  document.body.appendChild(el);
+  return el;
+}
 
+function _repositionToasts() {
+  _toastActive.forEach((t, i) => {
+    t.el.style.bottom = `${TOAST_BOTTOM + i * TOAST_GAP}px`;
+  });
+}
+
+// ── Battle 嘴炮：复用同一队列系统 ──
 function showBattleTaunt(battle, rotVal) {
   if (!battle?.tauntText || battle === _lastTauntBattle) return;
   _lastTauntBattle = battle;
-
-  // 清理超过 2 条时移除最旧的
-  while (_toastEls.length >= 2) {
-    const old = _toastEls.shift();
-    if (old) old.remove();
-    const oldT = _toastTimers.shift();
-    if (oldT) clearTimeout(oldT);
-  }
-
-  // 将已有 toast 上移
-  _toastEls.forEach((el, i) => {
-    el.style.bottom = `${16 + (i + 1) * 32}px`;
-  });
-
-  const el = document.createElement("div");
-  el.className = "toast";
-  el.textContent = `【${battle.enemy.name}】"${battle.tauntText}"`;
-  el.style.setProperty("--rot", rotVal);
-  el.style.bottom = "16px";
-  document.body.appendChild(el);
-  _toastEls.push(el);
-
-  const timer = setTimeout(() => {
-    const idx = _toastEls.indexOf(el);
-    if (idx >= 0) {
-      el.remove();
-      _toastEls.splice(idx, 1);
-      _toastTimers.splice(idx, 1);
-      _toastEls.forEach((e, i) => {
-        e.style.bottom = `${16 + i * 32}px`;
-      });
-    }
-  }, 1000);
-  _toastTimers.push(timer);
+  const text = `【${battle.enemy.name}】"${battle.tauntText}"`;
+  if (!text || text === _lastToast) return;
+  _lastToast = text;
+  _toastQueue.push(text);
+  processToastQueue();
 }
 
 let _lastRenderTime = 0;
@@ -113,53 +133,7 @@ function render() {
   const appHasRot = app?.style.transform?.includes("rotate(90deg)");
   const rotVal = appHasRot ? "90deg" : "0deg";
 
-  // Toast：挂到 document.body，最多 2 条堆叠
-  if (state.toast && state.toast !== _lastToast) {
-    _lastToast = state.toast;
-
-    // 清理超过 2 条时移除最旧的
-    while (_toastEls.length >= 2) {
-      const old = _toastEls.shift();
-      if (old) old.remove();
-      const oldT = _toastTimers.shift();
-      if (oldT) clearTimeout(oldT);
-    }
-
-    // 将已有 toast 上移
-    _toastEls.forEach((el, i) => {
-      el.style.bottom = `${16 + (i + 1) * 32}px`;
-    });
-
-    // 创建新 toast（最底部，后续被上推）
-    const el = document.createElement("div");
-    el.className = "toast";
-    el.textContent = state.toast;
-    el.style.setProperty("--rot", rotVal);
-    el.style.bottom = "16px";
-    el.style.maxHeight = "2.4em";
-    el.style.overflow = "hidden";
-    el.style.lineHeight = "1.2em";
-    document.body.appendChild(el);
-    _toastEls.push(el);
-
-    const timer = setTimeout(() => {
-      const idx = _toastEls.indexOf(el);
-      if (idx >= 0) {
-        el.remove();
-        _toastEls.splice(idx, 1);
-        _toastTimers.splice(idx, 1);
-        // 重新排列剩余 toast
-        _toastEls.forEach((e, i) => {
-          e.style.bottom = `${16 + i * 32}px`;
-        });
-      }
-      state.toast = "";
-      _lastToast = "";
-    }, 1000);
-    _toastTimers.push(timer);
-  }
-
-  // 战斗嘴炮：复用同一堆叠系统
+  // 战斗嘴炮：通过队列系统显示（每场战斗只显示一次）
   if (state.battle?.tauntText && state.battle !== _lastTauntBattle) {
     showBattleTaunt(state.battle, rotVal);
   }

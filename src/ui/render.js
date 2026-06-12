@@ -769,7 +769,7 @@ function renderBattle(state, actions) {
   const b = state.battle;
   const root = el("div", "battle-screen");
   root.innerHTML = `
-    <div class="battle-top">${fighterPanel(b.player)}<div class="gauge-lane"><div class="gauge-dot" style="left:${b.player.gauge}%">${b.player.name.charAt(0)}</div><div class="gauge-dot" style="left:${b.enemy.gauge}%">${b.enemy.name.charAt(0)}</div><div class="speed-label speed-toggle" data-speedbtn>速度x${b.speed || 1}</div></div>${fighterPanel(b.enemy)}</div>
+    <div class="battle-top">${fighterPanel(state.run, b.player)}<div class="gauge-lane"><div class="gauge-dot" style="left:${b.player.gauge}%">${b.player.name.charAt(0)}</div><div class="gauge-dot" style="left:${b.enemy.gauge}%">${b.enemy.name.charAt(0)}</div><div class="speed-label speed-toggle" data-speedbtn>速度x${b.speed || 1}</div></div>${fighterPanel(null, b.enemy)}</div>
     <div class="fighter player">${b.playerPortrait ? `<img src="${b.playerPortrait}" alt="${b.player.name}" loading="lazy" decoding="async">` : b.player.icon}</div><div class="fighter enemy">${b.enemyPortrait ? `<img src="${b.enemyPortrait}" alt="${b.enemy.name}" loading="lazy" decoding="async">` : b.enemy.icon}</div>
     ${b.bossTrait ? `<div class="boss-trait-bar"><span class="debuff-badge enemy-trait" title="${escapeHtml(b.enemy.stats.traitDesc || b.bossTrait)}">Boss特性：${b.bossTrait}</span>${b.bossShield > 0 ? `<span class="debuff-badge" title="护体">护体 ${b.bossShield}</span>` : ""}${b.bossImmuneTurns > 0 ? `<span class="debuff-badge" title="免疫负面">免疫 ${b.bossImmuneTurns}回合</span>` : ""}</div>` : ""}
     ${(b.floaters || []).map(f => `<div class="combat-floater ${f.side}">${f.text}</div>`).join("")}
@@ -799,11 +799,31 @@ function renderBattle(state, actions) {
   root.querySelector("[data-itemmenu]").onclick = actions.openItemMenu;
   root.querySelector("[data-flee]").disabled = b.phase !== "waitPlayer";
   root.querySelector("[data-flee]").onclick = actions.fleeAction;
+  // 点击角色框显示详细buff/debuff状态
+  root.querySelectorAll(".fighter-panel").forEach(panel => {
+    panel.style.cursor = "pointer";
+    panel.onclick = () => {
+      const side = panel.dataset.side;
+      const unit = side === "player" ? b.player : b.enemy;
+      showUnitPopup(unit, side, root);
+    };
+  });
   return root;
 }
 
-function fighterPanel(unit) {
-  return `<div class="fighter-panel"><div class="fighter-name">${unit.name}</div>${bar(unit.hp, unit.stats.hp, `${Math.ceil(unit.hp)}/${unit.stats.hp}`, "hp-fill")}${bar(unit.qi, unit.stats.qi, `${Math.ceil(unit.qi)}/${unit.stats.qi}`, "qi-fill")}<div class="debuff-row">${debuffBadges(unit)}</div></div>`;
+function fighterPanel(run, unit) {
+  const side = run ? "player" : "enemy";
+  const isPlayer = !!run;
+  const traitHtml = isPlayer ? (run.traits || []).map(tid => {
+    const t = DATA.traits.find(x => x.id === tid);
+    return t ? `<span class="buff-badge" title="${escapeHtml(t.desc || "")}">${t.name}</span>` : "";
+  }).filter(Boolean).join("") : "";
+  const artHtml = isPlayer ? (run.activeInternalArts || []).map(aid => {
+    const a = DATA.internalArts[aid];
+    return a ? `<span class="buff-badge art-badge" title="${escapeHtml(a.desc || "")}">${a.icon}</span>` : "";
+  }).filter(Boolean).join("") : "";
+  const infoRow = (traitHtml || artHtml) ? `<div class="debuff-row trait-art-row">${traitHtml}${artHtml}</div>` : "";
+  return `<div class="fighter-panel" data-side="${side}"><div class="fighter-name">${unit.name}</div>${bar(unit.hp, unit.stats.hp, `${Math.ceil(unit.hp)}/${unit.stats.hp}`, "hp-fill")}${bar(unit.qi, unit.stats.qi, `${Math.ceil(unit.qi)}/${unit.stats.qi}`, "qi-fill")}${infoRow}<div class="debuff-row">${debuffBadges(unit)}</div></div>`;
 }
 
 function debuffBadges(unit) {
@@ -815,7 +835,71 @@ function debuffBadges(unit) {
   if (unit.frost) badges.push(`<span class="debuff-badge" title="寒气：降低速度，行动开始时失去内力。">寒气 ${unit.frost}</span>`);
   if (unit.hamstring) badges.push(`<span class="debuff-badge" title="断筋：降低速度，并在命中时削弱攻击。">断筋 ${unit.hamstring}</span>`);
   if (unit.gu) badges.push(`<span class="debuff-badge" title="蛊：提高招式内力消耗，并扰乱气息。">蛊 ${unit.gu}</span>`);
+  // 临时Buff显示（快/力/杀）
+  if (unit.tempBuffs) {
+    if (unit.tempBuffs.speed) badges.push(`<span class="buff-badge" title="唯快不破：读条速度${unit.tempBuffs.speed.mult}倍，剩余${unit.tempBuffs.speed.duration}回合">快${unit.tempBuffs.speed.duration}</span>`);
+    if (unit.tempBuffs.atk) badges.push(`<span class="buff-badge" title="力大无穷：攻击力${unit.tempBuffs.atk.mult}倍，剩余${unit.tempBuffs.atk.duration}回合">力${unit.tempBuffs.atk.duration}</span>`);
+    if (unit.tempBuffs.crit) badges.push(`<span class="buff-badge" title="屠杀盛宴：暴击+${unit.tempBuffs.crit.critAdd}%，连击+${unit.tempBuffs.crit.comboAdd}%，暴击倍率+${unit.tempBuffs.crit.critPowerAdd}，剩余${unit.tempBuffs.crit.duration}回合">杀${unit.tempBuffs.crit.duration}</span>`);
+  }
   return badges.join("");
+}
+
+// 战斗中点击角色框弹出详情（特性/内功/buff/debuff）
+function showUnitPopup(unit, side, root) {
+  // toggle：再次点击同一角色则关闭
+  const old = root.querySelector(".unit-detail-popup");
+  if (old) { old.remove(); return; }
+
+  const isPlayer = side === "player";
+  let html = `<div class="unit-detail-popup"><span class="close-btn" onclick="this.parentElement.remove()">✕</span>`;
+  html += `<h4>${unit.name}（${side === "player" ? "主角" : "敌人"}）</h4>`;
+
+  // 特性
+  if (isPlayer && state.run.traits) {
+    const traitArr = state.run.traits.map(tid => DATA.traits.find(t => t.id === tid)).filter(Boolean);
+    if (traitArr.length) {
+      html += `<div class="detail-row"><b>特性</b>：`;
+      html += traitArr.map(t => `<span class="buff-badge" title="${escapeHtml(t.desc || "")}">${t.name}</span>`).join(" ");
+      html += `</div>`;
+    }
+  }
+  if (!isPlayer && unit.stats.traitName) {
+    html += `<div class="detail-row"><b>Boss特性</b>：<span class="debuff-badge enemy-trait">${unit.stats.traitName}</span></div>`;
+  }
+
+  // 内功
+  if (isPlayer && state.run.activeInternalArts) {
+    const arts = state.run.activeInternalArts.map(aid => DATA.internalArts[aid]).filter(Boolean);
+    if (arts.length) {
+      html += `<div class="detail-row"><b>内功</b>：`;
+      html += arts.map(a => `<span class="buff-badge art-badge" title="${escapeHtml(a.desc || "")}">${a.icon} ${a.name}</span>`).join(" ");
+      html += `</div>`;
+    }
+  }
+
+  // 临时Buff
+  if (unit.tempBuffs) {
+    const buffNames = { speed: "唯快不破（快）", atk: "力大无穷（力）", crit: "屠杀盛宴（杀）" };
+    for (const [type, buff] of Object.entries(unit.tempBuffs)) {
+      const label = buffNames[type] || type;
+      let effect = "";
+      if (type === "speed") effect = `速度×${buff.mult}，剩余${buff.duration}回合`;
+      if (type === "atk") effect = `攻击×${buff.mult}，剩余${buff.duration}回合`;
+      if (type === "crit") effect = `暴击+${buff.critAdd}% 连击+${buff.comboAdd}% 暴击倍率+${buff.critPowerAdd}，剩余${buff.duration}回合`;
+      html += `<div class="detail-row"><b>${label}</b>：${effect}</div>`;
+    }
+  }
+
+  // Debuff
+  const debuffLabels = { bleed: "流血", poison: "中毒", inner: "内伤", frost: "寒气", hamstring: "断筋", gu: "蛊" };
+  for (const [type, label] of Object.entries(debuffLabels)) {
+    if (unit[type]) {
+      html += `<div class="detail-row"><span class="debuff-badge">${label} ${unit[type]}</span>：${type === "bleed" ? `行动开始受到${unit[type]*12}伤害` : type === "poison" ? "降攻/防/命/闪/速" : type === "inner" ? "行动开始失去内力" : type === "frost" ? "降速+失去内力" : type === "hamstring" ? "降速+削攻" : "提高招式消耗+扰乱"}</div>`;
+    }
+  }
+
+  html += `</div>`;
+  root.insertAdjacentHTML("beforeend", html);
 }
 
 function renderBattleItemsModal(modal, run, battle, actions) {

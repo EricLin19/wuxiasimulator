@@ -93,8 +93,10 @@ export function createRun(characterId, treasureId, meta, perRunAllocations) {
 export function log(run, text) {
   run.log.unshift(`<p>${text}</p>`);
   run.log = run.log.slice(0, 100);
-  // 自动触发Toast反馈——任何写入武林纪要的操作都会在屏幕中央闪现
-  state.toast = text;
+  // 通过全局回调触发Toast队列（新v5.9机制，替代 state.toast）
+  if (typeof window !== "undefined" && window.__showToast) {
+    window.__showToast(text);
+  }
 }
 
 export function applyMonthStart(run) {
@@ -913,11 +915,14 @@ export function resolveEvent(run, eventId, actions) {
   if (event.apply) {
     event.apply({ run, ...actions });
   }
-  if (event.type !== "merchant" && event.type !== "battle") {
-    // 孤云线六选三无需补充，非孤云线维持旧 refill 机制
-    if (run.storylineId !== "wanderer" && run.eventRemaining > 0) refillOneEvent(run);
-    if (run.eventRemaining === 0) log(run, "本月奇遇已处理完。");
-  }
+    if (event.type !== "merchant" && event.type !== "battle") {
+      // 孤云线六选三无需补充，非孤云线维持旧 refill 机制
+      if (run.storylineId !== "wanderer" && run.eventRemaining > 0) refillOneEvent(run);
+      // 延迟1.5秒输出"已处理完"，避免与第3个奇遇结果toast重叠
+      if (run.eventRemaining === 0) {
+        setTimeout(() => log(run, "本月奇遇已处理完。"), 1500);
+      }
+    }
   saveRun(run);
   return true;
 }

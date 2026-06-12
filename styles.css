@@ -1564,12 +1564,72 @@ button {
   margin-top: 5px;
 }
 
+.trait-art-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  min-height: 24px;
+  margin-top: 4px;
+}
+
+.buff-badge.art-badge {
+  border-color: #8e44ad;
+  background: #f4eef8;
+  color: #6c3480;
+}
+
+.unit-detail-popup {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: #fffdf4;
+  border: 3px solid var(--line);
+  border-radius: 10px;
+  padding: 14px 18px;
+  z-index: 1000;
+  min-width: 220px;
+  max-width: 340px;
+  box-shadow: 0 4px 24px rgba(0,0,0,.35);
+  font-size: 13px;
+  line-height: 1.6;
+}
+.unit-detail-popup h4 {
+  margin: 0 0 6px;
+  font-size: 15px;
+  color: var(--brown);
+}
+.unit-detail-popup .detail-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-bottom: 6px;
+}
+.unit-detail-popup .close-btn {
+  position: absolute;
+  top: 6px;
+  right: 10px;
+  cursor: pointer;
+  font-size: 18px;
+  color: var(--muted);
+}
+
 .debuff-badge {
   display: inline-block;
   padding: 2px 6px;
   border: 2px solid #5b352e;
   background: #f5dfbe;
   color: #2a211b;
+  font-size: 13px;
+  font-weight: 900;
+}
+
+.buff-badge {
+  display: inline-block;
+  padding: 2px 6px;
+  border: 2px solid #27ae60;
+  background: #eafaf1;
+  color: #1a6d3c;
   font-size: 13px;
   font-weight: 900;
 }
@@ -1622,14 +1682,17 @@ button {
   max-height: 194px;
 }
 
+/* ============================================================
+   Toast 系统 v5.9：自适应文本 + 排队 + 上移渐消
+   ============================================================ */
 .toast {
   --rot: 0deg;
   position: fixed;
-  top: 50%;
   left: 50%;
-  transform: translate(-50%, -50%) rotate(var(--rot));
-  min-width: 180px;
-  max-width: min(70vw, 60vh);
+  transform: translateX(-50%) rotate(var(--rot));
+  bottom: 16px;
+  min-width: 160px;
+  max-width: min(72vw, 420px);
   padding: 10px 18px;
   background: #fffdf4;
   border: 3px solid var(--line);
@@ -1641,14 +1704,34 @@ button {
   line-height: 1.5;
   color: #2c1810;
   box-shadow: 0 4px 20px rgba(0,0,0,.25);
-  animation: toastIn .15s ease-out;
+  animation: toastIn .2s ease-out;
   pointer-events: none;
   word-break: break-all;
+  white-space: normal;
+  transition: none;
+}
+
+.toast.toast-out {
+  animation: toastOut .5s ease-in forwards;
 }
 
 @keyframes toastIn {
-  from { opacity: 0; transform: translate(-50%, -50%) rotate(var(--rot)) scale(0.92); }
-  to   { opacity: 1; transform: translate(-50%, -50%) rotate(var(--rot)) scale(1); }
+  from { opacity: 0; transform: translateX(-50%) rotate(var(--rot)) translateY(12px); }
+  to   { opacity: 1; transform: translateX(-50%) rotate(var(--rot)) translateY(0); }
+}
+
+@keyframes toastOut {
+  to { opacity: 0; transform: translateX(-50%) rotate(var(--rot)) translateY(-48px); }
+}
+
+/* 嘴炮 toast 加一个特殊样式区分 */
+.toast.toast-taunt {
+  background: #2c1810;
+  color: #f5ddb2;
+  border-color: var(--line-soft);
+  max-width: min(80vw, 500px);
+  font-size: 14px;
+  white-space: pre-wrap;
 }
 
 .trait-chip {
