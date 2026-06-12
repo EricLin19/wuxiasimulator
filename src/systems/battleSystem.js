@@ -917,7 +917,7 @@ function getDebuffCap(run, weapon, type) {
     if (type === "poison" && weapon.poisonCapBonus) cap += weapon.poisonCapBonus;
   }
   if (hasStyleMastery(run, type)) {
-    if (type === "bleed") cap += 3;
+    if (type === "bleed") cap += 7;
   }
   return cap;
 }
