@@ -1566,17 +1566,31 @@ button {
 .damage-pop.heal    { color: #16a34a; text-shadow: 0 3px 0 rgba(200,255,210,.6); }
 .damage-pop.reflect { color: #d97706; text-shadow: 0 3px 0 rgba(255,230,180,.6); }
 
-body.mobile-viewport .damage-pop {
-  bottom: calc(350px + var(--oy, 0px));
-  min-width: 96px;
-  font-size: 36px;
+/* 手机竖屏：floater-layer 560x980，立绘 left:128 bottom:200 宽130高170 */
+@media (orientation: portrait) and (max-width: 979px) {
+  .damage-pop        { bottom: calc(390px + var(--oy, 0px)); }
+  .damage-pop.player { left: calc(193px + var(--ox, 0px)); }
+  .damage-pop.enemy { right: calc(193px - var(--ox, 0px)); }
+  .combat-floater        { bottom: calc(390px + var(--oy, 0px)); }
+  .combat-floater.player { left: calc(193px + var(--ox, 0px)); }
+  .combat-floater.enemy { right: calc(193px - var(--ox, 0px)); }
+  .damage-pop        { min-width: 96px; font-size: 36px; }
+  .damage-pop.crit   { font-size: 42px; }
+  .combat-floater    { min-width: 96px; font-size: 28px; }
 }
-body.mobile-viewport .damage-pop.crit { font-size: 42px; }
-body.mobile-viewport .damage-pop.player { left: calc(155px + var(--ox, 0px)); }
-body.mobile-viewport .damage-pop.enemy { right: calc(155px - var(--ox, 0px)); }
-body.mobile-viewport .combat-floater { bottom: calc(350px + var(--oy, 0px)); }
-body.mobile-viewport .combat-floater.player { left: calc(155px + var(--ox, 0px)); }
-body.mobile-viewport .combat-floater.enemy { right: calc(155px - var(--ox, 0px)); }
+
+/* 手机横屏：floater-layer 980x560，立绘按 PC 比例缩放 */
+@media (orientation: landscape) and (max-height: 559px) {
+  .damage-pop        { bottom: calc(330px + var(--oy, 0px)); }
+  .damage-pop.player { left: calc(165px + var(--ox, 0px)); }
+  .damage-pop.enemy { right: calc(165px - var(--ox, 0px)); }
+  .combat-floater        { bottom: calc(330px + var(--oy, 0px)); }
+  .combat-floater.player { left: calc(165px + var(--ox, 0px)); }
+  .combat-floater.enemy { right: calc(165px - var(--ox, 0px)); }
+  .damage-pop        { min-width: 96px; font-size: 36px; }
+  .damage-pop.crit   { font-size: 42px; }
+  .combat-floater    { min-width: 96px; font-size: 28px; }
+}
 
 .battle-bottom {
   position: absolute;
