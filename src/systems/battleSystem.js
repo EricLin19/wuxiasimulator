@@ -153,6 +153,12 @@ export function createBattle(run, enemyTemplate, isBoss = false) {
     playerPortrait: run.character.portraitImage || null,
     enemyPortrait: enemyTemplate.portraitImage || null
   };
+  // v6.0.3 debug: 记录 Boss 特性初始化
+  if (battle.bossTraits.length) {
+    console.log(`[createBattle] ${enemyTemplate.name} bossTraits=`, battle.bossTraits, `isBoss=${isBoss}`);
+  } else if (isBoss) {
+    console.warn(`[createBattle] ${enemyTemplate.name} isBoss=true but bossTraits=[]`);
+  }
 
   // 战斗开始回血/回蓝浮字
   (run.activeInternalArts || []).forEach(id => {
