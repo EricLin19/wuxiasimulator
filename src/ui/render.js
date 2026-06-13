@@ -86,9 +86,9 @@ const STAT_HELP = {
 
 export function renderApp(state, actions) {
   const app = document.getElementById("app");
-  // v6.0.4 debug: JS强制设置版本号
+  // v6.0.5: JS强制设版本号
   const bv = document.getElementById("build-ver");
-  if (bv && bv.textContent !== "v6.0.4") bv.textContent = "v6.0.4";
+  if (bv && bv.textContent !== "v6.0.5") bv.textContent = "v6.0.5";
   let savedScrollTop = 0;
   let allocateScrollTop = 0;
   if (state.modal && state.screen !== "battle") {

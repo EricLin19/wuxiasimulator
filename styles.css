@@ -215,8 +215,11 @@ body.mobile-viewport .btn.small {
 
 body.mobile-viewport .battle-top {
   inset: 8px 12px auto 12px;
-  grid-template-columns: 310px 1fr 310px;
   gap: 12px;
+}
+body.mobile-viewport .battle-col-left,
+body.mobile-viewport .battle-col-right {
+  flex: 0 0 310px;
 }
 
 body.mobile-viewport .fighter-panel {
@@ -1421,14 +1424,16 @@ button {
 .battle-top {
   position: absolute;
   inset: 12px 18px auto 18px;
-  display: grid;
-  grid-template-columns: 360px 1fr 360px;
+  display: flex;
   gap: 20px;
   align-items: start;
 }
-.battle-col-left  { grid-column: 1; min-width: 0; }
-.battle-col-mid   { grid-column: 2; min-width: 0; }
-.battle-col-right { grid-column: 3; min-width: 0; }
+.battle-col-left, .battle-col-right {
+  flex: 0 0 360px; min-width: 0;
+}
+.battle-col-mid {
+  flex: 1 1 auto; min-width: 0;
+}
 
 .fighter-panel {
   background: var(--paper);
