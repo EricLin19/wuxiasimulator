@@ -61,7 +61,7 @@ body.mobile-viewport .stage-shell {
   width: 100dvw;
   height: 100dvh;
   background: #14100d;
-  overflow: hidden;
+  overflow: visible;
 }
 
 body.mobile-viewport .stage-fit {
@@ -259,11 +259,13 @@ body.mobile-viewport .fighter.enemy {
   right: 128px;
 }
 
-/* 手机浮字：立绘 top=bottom:370(200+170)，浮字在立绘偏上方 */
+/* 手机浮字：立绘 top=bottom:370(200+170)，浮字对齐立绘上方 */
 body.mobile-viewport .damage-pop,
 body.mobile-viewport .combat-floater {
-  bottom: calc(550px + var(--oy, 0px));
+  bottom: calc(360px + var(--oy, 0px));
   min-width: 96px;
+  white-space: nowrap;
+  overflow: visible;
 }
 body.mobile-viewport .damage-pop        { font-size: 36px; }
 body.mobile-viewport .damage-pop.crit   { font-size: 72px; }
@@ -271,9 +273,9 @@ body.mobile-viewport .damage-pop.bleed  { font-size: 54px; }
 body.mobile-viewport .damage-pop.poison { font-size: 54px; }
 body.mobile-viewport .combat-floater    { font-size: 28px; }
 body.mobile-viewport .damage-pop.player,
-body.mobile-viewport .combat-floater.player { left: calc(-23px + var(--ox, 0px)); }
+body.mobile-viewport .combat-floater.player { left: calc(149px + var(--ox, 0px)); }
 body.mobile-viewport .damage-pop.enemy,
-body.mobile-viewport .combat-floater.enemy { right: calc(61px - var(--ox, 0px)); }
+body.mobile-viewport .combat-floater.enemy { right: calc(149px - var(--ox, 0px)); }
 
 body.mobile-viewport .battle-bottom {
   height: 198px;
@@ -456,8 +458,8 @@ button {
   position: absolute;
   inset: 0;
   pointer-events: none;
-  z-index: 1000;
-  overflow: hidden;
+  z-index: 9999;
+  overflow: visible;
 }
 
 .topbar {
