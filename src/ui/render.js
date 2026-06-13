@@ -2,6 +2,27 @@ import { DATA, STAT_LABELS, STAT_KEYS, SCHOOLS, RARITIES } from "../data/content
 import { monthAbs } from "../core/utils.js";
 import { expNeed, getRankTitle, getInternalArtPrice, getBattleDifficulty, getArmorStats } from "../systems/runSystem.js";
 
+// Boss 特性中文名映射
+const BOSS_TRAIT_META = {
+  armorBreak:     { name: "破防贯通", desc: "玩家DEF剩50%；每次命中玩家DEF-5%" },
+  hamstringStrike: { name: "断筋",     desc: "每回合断筋+n(n为Boss阶级），上限15层（每层削攻2%，减速2%）" },
+  veinBreak:       { name: "断脉",     desc: "每回合断脉+n，上限15层（每层减内力2%，减攻2%）" },
+  chillAura:      { name: "寒气逼人", desc: "每回合寒气+n，上限15层（每层减内力2%，减速2%）" },
+  bloodBlade:      { name: "血刃",     desc: "每回合流血+n，上限15层" },
+  venomInfuse:    { name: "淬毒",     desc: "每回合流血+n（淬毒），上限15层" },
+  lowHpBerserk:   { name: "低血狂暴", desc: "≤30%HP ATK×1.5，SPEED×n×0.3，持续5回合" },
+  shadowStep:      { name: "影步",     desc: "基础DODGE=75；≤50%HP DODGE×1.5；每次闪避回血10%最大HP" },
+  armorShield:     { name: "护体真气", desc: "开场20%最大HP护体" },
+  celestialShield:  { name: "天罡护体", desc: "开场30%HP护体" },
+  celestialCleanse: { name: "天罡净化", desc: "≤50%HP自动释放，净化所有负面+回血30%，每场一次" },
+  celestialBurn:    { name: "天罡燃命", desc: "≤10%HP自动释放，ATK×2,SPEED×2,DEF×0.5，持续5回合" },
+  // 保留向后兼容
+  miniBleed:  { name: "流血", desc: "每回合流血+5" },
+  miniFrost:  { name: "寒气", desc: "每回合寒气+5" },
+  miniPoison: { name: "中毒", desc: "每回合中毒+5" },
+  miniArmor:  { name: "护体", desc: "开场30%HP护体" },
+};
+
 // v5.10：战斗角色详情弹窗状态（避免被每帧重新渲染销毁）
 let _battleDetailSide = null; // "player" | "enemy" | null
 
@@ -794,9 +815,9 @@ function renderBattle(state, actions) {
   const b = state.battle;
   const root = el("div", "battle-screen");
   root.innerHTML = `
-    <div class="battle-top">${fighterPanel(state.run, b.player)}<div class="gauge-lane"><div class="gauge-dot" style="left:${b.player.gauge}%">${b.player.name.charAt(0)}</div><div class="gauge-dot" style="left:${b.enemy.gauge}%">${b.enemy.name.charAt(0)}</div><div class="speed-label speed-toggle" data-speedbtn>速度x${b.speed || 1}</div></div>${fighterPanel(null, b.enemy)}</div>
+    <div class="battle-top">${fighterPanel(state.run, b.player, b)}${fighterPanel(null, b.enemy, b)}<div class="gauge-lane"><div class="gauge-dot" style="left:${b.player.gauge}%">${b.player.name.charAt(0)}</div><div class="gauge-dot" style="left:${b.enemy.gauge}%">${b.enemy.name.charAt(0)}</div><div class="speed-label speed-toggle" data-speedbtn>速度x${b.speed || 1}</div></div></div>
     <div class="fighter player">${b.playerPortrait ? `<img src="${b.playerPortrait}" alt="${b.player.name}" loading="lazy" decoding="async">` : b.player.icon}</div><div class="fighter enemy">${b.enemyPortrait ? `<img src="${b.enemyPortrait}" alt="${b.enemy.name}" loading="lazy" decoding="async">` : b.enemy.icon}</div>
-    ${b.bossTraits?.length ? `<div class="boss-trait-bar">${b.bossTraits.map(t => `<span class="debuff-badge enemy-trait">${t}</span>`).join("")}${b.bossShield > 0 ? `<span class="debuff-badge" title="护体">护体 ${b.bossShield}</span>` : ""}${b.bossImmuneTurns > 0 ? `<span class="debuff-badge" title="免疫负面">免疫 ${b.bossImmuneTurns}回合</span>` : ""}</div>` : ""}
+    ${b.bossShield > 0 || b.bossImmuneTurns > 0 ? `<div class="boss-trait-bar">${b.bossShield > 0 ? `<span class="debuff-badge" title="护体">护体 ${b.bossShield}</span>` : ""}${b.bossImmuneTurns > 0 ? `<span class="debuff-badge" title="免疫负面">免疫 ${b.bossImmuneTurns}回合</span>` : ""}</div>` : ""}
     <div class="battle-bottom"><div class="battle-tools"><button class="btn secondary" data-basic>普攻</button><button class="btn secondary" data-rest>调息</button><button class="btn secondary" data-itemmenu>道具</button><button class="btn red" data-flee>逃跑</button></div><div class="skill-row"></div><div class="battle-log">${b.log.map(x => `<div>${x}</div>`).join("")}</div></div>`;
   const skillRow = root.querySelector(".skill-row");
   b.player.skills.forEach(id => {
@@ -843,9 +864,10 @@ function renderBattle(state, actions) {
   return root;
 }
 
-function fighterPanel(run, unit) {
+function fighterPanel(run, unit, battle = null) {
   const side = run ? "player" : "enemy";
   const isPlayer = !!run;
+  // 主角特性+内功
   const traitHtml = isPlayer ? (run.traits || []).map(tid => {
     const t = DATA.traits.find(x => x.id === tid);
     return t ? `<span class="buff-badge" title="${escapeHtml(t.desc || "")}">${t.name}</span>` : "";
@@ -854,7 +876,17 @@ function fighterPanel(run, unit) {
     const a = DATA.internalArts[aid];
     return a ? `<span class="buff-badge art-badge" title="${escapeHtml(a.desc || "")}">${a.icon}</span>` : "";
   }).filter(Boolean).join("") : "";
-  const infoRow = (traitHtml || artHtml) ? `<div class="debuff-row trait-art-row">${traitHtml}${artHtml}</div>` : "";
+  // Boss 特性（显示在头像下方，类似主角特性）
+  let bossTraitHtml = "";
+  if (!isPlayer && battle && battle.bossTraits?.length) {
+    bossTraitHtml = battle.bossTraits.map(tid => {
+      const meta = BOSS_TRAIT_META[tid];
+      const name = meta ? meta.name : tid;
+      const desc = meta ? meta.desc : "";
+      return `<span class="buff-badge enemy-trait-badge" title="${escapeHtml(desc)}">${name}</span>`;
+    }).join("");
+  }
+  const infoRow = (traitHtml || artHtml || bossTraitHtml) ? `<div class="debuff-row trait-art-row">${traitHtml}${artHtml}${bossTraitHtml}</div>` : "";
   return `<div class="fighter-panel" data-side="${side}"><div class="fighter-name">${unit.name}</div>${bar(unit.hp, unit.stats.hp, `${Math.ceil(unit.hp)}/${unit.stats.hp}`, "hp-fill")}${bar(unit.qi, unit.stats.qi, `${Math.ceil(unit.qi)}/${unit.stats.qi}`, "qi-fill")}${infoRow}<div class="debuff-row">${debuffBadges(unit)}</div></div>`;
 }
 

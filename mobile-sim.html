@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>手机横屏模拟器 - 武侠模拟器</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: #1a1a2e;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    font-family: sans-serif;
+    color: #ccc;
+  }
+  h2 {
+    margin-bottom: 8px;
+    font-size: 18px;
+    color: #aaa;
+  }
+  .phone-frame {
+    position: relative;
+    border: 12px solid #333;
+    border-radius: 24px;
+    background: #000;
+    box-shadow: 0 0 30px rgba(0,0,0,0.6), inset 0 0 2px rgba(255,255,255,0.1);
+    overflow: hidden;
+  }
+  /* 模拟 iPhone 横屏: 844 x 390 */
+  .phone-frame.landscape {
+    width: 868px;  /* 844 + border*2 */
+    height: 414px; /* 390 + border*2 */
+  }
+  iframe {
+    display: block;
+    width: 844px;
+    height: 390px;
+    border: none;
+    background: #000;
+  }
+  .coords-info {
+    margin-top: 12px;
+    background: #222;
+    padding: 10px 16px;
+    border-radius: 8px;
+    font-size: 13px;
+    line-height: 1.8;
+    font-family: 'Courier New', monospace;
+  }
+  .coords-info span.label { color: #aaa; }
+  .coords-info span.val { color: #4ade80; font-weight: bold; }
+  .coords-info span.pos { color: #facc15; }
+</style>
+</head>
+<body>
+  <h2>📱 手机横屏模拟 (844×390)</h2>
+  <div class="phone-frame landscape">
+    <iframe src="http://localhost:8080/index.html" id="game-frame"></iframe>
+  </div>
+  <div class="coords-info">
+    <div><span class="label">视口尺寸:</span> <span class="val">844 × 390</span></div>
+    <div><span class="label">主角浮字:</span> <span class="pos">left: calc(<span class="val">-23px</span> + ox)</span></div>
+    <div><span class="label">敌人浮字:</span> <span class="pos">right: calc(<span class="val">61px</span> + ox)</span></div>
+    <div><span class="label">浮字 bottom:</span> <span class="val">550px</span> <span class="label">(基准)</span></div>
+    <div style="margin-top:4px;color:#f87171;">⚠ 此页面仅供PC端调试参考，非真实手机渲染</div>
+  </div>
+</body>
+</html>
