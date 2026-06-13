@@ -262,16 +262,16 @@ body.mobile-viewport .fighter.enemy {
 /* 手机浮字：立绘 top=bottom:370(200+170)，浮字在立绘偏上方 */
 body.mobile-viewport .damage-pop,
 body.mobile-viewport .combat-floater {
-  bottom: calc(530px + var(--oy, 0px));
+  bottom: calc(540px + var(--oy, 0px));
   min-width: 96px;
 }
 body.mobile-viewport .damage-pop        { font-size: 36px; }
 body.mobile-viewport .damage-pop.crit   { font-size: 42px; }
 body.mobile-viewport .combat-floater    { font-size: 28px; }
 body.mobile-viewport .damage-pop.player,
-body.mobile-viewport .combat-floater.player { left: calc(61px + var(--ox, 0px)); }
+body.mobile-viewport .combat-floater.player { left: calc(19px + var(--ox, 0px)); }
 body.mobile-viewport .damage-pop.enemy,
-body.mobile-viewport .combat-floater.enemy { right: calc(61px - var(--ox, 0px)); }
+body.mobile-viewport .combat-floater.enemy { right: calc(19px - var(--ox, 0px)); }
 
 body.mobile-viewport .battle-bottom {
   height: 198px;
@@ -796,7 +796,7 @@ button {
   grid-template-columns: 190px minmax(0, 1fr);
   gap: 14px;
   min-height: 0;
-  min-width: 530px;
+  min-width: 540px;
   height: calc(100vh - 60px);
   align-items: end;
   overflow-x: auto;
@@ -944,7 +944,7 @@ button {
   grid-template-rows: minmax(0, 1fr);
   gap: 10px;
   min-height: 0;
-  min-width: 530px;
+  min-width: 540px;
   height: calc(100vh - 60px);
   align-items: stretch;
   overflow-x: auto;
