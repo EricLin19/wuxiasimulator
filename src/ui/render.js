@@ -898,6 +898,7 @@ function debuffBadges(unit) {
   if (unit.inner) badges.push(`<span class="debuff-badge" title="内伤：行动开始时失去层数x14的内力。内力归零时只能调息或普通攻击。">内伤 ${unit.inner}</span>`);
   if (unit.frost) badges.push(`<span class="debuff-badge" title="寒气：降低速度，行动开始时失去内力。">寒气 ${unit.frost}</span>`);
   if (unit.hamstring) badges.push(`<span class="debuff-badge" title="断筋：降低速度，并在命中时削弱攻击。">断筋 ${unit.hamstring}</span>`);
+  if (unit.veinBreak) badges.push(`<span class="debuff-badge" title="断脉：降低攻击和内力上限。">断脉 ${unit.veinBreak}</span>`);
   if (unit.gu) badges.push(`<span class="debuff-badge" title="蛊：提高招式内力消耗，并扰乱气息。">蛊 ${unit.gu}</span>`);
   // 临时Buff显示（快/力/杀）
   if (unit.tempBuffs) {

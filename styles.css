@@ -1665,6 +1665,14 @@ button {
   color: #fff8ef;
 }
 
+/* Boss 特性 badges（头像下方） */
+.enemy-trait-badge {
+  cursor: pointer;
+  background: #5b3a1a;
+  color: #ffe0a0;
+  border-color: #a07040;
+}
+
 .battle-tools {
   display: grid;
   grid-template-columns: 1fr 1fr;
