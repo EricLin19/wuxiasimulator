@@ -491,13 +491,13 @@ const actions = {
   chooseEvent: id => {
     resolveEvent(state.run, id, {
       openMerchant: () => { state.modal = { type: "merchant" }; },
-      startBattle: enemy => startBattle(enemy, false)
+      startBattle: (enemy, isBoss) => startBattle(enemy, isBoss || false)
     });
     render();
   },
   chooseStoryEvent: (eventId, choice, endingId) => {
     resolveStoryChoice(state.run, eventId, choice, {
-      startBattle: enemy => startBattle(enemy, false),
+      startBattle: (enemy, isBoss) => startBattle(enemy, isBoss || false),
       endingId: endingId || null,
       settleEnding: (eff, endingChoice) => {
         log(state.run, `结局降临：${endingChoice.label}`);

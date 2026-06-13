@@ -86,9 +86,9 @@ const STAT_HELP = {
 
 export function renderApp(state, actions) {
   const app = document.getElementById("app");
-  // v6.0.2 bugfix: JS强制设置版本号，防止浏览器缓存旧HTML
+  // v6.0.3 bugfix: JS强制设置版本号，防止浏览器缓存旧HTML
   const bv = document.getElementById("build-ver");
-  if (bv && bv.textContent !== "v6.0.2") bv.textContent = "v6.0.2";
+  if (bv && bv.textContent !== "v6.0.3") bv.textContent = "v6.0.3";
   let savedScrollTop = 0;
   let allocateScrollTop = 0;
   if (state.modal && state.screen !== "battle") {
@@ -892,23 +892,13 @@ function fighterPanel(run, unit, battle = null) {
   }).filter(Boolean).join("") : "";
   // Boss 特性（显示在头像下方，类似主角特性）
   let bossTraitHtml = "";
-  if (!isPlayer && battle) {
-    // v6.0 多特性数组 (优先)
-    if (battle.bossTraits?.length) {
-      bossTraitHtml = battle.bossTraits.map(tid => {
-        const meta = BOSS_TRAIT_META[tid];
-        const name = meta ? meta.name : tid;
-        const desc = meta ? meta.desc : "";
-        return `<span class="buff-badge enemy-trait-badge" title="${escapeHtml(desc)}">${name}</span>`;
-      }).join("");
-    }
-    // 向后兼容：旧版单一 bossTrait
-    else if (battle.bossTrait) {
-      const meta = BOSS_TRAIT_META[battle.bossTrait];
-      const name = meta ? meta.name : battle.bossTrait;
-      const desc = meta ? meta.desc : (battle.bossTraitDesc || "");
-      bossTraitHtml = `<span class="buff-badge enemy-trait-badge" title="${escapeHtml(desc)}">${name}</span>`;
-    }
+  if (!isPlayer && battle && battle.bossTraits?.length) {
+    bossTraitHtml = battle.bossTraits.map(tid => {
+      const meta = BOSS_TRAIT_META[tid];
+      const name = meta ? meta.name : tid;
+      const desc = meta ? meta.desc : "";
+      return `<span class="buff-badge enemy-trait-badge" title="${escapeHtml(desc)}">${name}</span>`;
+    }).join("");
   }
   const infoRow = (traitHtml || artHtml || bossTraitHtml) ? `<div class="debuff-row trait-art-row">${traitHtml}${artHtml}${bossTraitHtml}</div>` : "";
   return `<div class="fighter-panel" data-side="${side}"><div class="fighter-name">${unit.name}</div>${bar(unit.hp, unit.stats.hp, `${Math.ceil(unit.hp)}/${unit.stats.hp}`, "hp-fill")}${bar(unit.qi, unit.stats.qi, `${Math.ceil(unit.qi)}/${unit.stats.qi}`, "qi-fill")}${infoRow}<div class="debuff-row">${debuffBadges(unit)}</div></div>`;
@@ -916,7 +906,6 @@ function fighterPanel(run, unit, battle = null) {
 
 function debuffBadges(unit) {
   const badges = [];
-  if (unit.stats.traitName) badges.push(`<span class="debuff-badge enemy-trait" title="${escapeHtml(unit.stats.traitDesc || "")}">${unit.stats.traitName}</span>`);
   if (unit.bleed) badges.push(`<span class="debuff-badge" title="流血：行动开始时受到层数x12的伤害。">流血 ${unit.bleed}</span>`);
   if (unit.poison) badges.push(`<span class="debuff-badge" title="中毒：降低攻击、防御、命中、闪避、出手速度。">中毒 ${unit.poison}</span>`);
   if (unit.inner) badges.push(`<span class="debuff-badge" title="内伤：行动开始时失去层数x14的内力。内力归零时只能调息或普通攻击。">内伤 ${unit.inner}</span>`);
@@ -952,10 +941,9 @@ function buildUnitDetailPopup(unit, side, state, actions) {
       popup.appendChild(row);
     }
   }
-  // Boss 特性（v6.0 bossTraits 数组 + 旧版兼容）
+  // Boss 特性（v6.0 bossTraits 数组，不显示旧版不正确数据）
   if (!isPlayer) {
     const battle = state.battle;
-    // v6.0 多特性数组 (优先)
     if (battle && battle.bossTraits?.length) {
       const traitBadges = battle.bossTraits.map(tid => {
         const meta = BOSS_TRAIT_META[tid];
@@ -965,21 +953,6 @@ function buildUnitDetailPopup(unit, side, state, actions) {
       }).join(" ");
       const row = el("div", "detail-row");
       row.innerHTML = `<b>Boss特性</b>：${traitBadges}`;
-      popup.appendChild(row);
-    }
-    // 向后兼容：旧版单一 bossTrait
-    else if (battle && battle.bossTrait) {
-      const meta = BOSS_TRAIT_META[battle.bossTrait];
-      const name = meta ? meta.name : battle.bossTrait;
-      const desc = meta ? meta.desc : (battle.bossTraitDesc || "");
-      const row = el("div", "detail-row");
-      row.innerHTML = `<b>Boss特性</b>：<span class="buff-badge enemy-trait-badge" title="${escapeHtml(desc)}">${name}</span>`;
-      popup.appendChild(row);
-    }
-    // 旧版单特性兼容 (unit-level traitName)
-    else if (unit.stats.traitName) {
-      const row = el("div", "detail-row");
-      row.innerHTML = `<b>Boss特性</b>：<span class="debuff-badge enemy-trait">${unit.stats.traitName}</span>`;
       popup.appendChild(row);
     }
   }
