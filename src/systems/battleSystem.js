@@ -151,6 +151,22 @@ export function createBattle(run, enemyTemplate, isBoss = false) {
     enemyPortrait: enemyTemplate.portraitImage || null
   };
 
+  // 战斗开始回血/回蓝浮字
+  (run.activeInternalArts || []).forEach(id => {
+    const art = DATA.internalArts[id];
+    if (!art) return;
+    if (art.combatEffect === "healOnStart") {
+      const h = Math.floor(pStats.hp * 0.35);
+      addFloater(battle, "player", `+${h}`, "heal");
+    }
+    if (art.combatEffect === "bigHealStart") {
+      const h = Math.floor(pStats.hp * 0.25);
+      const q = Math.floor(pStats.qi * 0.15);
+      addFloater(battle, "player", `+${h}`, "heal");
+      addFloater(battle, "player", `+${q}`, "qi");
+    }
+  });
+
   // 战斗开始：初始化 battle 对象完成
 
   // 三主线Boss特性初始化
@@ -315,7 +331,7 @@ function resolveAttack(run, battle, actor, target, skill) {
     addFloater(battle, sideOf(battle, target), "miss");
     return { comboTriggered: false };
   }
-  if (surehit) addFloater(battle, sideOf(battle, actor), "例无虚发");
+  if (surehit) addFloater(battle, sideOf(battle, actor), "中！");
 
   // Boss护体盾吸收（shieldCleanseCounter等）
   let dmg = calcDamage(run, battle, actor, target, skill);
@@ -333,9 +349,10 @@ function resolveAttack(run, battle, actor, target, skill) {
   const _isCrit = battle._lastCrit;
   battle._lastCrit = false;
   addFloater(battle, sideOf(battle, target), `-${dmg}`, _isCrit ? "crit" : "normal");
+  if (_isCrit) addFloater(battle, sideOf(battle, actor), "暴击！", "crit");
   applySkillEffects(run, battle, actor, target, skill, dmg);
   battleLog(battle, `${actor.name}施展${skill.name}，造成${dmg}伤害。`);
-  if (skill.tags?.includes("heal")) heal(run, actor, 70);
+  if (skill.tags?.includes("heal")) { const h = heal(run, actor, 70); addFloater(battle, sideOf(battle, actor), `+${h}`, "heal"); }
   if (skill.tags?.includes("speed")) actor.stats.speed = Number((actor.stats.speed + 0.05).toFixed(2));
 
   // 检查Boss阶段触发（玩家攻击Boss后）
@@ -524,6 +541,7 @@ export function enemyAction(run, battle) {
     const _eCrit = battle._enemyLastCrit;
     battle._enemyLastCrit = false;
     addFloater(battle, "player", `-${dmg}`, _eCrit ? "crit" : "normal");
+    if (_eCrit) addFloater(battle, "enemy", "暴击！", "crit");
     // 无相秘甲：反弹25%伤害
     if (run.equippedArmor && dmg > 0) {
       const armor = DATA.armors[run.equippedArmor];
@@ -720,11 +738,14 @@ function applyTurnStart(battle, unit) {
         const qiAmt = Math.floor(unit.stats.qi * 0.05);
         unit.qi = Math.min(unit.stats.qi, unit.qi + qiAmt);
         battleLog(battle, `【${art.name}】${unit.name}恢复${healAmt}血量、${qiAmt}内力。`);
+        addFloater(battle, sideOf(battle, unit), `+${healAmt}`, "heal");
+        addFloater(battle, sideOf(battle, unit), `+${qiAmt}`, "qi");
       }
       if (art.combatEffect === "qiRegen") {
         const qiAmt = Math.floor(unit.stats.qi * 0.06);
         unit.qi = Math.min(unit.stats.qi, unit.qi + qiAmt);
         battleLog(battle, `【${art.name}】${unit.name}恢复${qiAmt}内力。`);
+        addFloater(battle, sideOf(battle, unit), `+${qiAmt}`, "qi");
       }
       if (art.combatEffect === "cleanse" && unit.cleanseShield > 0) {
         unit.cleanseShield--;
@@ -738,11 +759,13 @@ function applyTurnStart(battle, unit) {
       const hpAmt = Math.floor(unit.stats.hp * 0.05);
       unit.hp = Math.min(unit.stats.hp, unit.hp + hpAmt);
       battleLog(battle, `【铁衣锻体】${unit.name}恢复${hpAmt}血量。`);
+      addFloater(battle, sideOf(battle, unit), `+${hpAmt}`, "heal");
     }
     if (battle.run.traits.includes("jingxi")) {
       const qiAmt = Math.floor(unit.stats.qi * 0.05);
       unit.qi = Math.min(unit.stats.qi, unit.qi + qiAmt);
       battleLog(battle, `【静息】${unit.name}恢复${qiAmt}内力。`);
+      addFloater(battle, sideOf(battle, unit), `+${qiAmt}`, "qi");
     }
   }
 
@@ -801,6 +824,7 @@ function applySkillEffects(run, battle, actor, target, skill, damage, multiplier
       }
       const burstDmg = Math.floor(target.hp * burstPct);
       target.hp = Math.max(0, target.hp - burstDmg);
+      addFloater(battle, sideOf(battle, target), "血流如注");
       addFloater(battle, sideOf(battle, target), `-${burstDmg}`, "bleed");
       target.bleed -= 25;
       battleLog(battle, `血流如注！${target.name}流血崩裂，扣除${burstDmg}血量！`);
@@ -826,6 +850,7 @@ function applySkillEffects(run, battle, actor, target, skill, damage, multiplier
       target.qi = Math.max(0, target.qi - qiDmg);
       target.poison -= 25;
       battleLog(battle, `毒素爆发！${target.name}毒发攻心，扣除${hpDmg}血量、${qiDmg}内力！`);
+      addFloater(battle, sideOf(battle, target), "毒入骨髓");
       addFloater(battle, sideOf(battle, target), `-${hpDmg}`, "poison");
       if (qiDmg > 0) addFloater(battle, sideOf(battle, target), `-${qiDmg}`, "qi");
     }
@@ -904,6 +929,7 @@ function applySkillEffects(run, battle, actor, target, skill, damage, multiplier
           target.hp = Math.max(0, target.hp - burstExtra);
         }
         battleLog(battle, `血刃封喉！${target.name}流血立即结算，受到${bleedDmg}${burstExtra ? `（+${burstExtra}引爆）` : ""}伤害。`);
+        addFloater(battle, sideOf(battle, target), "血流如注");
         addFloater(battle, sideOf(battle, target), `-${bleedDmg}`, "bleed");
         if (burstExtra > 0) addFloater(battle, sideOf(battle, target), `-${burstExtra}`, "bleed");
       }
@@ -931,6 +957,7 @@ function applySkillEffects(run, battle, actor, target, skill, damage, multiplier
         target.hp = Math.max(0, target.hp - poisonDmg);
         target.qi = Math.max(0, target.qi - poisonQiLoss);
         battleLog(battle, `毒发攻心！${target.name}毒伤立即结算，受到${poisonDmg}伤害并流失${poisonQiLoss}内力。`);
+        addFloater(battle, sideOf(battle, target), "毒入骨髓");
         addFloater(battle, sideOf(battle, target), `-${poisonDmg}`, "poison");
         if (poisonQiLoss > 0) addFloater(battle, sideOf(battle, target), `-${poisonQiLoss}`, "qi");
       }
