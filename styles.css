@@ -1426,6 +1426,9 @@ button {
   gap: 20px;
   align-items: start;
 }
+.battle-col-left  { grid-column: 1; min-width: 0; }
+.battle-col-mid   { grid-column: 2; min-width: 0; }
+.battle-col-right { grid-column: 3; min-width: 0; }
 
 .fighter-panel {
   background: var(--paper);

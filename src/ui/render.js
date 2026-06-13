@@ -86,6 +86,9 @@ const STAT_HELP = {
 
 export function renderApp(state, actions) {
   const app = document.getElementById("app");
+  // v6.0.2 bugfix: JS强制设置版本号，防止浏览器缓存旧HTML
+  const bv = document.getElementById("build-ver");
+  if (bv && bv.textContent !== "v6.0.2") bv.textContent = "v6.0.2";
   let savedScrollTop = 0;
   let allocateScrollTop = 0;
   if (state.modal && state.screen !== "battle") {
@@ -826,7 +829,7 @@ function renderBattle(state, actions) {
   const b = state.battle;
   const root = el("div", "battle-screen");
   root.innerHTML = `
-    <div class="battle-top">${fighterPanel(state.run, b.player, b)}<div class="gauge-lane"><div class="gauge-dot" style="left:${b.player.gauge}%">${b.player.name.charAt(0)}</div><div class="gauge-dot" style="left:${b.enemy.gauge}%">${b.enemy.name.charAt(0)}</div><div class="speed-label speed-toggle" data-speedbtn>速度x${b.speed || 1}</div></div>${fighterPanel(null, b.enemy, b)}</div>
+    <div class="battle-top"><div class="battle-col battle-col-left">${fighterPanel(state.run, b.player, b)}</div><div class="battle-col battle-col-mid"><div class="gauge-lane"><div class="gauge-dot" style="left:${b.player.gauge}%">${b.player.name.charAt(0)}</div><div class="gauge-dot" style="left:${b.enemy.gauge}%">${b.enemy.name.charAt(0)}</div><div class="speed-label speed-toggle" data-speedbtn>速度x${b.speed || 1}</div></div></div><div class="battle-col battle-col-right">${fighterPanel(null, b.enemy, b)}</div></div>
     <div class="fighter player">${b.playerPortrait ? `<img src="${b.playerPortrait}" alt="${b.player.name}" loading="lazy" decoding="async">` : b.player.icon}</div><div class="fighter enemy">${b.enemyPortrait ? `<img src="${b.enemyPortrait}" alt="${b.enemy.name}" loading="lazy" decoding="async">` : b.enemy.icon}</div>
     ${b.bossShield > 0 || b.bossImmuneTurns > 0 ? `<div class="boss-trait-bar">${b.bossShield > 0 ? `<span class="debuff-badge" title="护体">护体 ${b.bossShield}</span>` : ""}${b.bossImmuneTurns > 0 ? `<span class="debuff-badge" title="免疫负面">免疫 ${b.bossImmuneTurns}回合</span>` : ""}</div>` : ""}
     <div class="battle-bottom"><div class="battle-tools"><button class="btn secondary" data-basic>普攻</button><button class="btn secondary" data-rest>调息</button><button class="btn secondary" data-itemmenu>道具</button><button class="btn red" data-flee>逃跑</button></div><div class="skill-row"></div><div class="battle-log">${b.log.map(x => `<div>${x}</div>`).join("")}</div></div>`;
@@ -889,13 +892,23 @@ function fighterPanel(run, unit, battle = null) {
   }).filter(Boolean).join("") : "";
   // Boss 特性（显示在头像下方，类似主角特性）
   let bossTraitHtml = "";
-  if (!isPlayer && battle && battle.bossTraits?.length) {
-    bossTraitHtml = battle.bossTraits.map(tid => {
-      const meta = BOSS_TRAIT_META[tid];
-      const name = meta ? meta.name : tid;
-      const desc = meta ? meta.desc : "";
-      return `<span class="buff-badge enemy-trait-badge" title="${escapeHtml(desc)}">${name}</span>`;
-    }).join("");
+  if (!isPlayer && battle) {
+    // v6.0 多特性数组 (优先)
+    if (battle.bossTraits?.length) {
+      bossTraitHtml = battle.bossTraits.map(tid => {
+        const meta = BOSS_TRAIT_META[tid];
+        const name = meta ? meta.name : tid;
+        const desc = meta ? meta.desc : "";
+        return `<span class="buff-badge enemy-trait-badge" title="${escapeHtml(desc)}">${name}</span>`;
+      }).join("");
+    }
+    // 向后兼容：旧版单一 bossTrait
+    else if (battle.bossTrait) {
+      const meta = BOSS_TRAIT_META[battle.bossTrait];
+      const name = meta ? meta.name : battle.bossTrait;
+      const desc = meta ? meta.desc : (battle.bossTraitDesc || "");
+      bossTraitHtml = `<span class="buff-badge enemy-trait-badge" title="${escapeHtml(desc)}">${name}</span>`;
+    }
   }
   const infoRow = (traitHtml || artHtml || bossTraitHtml) ? `<div class="debuff-row trait-art-row">${traitHtml}${artHtml}${bossTraitHtml}</div>` : "";
   return `<div class="fighter-panel" data-side="${side}"><div class="fighter-name">${unit.name}</div>${bar(unit.hp, unit.stats.hp, `${Math.ceil(unit.hp)}/${unit.stats.hp}`, "hp-fill")}${bar(unit.qi, unit.stats.qi, `${Math.ceil(unit.qi)}/${unit.stats.qi}`, "qi-fill")}${infoRow}<div class="debuff-row">${debuffBadges(unit)}</div></div>`;
@@ -942,7 +955,7 @@ function buildUnitDetailPopup(unit, side, state, actions) {
   // Boss 特性（v6.0 bossTraits 数组 + 旧版兼容）
   if (!isPlayer) {
     const battle = state.battle;
-    // v6.0 多特性
+    // v6.0 多特性数组 (优先)
     if (battle && battle.bossTraits?.length) {
       const traitBadges = battle.bossTraits.map(tid => {
         const meta = BOSS_TRAIT_META[tid];
@@ -954,7 +967,16 @@ function buildUnitDetailPopup(unit, side, state, actions) {
       row.innerHTML = `<b>Boss特性</b>：${traitBadges}`;
       popup.appendChild(row);
     }
-    // 旧版单特性兼容
+    // 向后兼容：旧版单一 bossTrait
+    else if (battle && battle.bossTrait) {
+      const meta = BOSS_TRAIT_META[battle.bossTrait];
+      const name = meta ? meta.name : battle.bossTrait;
+      const desc = meta ? meta.desc : (battle.bossTraitDesc || "");
+      const row = el("div", "detail-row");
+      row.innerHTML = `<b>Boss特性</b>：<span class="buff-badge enemy-trait-badge" title="${escapeHtml(desc)}">${name}</span>`;
+      popup.appendChild(row);
+    }
+    // 旧版单特性兼容 (unit-level traitName)
     else if (unit.stats.traitName) {
       const row = el("div", "detail-row");
       row.innerHTML = `<b>Boss特性</b>：<span class="debuff-badge enemy-trait">${unit.stats.traitName}</span>`;
