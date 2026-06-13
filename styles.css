@@ -449,6 +449,15 @@ button {
     url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1600' height='900' viewBox='0 0 1600 900'%3E%3Cdefs%3E%3ClinearGradient id='sky' x1='0' x2='0' y1='0' y2='1'%3E%3Cstop stop-color='%23bcd6ea'/%3E%3Cstop offset='.48' stop-color='%23f0c796'/%3E%3Cstop offset='1' stop-color='%237da071'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect fill='url(%23sky)' width='1600' height='900'/%3E%3Cpath d='M0 500 C190 330 260 390 410 250 C560 110 660 360 790 230 C970 50 1030 380 1160 250 C1310 120 1440 250 1600 120 L1600 900 L0 900Z' fill='%2386a6a8' opacity='.55'/%3E%3Cpath d='M0 620 C180 470 310 520 480 420 C700 285 820 560 1060 380 C1300 210 1390 470 1600 360 L1600 900 L0 900Z' fill='%235f806e' opacity='.68'/%3E%3Crect x='0' y='720' width='1600' height='180' fill='%23d0a678'/%3E%3Cpath d='M0 760 L1600 735 L1600 900 L0 900Z' fill='%23b9825f' opacity='.65'/%3E%3C/svg%3E") center / cover no-repeat;
 }
 
+/* 浮字层：完全独立于 app，不受 render 循环影响 */
+.floater-layer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1000;
+  overflow: hidden;
+}
+
 .topbar {
   position: absolute;
   inset: 0 0 auto 0;
@@ -1507,41 +1516,46 @@ button {
   right: 150px;
 }
 
+@keyframes float-up {
+  0%   { transform: translateY(0); opacity: 1; }
+  100% { transform: translateY(-50px); opacity: 0; }
+}
+
 .combat-floater {
   position: absolute;
-  bottom: 408px;
+  bottom: calc(408px + var(--oy, 0px));
   min-width: 120px;
   text-align: center;
   color: #fff7df;
   font-size: 34px;
   font-weight: 900;
   text-shadow: 0 4px 0 #2a211b;
-  animation: pop 900ms ease-out forwards;
   pointer-events: none;
-  z-index: 4;
+  z-index: 1000;
+  animation: float-up 0.9s linear forwards;
 }
 
 .combat-floater.player {
-  left: 212px;
+  left: calc(212px + var(--ox, 0px));
 }
 
 .combat-floater.enemy {
-  right: 212px;
+  right: calc(212px - var(--ox, 0px));
 }
 
 .damage-pop {
   position: absolute;
-  bottom: 408px;
+  bottom: calc(408px + var(--oy, 0px));
   min-width: 120px;
   text-align: center;
   font-size: 42px;
   font-weight: 900;
-  animation: pop 700ms ease-out forwards;
   pointer-events: none;
-  z-index: 5;
+  z-index: 1000;
+  animation: float-up 0.9s linear forwards;
 }
-.damage-pop.player { left: 212px; }
-.damage-pop.enemy { right: 212px; }
+.damage-pop.player { left: calc(212px + var(--ox, 0px)); }
+.damage-pop.enemy { right: calc(212px - var(--ox, 0px)); }
 
 /* 伤害颜色 */
 .damage-pop.normal  { color: #1a1a1a; text-shadow: 0 3px 0 rgba(255,255,255,.6); }
@@ -1553,18 +1567,16 @@ button {
 .damage-pop.reflect { color: #d97706; text-shadow: 0 3px 0 rgba(255,230,180,.6); }
 
 body.mobile-viewport .damage-pop {
-  bottom: 350px;
+  bottom: calc(350px + var(--oy, 0px));
   min-width: 96px;
   font-size: 36px;
 }
 body.mobile-viewport .damage-pop.crit { font-size: 42px; }
-body.mobile-viewport .damage-pop.player { left: 155px; }
-body.mobile-viewport .damage-pop.enemy { right: 155px; }
-
-@keyframes pop {
-  from { transform: translateY(0); opacity: 1; }
-  to { transform: translateY(-50px); opacity: 0; }
-}
+body.mobile-viewport .damage-pop.player { left: calc(155px + var(--ox, 0px)); }
+body.mobile-viewport .damage-pop.enemy { right: calc(155px - var(--ox, 0px)); }
+body.mobile-viewport .combat-floater { bottom: calc(350px + var(--oy, 0px)); }
+body.mobile-viewport .combat-floater.player { left: calc(155px + var(--ox, 0px)); }
+body.mobile-viewport .combat-floater.enemy { right: calc(155px - var(--ox, 0px)); }
 
 .battle-bottom {
   position: absolute;

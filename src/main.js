@@ -221,7 +221,14 @@ function fitMobileViewport() {
     : "translate(-50%, -50%)";
 }
 
+// 清理战斗浮字
+function clearFloaterLayer() {
+  const layer = document.getElementById("floater-layer");
+  if (layer) layer.innerHTML = "";
+}
+
 function startBattle(enemy, isBoss = false) {
+  clearFloaterLayer();
   state.battle = createBattle(state.run, enemy, isBoss);
   state.modal = null;
   state.screen = "battle";
@@ -237,6 +244,7 @@ function resolveBattleResult(result) {
   if (!battle) return;
   state.battle = null;
   _lastTauntBattle = null;
+  clearFloaterLayer();
 
   // 立即停止战斗 timer，防止后续 tick 干扰
   if (battleTimer) {
@@ -608,6 +616,7 @@ const actions = {
       state.screen = "run";
       state.battle = null;
       _lastTauntBattle = null;
+      clearFloaterLayer();
       state.modal = null;
       log(state.run, result.message);
       finishDeferredEvent(state.run);

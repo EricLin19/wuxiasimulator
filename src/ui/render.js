@@ -5,6 +5,23 @@ import { expNeed, getRankTitle, getInternalArtPrice, getBattleDifficulty, getArm
 // v5.10：战斗角色详情弹窗状态（避免被每帧重新渲染销毁）
 let _battleDetailSide = null; // "player" | "enemy" | null
 
+// ── 战斗浮字：独立于 render 循环，CSS 动画驱动 ──
+export function createBattleFloater(side, text, type, ox, oy) {
+  const el = document.createElement("div");
+  if (!type) {
+    el.className = `combat-floater ${side}`;
+    el.textContent = text;
+  } else {
+    el.className = `damage-pop ${side} ${type}`;
+    el.textContent = text;
+  }
+  el.style.setProperty("--ox", `${ox}px`);
+  el.style.setProperty("--oy", `${oy}px`);
+  el.addEventListener("animationend", () => el.remove());
+  const layer = document.getElementById("floater-layer");
+  if (layer) layer.appendChild(el);
+}
+
 // 特性描述弹窗（替代 alert，避免手机横屏旋转）
 window.__showTraitDesc = function (el) {
   const name = el.dataset.traitName || "";
@@ -780,7 +797,6 @@ function renderBattle(state, actions) {
     <div class="battle-top">${fighterPanel(state.run, b.player)}<div class="gauge-lane"><div class="gauge-dot" style="left:${b.player.gauge}%">${b.player.name.charAt(0)}</div><div class="gauge-dot" style="left:${b.enemy.gauge}%">${b.enemy.name.charAt(0)}</div><div class="speed-label speed-toggle" data-speedbtn>速度x${b.speed || 1}</div></div>${fighterPanel(null, b.enemy)}</div>
     <div class="fighter player">${b.playerPortrait ? `<img src="${b.playerPortrait}" alt="${b.player.name}" loading="lazy" decoding="async">` : b.player.icon}</div><div class="fighter enemy">${b.enemyPortrait ? `<img src="${b.enemyPortrait}" alt="${b.enemy.name}" loading="lazy" decoding="async">` : b.enemy.icon}</div>
     ${b.bossTraits?.length ? `<div class="boss-trait-bar">${b.bossTraits.map(t => `<span class="debuff-badge enemy-trait">${t}</span>`).join("")}${b.bossShield > 0 ? `<span class="debuff-badge" title="护体">护体 ${b.bossShield}</span>` : ""}${b.bossImmuneTurns > 0 ? `<span class="debuff-badge" title="免疫负面">免疫 ${b.bossImmuneTurns}回合</span>` : ""}</div>` : ""}
-    ${(b.floaters || []).map(f => f.type ? `<div class="damage-pop ${f.side} ${f.type}">${f.text}</div>` : `<div class="combat-floater ${f.side}">${f.text}</div>`).join("")}
     <div class="battle-bottom"><div class="battle-tools"><button class="btn secondary" data-basic>普攻</button><button class="btn secondary" data-rest>调息</button><button class="btn secondary" data-itemmenu>道具</button><button class="btn red" data-flee>逃跑</button></div><div class="skill-row"></div><div class="battle-log">${b.log.map(x => `<div>${x}</div>`).join("")}</div></div>`;
   const skillRow = root.querySelector(".skill-row");
   b.player.skills.forEach(id => {

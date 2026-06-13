@@ -1,5 +1,6 @@
 import { DATA } from "../data/content.js";
 import { clone, clamp } from "../core/utils.js";
+import { createBattleFloater } from "../ui/render.js";
 
 const THREE_WAVES_PALMS = ["fist_blue_1", "fist_orange_1", "fist_red_1"];
 const MAX_PALM_CHAIN_ACTIONS = 3; // arm can increase to 4
@@ -1170,11 +1171,15 @@ function battleLog(battle, text) {
 
 function addFloater(battle, side, text, type) {
   battle.floaters ||= [];
-  battle.floaters.push({ id: Date.now() + Math.random(), side, text, type: type || "" });
-  battle.floaters = battle.floaters.slice(-8);
-  setTimeout(() => {
-    battle.floaters = (battle.floaters || []).filter(f => f.text !== text || f.side !== side);
-  }, 900);
+  // 随机偏移：水平 -50~+50，垂直起始 -25~0，让多个数字散开不重叠
+  const ox = Math.round((Math.random() - 0.5) * 100);
+  const oy = Math.round(Math.random() * -25);
+  battle.floaters.push({ id: Date.now() + Math.random(), side, text, type: type || "", ox, oy, born: Date.now() });
+  // 创建持久DOM元素，CSS动画独立驱动（不受render频率影响）
+  createBattleFloater(side, text, type, ox, oy);
+  // 清理超过 1 秒的旧浮字
+  const now = Date.now();
+  battle.floaters = battle.floaters.filter(f => now - (f.born || 0) < 1000).slice(-12);
 }
 
 function sideOf(battle, unit) {
