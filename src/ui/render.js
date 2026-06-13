@@ -20,6 +20,18 @@ const BOSS_TRAIT_META = {
   miniBleed:  { name: "流血", desc: "每回合流血+5" },
   miniFrost:  { name: "寒气", desc: "每回合寒气+5" },
   miniPoison: { name: "中毒", desc: "每回合中毒+5" },
+  // 旧版兼容（捕快线/正邪线/奇遇mini Boss）
+  highDodge:     { name: "高闪避",   desc: "基础闪避大幅提升" },
+  highHitPoison: { name: "暗器淬毒", desc: "命中率高；中毒层数结算后自然衰减" },
+  critBreakDef:  { name: "暴击破防", desc: "暴击时穿透防御" },
+  drainQiImmuneBurst: { name: "吸内免疫爆发", desc: "命中吸内；前3回合免疫负面；低内爆发" },
+  poisonGuPerTurn:   { name: "毒蛊每回合",   desc: "每回合毒+1蛊+1；负面单种衰减" },
+  drainQiLowShield:  { name: "吸内低血护体", desc: "命中吸内；低血获得15%护体" },
+  poisonGuCapCleanse:{ name: "毒蛊上限净化",  desc: "毒蛊上限+3；50%血净化回血20%" },
+  miniHamstring: { name: "断筋",     desc: "每回合断筋+2，削攻" },
+  miniGu:        { name: "蛊",       desc: "每回合蛊+2，增加内力消耗" },
+  miniCoin:      { name: "金钱镖",   desc: "每2回合固定伤害" },
+  pointStrike:   { name: "打穴封脉", desc: "判官笔打穴，概率封行动" },
 };
 
 // v5.10：战斗角色详情弹窗状态（避免被每帧重新渲染销毁）
@@ -814,7 +826,7 @@ function renderBattle(state, actions) {
   const b = state.battle;
   const root = el("div", "battle-screen");
   root.innerHTML = `
-    <div class="battle-top">${fighterPanel(state.run, b.player, b)}${fighterPanel(null, b.enemy, b)}<div class="gauge-lane"><div class="gauge-dot" style="left:${b.player.gauge}%">${b.player.name.charAt(0)}</div><div class="gauge-dot" style="left:${b.enemy.gauge}%">${b.enemy.name.charAt(0)}</div><div class="speed-label speed-toggle" data-speedbtn>速度x${b.speed || 1}</div></div></div>
+    <div class="battle-top">${fighterPanel(state.run, b.player, b)}<div class="gauge-lane"><div class="gauge-dot" style="left:${b.player.gauge}%">${b.player.name.charAt(0)}</div><div class="gauge-dot" style="left:${b.enemy.gauge}%">${b.enemy.name.charAt(0)}</div><div class="speed-label speed-toggle" data-speedbtn>速度x${b.speed || 1}</div></div>${fighterPanel(null, b.enemy, b)}</div>
     <div class="fighter player">${b.playerPortrait ? `<img src="${b.playerPortrait}" alt="${b.player.name}" loading="lazy" decoding="async">` : b.player.icon}</div><div class="fighter enemy">${b.enemyPortrait ? `<img src="${b.enemyPortrait}" alt="${b.enemy.name}" loading="lazy" decoding="async">` : b.enemy.icon}</div>
     ${b.bossShield > 0 || b.bossImmuneTurns > 0 ? `<div class="boss-trait-bar">${b.bossShield > 0 ? `<span class="debuff-badge" title="护体">护体 ${b.bossShield}</span>` : ""}${b.bossImmuneTurns > 0 ? `<span class="debuff-badge" title="免疫负面">免疫 ${b.bossImmuneTurns}回合</span>` : ""}</div>` : ""}
     <div class="battle-bottom"><div class="battle-tools"><button class="btn secondary" data-basic>普攻</button><button class="btn secondary" data-rest>调息</button><button class="btn secondary" data-itemmenu>道具</button><button class="btn red" data-flee>逃跑</button></div><div class="skill-row"></div><div class="battle-log">${b.log.map(x => `<div>${x}</div>`).join("")}</div></div>`;
@@ -927,10 +939,27 @@ function buildUnitDetailPopup(unit, side, state, actions) {
       popup.appendChild(row);
     }
   }
-  if (!isPlayer && unit.stats.traitName) {
-    const row = el("div", "detail-row");
-    row.innerHTML = `<b>Boss特性</b>：<span class="debuff-badge enemy-trait">${unit.stats.traitName}</span>`;
-    popup.appendChild(row);
+  // Boss 特性（v6.0 bossTraits 数组 + 旧版兼容）
+  if (!isPlayer) {
+    const battle = state.battle;
+    // v6.0 多特性
+    if (battle && battle.bossTraits?.length) {
+      const traitBadges = battle.bossTraits.map(tid => {
+        const meta = BOSS_TRAIT_META[tid];
+        const name = meta ? meta.name : tid;
+        const desc = meta ? meta.desc : "";
+        return `<span class="buff-badge enemy-trait-badge" title="${escapeHtml(desc)}">${name}</span>`;
+      }).join(" ");
+      const row = el("div", "detail-row");
+      row.innerHTML = `<b>Boss特性</b>：${traitBadges}`;
+      popup.appendChild(row);
+    }
+    // 旧版单特性兼容
+    else if (unit.stats.traitName) {
+      const row = el("div", "detail-row");
+      row.innerHTML = `<b>Boss特性</b>：<span class="debuff-badge enemy-trait">${unit.stats.traitName}</span>`;
+      popup.appendChild(row);
+    }
   }
 
   // 内功
