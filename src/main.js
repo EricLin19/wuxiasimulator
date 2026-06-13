@@ -165,6 +165,10 @@ function fitMobileViewport() {
   document.documentElement.classList.toggle("mobile-viewport", useMobileStage);
   document.body.classList.toggle("mobile-viewport", useMobileStage);
   shell?.classList.toggle("mobile-viewport", useMobileStage);
+
+  // 浮字层跟随 app 一起旋转
+  const floaterLayer = document.getElementById("floater-layer");
+
   if (!useMobileStage) {
     if (fit) {
       fit.style.width = "";
@@ -181,6 +185,18 @@ function fitMobileViewport() {
     app.style.bottom = "";
     app.style.position = "relative";
     app.style.transformOrigin = "";
+    // 桌面端：浮字层恢复默认
+    if (floaterLayer) {
+      floaterLayer.style.position = "";
+      floaterLayer.style.left = "";
+      floaterLayer.style.top = "";
+      floaterLayer.style.right = "";
+      floaterLayer.style.bottom = "";
+      floaterLayer.style.transform = "";
+      floaterLayer.style.transformOrigin = "";
+      floaterLayer.style.width = "";
+      floaterLayer.style.height = "";
+    }
     document.documentElement.style.minWidth = "";
     document.documentElement.style.minHeight = "";
     document.body.style.minWidth = "";
@@ -219,6 +235,21 @@ function fitMobileViewport() {
   app.style.transform = portrait
     ? "translate(-50%, -50%) rotate(90deg)"
     : "translate(-50%, -50%)";
+
+  // 手机端：浮字层与 app 同位置、同旋转，确保伤害数字出现在正确位置
+  if (floaterLayer) {
+    floaterLayer.style.position = "absolute";
+    floaterLayer.style.width = `${fitW}px`;
+    floaterLayer.style.height = `${fitH}px`;
+    floaterLayer.style.left = "50%";
+    floaterLayer.style.top = "50%";
+    floaterLayer.style.right = "auto";
+    floaterLayer.style.bottom = "auto";
+    floaterLayer.style.transformOrigin = "center center";
+    floaterLayer.style.transform = portrait
+      ? "translate(-50%, -50%) rotate(90deg)"
+      : "translate(-50%, -50%)";
+  }
 }
 
 // 清理战斗浮字
