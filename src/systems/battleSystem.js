@@ -179,11 +179,6 @@ export function createBattle(run, enemyTemplate, isBoss = false) {
       battle.bossShield = Math.floor(enemyStats.hp * 0.20);
       battleLog(battle, `${enemyTemplate.name}真气护体，吸收${battle.bossShield}伤害！`);
     }
-    // miniArmor：开场30%护体（保留向后兼容）
-    if (battle.bossTraits.includes("miniArmor")) {
-      battle.bossShield = Math.floor(enemyStats.hp * 0.3);
-      battleLog(battle, `${enemyTemplate.name}获得护体，吸收${battle.bossShield}伤害！`);
-    }
     // celestialShield（天罡护体）：开场30%HP护体
     if (battle.bossTraits.includes("celestialShield")) {
       battle.bossShield = Math.floor(enemyStats.hp * 0.30);

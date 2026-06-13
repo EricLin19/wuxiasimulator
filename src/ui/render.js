@@ -20,7 +20,6 @@ const BOSS_TRAIT_META = {
   miniBleed:  { name: "流血", desc: "每回合流血+5" },
   miniFrost:  { name: "寒气", desc: "每回合寒气+5" },
   miniPoison: { name: "中毒", desc: "每回合中毒+5" },
-  miniArmor:  { name: "护体", desc: "开场30%HP护体" },
 };
 
 // v5.10：战斗角色详情弹窗状态（避免被每帧重新渲染销毁）
