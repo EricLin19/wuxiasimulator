@@ -227,7 +227,7 @@ function makeGrowthEventPool(run) {
     { id: "templeTreasure", name: "破庙藏珍", category: "高手遗物", icon: "藏", desc: "破庙神像后藏有前人的包裹。获得3枚丹药和200金钱。", apply: ({ run }) => {
       run.items.push("pill", "pill", "statPill");
       run.money += scaleMoney(run, 200);
-      log(run, "破庙藏珍，获得金疮药x2、小还丹x1和金钱。");
+      log(run, "破庙藏珍，获得金疮药x2、小补丸x1和金钱。");
     }}
   ];
   const training = [
@@ -276,13 +276,13 @@ function makeRiskEventPool(run) {
       run.stats.atk += 2; run.stats.def += 2;
       log(run, `花费${cost}金钱服用秘药，攻击+2，防御+2。`);
     }},
-    { id: "blackMarket", name: "黑市秘商", category: "金钱代价", icon: "黑", desc: `黑市商人有货出手，花费${scaleMoney(run, 150)}金钱获得一枚小还丹和200经验。`, apply: ({ run }) => {
+    { id: "blackMarket", name: "黑市秘商", category: "金钱代价", icon: "黑", desc: `黑市商人有货出手，花费${scaleMoney(run, 150)}金钱获得一枚小补丸和200经验。`, apply: ({ run }) => {
       const cost = scaleMoney(run, 150);
       if (run.money < cost) { log(run, "黑市商人见你钱不够，转身便走。"); return; }
       run.money -= cost;
       run.items.push("statPill");
       gainExp(run, 200);
-      log(run, `花费${cost}金钱，获得小还丹和200武学阅历。`);
+      log(run, `花费${cost}金钱，获得小补丸和200武学阅历。`);
     }},
     { id: "bribeGuard", name: "贿赂守卫", category: "金钱代价", icon: "贿", desc: `守卫禁地的老兵见钱眼开，花费${scaleMoney(run, 60)}金钱偷偷放你入内修炼。血量+80，内力+30，经验+60。`, apply: ({ run }) => {
       const cost = scaleMoney(run, 60);
@@ -645,7 +645,7 @@ function generateWandererMerchantStock(run) {
 
   // 装备 ×3（武器+防具合并池，等概率）
   const allEquip = [
-    ...(pool.weapons || []).map(w => ({ kind: "weapon", ...w })),
+    ...(pool.weapons || []).filter(w => !DATA.weapons[w.id]?.bossOnly).map(w => ({ kind: "weapon", ...w })),
     ...(pool.armors || []).map(a => ({ kind: "armor", ...a }))
   ];
   const equipment = pickRandom(allEquip, 3).map(e =>
@@ -693,7 +693,7 @@ export function refreshMerchantStock(run) {
   // 武器：选当前流派对应路线的同品质武器
   const weapons = [];
   if (run.selectedSchool && COMBAT_SCHOOLS.includes(run.selectedSchool)) {
-    const schoolWeapons = Object.keys(DATA.weapons).filter(id => { const w = DATA.weapons[id]; return w.school === run.selectedSchool && w.rarity === rarity; });
+    const schoolWeapons = Object.keys(DATA.weapons).filter(id => { const w = DATA.weapons[id]; return w.school === run.selectedSchool && w.rarity === rarity && !w.bossOnly; });
     // 最多2把
     for (let i = 0; i < 2 && schoolWeapons.length; i++) {
       const idx = Math.floor(Math.random() * schoolWeapons.length);
@@ -804,7 +804,7 @@ export function makeEventPool(run) {
     { id: "templeTreasure", name: "破庙藏珍", category: "高手遗物", icon: "藏", desc: "破庙神像后藏有前人的包裹。获得3枚丹药和200金钱。", apply: ({ run }) => {
       run.items.push("pill", "pill", "statPill");
       run.money += scaleMoney(run, 200);
-      log(run, "破庙藏珍，获得金疮药x2、小还丹x1和金钱。");
+      log(run, "破庙藏珍，获得金疮药x2、小补丸x1和金钱。");
     }}
   ];
 
@@ -839,13 +839,13 @@ export function makeEventPool(run) {
       run.stats.atk += 2; run.stats.def += 2;
       log(run, `花费${cost}金钱服用秘药，攻击+2，防御+2。`);
     }},
-    { id: "blackMarket", name: "黑市秘商", category: "金钱代价", icon: "黑", desc: `黑市商人有货出手，花费${scaleMoney(run, 150)}金钱获得一枚小还丹和200经验。`, apply: ({ run }) => {
+    { id: "blackMarket", name: "黑市秘商", category: "金钱代价", icon: "黑", desc: `黑市商人有货出手，花费${scaleMoney(run, 150)}金钱获得一枚小补丸和200经验。`, apply: ({ run }) => {
       const cost = scaleMoney(run, 150);
       if (run.money < cost) { log(run, "黑市商人见你钱不够，转身便走。"); return; }
       run.money -= cost;
       run.items.push("statPill");
       gainExp(run, 200);
-      log(run, `花费${cost}金钱，获得小还丹和200武学阅历。`);
+      log(run, `花费${cost}金钱，获得小补丸和200武学阅历。`);
     }},
     { id: "bribeGuard", name: "贿赂守卫", category: "金钱代价", icon: "贿", desc: `守卫禁地的老兵见钱眼开，花费${scaleMoney(run, 60)}金钱偷偷放你入内修炼。血量+80，内力+30，经验+60。`, apply: ({ run }) => {
       const cost = scaleMoney(run, 60);
@@ -1024,10 +1024,6 @@ export function resolveStoryChoice(run, eventId, choice, actions) {
       run.month++;
       if (run.month > 12) { run.month = 1; run.year++; }
       run.eventRemaining = 3;
-      if ([1, 4, 7, 10].includes(run.month)) {
-        refreshManuals(run);
-        log(run, "传武堂刷新了4本秘籍。");
-      }
       applyMonthStart(run);
       refreshEvents(run);
       saveRun(run);
@@ -1207,10 +1203,6 @@ export function endMonth(run, startBoss) {
     run.year++;
   }
   run.eventRemaining = 3;
-  if ([1, 4, 7, 10].includes(run.month)) {
-    refreshManuals(run);
-    log(run, "传武堂刷新了4本秘籍。");
-  }
   applyMonthStart(run);
   refreshEvents(run);
   log(run, `进入第${run.year}年${run.month}月。`);
@@ -1301,11 +1293,6 @@ function applySkillCompletion(run, skill) {
   }
   run.skillTraits ||= [];
   reconcileStyleMasteries(run);
-  if (!run.selectedSchool) {
-    run.selectedSchool = skill.school;
-    refreshManuals(run);
-    log(run, `流派确定：${DATA.skills[skill.id].school}。武林商人开始出售对应装备。`);
-  }
 }
 
 function reconcileStyleMasteries(run) {
@@ -1332,6 +1319,7 @@ export function buyManual(run, skillId) {
   } else {
     price = Math.floor((skill.rarity === "red" ? 900 : skill.rarity === "orange" ? 520 : 300) * (run.treasure.effect === "manualMastery" ? 0.82 : 1));
   }
+  if (run.traits.includes("merchantFriend")) price = Math.floor(price * 0.85);
   if (run.money < price) return { ok: false, message: "金钱不足" };
   if (run.trainingSkills.includes(skillId) || run.skills.includes(skillId)) return { ok: false, message: "已经拥有" };
   run.money -= price;
@@ -1433,6 +1421,7 @@ export function buyWeapon(run, weaponId) {
   } else {
     price = weapon.price;
   }
+  if (run.traits.includes("merchantFriend")) price = Math.floor(price * 0.85);
   if (run.money < price) return { ok: false, message: "金钱不足" };
   run.money -= price;
   run.weapons.push(weaponId);
@@ -1455,9 +1444,10 @@ export function buyInternalArt(run, artId) {
   const art = DATA.internalArts[artId];
   if (!art) return { ok: false, message: "不存在该内功" };
   const price = getInternalArtPrice(run, artId);
-  if (run.money < price) return { ok: false, message: "金钱不足" };
+  let finalPrice = run.traits.includes("merchantFriend") ? Math.floor(price * 0.85) : price;
+  if (run.money < finalPrice) return { ok: false, message: "金钱不足" };
   if (run.internalArts.includes(artId)) return { ok: false, message: "已经拥有" };
-  run.money -= price;
+  run.money -= finalPrice;
   run.internalArts.push(artId);
   // 购买秘籍后需要消耗行动力修炼才能获得属性加成
   log(run, `购买内功秘籍：《${art.name}》。需要在修炼面板花费行动力参悟。`);
@@ -1557,6 +1547,8 @@ export function useBagItem(run, itemId) {
   if (item.type === "qi") run.qi = Math.min(run.stats.qi, run.qi + Math.floor(run.stats.qi * (item.qiPct || 0.25)));
   if (item.type === "stat") {
     for (const key of STAT_KEYS) run.stats[key] = Number(((run.stats[key] || 0) + (item[key] || 0)).toFixed(2));
+    if (item.hp) run.hp += item.hp;
+    if (item.qi) run.qi += item.qi;
   }
   if (item.type === "ap") {
     if (run.apUsedThisMonth) return { ok: false, message: "本月已使用过行动点丹药" };
@@ -1607,6 +1599,7 @@ export function buyArmor(run, armorId) {
   } else {
     price = armor.price;
   }
+  if (run.traits.includes("merchantFriend")) price = Math.floor(price * 0.85);
   if (run.money < price) return { ok: false, message: "金钱不足" };
   run.money -= price;
   run.armors.push(armorId);

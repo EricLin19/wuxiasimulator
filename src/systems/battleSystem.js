@@ -11,15 +11,14 @@ const DEBUFF_CAPS = {
   poison: 15,
   inner: 12,
   frost: 15,
-  hamstring: 10,
-  veinBreak: 12,
+  hamstring: 15,
+  veinBreak: 15,
   gu: 6
 };
 const BLEED_DMG = 15;
 const POISON_DMG = 8;
 const POISON_QI = 4;
-const FROST_SLOW = 0.02;
-const FROST_QI = 6;
+const FROST_SLOW = 0.04;
 const HAMSTRING_SLOW = 0.02;
 const HAMSTRING_ATK = 1;
 const GU_QI_COST = 6;
@@ -47,7 +46,7 @@ export function createBattle(run, enemyTemplate, isBoss = false) {
     }
   }
 
-  // Weapon stat bonus
+  // Weapon stat bonus (Player)
   if (run.equippedWeapon) {
     const weapon = DATA.weapons[run.equippedWeapon];
     if (weapon) {
@@ -55,6 +54,17 @@ export function createBattle(run, enemyTemplate, isBoss = false) {
       if (weapon.dodgeBonus) pStats.dodge += weapon.dodgeBonus;
       if (weapon.speedBonus) pStats.speed = Number((pStats.speed + weapon.speedBonus).toFixed(2));
       if (weapon.critBonus) pStats.crit += weapon.critBonus;
+    }
+  }
+
+  // Weapon stat bonus (Boss)
+  if (enemyTemplate.weapon) {
+    const bossWeapon = DATA.weapons[enemyTemplate.weapon];
+    if (bossWeapon) {
+      enemyStats.atk += bossWeapon.atk || 0;
+      if (bossWeapon.dodgeBonus) enemyStats.dodge += bossWeapon.dodgeBonus;
+      if (bossWeapon.speedBonus) enemyStats.speed = Number((enemyStats.speed + bossWeapon.speedBonus).toFixed(2));
+      if (bossWeapon.critBonus) enemyStats.crit += bossWeapon.critBonus;
     }
   }
 
@@ -195,10 +205,15 @@ export function createBattle(run, enemyTemplate, isBoss = false) {
       battle.bossImmuneTurns = 3;
       battleLog(battle, `${enemyTemplate.name}内力护体，前3回合免疫负面！`);
     }
-    // shadowStep（影步）：基础DODGE=75
+    // shadowStep（影步）：基础DODGE=100
     if (battle.bossTraits.includes("shadowStep")) {
-      enemyStats.dodge = 75;
+      enemyStats.dodge = 100;
     }
+  }
+
+  // Boss武器初始化
+  if (enemyTemplate.weapon) {
+    battle.enemy.weapon = enemyTemplate.weapon;
   }
 
   // 大罗洗髓经：开场净化
@@ -246,7 +261,7 @@ function scaleEnemyStats(stats) {
 }
 
 function makeUnit(name, icon, stats, hp, qi, skills, items) {
-  return { name, icon, stats, hp, qi, gauge: 0, skills, items, cooldowns: {}, auto: false, bleed: 0, poison: 0, inner: 0, frost: 0, hamstring: 0, veinBreak: 0, gu: 0, guard: 0, cleanseShield: 0, dodgeHealCount: 0, tempBuffs: {} };
+  return { name, icon, stats, hp, qi, gauge: 0, skills, items, cooldowns: {}, auto: false, bleed: 0, poison: 0, inner: 0, frost: 0, hamstring: 0, veinBreak: 0, gu: 0, guard: 0, cleanseShield: 0, dodgeHealCount: 0, frozen: 0, atkZero: 0, tempBuffs: {}, weapon: null };
 }
 
 export function tickBattle(battle, dt) {
@@ -257,6 +272,16 @@ export function tickBattle(battle, dt) {
   e.gauge += effectiveSpeed(e, battle) * dt * 24;
   if (p.gauge >= 100) {
     p.gauge = 100;
+    // 冰冻：跳过本回合
+    if (p.frozen > 0) {
+      p.frozen = 0;
+      p.gauge = 0;
+      applyTurnStart(battle, p);
+      if (checkBattleEnd(battle).ended) return "ended";
+      battleLog(battle, `${p.name}被冰封，无法行动！`);
+      addFloater(battle, "player", "冰封");
+      return null;
+    }
     battle.actor = "player";
     // Reset per-turn trackers on player turn
     battle.turnTrackers = { comboChains: 0, evasiveTriggers: 0, coinThrows: 0, guDisrupts: 0, frostHits: 0, stealTriggers: 0 };
@@ -267,6 +292,17 @@ export function tickBattle(battle, dt) {
   }
   if (e.gauge >= 100) {
     e.gauge = 100;
+    // 冰冻：跳过本回合
+    if (e.frozen > 0) {
+      e.frozen = 0;
+      e.gauge = 0;
+      applyTurnStart(battle, e);
+      applyBossTurnMechanics(battle);
+      if (checkBattleEnd(battle).ended) return "ended";
+      battleLog(battle, `${e.name}被冰封，无法行动！`);
+      addFloater(battle, "enemy", "冰封");
+      return null;
+    }
     battle.actor = "enemy";
     applyTurnStart(battle, e);
     // 三主线Boss：每回合特性
@@ -359,11 +395,16 @@ function resolveAttack(run, battle, actor, target, skill) {
   let dmg = calcDamage(run, battle, actor, target, skill);
   if (target === battle.enemy && battle.bossShield > 0) {
     const absorbed = Math.min(dmg, battle.bossShield);
+    const hadShield = battle.bossShield;
     battle.bossShield -= absorbed;
     dmg -= absorbed;
     if (absorbed > 0) {
       battleLog(battle, `${target.name}的护体吸收了${absorbed}伤害！`);
       addFloater(battle, "enemy", "护体");
+    }
+    if (hadShield > 0 && battle.bossShield <= 0) {
+      battleLog(battle, `护体破碎！`);
+      addFloater(battle, "enemy", "护体破碎");
     }
   }
 
@@ -465,9 +506,23 @@ export function restAction(run, battle) {
     hpAmt = Math.floor(p.stats.hp * 0.12);
     qiAmt = Math.floor(p.stats.qi * 0.18);
   }
+  // 铁衣锻体：调息额外回复5%血量
+  if (run.traits.includes("tieyi_body_tempering")) {
+    const extraHp = Math.floor(p.stats.hp * 0.05);
+    hpAmt += extraHp;
+    battleLog(battle, `【铁衣锻体】调息额外恢复${extraHp}血量。`);
+  }
+  // 静息：调息额外回复5%内力
+  if (run.traits.includes("jingxi")) {
+    const extraQi = Math.floor(p.stats.qi * 0.05);
+    qiAmt += extraQi;
+    battleLog(battle, `【静息】调息额外恢复${extraQi}内力。`);
+  }
   heal(run, p, hpAmt);
   p.qi = Math.min(p.stats.qi, p.qi + qiAmt);
   battleLog(battle, `${p.name}调息，恢复${hpAmt}血量和${qiAmt}内力。`);
+  if (hpAmt > 0) addFloater(battle, "player", `+${hpAmt}`, "heal");
+  if (qiAmt > 0) addFloater(battle, "player", `+${qiAmt}`, "qi");
   return endActorTurn(run, battle, p);
 }
 
@@ -530,11 +585,16 @@ export function enemyAction(run, battle) {
     // 龙鳞护体
     if (battle.dragonGuardHp > 0) {
       const absorbed = Math.min(dmg, battle.dragonGuardHp);
+      const hadShield = battle.dragonGuardHp;
       battle.dragonGuardHp -= absorbed;
       dmg -= absorbed;
       if (absorbed > 0) {
         battleLog(battle, `【龙鳞重甲】护体吸收${absorbed}伤害！（剩余护体${battle.dragonGuardHp}）`);
         addFloater(battle, "player", "护体");
+      }
+      if (hadShield > 0 && battle.dragonGuardHp <= 0) {
+        battleLog(battle, `【龙鳞重甲】护体破碎！`);
+        addFloater(battle, "player", "护体破碎");
       }
       if (dmg <= 0) {
         battleLog(battle, `${e.name}的攻击被护体完全吸收！`);
@@ -717,12 +777,8 @@ function applyTurnStart(battle, unit) {
     battleLog(battle, `${unit.name}内伤牵动，失去${loss}内力。`);
     unit.inner = Math.max(0, unit.inner - 1);
   }
-  // 寒气结算（每层削内6，结算后-1）
+  // 寒气结算（每层减速4%，结算后-1）
   if (unit.frost > 0) {
-    const loss = Math.floor(unit.frost * FROST_QI * dotReduceMult);
-    unit.qi = Math.max(0, unit.qi - loss);
-    addFloater(battle, unit === battle.player ? "player" : "enemy", `-${loss}`, "qi");
-    battleLog(battle, `${unit.name}寒气侵脉，失去${loss}内力。`);
     unit.frost = Math.max(0, unit.frost - 1);
   }
   // 蛊结算（每层耗内6，目标行动后-1）
@@ -748,9 +804,18 @@ function applyTurnStart(battle, unit) {
   if (unit.hamstring > 0) {
     unit.hamstring = Math.max(0, unit.hamstring - 1);
   }
-  // 断脉结算（每层减内力2%，减攻2%，结算后-1）
+  // 断脉结算（每层内力-2%，减速2%，结算后-1）
   if (unit.veinBreak > 0) {
+    const qiLoss = Math.floor(unit.stats.qi * 0.02 * unit.veinBreak * dotReduceMult);
+    if (qiLoss > 0) {
+      unit.qi = Math.max(0, unit.qi - qiLoss);
+      addFloater(battle, unit === battle.player ? "player" : "enemy", `-${qiLoss}`, "qi");
+    }
     unit.veinBreak = Math.max(0, unit.veinBreak - 1);
+  }
+  // 筋断力竭计时
+  if (unit.atkZero > 0) {
+    unit.atkZero--;
   }
 
   // 内功效果：玩家回合开始（回血上限6%最大血量，回内上限10%最大内力）
@@ -777,22 +842,6 @@ function applyTurnStart(battle, unit) {
         unit.cleanseShield--;
       }
     });
-  }
-
-  // 特性效果：铁衣锻体 + 静息（每回合恢复）
-  if (unit === battle.player && battle.run) {
-    if (battle.run.traits.includes("tieyi_body_tempering")) {
-      const hpAmt = Math.floor(unit.stats.hp * 0.05);
-      unit.hp = Math.min(unit.stats.hp, unit.hp + hpAmt);
-      battleLog(battle, `【铁衣锻体】${unit.name}恢复${hpAmt}血量。`);
-      addFloater(battle, sideOf(battle, unit), `+${hpAmt}`, "heal");
-    }
-    if (battle.run.traits.includes("jingxi")) {
-      const qiAmt = Math.floor(unit.stats.qi * 0.05);
-      unit.qi = Math.min(unit.stats.qi, unit.qi + qiAmt);
-      battleLog(battle, `【静息】${unit.name}恢复${qiAmt}内力。`);
-      addFloater(battle, sideOf(battle, unit), `+${qiAmt}`, "qi");
-    }
   }
 
   // 三主线Boss：回合开始结算后检查阶段触发
@@ -889,14 +938,25 @@ function applySkillEffects(run, battle, actor, target, skill, damage, multiplier
     const cap = getDebuffCap(run, weapon, "frost");
     target.frost = Math.min(cap, target.frost + stacks);
     drainQiByStyle(run, target, skill, 12 + stacks * 4);
+    // 25层寒气引爆：极度寒冷（冰冻1回合）
+    if (multiplier >= 1 && target.frost >= 25) {
+      target.frozen = 1;
+      target.frost -= 25;
+      battleLog(battle, `极度寒冷！${target.name}被冰封，下回合无法行动！`);
+      addFloater(battle, sideOf(battle, target), "极度寒冷");
+    }
   }
   if (skill.debuff === "hamstring") {
     const cap = getDebuffCap(run, weapon, "hamstring");
     target.hamstring = Math.min(cap, target.hamstring + stacks);
-    const w = run.equippedWeapon ? DATA.weapons[run.equippedWeapon] : null;
-    const atkLoss = stacks * HAMSTRING_ATK + (w?.atkBreakBonus || 0);
-    target.stats.atk = Math.max(Math.floor(target.stats.atk * ATK_MIN_HAMSTRING), target.stats.atk - atkLoss);
-    battleLog(battle, `${target.name}筋脉受创，攻击-${atkLoss}。`);
+    battleLog(battle, `${target.name}筋脉受创！`);
+    // 25层断筋引爆：筋断力竭（攻击归零2回合）
+    if (multiplier >= 1 && target.hamstring >= 25) {
+      target.atkZero = 2;
+      target.hamstring -= 25;
+      battleLog(battle, `筋断力竭！${target.name}筋脉尽废，攻击归零2回合！`);
+      addFloater(battle, sideOf(battle, target), "筋断力竭");
+    }
   }
   if (skill.debuff === "gu") {
     // 每己方回合最多扰乱CD一次
@@ -969,11 +1029,12 @@ function applySkillEffects(run, battle, actor, target, skill, damage, multiplier
       }
     }
     if (skill.style === "hamstring") {
-      const immediateAtkLoss = target.hamstring * HAMSTRING_ATK;
-      if (immediateAtkLoss > 0) {
-        target.stats.atk = Math.max(Math.floor(target.stats.atk * ATK_MIN_HAMSTRING), target.stats.atk - immediateAtkLoss);
-        battleLog(battle, `天残断筋！${target.name}攻击立即-${immediateAtkLoss}。`);
+      const hamDmg = target.hamstring * 12;
+      if (hamDmg > 0) {
+        target.hp = Math.max(0, target.hp - hamDmg);
+        battleLog(battle, `天残断筋！${target.name}筋脉伤发，受到${hamDmg}伤害。`);
         addFloater(battle, sideOf(battle, target), "筋断");
+        addFloater(battle, sideOf(battle, target), `-${hamDmg}`, "bleed");
       }
     }
     if (skill.style === "poison" && !skill.noImmediateSettle) {
@@ -1022,14 +1083,25 @@ function applySkillEffects(run, battle, actor, target, skill, damage, multiplier
   }
 }
 
-function getDebuffCap(run, weapon, type) {
+function getDebuffCap(run, weapon, type, bossWeapon = null) {
   let cap = DEBUFF_CAPS[type] || 12;
+  // Player weapon cap bonus
   if (weapon) {
     if (type === "bleed" && weapon.bleedCapBonus) cap += weapon.bleedCapBonus;
     if (type === "frost" && weapon.frostCapBonus) cap += weapon.frostCapBonus;
     if (type === "hamstring" && weapon.hamstringCapBonus) cap += weapon.hamstringCapBonus;
+    if (type === "veinBreak" && weapon.veinBreakCapBonus) cap += weapon.veinBreakCapBonus;
     if (type === "gu" && weapon.guCapBonus) cap += weapon.guCapBonus;
     if (type === "poison" && weapon.poisonCapBonus) cap += weapon.poisonCapBonus;
+  }
+  // Boss weapon cap bonus
+  if (bossWeapon) {
+    if (type === "bleed" && bossWeapon.bleedCapBonus) cap += bossWeapon.bleedCapBonus;
+    if (type === "frost" && bossWeapon.frostCapBonus) cap += bossWeapon.frostCapBonus;
+    if (type === "hamstring" && bossWeapon.hamstringCapBonus) cap += bossWeapon.hamstringCapBonus;
+    if (type === "veinBreak" && bossWeapon.veinBreakCapBonus) cap += bossWeapon.veinBreakCapBonus;
+    if (type === "gu" && bossWeapon.guCapBonus) cap += bossWeapon.guCapBonus;
+    if (type === "poison" && bossWeapon.poisonCapBonus) cap += bossWeapon.poisonCapBonus;
   }
   if (hasStyleMastery(run, type)) {
     if (type === "bleed") cap += 7;
@@ -1078,10 +1150,11 @@ function hitChance(actor, target) {
 
 function effectiveAtk(unit) {
   if (!unit || !unit.stats) { console.error("[effectiveAtk] unit or unit.stats is undefined"); return 1; }
+  // 筋断力竭：攻击归零
+  if (unit.atkZero > 0) return 0;
   let atk = unit.stats.atk;
   if (unit.poison > 0) atk -= unit.poison * 2;
   if (unit.hamstring > 0) atk -= Math.floor(unit.stats.atk * 0.02 * unit.hamstring);
-  if (unit.veinBreak > 0) atk -= Math.floor(unit.stats.atk * 0.02 * unit.veinBreak);
   // 临时Buff：攻击力加成
   if (unit.tempBuffs?.atk) atk = Math.floor(atk * unit.tempBuffs.atk.mult);
   // 断筋最低降至65%
@@ -1282,13 +1355,15 @@ function applyBossTurnMechanics(battle) {
   if (!traits || !traits.length) return;
   battle.bossTurnCounter = (battle.bossTurnCounter || 0) + 1;
   const turn = battle.bossTurnCounter;
+  // Boss武器
+  const bossWeaponObj = e.weapon ? DATA.weapons[e.weapon] : null;
 
   for (const trait of traits) {
 
   if (trait === "bleedPer3") {
     // 每3回合对玩家叠加2层流血
     if (turn % 3 === 0) {
-      const cap = getDebuffCap(battle.run, null, "bleed");
+      const cap = getDebuffCap(battle.run, null, "bleed", bossWeaponObj);
       p.bleed = Math.min(cap, p.bleed + 2);
       battleLog(battle, `${e.name}刀势逼人，你被叠加2层流血！`);
       addFloater(battle, "player", "流血+2");
@@ -1297,8 +1372,8 @@ function applyBossTurnMechanics(battle) {
 
   if (trait === "poisonGuPerTurn") {
     // 每回合毒+1蛊+1
-    const poisonCap = getDebuffCap(battle.run, null, "poison");
-    const guCap = getDebuffCap(battle.run, null, "gu");
+    const poisonCap = getDebuffCap(battle.run, null, "poison", bossWeaponObj);
+    const guCap = getDebuffCap(battle.run, null, "gu", bossWeaponObj);
     p.poison = Math.min(poisonCap, p.poison + 1);
     p.gu = Math.min(guCap, p.gu + 1);
     battleLog(battle, `${e.name}的攻势带来毒和蛊！`);
@@ -1346,7 +1421,7 @@ function applyBossTurnMechanics(battle) {
   if (trait === "miniBleed") {
     // 每回合流血+5（已废弃，孤云线改用bloodBlade/venomInfuse）
     if (p.cleanseShield > 0) continue;
-    const cap = getDebuffCap(battle.run, null, "bleed");
+    const cap = getDebuffCap(battle.run, null, "bleed", bossWeaponObj);
     p.bleed = Math.min(cap, p.bleed + 5);
     battleLog(battle, `${e.name}的刀锋带来流血！`);
     addFloater(battle, "player", "流血+5");
@@ -1355,19 +1430,25 @@ function applyBossTurnMechanics(battle) {
   if (trait === "miniFrost") {
     // 每回合寒气+5（已废弃，孤云线改用chillAura）
     if (p.cleanseShield > 0) continue;
-    const cap = getDebuffCap(battle.run, null, "frost");
+    const cap = getDebuffCap(battle.run, null, "frost", bossWeaponObj);
     p.frost = Math.min(cap, p.frost + 5);
     battleLog(battle, `${e.name}的剑锋带来寒气！`);
     addFloater(battle, "player", "寒气+5");
   }
 
   if (trait === "miniHamstring") {
-    // 断筋+2，削攻
-    const cap = getDebuffCap(battle.run, null, "hamstring");
+    // 断筋+2
+    const cap = getDebuffCap(battle.run, null, "hamstring", bossWeaponObj);
     p.hamstring = Math.min(cap, p.hamstring + 2);
-    p.stats.atk = Math.max(Math.floor(p.stats.atk * ATK_MIN_HAMSTRING), p.stats.atk - 2);
     battleLog(battle, `${e.name}的刀式断筋削攻！`);
     addFloater(battle, "player", "断筋+2");
+    // 25层断筋引爆：筋断力竭
+    if (p.hamstring >= 25) {
+      p.atkZero = 2;
+      p.hamstring -= 25;
+      battleLog(battle, `筋断力竭！${p.name}筋脉尽废，攻击归零2回合！`);
+      addFloater(battle, "player", "筋断力竭");
+    }
   }
 
   if (trait === "miniGu") {
@@ -1387,11 +1468,16 @@ function applyBossTurnMechanics(battle) {
         const armor = DATA.armors[battle.run.equippedArmor];
         if (armor?.dragonGuard && battle.dragonGuardHp > 0) {
           const absorbed = Math.min(actualDmg, battle.dragonGuardHp);
+          const hadShield = battle.dragonGuardHp;
           battle.dragonGuardHp -= absorbed;
           actualDmg -= absorbed;
           if (absorbed > 0) {
             battleLog(battle, `【龙鳞重甲】护体吸收${absorbed}伤害！（剩余护体${battle.dragonGuardHp}）`);
             addFloater(battle, "player", "护体");
+          }
+          if (hadShield > 0 && battle.dragonGuardHp <= 0) {
+            battleLog(battle, `【龙鳞重甲】护体破碎！`);
+            addFloater(battle, "player", "护体破碎");
           }
         }
         if (armor?.lowHpGuard && p.hp / p.stats.hp <= (armor.lowHpThreshold || 0.3)) {
@@ -1410,63 +1496,97 @@ function applyBossTurnMechanics(battle) {
   // ======== miniPoison（保留向后兼容）========
   if (trait === "miniPoison") {
     if (p.cleanseShield > 0) continue;
-    const cap = getDebuffCap(battle.run, null, "poison");
+    const cap = getDebuffCap(battle.run, null, "poison", bossWeaponObj);
     p.poison = Math.min(cap, p.poison + 5);
     battleLog(battle, `${e.name}的攻势带来毒素！`);
     addFloater(battle, "player", "中毒+5");
   }
 
   // ======== 孤云线新特性（v6.0）========
-  // hamstringStrike（断筋）：每回合断筋+n(n=rank)，上限15
+  // hamstringStrike（断筋）：每回合断筋+n(n=rank)
   if (trait === "hamstringStrike") {
     if (p.cleanseShield > 0) continue;
     const rank = e.stats.rank || 1;
-    const stacks = Math.min(rank, 3);
-    p.hamstring = Math.min(15, p.hamstring + stacks);
+    let stacks = Math.min(rank, 3);
+    // Boss武器debuff加成
+    if (bossWeaponObj && bossWeaponObj.hamstringBonus) stacks += bossWeaponObj.hamstringBonus;
+    const cap = getDebuffCap(battle.run, null, "hamstring", bossWeaponObj);
+    p.hamstring = Math.min(cap, p.hamstring + stacks);
     battleLog(battle, `${e.name}断筋削攻！`);
     addFloater(battle, "player", `断筋+${stacks}`);
+    // 25层断筋引爆：筋断力竭（攻击归零2回合）
+    if (p.hamstring >= 25) {
+      p.atkZero = 2;
+      p.hamstring -= 25;
+      battleLog(battle, `筋断力竭！${p.name}筋脉尽废，攻击归零2回合！`);
+      addFloater(battle, "player", "筋断力竭");
+    }
   }
 
-  // veinBreak（断脉）：每回合断脉+n(n=rank)，上限15
+  // veinBreak（断脉）：每回合断脉+n(n=rank)
   if (trait === "veinBreak") {
     if (p.cleanseShield > 0) continue;
     const rank = e.stats.rank || 1;
-    const stacks = Math.min(rank, 3);
-    p.veinBreak = Math.min(15, p.veinBreak + stacks);
+    let stacks = Math.min(rank, 3);
+    // Boss武器debuff加成
+    if (bossWeaponObj && bossWeaponObj.veinBreakBonus) stacks += bossWeaponObj.veinBreakBonus;
+    const cap = getDebuffCap(battle.run, null, "veinBreak", bossWeaponObj);
+    p.veinBreak = Math.min(cap, p.veinBreak + stacks);
     battleLog(battle, `${e.name}断脉削内！`);
     addFloater(battle, "player", `断脉+${stacks}`);
+    // 25层断脉引爆：脉路全封（扣除最大内力25%）
+    if (p.veinBreak >= 25) {
+      const qiLoss = Math.floor(p.stats.qi * 0.25);
+      p.qi = Math.max(0, p.qi - qiLoss);
+      p.veinBreak -= 25;
+      battleLog(battle, `脉路全封！${p.name}经脉崩摧，丧失${qiLoss}内力！`);
+      addFloater(battle, "player", "脉路全封");
+      if (qiLoss > 0) addFloater(battle, "player", `-${qiLoss}`, "qi");
+    }
   }
 
-  // chillAura（寒气逼人）：每回合寒气+n(n=rank)，上限15
-  // 柳长卿特殊：每回合+5，上限25
+  // chillAura（寒气逼人）：每回合寒气+rank
   if (trait === "chillAura") {
     if (p.cleanseShield > 0) continue;
     const rank = e.stats.rank || 1;
-    const name = e.name || "";
-    const isLiu = name.includes("柳");
-    const cap = isLiu ? 25 : 15;
-    const stacks = isLiu ? 5 : Math.min(rank, 3);
+    let stacks = rank;
+    // Boss武器debuff加成
+    if (bossWeaponObj && bossWeaponObj.frostBonus) stacks += bossWeaponObj.frostBonus;
+    const cap = getDebuffCap(battle.run, null, "frost", bossWeaponObj);
     p.frost = Math.min(cap, p.frost + stacks);
     battleLog(battle, `${e.name}寒气逼人！`);
     addFloater(battle, "player", `寒气+${stacks}`);
+    // 25层寒气引爆：极度寒冷（冰冻1回合）
+    if (p.frost >= 25) {
+      p.frozen = 1;
+      p.frost -= 25;
+      battleLog(battle, `极度寒冷！${p.name}被冰封，下回合无法行动！`);
+      addFloater(battle, "player", "极度寒冷");
+    }
   }
 
   // bloodBlade（血刃）：每回合流血+n(n=rank)，上限15
   if (trait === "bloodBlade") {
     if (p.cleanseShield > 0) continue;
     const rank = e.stats.rank || 1;
-    const stacks = Math.min(rank, 3);
-    p.bleed = Math.min(15, p.bleed + stacks);
+    let stacks = Math.min(rank, 3);
+    // Boss武器debuff加成
+    if (bossWeaponObj && bossWeaponObj.bleedBonus) stacks += bossWeaponObj.bleedBonus;
+    const cap = getDebuffCap(battle.run, null, "bleed", bossWeaponObj);
+    p.bleed = Math.min(cap, p.bleed + stacks);
     battleLog(battle, `${e.name}血刃添伤！`);
     addFloater(battle, "player", `流血+${stacks}`);
   }
 
-  // venomInfuse（淬毒）：每回合流血+n(n=rank)，上限15
+  // venomInfuse（淬毒）：每回合流血+n(n=rank)
   if (trait === "venomInfuse") {
     if (p.cleanseShield > 0) continue;
     const rank = e.stats.rank || 1;
-    const stacks = Math.min(rank, 3);
-    p.bleed = Math.min(15, p.bleed + stacks);
+    let stacks = Math.min(rank, 3);
+    // Boss武器debuff加成
+    if (bossWeaponObj && bossWeaponObj.bleedBonus) stacks += bossWeaponObj.bleedBonus;
+    const cap = getDebuffCap(battle.run, null, "bleed", bossWeaponObj);
+    p.bleed = Math.min(cap, p.bleed + stacks);
     battleLog(battle, `${e.name}淬毒弥漫！`);
     addFloater(battle, "player", `流血+${stacks}`);
   }
@@ -1517,7 +1637,7 @@ function checkBossPhaseTriggers(battle) {
   // poisonGuCapCleanse：50%血时净化并回血20%（保留向后兼容）
   if (trait === "poisonGuCapCleanse" && hpPct <= 0.5 && !battle.bossPhaseTriggered["50pct"]) {
     battle.bossPhaseTriggered["50pct"] = true;
-    e.bleed = 0; e.poison = 0; e.inner = 0; e.frost = 0; e.hamstring = 0; e.veinBreak = 0; e.gu = 0;
+    e.bleed = 0; e.poison = 0; e.inner = 0; e.frost = 0; e.hamstring = 0; e.veinBreak = 0; e.gu = 0; e.frozen = 0; e.atkZero = 0;
     const healAmt = Math.floor(e.stats.hp * 0.2);
     e.hp = Math.min(e.stats.hp, e.hp + healAmt);
     battleLog(battle, `${e.name}净化了所有负面状态，恢复了${healAmt}血量！`);
@@ -1547,18 +1667,18 @@ function checkBossPhaseTriggers(battle) {
   }
   // lowHpBerserk 5回合后自动衰减（在applyBossTurnMechanics中处理）
 
-  // shadowStep（影步）：≤50%HP DODGE×1.5，每次闪避成功+10%最大HP
+  // shadowStep（影步）：≤50%HP DODGE×1.75，每次闪避成功+10%最大HP
   if (trait === "shadowStep" && hpPct <= 0.5 && !battle.bossPhaseTriggered["shadowStep"]) {
     battle.bossPhaseTriggered["shadowStep"] = true;
-    e.stats.dodge = Math.round(e.stats.dodge * 1.5);
-    battleLog(battle, `${e.name}身法如影，闪避×1.5！每次闪避回复10%最大生命。`);
+    e.stats.dodge = Math.round(e.stats.dodge * 1.75);
+    battleLog(battle, `${e.name}身法如影，闪避×1.75！每次闪避回复10%最大生命。`);
     addFloater(battle, "enemy", "影步↑");
   }
 
   // celestialCleanse（天罡净化）：≤50%HP自动释放，净化所有负面+回血30%，每场战斗一次
   if (trait === "celestialCleanse" && hpPct <= 0.5 && !battle.celestialCleanseUsed) {
     battle.celestialCleanseUsed = true;
-    e.bleed = 0; e.poison = 0; e.inner = 0; e.frost = 0; e.hamstring = 0; e.veinBreak = 0; e.gu = 0;
+    e.bleed = 0; e.poison = 0; e.inner = 0; e.frost = 0; e.hamstring = 0; e.veinBreak = 0; e.gu = 0; e.frozen = 0; e.atkZero = 0;
     const healAmt = Math.floor(e.stats.hp * 0.30);
     e.hp = Math.min(e.stats.hp, e.hp + healAmt);
     battleLog(battle, `${e.name}天罡净化！清除所有负面，恢复${healAmt}血量！`);
@@ -1597,6 +1717,8 @@ function applyBossHitEffect(battle, target) {
   const traits = battle.bossTraits;
   const e = battle.enemy;
   if (!traits?.length || target !== battle.player) return;
+  // Boss武器
+  const bossWeaponObj = e.weapon ? DATA.weapons[e.weapon] : null;
 
   for (const trait of traits) {
 
@@ -1615,14 +1737,17 @@ function applyBossHitEffect(battle, target) {
 
   if (trait === "hamstringCap") {
     // 断筋上限+2：命中附加断筋效果
-    const cap = getDebuffCap(battle.run, null, "hamstring") + 2;
+    const cap = getDebuffCap(battle.run, null, "hamstring", bossWeaponObj) + 2;
     target.hamstring = Math.min(cap, target.hamstring + 2);
-    target.stats.atk = Math.max(
-      Math.floor(target.stats.atk * ATK_MIN_HAMSTRING),
-      target.stats.atk - HAMSTRING_ATK * 2
-    );
     battleLog(battle, `${e.name}掌劲断筋，你被附加断筋！`);
     addFloater(battle, "player", "断筋+2");
+    // 25层断筋引爆：筋断力竭
+    if (target.hamstring >= 25) {
+      target.atkZero = 2;
+      target.hamstring -= 25;
+      battleLog(battle, `筋断力竭！${target.name}筋脉尽废，攻击归零2回合！`);
+      addFloater(battle, "player", "筋断力竭");
+    }
   }
 
   } // end for trait loop

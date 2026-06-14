@@ -561,6 +561,30 @@ button {
   font-weight: 900;
 }
 
+.shield-bar {
+  position: relative;
+  height: 12px;
+  margin-top: 2px;
+  margin-bottom: 2px;
+  border: 2px solid #8a9bad;
+  border-radius: 999px;
+  background: #3a4555;
+  overflow: hidden;
+}
+
+.shield-fill {
+  height: 100%;
+  background: linear-gradient(90deg, rgba(200,215,230,0.5), rgba(220,235,250,0.8), rgba(200,215,230,0.5));
+  border-radius: 999px;
+}
+
+.shield-label {
+  font-size: 11px;
+  font-weight: 700;
+  color: #c8d7e6;
+  text-shadow: 0 0 4px rgba(180,200,220,0.6);
+}
+
 .screen {
   position: absolute;
   inset: 60px 0 0 0;
@@ -1679,6 +1703,16 @@ button {
   background: #5b3a1a;
   color: #ffe0a0;
   border-color: #a07040;
+}
+
+/* Boss 武器 badge（红色品质标识） */
+.enemy-weapon-badge {
+  cursor: help;
+  background: #c0392b;
+  color: #fff;
+  border-color: #e74c3c;
+  font-weight: 700;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.4);
 }
 
 .battle-tools {

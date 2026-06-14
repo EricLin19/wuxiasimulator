@@ -195,7 +195,8 @@ export const DATA = {
     apPowder: { id: "apPowder", name: "提神散", icon: "丹", type: "ap", price: 260, desc: "当前月行动点+1，每月限用1次。", ap: 1 },
     apPill: { id: "apPill", name: "提神丸", icon: "丹", type: "ap", price: 520, desc: "当前月行动点+2，每月限用1次。", ap: 2 },
     yuanDew: { id: "yuanDew", name: "归元露", icon: "丹", type: "apHeal", price: 980, desc: "行动点+3，恢复20%血量+20%内力，每月限用1次。", ap: 3, hpPct: 0.2, qiPct: 0.2 },
-    statPill: { id: "statPill", name: "小还丹", icon: "丹", type: "stat", price: 150, desc: "永久攻击+3，防御+2，命中+1。", atk: 3, def: 2, hit: 1 }
+    statPill: { id: "statPill", name: "小补丸", icon: "丹", type: "stat", price: 300, desc: "永久攻击+3，防御+2，命中+1。", atk: 3, def: 2, hit: 1 },
+    superPill: { id: "superPill", name: "十全大补丸", icon: "丹", type: "stat", price: 1000, desc: "永久血量+180，内力+60，攻击+6，防御+6。", hp: 180, qi: 60, atk: 6, def: 6 }
   },
   // 武器：按路线×品质拆分
   weapons: {
@@ -249,7 +250,13 @@ export const DATA = {
 
     leg_steal_blue: { id: "leg_steal_blue", name: "盗影靴", icon: "腿", school: "lightness", rarity: "blue", style: "steal", price: 260, atk: 10, desc: "偷盗腿法。速度+0.04，偷钱+10。", speedBonus: 0.04, moneyBonus: 10 },
     leg_steal_orange: { id: "leg_steal_orange", name: "飞檐靴", icon: "腿", school: "lightness", rarity: "orange", style: "steal", price: 520, atk: 24, desc: "偷盗腿法。速度+0.08，偷钱+35。", speedBonus: 0.08, moneyBonus: 35 },
-    leg_steal_red: { id: "leg_steal_red", name: "摘星掠影靴", icon: "腿", school: "lightness", rarity: "red", style: "steal", price: 980, atk: 50, desc: "偷盗腿法。速度+0.16，偷钱+90。", speedBonus: 0.16, moneyBonus: 90 }
+    leg_steal_red: { id: "leg_steal_red", name: "摘星掠影靴", icon: "腿", school: "lightness", rarity: "red", style: "steal", price: 980, atk: 50, desc: "偷盗腿法。速度+0.16，偷钱+90。", speedBonus: 0.16, moneyBonus: 90 },
+    // === Boss 专属红色武器（商店不出售）===
+    blade_hamstring_red_zhao: { id: "blade_hamstring_red_zhao", name: "九环大刀", icon: "刀", school: "blade", rarity: "red", style: "hamstring", price: 0, atk: 58, desc: "赵崇岳的佩刀。断筋+6，断筋上限+10。", hamstringBonus: 6, hamstringCapBonus: 10, bossOnly: true },
+    blade_frost_red_liu: { id: "blade_frost_red_liu", name: "寒剑", icon: "剑", school: "blade", rarity: "red", style: "frost", price: 0, atk: 58, desc: "柳长卿的佩剑。寒气+6，寒气上限+10。", frostBonus: 6, frostCapBonus: 10, bossOnly: true },
+    blade_blood_frost_red_shen: { id: "blade_blood_frost_red_shen", name: "霜血方天戟", icon: "戟", school: "blade", rarity: "red", style: "bleed", price: 0, atk: 58, desc: "沈千山的方天画戟。流血+6，寒气+6，流血上限+10，寒气上限+10。", bleedBonus: 6, frostBonus: 6, bleedCapBonus: 10, frostCapBonus: 10, bossOnly: true },
+    blade_bleed_red_gongsun: { id: "blade_bleed_red_gongsun", name: "浑铁裂血枪", icon: "枪", school: "blade", rarity: "red", style: "bleed", price: 0, atk: 58, desc: "公孙烈的浑铁枪。流血+6，流血上限+10。", bleedBonus: 6, bleedCapBonus: 10, bossOnly: true },
+    fist_hamstring_vein_red_chu: { id: "fist_hamstring_vein_red_chu", name: "碎筋断脉套", icon: "拳", school: "fist", rarity: "red", style: "hamstring", price: 0, atk: 58, desc: "楚宗玄的拳套。断筋+6，断脉+6，断筋上限+10，断脉上限+10。", hamstringBonus: 6, veinBreakBonus: 6, hamstringCapBonus: 10, veinBreakCapBonus: 10, bossOnly: true }
   },
   // 防具
   armors: {
@@ -304,19 +311,19 @@ export const DATA = {
     { id: "main_m6_zhou_tong", name: "铁手·周通", icon: "拳", portraitImage: "assets/portraits_guyun_pixel/main_m6_zhou_tong_pixel_320.webp", hp: 1000, qi: 320, atk: 70, def: 28, combo: 5, hit: 70, dodge: 6, crit: 10, speed: 1.25, rank: 2, boss: true, bossTraits: ["armorBreak"], bossTraitDesc: "玩家DEF剩50%；每次命中玩家DEF-5%", taunt: "奉命'劝导'拒册散人。劝不听的话——我这双手套开过不少瓢。" },
     { id: "main_m8_ma_rulong", name: "先锋营统领·马如龙", icon: "将", portraitImage: "assets/portraits_guyun_pixel/main_m8_ma_rulong_pixel_320.webp", hp: 1500, qi: 420, atk: 85, def: 34, combo: 4, hit: 72, dodge: 7, crit: 9, speed: 1.30, rank: 2, boss: true, bossTraits: ["armorBreak", "hamstringStrike"], bossTraitDesc: "破防贯通（玩家DEF×50%）；每回合断筋+2，上限15层", taunt: "先锋营在此！散人还不束手就擒？" },
     { id: "main_m10_yang_zhen", name: "护法副将·杨震", icon: "将", portraitImage: "assets/portraits_guyun_pixel/main_m10_yang_zhen_pixel_320.webp", hp: 2000, qi: 520, atk: 100, def: 40, combo: 4, hit: 75, dodge: 8, crit: 10, speed: 1.35, rank: 3, boss: true, bossTraits: ["armorShield", "armorBreak"], bossTraitDesc: "开场20%HP护体真气；玩家DEF剩50%，每次命中DEF-5%", taunt: "左护法点名要你的人头。自己交出来，免得多受皮肉苦。" },
-    { id: "main_m12_zhao_chongyue", name: "杭州堂主·赵崇岳", icon: "刀", portraitImage: "assets/portraits_guyun_pixel/main_m12_zhao_chongyue_pixel_320.webp", hp: 4000, qi: 1200, atk: 120, def: 48, combo: 5, hit: 80, dodge: 10, crit: 14, speed: 1.50, rank: 5, boss: true, bossTraits: ["armorBreak", "hamstringStrike", "armorShield", "lowHpBerserk"], bossTraitDesc: "破防贯通；每回合断筋+5；开场30%护体；≤30%HP狂暴", taunt: "知不知道因为你一个人，我少赚了多少银子？" },
+    { id: "main_m12_zhao_chongyue", name: "杭州堂主·赵崇岳", icon: "刀", portraitImage: "assets/portraits_guyun_pixel/main_m12_zhao_chongyue_pixel_320.webp", hp: 4000, qi: 1200, atk: 120, def: 48, combo: 5, hit: 80, dodge: 10, crit: 14, speed: 1.50, rank: 5, boss: true, weapon: "blade_hamstring_red_zhao", bossTraits: ["armorBreak", "hamstringStrike", "armorShield", "lowHpBerserk"], bossTraitDesc: "破防贯通；每回合断筋+5；开场30%护体；≤30%HP狂暴", taunt: "知不知道因为你一个人，我少赚了多少银子？" },
     { id: "main_m14_du_wei", name: "沈千山帐前哨长·杜威", icon: "哨", portraitImage: "assets/portraits_guyun_pixel/main_m14_du_wei_pixel_320.webp", hp: 2500, qi: 600, atk: 110, def: 44, combo: 4, hit: 74, dodge: 9, crit: 10, speed: 1.40, rank: 3, boss: true, bossTraits: ["veinBreak"], bossTraitDesc: "每回合断脉+3，上限15层（每层减内力2%、减攻2%）", taunt: "左护法的眼睛无处不在。你藏不住的。" },
-    { id: "main_m16_liu_changqing", name: "寒剑·柳长卿", icon: "剑", portraitImage: "assets/portraits_guyun_pixel/main_m16_liu_changqing_pixel_320.webp", hp: 3000, qi: 750, atk: 125, def: 50, combo: 5, hit: 76, dodge: 14, crit: 14, speed: 1.50, rank: 3, boss: true, bossTraits: ["chillAura"], bossTraitDesc: "每回合寒气+5，上限25层（每层减内力2%、减速2%）", taunt: "你的剑法，比传闻中弱。" },
+    { id: "main_m16_liu_changqing", name: "寒剑·柳长卿", icon: "剑", portraitImage: "assets/portraits_guyun_pixel/main_m16_liu_changqing_pixel_320.webp", hp: 3000, qi: 750, atk: 125, def: 50, combo: 5, hit: 76, dodge: 14, crit: 14, speed: 1.50, rank: 3, boss: true, weapon: "blade_frost_red_liu", bossTraits: ["chillAura"], bossTraitDesc: "每回合寒气+5，上限15层（每层减速4%）", taunt: "你的剑法，比传闻中弱。" },
     { id: "main_m18_qin_lie", name: "夜袭队长·秦烈", icon: "袭", portraitImage: "assets/portraits_guyun_pixel/main_m18_qin_lie_pixel_320.webp", hp: 3500, qi: 780, atk: 140, def: 56, combo: 5, hit: 78, dodge: 10, crit: 12, speed: 1.48, rank: 4, boss: true, bossTraits: ["veinBreak", "armorShield"], bossTraitDesc: "开场20%HP护体；每回合断脉+4，上限15层", taunt: "夜长梦多——速战速决，一个不留。" },
-    { id: "main_m20_cui_ming", name: "血手·崔命", icon: "血", portraitImage: "assets/portraits_guyun_pixel/main_m20_cui_ming_pixel_320.webp", hp: 4000, qi: 850, atk: 155, def: 62, combo: 4, hit: 80, dodge: 12, crit: 14, speed: 1.52, rank: 4, boss: true, bossTraits: ["venomInfuse", "bloodBlade"], bossTraitDesc: "每回合流血+4（淬毒）+4（血刃），上限15层", taunt: "五千两是你的命价——但我不急着收，先玩玩。" },
+    { id: "main_m20_cui_ming", name: "血手·崔命", icon: "血", portraitImage: "assets/portraits_guyun_pixel/main_m20_cui_ming_pixel_320.webp", hp: 4000, qi: 850, atk: 155, def: 62, combo: 4, hit: 80, dodge: 12, crit: 14, speed: 1.52, rank: 4, boss: true, weapon: "blade_bleed_red", bossTraits: ["venomInfuse", "bloodBlade"], bossTraitDesc: "每回合流血+4（淬毒）+4（血刃），上限15层", taunt: "五千两是你的命价——但我不急着收，先玩玩。" },
     { id: "main_m22_ye_gu", name: "无影·叶孤", icon: "影", portraitImage: "assets/portraits_guyun_pixel/main_m22_ye_gu_pixel_320.webp", hp: 4500, qi: 1000, atk: 170, def: 68, combo: 7, hit: 88, dodge: 50, crit: 18, speed: 1.80, rank: 4, boss: true, bossTraits: ["bloodBlade", "veinBreak", "shadowStep"], bossTraitDesc: "每回合流血+4（血刃）、断脉+4；基础闪避75%，≤50%HP闪避×1.5", taunt: "我要的不是你的命，是那份名单。交出来，你可以活。" },
-    { id: "main_m24_shen_qianshan", name: "左护法·沈千山", icon: "戟", portraitImage: "assets/portraits_guyun_pixel/main_m24_shen_qianshan_pixel_320.webp", hp: 8000, qi: 2400, atk: 200, def: 80, combo: 6, hit: 88, dodge: 14, crit: 18, speed: 1.65, rank: 7, boss: true, bossTraits: ["celestialShield", "lowHpBerserk", "bloodBlade", "chillAura"], bossTraitDesc: "开场30%HP天罡护体；≤30%HP狂暴；每回合流血+5（血刃）、寒气+5", taunt: "把所有人当资源配置——包括你我。区别只是价格不同。" },
+    { id: "main_m24_shen_qianshan", name: "左护法·沈千山", icon: "戟", portraitImage: "assets/portraits_guyun_pixel/main_m24_shen_qianshan_pixel_320.webp", hp: 8000, qi: 2400, atk: 200, def: 80, combo: 6, hit: 88, dodge: 14, crit: 18, speed: 1.65, rank: 7, boss: true, weapon: "blade_blood_frost_red_shen", bossTraits: ["celestialShield", "lowHpBerserk", "bloodBlade", "chillAura"], bossTraitDesc: "开场30%HP天罡护体；≤30%HP狂暴；每回合流血+5（血刃）、寒气+5", taunt: "把所有人当资源配置——包括你我。区别只是价格不同。" },
     { id: "main_m26_qian_biao", name: "狂刀·钱彪", icon: "刀", portraitImage: "assets/portraits_guyun_pixel/main_m26_qian_biao_pixel_320.webp", hp: 5000, qi: 1100, atk: 185, def: 74, combo: 5, hit: 82, dodge: 10, crit: 14, speed: 1.60, rank: 5, boss: true, bossTraits: ["hamstringStrike", "lowHpBerserk"], bossTraitDesc: "每回合断筋+5；≤30%HP ATK×1.5, SPEED×1.5，持续5回合", taunt: "统领建立的新秩序，需要你们这些散人做出点牺牲。" },
     { id: "main_m28_wei_yue", name: "精英卫队长·卫岳", icon: "卫", portraitImage: "assets/portraits_guyun_pixel/main_m28_wei_yue_pixel_320.webp", hp: 5500, qi: 1200, atk: 200, def: 80, combo: 5, hit: 84, dodge: 10, crit: 15, speed: 1.65, rank: 5, boss: true, bossTraits: ["celestialCleanse", "lowHpBerserk"], bossTraitDesc: "≤50%HP天罡净化+回血30%；≤30%HP ATK×1.5, SPEED×1.5，持续5回合", taunt: "总坛禁卫在此。擅入者，踏过我的尸体。" },
     { id: "main_m30_huo_feng", name: "烽火统领·霍烽", icon: "烽", portraitImage: "assets/portraits_guyun_pixel/main_m30_huo_feng_pixel_320.webp", hp: 6000, qi: 1400, atk: 215, def: 86, combo: 5, hit: 85, dodge: 9, crit: 16, speed: 1.70, rank: 6, boss: true, bossTraits: ["celestialShield", "armorBreak"], bossTraitDesc: "开场30%HP天罡护体；玩家DEF剩50%，每次命中DEF-5%", taunt: "太行外围百里之内，没有我的狼烟传不到的信号。" },
-    { id: "main_m32_gongsun_lie", name: "右护法·公孙烈", icon: "枪", portraitImage: "assets/portraits_guyun_pixel/main_m32_gongsun_lie_pixel_320.webp", hp: 6500, qi: 1600, atk: 230, def: 92, combo: 6, hit: 85, dodge: 10, crit: 16, speed: 1.75, rank: 6, boss: true, bossTraits: ["celestialShield", "bloodBlade"], bossTraitDesc: "开场30%HP天罡护体；每回合流血+6（血刃），上限15层", taunt: "统领说打谁就打谁。我不问为什么。" },
+    { id: "main_m32_gongsun_lie", name: "右护法·公孙烈", icon: "枪", portraitImage: "assets/portraits_guyun_pixel/main_m32_gongsun_lie_pixel_320.webp", hp: 6500, qi: 1600, atk: 230, def: 92, combo: 6, hit: 85, dodge: 10, crit: 16, speed: 1.75, rank: 6, boss: true, weapon: "blade_bleed_red_gongsun", bossTraits: ["celestialShield", "bloodBlade"], bossTraitDesc: "开场30%HP天罡护体；每回合流血+6（血刃），上限15层", taunt: "统领说打谁就打谁。我不问为什么。" },
     { id: "main_m34_yan_tie", name: "地牢典狱长·阎铁", icon: "狱", portraitImage: "assets/portraits_guyun_pixel/main_m34_yan_tie_pixel_320.webp", hp: 7000, qi: 1800, atk: 245, def: 98, combo: 4, hit: 88, dodge: 12, crit: 14, speed: 1.80, rank: 6, boss: true, bossTraits: ["celestialCleanse", "veinBreak", "hamstringStrike"], bossTraitDesc: "≤50%HP天罡净化+回血30%；每回合断脉+6、断筋+6，上限15层", taunt: "来了就别走了。地牢的铁链还有空位。" },
-    { id: "main_m36_chu_zongxuan", name: "武盟统领·楚宗玄", icon: "魔", portraitImage: "assets/portraits_guyun_pixel/main_m36_chu_zongxuan_pixel_320.webp", hp: 15000, qi: 4000, atk: 280, def: 112, combo: 8, hit: 95, dodge: 20, crit: 24, speed: 2.00, rank: 10, boss: true, bossTraits: ["veinBreak", "hamstringStrike", "celestialShield", "celestialCleanse", "celestialBurn"], bossTraitDesc: "每回合断脉+10、断筋+10；开场30%护体；≤50%HP净化回血；≤10%HP燃命", taunt: "维持一个能救千万人的机构需要代价。每年几百个散人变成数字——我觉得值得。" }
+    { id: "main_m36_chu_zongxuan", name: "武盟统领·楚宗玄", icon: "魔", portraitImage: "assets/portraits_guyun_pixel/main_m36_chu_zongxuan_pixel_320.webp", hp: 15000, qi: 4000, atk: 280, def: 112, combo: 8, hit: 95, dodge: 20, crit: 24, speed: 2.00, rank: 10, boss: true, weapon: "fist_hamstring_vein_red_chu", bossTraits: ["veinBreak", "hamstringStrike", "celestialShield", "celestialCleanse", "celestialBurn"], bossTraitDesc: "每回合断脉+10、断筋+10；开场30%护体；≤50%HP净化回血；≤10%HP燃命", taunt: "维持一个能救千万人的机构需要代价。每年几百个散人变成数字——我觉得值得。" }
   ],
   bosses: [
     { id: "boss_y1", name: "青竹寨主", icon: "刀", year: 1, hp: 560, qi: 260, atk: 78, def: 42, combo: 4, hit: 68, dodge: 4, crit: 10, speed: 1.35, boss: true, taunt: "这山头我说了算，你一个散人敢来送死？" },
@@ -703,7 +710,7 @@ DATA.wandererGrowthEvents = {
       category: "道具",
       unlockMonth: 1,
       desc: "你在歇脚的破庙里发现一个旧的不能再旧的包袱，上面缝着几个歪歪扭扭的字——「有用的留下」。打开一看是个散人传下来的药囊，里面装着几颗丹药。不知道经过多少人的手，也不知道下一个传给谁。你拿了两颗，把剩下的重新包好放回原处。江湖就是这样——今天你拿，明天你放。",
-      effect: { desc: "随机获得1~2件消耗品（金疮药/回气酒/提神散/小还丹等，低价值品概率更高）" }
+      effect: { desc: "随机获得1~2件消耗品（金疮药/回气酒/提神散/小补丸等，低价值品概率更高）" }
     },
     {
       id: "wanderer_item_merchant",
@@ -896,8 +903,8 @@ DATA.wandererMerchantPool = {
     { id: "art_blue_4", name: "回照心经", rarity: "blue", price: 500, desc: "江湖药店常配的内功入门——不会这个功法你连毒都扛不住。" },
     { id: "art_orange_1", name: "虚玄无相功", rarity: "orange", price: 1500, desc: "传说是一个偷遍江南的老贼头创的，内力运转不浪费一丝，真正的省着用——每次攻击吸取对方内力。" },
     { id: "art_orange_2", name: "纯阳正气诀", rarity: "orange", price: 1600, desc: "名字很正派，实则是散人对抗武盟压迫的底气——心中坦荡，气贯长虹。" },
-    { id: "art_red_2", name: "大罗洗髓经", rarity: "red", price: 3000, desc: "来自一个活了两甲子的老散人——洗掉过去的伤，重新站起来的功法。" },
-    { id: "art_red_1", name: "九曜真功", rarity: "red", price: 3200, desc: "孤本，孟天衡从总坛藏书阁偷出来的——他自己没练，因为不想欠武盟的人情。" }
+    { id: "art_red_2", name: "大罗洗髓经", rarity: "red", price: 5000, desc: "来自一个活了两甲子的老散人——洗掉过去的伤，重新站起来的功法。" },
+    { id: "art_red_1", name: "九曜真功", rarity: "red", price: 5000, desc: "孤本，孟天衡从总坛藏书阁偷出来的——他自己没练，因为不想欠武盟的人情。" }
   ],
   pills: [
     { id: "pill" },
@@ -906,7 +913,8 @@ DATA.wandererMerchantPool = {
     { id: "qiWine" },
     { id: "qiPill" },
     { id: "yuanPowder" },
-    { id: "statPill" }
+    { id: "statPill" },
+    { id: "superPill" }
   ]
 };
 

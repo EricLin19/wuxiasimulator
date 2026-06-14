@@ -5,13 +5,13 @@ import { expNeed, getRankTitle, getInternalArtPrice, getBattleDifficulty, getArm
 // Boss 特性中文名映射
 const BOSS_TRAIT_META = {
   armorBreak:     { name: "破防贯通", desc: "玩家DEF剩50%；每次命中玩家DEF-5%" },
-  hamstringStrike: { name: "断筋",     desc: "每回合断筋+n(n为Boss阶级），上限15层（每层削攻2%，减速2%）" },
-  veinBreak:       { name: "断脉",     desc: "每回合断脉+n，上限15层（每层减内力2%，减攻2%）" },
-  chillAura:      { name: "寒气逼人", desc: "每回合寒气+n，上限15层（每层减内力2%，减速2%）" },
+  hamstringStrike: { name: "断筋",     desc: "每回合断筋+n（n为Boss阶级），上限15层（每层攻击-2%，减速2%；25层引爆：筋断力竭）" },
+  veinBreak:       { name: "断脉",     desc: "每回合断脉+n，上限15层（每层内力-2%，减速2%；25层引爆：脉路全封）" },
+  chillAura:      { name: "寒气逼人", desc: "每回合寒气+n，上限15层（每层减速4%；25层引爆：极度寒冷）" },
   bloodBlade:      { name: "血刃",     desc: "每回合流血+n，上限15层" },
   venomInfuse:    { name: "淬毒",     desc: "每回合流血+n（淬毒），上限15层" },
   lowHpBerserk:   { name: "低血狂暴", desc: "≤30%HP ATK×1.5，SPEED×n×0.3，持续5回合" },
-  shadowStep:      { name: "影步",     desc: "基础DODGE=75；≤50%HP DODGE×1.5；每次闪避回血10%最大HP" },
+  shadowStep:      { name: "影步",     desc: "基础DODGE=100；≤50%HP DODGE×1.75；每次闪避回血10%最大HP" },
   armorShield:     { name: "护体真气", desc: "开场20%最大HP护体" },
   celestialShield:  { name: "天罡护体", desc: "开场30%HP护体" },
   celestialCleanse: { name: "天罡净化", desc: "≤50%HP自动释放，净化所有负面+回血30%，每场一次" },
@@ -65,7 +65,7 @@ window.__showTraitDesc = function (el) {
   backdrop.onclick = (e) => { if (e.target === backdrop) backdrop.remove(); };
   const modal = document.createElement("div");
   modal.className = "modal";
-  modal.innerHTML = `<div class="modal-head"><h2 class="modal-title">${name}</h2><button class="btn red small">关闭</button></div><div style="padding:16px;color:#e0d5c0;line-height:1.8">${desc || "暂无描述"}</div>`;
+  modal.innerHTML = `<div class="modal-head"><h2 class="modal-title">${name}</h2><button class="btn red small">关闭</button></div><div style="padding:16px;color:#000;line-height:1.8">${desc || "暂无描述"}</div>`;
   modal.querySelector("button").onclick = () => backdrop.remove();
   backdrop.appendChild(modal);
   app.appendChild(backdrop);
@@ -86,9 +86,9 @@ const STAT_HELP = {
 
 export function renderApp(state, actions) {
   const app = document.getElementById("app");
-  // v6.0.5: JS强制设版本号
+  // v6.3.0: JS强制设版本号
   const bv = document.getElementById("build-ver");
-  if (bv && bv.textContent !== "v6.0.5") bv.textContent = "v6.0.5";
+  if (bv && bv.textContent !== "v6.3.0") bv.textContent = "v6.3.0";
   let savedScrollTop = 0;
   let allocateScrollTop = 0;
   if (state.modal && state.screen !== "battle") {
@@ -100,6 +100,9 @@ export function renderApp(state, actions) {
     const oldList = app.querySelector(".allocate-list");
     if (oldList) allocateScrollTop = oldList.scrollTop;
   }
+  // v6.3.0 fix：detach浮层，防止调息/道具的浮动数字被 innerHTML="" 销毁
+  const floaterLayer = document.getElementById("floater-layer");
+  if (floaterLayer) floaterLayer.remove();
   app.innerHTML = "";
   if (state.screen === "menu") app.appendChild(renderMenu(state, actions));
   if (state.screen === "select") app.appendChild(renderSelect(state, actions));
@@ -121,6 +124,10 @@ export function renderApp(state, actions) {
     app.appendChild(renderModal(state, actions));
     const newModal = app.querySelector(".modal");
     if (newModal) newModal.scrollTop = savedScrollTop;
+  }
+  // v6.3.0 fix：重新挂回浮层（在 detach 后，innerHTML 不会销毁已 detach 的节点）
+  if (floaterLayer && !app.contains(floaterLayer)) {
+    app.appendChild(floaterLayer);
   }
 }
 
@@ -589,7 +596,7 @@ function renderMerchantModal(modal, run, actions, isHall = false) {
       cols[0].appendChild(row);
     });
     // 装备 ×3（武器+防具）→ cols[3]（右下）
-    run.merchantStock.filter(e => e.kind === "weapon" || e.kind === "armor").forEach(entry => {
+    run.merchantStock.filter(e => (e.kind === "weapon" && !DATA.weapons[e.id]?.bossOnly) || e.kind === "armor").forEach(entry => {
       let obj, icon, name, desc, meta, btnLabel;
       if (entry.kind === "weapon") {
         obj = DATA.weapons[entry.id];
@@ -647,7 +654,7 @@ function renderMerchantModal(modal, run, actions, isHall = false) {
       cols[2].appendChild(row);
     });
     // 装备 → cols[3]（右下）
-    run.merchantStock.filter(e => e.kind === "weapon" || e.kind === "armor").forEach(entry => {
+    run.merchantStock.filter(e => (e.kind === "weapon" && !DATA.weapons[e.id]?.bossOnly) || e.kind === "armor").forEach(entry => {
       let obj, icon, name, desc;
       if (entry.kind === "weapon") {
         obj = DATA.weapons[entry.id];
@@ -831,7 +838,7 @@ function renderBattle(state, actions) {
   root.innerHTML = `
     <div class="battle-top"><div class="battle-col battle-col-left">${fighterPanel(state.run, b.player, b)}</div><div class="battle-col battle-col-mid"><div class="gauge-lane"><div class="gauge-dot" style="left:${b.player.gauge}%">${b.player.name.charAt(0)}</div><div class="gauge-dot" style="left:${b.enemy.gauge}%">${b.enemy.name.charAt(0)}</div><div class="speed-label speed-toggle" data-speedbtn>速度x${b.speed || 1}</div></div></div><div class="battle-col battle-col-right">${fighterPanel(null, b.enemy, b)}</div></div>
     <div class="fighter player">${b.playerPortrait ? `<img src="${b.playerPortrait}" alt="${b.player.name}" loading="lazy" decoding="async">` : b.player.icon}</div><div class="fighter enemy">${b.enemyPortrait ? `<img src="${b.enemyPortrait}" alt="${b.enemy.name}" loading="lazy" decoding="async">` : b.enemy.icon}</div>
-    ${b.bossShield > 0 || b.bossImmuneTurns > 0 ? `<div class="boss-trait-bar">${b.bossShield > 0 ? `<span class="debuff-badge" title="护体">护体 ${b.bossShield}</span>` : ""}${b.bossImmuneTurns > 0 ? `<span class="debuff-badge" title="免疫负面">免疫 ${b.bossImmuneTurns}回合</span>` : ""}</div>` : ""}
+    ${b.bossImmuneTurns > 0 ? `<div class="boss-trait-bar"><span class="debuff-badge" title="免疫负面">免疫 ${b.bossImmuneTurns}回合</span></div>` : ""}
     <div class="battle-bottom"><div class="battle-tools"><button class="btn secondary" data-basic>普攻</button><button class="btn secondary" data-rest>调息</button><button class="btn secondary" data-itemmenu>道具</button><button class="btn red" data-flee>逃跑</button></div><div class="skill-row"></div><div class="battle-log">${b.log.map(x => `<div>${x}</div>`).join("")}</div></div>`;
   const skillRow = root.querySelector(".skill-row");
   b.player.skills.forEach(id => {
@@ -900,8 +907,22 @@ function fighterPanel(run, unit, battle = null) {
       return `<span class="buff-badge enemy-trait-badge" title="${escapeHtml(desc)}">${name}</span>`;
     }).join("");
   }
-  const infoRow = (traitHtml || artHtml || bossTraitHtml) ? `<div class="debuff-row trait-art-row">${traitHtml}${artHtml}${bossTraitHtml}</div>` : "";
-  return `<div class="fighter-panel" data-side="${side}"><div class="fighter-name">${unit.name}</div>${bar(unit.hp, unit.stats.hp, `${Math.ceil(unit.hp)}/${unit.stats.hp}`, "hp-fill")}${bar(unit.qi, unit.stats.qi, `${Math.ceil(unit.qi)}/${unit.stats.qi}`, "qi-fill")}${infoRow}<div class="debuff-row">${debuffBadges(unit)}</div></div>`;
+  // Boss 武器（显示在特性旁边，红色标识）
+  let bossWeaponHtml = "";
+  if (!isPlayer && battle && battle.enemy?.weapon) {
+    const weapon = DATA.weapons[battle.enemy.weapon];
+    if (weapon) {
+      bossWeaponHtml = `<span class="buff-badge enemy-weapon-badge" title="${escapeHtml(weapon.desc || "")}" style="background:#c0392b;color:#fff;border-color:#e74c3c">${weapon.icon} ${weapon.name}</span>`;
+    }
+  }
+  // 护体盾值
+  let shieldHp = 0;
+  if (isPlayer && battle && battle.dragonGuardHp > 0) shieldHp = battle.dragonGuardHp;
+  if (!isPlayer && battle && battle.bossShield > 0) shieldHp = battle.bossShield;
+  const hpLabel = `${Math.ceil(unit.hp)}/${unit.stats.hp}${shieldHp > 0 ? " +" + shieldHp : ""}`;
+  const shieldBarHtml = shieldHp > 0 ? shieldBar(shieldHp, unit.stats.hp) : "";
+  const infoRow = (traitHtml || artHtml || bossTraitHtml || bossWeaponHtml) ? `<div class="debuff-row trait-art-row">${traitHtml}${artHtml}${bossTraitHtml}${bossWeaponHtml}</div>` : "";
+  return `<div class="fighter-panel" data-side="${side}"><div class="fighter-name">${unit.name}</div>${bar(unit.hp, unit.stats.hp, hpLabel, "hp-fill")}${shieldBarHtml}${bar(unit.qi, unit.stats.qi, `${Math.ceil(unit.qi)}/${unit.stats.qi}`, "qi-fill")}${infoRow}<div class="debuff-row">${debuffBadges(unit)}</div></div>`;
 }
 
 function debuffBadges(unit) {
@@ -909,9 +930,9 @@ function debuffBadges(unit) {
   if (unit.bleed) badges.push(`<span class="debuff-badge" title="流血：行动开始时受到层数x12的伤害。">流血 ${unit.bleed}</span>`);
   if (unit.poison) badges.push(`<span class="debuff-badge" title="中毒：降低攻击、防御、命中、闪避、出手速度。">中毒 ${unit.poison}</span>`);
   if (unit.inner) badges.push(`<span class="debuff-badge" title="内伤：行动开始时失去层数x14的内力。内力归零时只能调息或普通攻击。">内伤 ${unit.inner}</span>`);
-  if (unit.frost) badges.push(`<span class="debuff-badge" title="寒气：降低速度，行动开始时失去内力。">寒气 ${unit.frost}</span>`);
-  if (unit.hamstring) badges.push(`<span class="debuff-badge" title="断筋：降低速度，并在命中时削弱攻击。">断筋 ${unit.hamstring}</span>`);
-  if (unit.veinBreak) badges.push(`<span class="debuff-badge" title="断脉：降低攻击和内力上限。">断脉 ${unit.veinBreak}</span>`);
+  if (unit.frost) badges.push(`<span class="debuff-badge" title="寒气：每层减速4%，回合后-1层。">寒气 ${unit.frost}</span>`);
+  if (unit.hamstring) badges.push(`<span class="debuff-badge" title="断筋：每层攻击-2%+减速2%，回合后-1层。">断筋 ${unit.hamstring}</span>`);
+  if (unit.veinBreak) badges.push(`<span class="debuff-badge" title="断脉：每层内力-2%+减速2%，回合后-1层。">断脉 ${unit.veinBreak}</span>`);
   if (unit.gu) badges.push(`<span class="debuff-badge" title="蛊：提高招式内力消耗，并扰乱气息。">蛊 ${unit.gu}</span>`);
   // 临时Buff显示（快/力/杀）
   if (unit.tempBuffs) {
@@ -954,6 +975,15 @@ function buildUnitDetailPopup(unit, side, state, actions) {
       const row = el("div", "detail-row");
       row.innerHTML = `<b>Boss特性</b>：${traitBadges}`;
       popup.appendChild(row);
+    }
+    // Boss 武器
+    if (battle && battle.enemy?.weapon) {
+      const weapon = DATA.weapons[battle.enemy.weapon];
+      if (weapon) {
+        const row = el("div", "detail-row");
+        row.innerHTML = `<b>Boss武器</b>：<span class="buff-badge enemy-weapon-badge" title="${escapeHtml(weapon.desc || "")}" style="background:#c0392b;color:#fff;border-color:#e74c3c">${weapon.icon} ${weapon.name}</span>`;
+        popup.appendChild(row);
+      }
     }
   }
 
@@ -1125,6 +1155,11 @@ function debugRow(title, meta, id) {
 function bar(value, max, label, fillClass = "") {
   const pct = Math.max(0, Math.min(100, max ? value / max * 100 : 0));
   return `<div class="bar"><div class="bar-fill ${fillClass}" style="width:${pct}%"></div><div class="bar-label">${label}</div></div>`;
+}
+
+function shieldBar(value, maxHp) {
+  const pct = Math.max(0, Math.min(100, maxHp ? value / maxHp * 100 : 0));
+  return `<div class="shield-bar"><div class="shield-fill" style="width:${pct}%"></div><div class="bar-label shield-label">护体 ${value}</div></div>`;
 }
 
 function el(tag, cls = "", html = "") {
