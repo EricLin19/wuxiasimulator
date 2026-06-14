@@ -549,6 +549,7 @@ button {
 
 .hp-shield-bar {
   display: flex;
+  overflow: visible;
 }
 
 .shield-fill-in-line {
