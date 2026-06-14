@@ -910,12 +910,13 @@ function fighterPanel(run, unit, battle = null) {
   }
   // 护体盾值
   let shieldHp = 0;
-  if (isPlayer && battle && battle.dragonGuardHp > 0) shieldHp = battle.dragonGuardHp;
-  if (!isPlayer && battle && battle.bossShield > 0) shieldHp = battle.bossShield;
+  let shieldMax = 1;
+  if (isPlayer && battle && battle.dragonGuardHp > 0) { shieldHp = battle.dragonGuardHp; shieldMax = battle.dragonGuardMax || shieldHp; }
+  if (!isPlayer && battle && battle.bossShield > 0) { shieldHp = battle.bossShield; shieldMax = battle.bossShieldMax || shieldHp; }
   const hpLabel = `${Math.ceil(unit.hp)}/${unit.stats.hp}${shieldHp > 0 ? "+" + shieldHp : ""}`;
-  // 盾条：独立细线，放在HP条上方，比例尺与HP相同（shield/statsHp）
+  // 盾条：独立细线，放在HP条上方，比例 = 当前盾 / 最大盾（初始=100%）
   const shieldBarHtml = shieldHp > 0
-    ? `<div class="shield-indicator"><div class="shield-fill" style="width:${(shieldHp / unit.stats.hp * 100).toFixed(1)}%"></div></div>`
+    ? `<div class="shield-indicator"><div class="shield-fill" style="width:${(shieldHp / shieldMax * 100).toFixed(1)}%"></div></div>`
     : "";
   const infoRow = (traitHtml || artHtml || bossTraitHtml || bossWeaponHtml) ? `<div class="debuff-row trait-art-row">${traitHtml}${artHtml}${bossTraitHtml}${bossWeaponHtml}</div>` : "";
   return `<div class="fighter-panel" data-side="${side}"><div class="fighter-name">${unit.name}</div>${shieldBarHtml}${bar(unit.hp, unit.stats.hp, hpLabel, "hp-fill")}${bar(unit.qi, unit.stats.qi, `${Math.ceil(unit.qi)}/${unit.stats.qi}`, "qi-fill")}${infoRow}<div class="debuff-row">${debuffBadges(unit)}</div></div>`;

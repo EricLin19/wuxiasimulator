@@ -130,6 +130,7 @@ export function createBattle(run, enemyTemplate, isBoss = false) {
       dragonGuardHp = Math.floor(pStats.hp * armor.dragonGuard);
     }
   }
+  const dragonGuardMax = dragonGuardHp;
 
   const battle = {
     isBoss,
@@ -148,6 +149,7 @@ export function createBattle(run, enemyTemplate, isBoss = false) {
     enemyActionCount: 0,
     // Armor trackers
     dragonGuardHp,
+    dragonGuardMax,
     wuxiangTurns: 0,
     immuneNewDebuffs: false,
     // Boss trait tracking (Boss特性)
@@ -156,6 +158,7 @@ export function createBattle(run, enemyTemplate, isBoss = false) {
     bossTurnCounter: 0,
     bossPhaseTriggered: {},
     bossShield: 0,
+    bossShieldMax: 0,
     bossImmuneTurns: 0,
     celestialCleanseUsed: false,
     celestialBurnTriggered: false,
@@ -193,11 +196,13 @@ export function createBattle(run, enemyTemplate, isBoss = false) {
     // armorShield（护体真气）：开场20%HP护体
     if (battle.bossTraits.includes("armorShield")) {
       battle.bossShield = Math.floor(enemyStats.hp * 0.20);
+      battle.bossShieldMax = battle.bossShield;
       battleLog(battle, `${enemyTemplate.name}真气护体，吸收${battle.bossShield}伤害！`);
     }
     // celestialShield（天罡护体）：开场30%HP护体
     if (battle.bossTraits.includes("celestialShield")) {
       battle.bossShield = Math.floor(enemyStats.hp * 0.30);
+      battle.bossShieldMax = battle.bossShield;
       battleLog(battle, `${enemyTemplate.name}天罡护体，吸收${battle.bossShield}伤害！`);
     }
     // drainQiImmuneBurst：前3回合免疫负面（保留向后兼容）
@@ -1648,6 +1653,7 @@ function checkBossPhaseTriggers(battle) {
   if (trait === "drainQiLowShield" && hpPct <= 0.5 && !battle.bossPhaseTriggered["shield50"]) {
     battle.bossPhaseTriggered["shield50"] = true;
     battle.bossShield = Math.floor(e.stats.hp * 0.15);
+    battle.bossShieldMax = battle.bossShield;
     battleLog(battle, `${e.name}获得护体，吸收${battle.bossShield}伤害！`);
     addFloater(battle, "enemy", "护体+15%");
   }
