@@ -100,9 +100,6 @@ export function renderApp(state, actions) {
     const oldList = app.querySelector(".allocate-list");
     if (oldList) allocateScrollTop = oldList.scrollTop;
   }
-  // v6.3.0 fix：detach浮层，防止调息/道具的浮动数字被 innerHTML="" 销毁
-  const floaterLayer = document.getElementById("floater-layer");
-  if (floaterLayer) floaterLayer.remove();
   app.innerHTML = "";
   if (state.screen === "menu") app.appendChild(renderMenu(state, actions));
   if (state.screen === "select") app.appendChild(renderSelect(state, actions));
@@ -124,10 +121,6 @@ export function renderApp(state, actions) {
     app.appendChild(renderModal(state, actions));
     const newModal = app.querySelector(".modal");
     if (newModal) newModal.scrollTop = savedScrollTop;
-  }
-  // v6.3.0 fix：重新挂回浮层（在 detach 后，innerHTML 不会销毁已 detach 的节点）
-  if (floaterLayer && !app.contains(floaterLayer)) {
-    app.appendChild(floaterLayer);
   }
 }
 
