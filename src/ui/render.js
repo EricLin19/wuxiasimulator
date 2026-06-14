@@ -914,12 +914,12 @@ function fighterPanel(run, unit, battle = null) {
   if (!isPlayer && battle && battle.bossShield > 0) shieldHp = battle.bossShield;
   const hpLabel = `${Math.ceil(unit.hp)}/${unit.stats.hp}${shieldHp > 0 ? "+" + shieldHp : ""}`;
   // 合并血条：HP填色 + 护体白色条并排
-  // 护体比例 = 护体量 / 最大血量（与用户需求一致：护体条大小 = 实际血条 * (140/800) = shield/statsHp）
-  const rawShieldPct = shieldHp > 0 ? shieldHp / unit.stats.hp * 100 : 0;
+  // HP永远显示真实比例，护体在HP右侧展示，超出则截断（确保护体减少时HP不扩张）
   const hpPct = unit.stats.hp > 0 ? Math.min(100, unit.hp / unit.stats.hp * 100) : 0;
-  // HP填色上限给护体留空间，确保护体条永远可见
-  const displayHpPct = shieldHp > 0 ? Math.min(hpPct, 100 - rawShieldPct) : hpPct;
-  const hpBarHtml = `<div class="bar hp-shield-bar"><div class="bar-fill hp-fill" style="width:${displayHpPct.toFixed(1)}%"></div>${shieldHp > 0 ? `<div class="shield-fill-in-line" style="flex:0 0 ${rawShieldPct.toFixed(1)}%;background:#ffffff"></div>` : ""}<div class="bar-label">${hpLabel}</div></div>`;
+  const rawShieldPct = shieldHp > 0 ? shieldHp / unit.stats.hp * 100 : 0;
+  const maxShieldPct = Math.max(0, 100 - hpPct); // HP右侧可用空间
+  const displayShieldPct = Math.min(rawShieldPct, maxShieldPct);
+  const hpBarHtml = `<div class="bar hp-shield-bar"><div class="bar-fill hp-fill" style="width:${hpPct.toFixed(1)}%"></div>${shieldHp > 0 ? `<div class="shield-fill-in-line" style="flex:0 0 ${displayShieldPct.toFixed(1)}%;background:#ffffff"></div>` : ""}<div class="bar-label">${hpLabel}</div></div>`;
   const infoRow = (traitHtml || artHtml || bossTraitHtml || bossWeaponHtml) ? `<div class="debuff-row trait-art-row">${traitHtml}${artHtml}${bossTraitHtml}${bossWeaponHtml}</div>` : "";
   return `<div class="fighter-panel" data-side="${side}"><div class="fighter-name">${unit.name}</div>${hpBarHtml}${bar(unit.qi, unit.stats.qi, `${Math.ceil(unit.qi)}/${unit.stats.qi}`, "qi-fill")}${infoRow}<div class="debuff-row">${debuffBadges(unit)}</div></div>`;
 }
