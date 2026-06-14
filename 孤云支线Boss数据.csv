@@ -1,0 +1,7 @@
+序号,Boss ID,名称,icon,阶级,HP,攻击,防御,速度,闪避,暴击,连击,特性（ID）,特性描述
+M38,m38,毒账先生·卢白砚,毒,7,9500,260,105,1.85,8,16,5,venomInfuse;armorBreak,每回合流血+5（淬毒）；玩家DEF剩50%，每次命中DEF-5%
+M40,m40,迷香鞭·罗千魅,鞭,7,10000,275,108,1.90,15,18,6,charm;venomInfuse,每回合概率魅惑（行动失控）；每回合流血+4（淬毒）
+M42,m42,断魂琴·温玉郎,琴,8,11500,290,112,1.95,12,20,5,chillAura;celestialCleanse,每回合寒气+6，上限15层；≤60%HP天罡净化+回血25%
+M44,m44,铁面判官·裴照雪,判,9,13000,305,118,2.00,10,22,6,armorBreak;celestialCleanse;lowHpBerserk,破防贯通；≤50%HP天罡净化；≤25%HP狂暴
+M46,m46,阴阳幡使·石寒灯,幡,10,15000,320,125,2.10,18,24,7,chillAura;bloodBlade;lowHpBerserk,每回合寒气+8、流血+6；≤20%HP阴阳逆鼎狂暴
+M48,m48,双修毒君·徐迦笙,毒,11,18000,350,135,2.20,22,28,8,venomInfuse;bloodBlade;chillAura;celestialShield;lowHpBerserk,每回合流血+8（淬毒）+8（血刃）、寒气+8；开场35%护体；≤15%HP阴阳逆鼎

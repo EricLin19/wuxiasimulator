@@ -323,7 +323,14 @@ export const DATA = {
     { id: "main_m30_huo_feng", name: "烽火统领·霍烽", icon: "烽", portraitImage: "assets/portraits_guyun_pixel/main_m30_huo_feng_pixel_320.webp", hp: 6000, qi: 1400, atk: 215, def: 86, combo: 5, hit: 85, dodge: 9, crit: 16, speed: 1.70, rank: 6, boss: true, bossTraits: ["celestialShield", "armorBreak"], bossTraitDesc: "开场30%HP天罡护体；玩家DEF剩50%，每次命中DEF-5%", taunt: "太行外围百里之内，没有我的狼烟传不到的信号。" },
     { id: "main_m32_gongsun_lie", name: "右护法·公孙烈", icon: "枪", portraitImage: "assets/portraits_guyun_pixel/main_m32_gongsun_lie_pixel_320.webp", hp: 6500, qi: 1600, atk: 230, def: 92, combo: 6, hit: 85, dodge: 10, crit: 16, speed: 1.75, rank: 6, boss: true, weapon: "blade_bleed_red_gongsun", bossTraits: ["celestialShield", "bloodBlade"], bossTraitDesc: "开场30%HP天罡护体；每回合流血+6（血刃），上限15层", taunt: "统领说打谁就打谁。我不问为什么。" },
     { id: "main_m34_yan_tie", name: "地牢典狱长·阎铁", icon: "狱", portraitImage: "assets/portraits_guyun_pixel/main_m34_yan_tie_pixel_320.webp", hp: 7000, qi: 1800, atk: 245, def: 98, combo: 4, hit: 88, dodge: 12, crit: 14, speed: 1.80, rank: 6, boss: true, bossTraits: ["celestialCleanse", "veinBreak", "hamstringStrike"], bossTraitDesc: "≤50%HP天罡净化+回血30%；每回合断脉+6、断筋+6，上限15层", taunt: "来了就别走了。地牢的铁链还有空位。" },
-    { id: "main_m36_chu_zongxuan", name: "武盟统领·楚宗玄", icon: "魔", portraitImage: "assets/portraits_guyun_pixel/main_m36_chu_zongxuan_pixel_320.webp", hp: 15000, qi: 4000, atk: 280, def: 112, combo: 8, hit: 95, dodge: 20, crit: 24, speed: 2.00, rank: 10, boss: true, weapon: "fist_hamstring_vein_red_chu", bossTraits: ["veinBreak", "hamstringStrike", "celestialShield", "celestialCleanse", "celestialBurn"], bossTraitDesc: "每回合断脉+10、断筋+10；开场30%护体；≤50%HP净化回血；≤10%HP燃命", taunt: "维持一个能救千万人的机构需要代价。每年几百个散人变成数字——我觉得值得。" }
+    { id: "main_m36_chu_zongxuan", name: "武盟统领·楚宗玄", icon: "魔", portraitImage: "assets/portraits_guyun_pixel/main_m36_chu_zongxuan_pixel_320.webp", hp: 15000, qi: 4000, atk: 280, def: 112, combo: 8, hit: 95, dodge: 20, crit: 24, speed: 2.00, rank: 10, boss: true, weapon: "fist_hamstring_vein_red_chu", bossTraits: ["veinBreak", "hamstringStrike", "celestialShield", "celestialCleanse", "celestialBurn"], bossTraitDesc: "每回合断脉+10、断筋+10；开场30%护体；≤50%HP净化回血；≤10%HP燃命", taunt: "维持一个能救千万人的机构需要代价。每年几百个散人变成数字——我觉得值得。" },
+    // === 孤云支线 Boss (M38-M48) ===
+    { id: "main_m38_lu_baiyan", name: "毒账先生·卢白砚", icon: "毒", portraitImage: "assets/portraits_guyun_pixel/main_m38_lu_baiyan_pixel_320.webp", hp: 9500, qi: 2000, atk: 260, def: 105, combo: 5, hit: 86, dodge: 8, crit: 16, speed: 1.85, rank: 7, boss: true, bossTraits: ["venomInfuse", "armorBreak"], bossTraitDesc: "每回合流血+5（淬毒）；玩家DEF剩50%，每次命中DEF-5%", taunt: "铁算盘打得精，人命也标了价。" },
+    { id: "main_m40_luo_qianmei", name: "迷香鞭·罗千魅", icon: "鞭", portraitImage: "assets/portraits_guyun_pixel/main_m40_luo_qianmei_pixel_320.webp", hp: 10000, qi: 2200, atk: 275, def: 108, combo: 6, hit: 88, dodge: 15, crit: 18, speed: 1.90, rank: 7, boss: true, bossTraits: ["veinBreak", "venomInfuse"], bossTraitDesc: "每回合断脉+5；每回合流血+4（淬毒）", taunt: "散人既已成帮，便该有帮派的进项。你来评评理？" },
+    { id: "main_m42_wen_yulang", name: "断魂琴·温玉郎", icon: "琴", portraitImage: "assets/portraits_guyun_pixel/main_m42_wen_yulang_pixel_320.webp", hp: 11500, qi: 2500, atk: 290, def: 112, combo: 5, hit: 90, dodge: 12, crit: 20, speed: 1.95, rank: 8, boss: true, bossTraits: ["chillAura", "celestialCleanse"], bossTraitDesc: "每回合寒气+6，上限15层；≤60%HP天罡净化+回血25%", taunt: "人心有欲，散人有价。前辈何必装得干净？" },
+    { id: "main_m44_pei_zhaoxue", name: "铁面判官·裴照雪", icon: "判", portraitImage: "assets/portraits_guyun_pixel/main_m44_pei_zhaoxue_pixel_320.webp", hp: 13000, qi: 2800, atk: 305, def: 118, combo: 6, hit: 92, dodge: 10, crit: 22, speed: 2.00, rank: 9, boss: true, bossTraits: ["armorBreak", "celestialCleanse", "lowHpBerserk"], bossTraitDesc: "破防贯通；≤50%HP天罡净化；≤25%HP狂暴", taunt: "罪状已拟，只等画押。你认，或不认，都不重要。" },
+    { id: "main_m46_shi_handeng", name: "阴阳幡使·石寒灯", icon: "幡", portraitImage: "assets/portraits_guyun_pixel/main_m46_shi_handeng_pixel_320.webp", hp: 15000, qi: 3200, atk: 320, def: 125, combo: 7, hit: 94, dodge: 18, crit: 24, speed: 2.10, rank: 10, boss: true, bossTraits: ["chillAura", "bloodBlade", "lowHpBerserk"], bossTraitDesc: "每回合寒气+8、流血+6；≤20%HP阴阳逆鼎狂暴", taunt: "无人管时是沙，有人压时才成金。徐堂主才懂散人。" },
+    { id: "main_m48_xu_jiasheng", name: "双修毒君·徐迦笙", icon: "毒", portraitImage: "assets/portraits_guyun_pixel/main_m48_xu_jiasheng_pixel_320.webp", hp: 18000, qi: 4000, atk: 350, def: 135, combo: 8, hit: 96, dodge: 22, crit: 28, speed: 2.20, rank: 11, boss: true, bossTraits: ["venomInfuse", "bloodBlade", "chillAura", "celestialShield", "lowHpBerserk"], bossTraitDesc: "每回合流血+8（淬毒）+8（血刃）、寒气+8；开场35%护体；≤15%HP阴阳逆鼎", taunt: "双修大道本就取长补短。散人既散，正该由强者收拢。" }
   ],
   bosses: [
     { id: "boss_y1", name: "青竹寨主", icon: "刀", year: 1, hp: 560, qi: 260, atk: 78, def: 42, combo: 4, hit: 68, dodge: 4, crit: 10, speed: 1.35, boss: true, taunt: "这山头我说了算，你一个散人敢来送死？" },
@@ -644,7 +651,56 @@ DATA.wandererMonths = {
       { id: "special", label: "继任统领【隐藏】", desc: "以统领身份重塑规则", condition: "fame>=2000 && flag_becameLeader", effect: { ending: "wanderer_reform", endingEpilogue: "reform" } }
     ],
     battleDesc: "武盟统领楚宗玄，天罡正气终极Boss。开场25%护体；50%血净化一次；15%血攻翻倍防归零。",
-    battleReward: { exp:5000, fame:2000, money:3000, atk:10, def:10, int:10, agi:10 } }
+    battleReward: { exp:5000, fame:2000, money:3000, atk:10, def:10, int:10, agi:10 } },
+  // === 孤云支线 (M37-M48) ===
+  37: { title: "归云不系",
+    text: "楚宗玄败后，群雄推你为散人领袖。你整顿旧案，立三不令：不贩人，不欺弱，不借散人之名敛财。\n\n半年后诸事渐定，你却厌了案牍与拜帖，只留一封短笺给方平：『云在山中，莫来寻我。』" },
+  38: { title: "夜雨叩庐",
+    text: "三年后，秋雨打柴扉。方平夜来，衣上泥水未干，鬓边已有白丝。他说散人已成大帮，却也生了毒疮。新贵徐迦笙掌刑堂，武功极高，暗售『销魂散』，还纵徒掳掠民女。山外人人骂散人，你杯中茶冷了。",
+    fightLabel: "毒账现形", enemyId: "main_m38_lu_baiyan", hasBattle: true, isBoss: true,
+    battleDesc: "毒账先生卢白砚，铁算盘藏毒针，专管销魂散账册。",
+    battleReward: { exp:800, fame:300, gainItem:"toxic_ledger", int:3 } },
+  39: { title: "旧旗蒙尘",
+    text: "你随方平下山，第一站到龙井谷。旧旗还在，却被新堂口改成黑底银纹。少年散人巡街收例钱，百姓见了便闭门。一个卖豆腐的老妪认出你，先是一喜，继而跪下求你别说来过。你这才知，名声也会杀人。" },
+  40: { title: "烟馆灯红",
+    text: "夜探临安烟馆，楼上笙歌，楼下铁笼关着欠债女子。墙后暗仓堆满销魂散，账册写着『徐堂主亲批』。守仓的罗千魅笑说，散人既已成帮，便该有帮派的进项。她袖中软鞭如蛇，鞭梢淬着迷香。",
+    fightLabel: "迷香破阵", enemyId: "main_m40_luo_qianmei", hasBattle: true, isBoss: true,
+    battleDesc: "迷香鞭罗千魅，擅媚术、软鞭、迷香控场。",
+    battleReward: { exp:900, fame:350, gainItem:"charm_whip", agi:3 } },
+  41: { title: "双修邪影",
+    text: "救出的女子说，徐迦笙每月挑『炉鼎』入别院，名曰传功，实为采补。有人活着出来，却神智尽失。方平怒得拔刀，你按住他。此事若只杀一二恶徒，救不了散人。要拔，便拔根；要洗，便洗名。" },
+  42: { title: "竹坞断魂",
+    text: "你潜入徐氏别院，竹影深处传来琴声。琴声一起，同行弟子忽觉内息逆行。守院者温玉郎自称徐迦笙座下『调息使』，专以琴音乱人气脉。他说：『人心有欲，散人有价，前辈何必装得干净？』",
+    fightLabel: "断魂琴绝", enemyId: "main_m42_wen_yulang", hasBattle: true, isBoss: true,
+    battleDesc: "断魂琴温玉郎，音律扰内、封招、削内力。",
+    battleReward: { exp:1000, fame:400, gainItem:"cursed_zither", qi:200 } },
+  43: { title: "白骨花田",
+    text: "别院后山有片花田，花色艳得近妖。掘开泥土，尽是运毒死士与被灭口的女子骸骨。你在一枚银簪上看见『平安』二字，忽然想起当年老李临死前的眼神。原来人若握权太久，也会学会把人埋进土里。" },
+  44: { title: "刑堂惊变",
+    text: "你召集旧部，要公审徐迦笙。刑堂却先一步反咬，说你离山三年，不知帮务，乃外人乱政。铁面判官裴照雪持双钺而出，宣读伪造罪状，句句冠冕堂皇。方平冷笑：『这味儿，真像当年的武盟。』",
+    fightLabel: "钺斩伪令", enemyId: "main_m44_pei_zhaoxue", hasBattle: true, isBoss: true,
+    battleDesc: "铁面判官裴照雪，双钺重击，擅伪令与反击。",
+    battleReward: { exp:1200, fame:500, gainItem:"judge_axe_pair", def:5 } },
+  45: { title: "方平受困",
+    text: "方平为救证人落入陷阱，被吊在旧演武场上。徐迦笙留书一封：孤云前辈若仍念散人旧情，便独身赴会。你看完信，忽然笑了。方平当年闯牢救你，今日仍是这般命硬。只是这一次，换你去闯。" },
+  46: { title: "血月演武",
+    text: "演武场血月高悬，三百刑堂弟子列阵。阵心立着阴阳幡，幡下是徐迦笙的护法石寒灯，左手寒掌，右手阳刀，一阴一阳逼人气血翻涌。他说徐迦笙才懂散人：无人管时是沙，有人压时才成金。",
+    fightLabel: "阴阳逆鼎", enemyId: "main_m46_shi_handeng", hasBattle: true, isBoss: true,
+    battleDesc: "阴阳幡使石寒灯，阴掌阳刀，切换寒毒与烈伤。",
+    battleReward: { exp:1500, fame:600, gainItem:"yin_yang_banner", atk:5 } },
+  47: { title: "山门无声",
+    text: "你救下方平，旧部终于倒戈。百姓送来被抢女子的血书，散人弟子送来毒账原本。山门前无人喧哗，只有风吹旧旗。你知道这一战不同于太行：那时敌在外，剑可直斩；今日敌在心里，胜了也未必干净。" },
+  48: { title: "终战·徐迦笙",
+    text: "徐迦笙立于孤云堂上，白衣金带，掌心一阴一阳，笑称双修大道本就取长补短，女子、毒客、帮众皆是鼎炉。你问他可还记得散人二字。他说散人既散，正该由强者收拢。话尽，阴毒入风，灯火尽青。",
+    isEndNode: true, isFinalBoss: true,
+    fightLabel: "终结毒君",
+    enemyId: "main_m48_xu_jiasheng",
+    endings: [
+      { id: "purge", label: "清洗毒疮", desc: "彻底清洗散人帮派中的毒瘤", effect: { ending: "wanderer_purge", endingEpilogue: "purge" } },
+      { id: "reform", label: "重修帮规", desc: "保留散人帮派，但彻底改革规则", effect: { ending: "wanderer_reform_v2", endingEpilogue: "reform" } }
+    ],
+    battleDesc: "双修毒君徐迦笙，阴阳双修、采补邪功、毒雾缠身，低血量转入『阴阳逆鼎』狂暴。",
+    battleReward: { exp:6000, fame:2500, money:5000, atk:12, def:12, int:12, agi:12 } }
 };
 
 // ============================================================
