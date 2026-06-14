@@ -916,7 +916,7 @@ function fighterPanel(run, unit, battle = null) {
   // 合并血条：HP填色 + 护体白色条并排
   const hpPct = unit.stats.hp > 0 ? Math.min(100, unit.hp / unit.stats.hp * 100) : 0;
   const shieldPct = shieldHp > 0 ? Math.min(100 - hpPct, shieldHp / unit.stats.hp * 100) : 0;
-  const hpBarHtml = `<div class="bar hp-shield-bar"><div class="bar-fill hp-fill" style="width:${hpPct.toFixed(1)}%"></div>${shieldHp > 0 ? `<div class="shield-fill-in-line" style="width:${shieldPct.toFixed(1)}%"></div>` : ""}<div class="bar-label">${hpLabel}</div></div>`;
+  const hpBarHtml = `<div class="bar hp-shield-bar"><div class="bar-fill hp-fill" style="width:${hpPct.toFixed(1)}%"></div>${shieldHp > 0 ? `<div class="shield-fill-in-line" style="width:${shieldPct.toFixed(1)}%;background:#ffffff"></div>` : ""}<div class="bar-label">${hpLabel}</div></div>`;
   const infoRow = (traitHtml || artHtml || bossTraitHtml || bossWeaponHtml) ? `<div class="debuff-row trait-art-row">${traitHtml}${artHtml}${bossTraitHtml}${bossWeaponHtml}</div>` : "";
   return `<div class="fighter-panel" data-side="${side}"><div class="fighter-name">${unit.name}</div>${hpBarHtml}${bar(unit.qi, unit.stats.qi, `${Math.ceil(unit.qi)}/${unit.stats.qi}`, "qi-fill")}${infoRow}<div class="debuff-row">${debuffBadges(unit)}</div></div>`;
 }
