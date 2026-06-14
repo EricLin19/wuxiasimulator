@@ -262,18 +262,6 @@ body.mobile-viewport .fighter.enemy {
   right: 128px;
 }
 
-/* 护体条在手机版压缩宽度 */
-body.mobile-viewport .shield-bar {
-  height: 8px;
-  margin-top: 1px;
-  margin-bottom: 1px;
-  border-width: 1px;
-}
-
-body.mobile-viewport .shield-label {
-  font-size: 9px;
-}
-
 /* 手机浮字：立绘 top=bottom:370(200+170)，浮字在立绘偏上方 */
 body.mobile-viewport .damage-pop,
 body.mobile-viewport .combat-floater {
@@ -559,6 +547,16 @@ button {
   overflow: hidden;
 }
 
+.hp-shield-bar {
+  display: flex;
+}
+
+.shield-fill-in-line {
+  height: 100%;
+  background: linear-gradient(90deg, rgba(200,215,230,0.5), rgba(220,235,250,0.8), rgba(200,215,230,0.5));
+  flex-shrink: 0;
+}
+
 .bar-fill {
   height: 100%;
   background: #ffc39d;
@@ -571,30 +569,6 @@ button {
   place-items: center;
   font-size: 18px;
   font-weight: 900;
-}
-
-.shield-bar {
-  position: relative;
-  height: 12px;
-  margin-top: 2px;
-  margin-bottom: 2px;
-  border: 2px solid #8a9bad;
-  border-radius: 999px;
-  background: #3a4555;
-  overflow: hidden;
-}
-
-.shield-fill {
-  height: 100%;
-  background: linear-gradient(90deg, rgba(200,215,230,0.5), rgba(220,235,250,0.8), rgba(200,215,230,0.5));
-  border-radius: 999px;
-}
-
-.shield-label {
-  font-size: 11px;
-  font-weight: 700;
-  color: #c8d7e6;
-  text-shadow: 0 0 4px rgba(180,200,220,0.6);
 }
 
 .screen {

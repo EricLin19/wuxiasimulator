@@ -912,10 +912,13 @@ function fighterPanel(run, unit, battle = null) {
   let shieldHp = 0;
   if (isPlayer && battle && battle.dragonGuardHp > 0) shieldHp = battle.dragonGuardHp;
   if (!isPlayer && battle && battle.bossShield > 0) shieldHp = battle.bossShield;
-  const hpLabel = `${Math.ceil(unit.hp)}/${unit.stats.hp}${shieldHp > 0 ? " +" + shieldHp : ""}`;
-  const shieldBarHtml = shieldHp > 0 ? shieldBar(shieldHp, unit.stats.hp) : "";
+  const hpLabel = `${Math.ceil(unit.hp)}/${unit.stats.hp}${shieldHp > 0 ? "+" + shieldHp : ""}`;
+  // 合并血条：HP填色 + 护体白色条并排
+  const hpPct = unit.stats.hp > 0 ? Math.min(100, unit.hp / unit.stats.hp * 100) : 0;
+  const shieldPct = shieldHp > 0 ? Math.min(100 - hpPct, shieldHp / unit.stats.hp * 100) : 0;
+  const hpBarHtml = `<div class="bar hp-shield-bar"><div class="bar-fill hp-fill" style="width:${hpPct.toFixed(1)}%"></div>${shieldHp > 0 ? `<div class="bar-fill shield-fill-in-line" style="width:${shieldPct.toFixed(1)}%"></div>` : ""}<div class="bar-label">${hpLabel}</div></div>`;
   const infoRow = (traitHtml || artHtml || bossTraitHtml || bossWeaponHtml) ? `<div class="debuff-row trait-art-row">${traitHtml}${artHtml}${bossTraitHtml}${bossWeaponHtml}</div>` : "";
-  return `<div class="fighter-panel" data-side="${side}"><div class="fighter-name">${unit.name}</div>${bar(unit.hp, unit.stats.hp, hpLabel, "hp-fill")}${shieldBarHtml}${bar(unit.qi, unit.stats.qi, `${Math.ceil(unit.qi)}/${unit.stats.qi}`, "qi-fill")}${infoRow}<div class="debuff-row">${debuffBadges(unit)}</div></div>`;
+  return `<div class="fighter-panel" data-side="${side}"><div class="fighter-name">${unit.name}</div>${hpBarHtml}${bar(unit.qi, unit.stats.qi, `${Math.ceil(unit.qi)}/${unit.stats.qi}`, "qi-fill")}${infoRow}<div class="debuff-row">${debuffBadges(unit)}</div></div>`;
 }
 
 function debuffBadges(unit) {
@@ -1148,11 +1151,6 @@ function debugRow(title, meta, id) {
 function bar(value, max, label, fillClass = "") {
   const pct = Math.max(0, Math.min(100, max ? value / max * 100 : 0));
   return `<div class="bar"><div class="bar-fill ${fillClass}" style="width:${pct}%"></div><div class="bar-label">${label}</div></div>`;
-}
-
-function shieldBar(value, maxHp) {
-  const pct = Math.max(0, Math.min(100, maxHp ? value / maxHp * 100 : 0));
-  return `<div class="shield-bar"><div class="shield-fill" style="width:${pct}%"></div><div class="bar-label shield-label">护体 ${value}</div></div>`;
 }
 
 function el(tag, cls = "", html = "") {
