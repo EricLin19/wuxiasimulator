@@ -914,11 +914,16 @@ function fighterPanel(run, unit, battle = null) {
   if (!isPlayer && battle && battle.bossShield > 0) shieldHp = battle.bossShield;
   const hpLabel = `${Math.ceil(unit.hp)}/${unit.stats.hp}${shieldHp > 0 ? "+" + shieldHp : ""}`;
   // 合并血条：HP固定比例 + 护体白色条追加在右侧
-  // HP条永远 = hp/statsHp，不受护体影响；护体减少只缩白色条，红色条纹丝不动
-  const displayHpPct = unit.stats.hp > 0 ? Math.min(100, unit.hp / unit.stats.hp * 100) : 0;
+  // HP条永远 = hp/statsHp 不动，护体减少只缩白色条
+  // 满血时护体无显示空间→HP最多让3%保证白色条永远可见
+  const rawHpPct = unit.stats.hp > 0 ? Math.min(100, unit.hp / unit.stats.hp * 100) : 0;
   const rawShieldPct = shieldHp > 0 ? shieldHp / unit.stats.hp * 100 : 0;
-  const remainingSpace = Math.max(0, 100 - displayHpPct);
-  const displayShieldPct = Math.min(rawShieldPct, remainingSpace);
+  let displayShieldPct = Math.min(rawShieldPct, 100 - rawHpPct);
+  let displayHpPct = rawHpPct;
+  if (shieldHp > 0 && displayShieldPct < 0.5 && rawHpPct > 95) {
+    displayShieldPct = 3;
+    displayHpPct = 97;
+  }
   const hpBarHtml = `<div class="bar hp-shield-bar"><div class="bar-fill hp-fill" style="width:${displayHpPct.toFixed(1)}%"></div>${shieldHp > 0 ? `<div class="shield-fill-in-line" style="flex:0 0 ${displayShieldPct.toFixed(1)}%;background:#ffffff"></div>` : ""}<div class="bar-label">${hpLabel}</div></div>`;
   const infoRow = (traitHtml || artHtml || bossTraitHtml || bossWeaponHtml) ? `<div class="debuff-row trait-art-row">${traitHtml}${artHtml}${bossTraitHtml}${bossWeaponHtml}</div>` : "";
   return `<div class="fighter-panel" data-side="${side}"><div class="fighter-name">${unit.name}</div>${hpBarHtml}${bar(unit.qi, unit.stats.qi, `${Math.ceil(unit.qi)}/${unit.stats.qi}`, "qi-fill")}${infoRow}<div class="debuff-row">${debuffBadges(unit)}</div></div>`;
