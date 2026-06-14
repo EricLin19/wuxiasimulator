@@ -1,1 +1,16 @@
 ~
+
+# 本地测试服务器
+_server.js
+_start_server.bat
+
+# 测试文件
+test_battle_layout.html
+
+# 测试资源（截图、源文件等）
+work/
+
+# Office 临时文件
+~$*.xlsx
+~$*.xls
+~$*.docx
