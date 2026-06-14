@@ -913,13 +913,12 @@ function fighterPanel(run, unit, battle = null) {
   if (isPlayer && battle && battle.dragonGuardHp > 0) shieldHp = battle.dragonGuardHp;
   if (!isPlayer && battle && battle.bossShield > 0) shieldHp = battle.bossShield;
   const hpLabel = `${Math.ceil(unit.hp)}/${unit.stats.hp}${shieldHp > 0 ? "+" + shieldHp : ""}`;
-  // 合并血条：HP和盾各自独立，按各自比例显示，互不抢占
-  // overflow: visible 允许盾条超出容器边界，不被截断
-  const displayHpPct = unit.stats.hp > 0 ? Math.min(100, unit.hp / unit.stats.hp * 100) : 0;
-  const displayShieldPct = shieldHp > 0 ? shieldHp / unit.stats.hp * 100 : 0;
-  const hpBarHtml = `<div class="bar hp-shield-bar"><div class="bar-fill hp-fill" style="width:${displayHpPct.toFixed(1)}%"></div>${shieldHp > 0 ? `<div class="shield-fill-in-line" style="flex:0 0 ${displayShieldPct.toFixed(1)}%;background:#ffffff"></div>` : ""}<div class="bar-label">${hpLabel}</div></div>`;
+  // 盾条：独立细线，放在HP条上方，比例尺与HP相同（shield/statsHp）
+  const shieldBarHtml = shieldHp > 0
+    ? `<div class="shield-indicator"><div class="shield-fill" style="width:${(shieldHp / unit.stats.hp * 100).toFixed(1)}%"></div></div>`
+    : "";
   const infoRow = (traitHtml || artHtml || bossTraitHtml || bossWeaponHtml) ? `<div class="debuff-row trait-art-row">${traitHtml}${artHtml}${bossTraitHtml}${bossWeaponHtml}</div>` : "";
-  return `<div class="fighter-panel" data-side="${side}"><div class="fighter-name">${unit.name}</div>${hpBarHtml}${bar(unit.qi, unit.stats.qi, `${Math.ceil(unit.qi)}/${unit.stats.qi}`, "qi-fill")}${infoRow}<div class="debuff-row">${debuffBadges(unit)}</div></div>`;
+  return `<div class="fighter-panel" data-side="${side}"><div class="fighter-name">${unit.name}</div>${shieldBarHtml}${bar(unit.hp, unit.stats.hp, hpLabel, "hp-fill")}${bar(unit.qi, unit.stats.qi, `${Math.ceil(unit.qi)}/${unit.stats.qi}`, "qi-fill")}${infoRow}<div class="debuff-row">${debuffBadges(unit)}</div></div>`;
 }
 
 function debuffBadges(unit) {

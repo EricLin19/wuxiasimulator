@@ -547,17 +547,18 @@ button {
   overflow: hidden;
 }
 
-.hp-shield-bar {
-  display: flex;
-  overflow: visible;
+/* 护体盾条：独立细线，比例尺与HP相同 */
+.shield-indicator {
+  height: 8px;
+  border: 2px solid #2a211b;
+  border-radius: 999px;
+  background: #625d55;
+  overflow: hidden;
+  margin-bottom: 3px;
 }
-
-.shield-fill-in-line {
+.shield-indicator .shield-fill {
   height: 100%;
-  flex: 0 0 auto;
-}
-.hp-shield-bar .bar-fill {
-  flex: 0 0 auto;
+  background: #ffffff;
 }
 
 .bar-fill {
