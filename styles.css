@@ -262,6 +262,18 @@ body.mobile-viewport .fighter.enemy {
   right: 128px;
 }
 
+/* 护体条在手机版压缩宽度 */
+body.mobile-viewport .shield-bar {
+  height: 8px;
+  margin-top: 1px;
+  margin-bottom: 1px;
+  border-width: 1px;
+}
+
+body.mobile-viewport .shield-label {
+  font-size: 9px;
+}
+
 /* 手机浮字：立绘 top=bottom:370(200+170)，浮字在立绘偏上方 */
 body.mobile-viewport .damage-pop,
 body.mobile-viewport .combat-floater {
