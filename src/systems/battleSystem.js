@@ -1570,7 +1570,7 @@ function applyBossTurnMechanics(battle) {
     }
   }
 
-  // bloodBlade（血刃）：每回合流血+n(n=rank)，上限15
+  // bloodBlade（血刃）：每回合流血+n(n=rank)；玩家流血≥20层引爆"血流如注"
   if (trait === "bloodBlade") {
     if (p.cleanseShield > 0) continue;
     const rank = e.stats.rank || 1;
@@ -1581,6 +1581,15 @@ function applyBossTurnMechanics(battle) {
     p.bleed = Math.min(cap, p.bleed + stacks);
     battleLog(battle, `${e.name}血刃添伤！`);
     addFloater(battle, "player", `流血+${stacks}`);
+    // 20层流血引爆：血流如注（扣除20%最大血量）
+    if (p.bleed >= 20) {
+      const burstDmg = Math.floor(p.stats.hp * 0.20);
+      p.hp = Math.max(1, p.hp - burstDmg);
+      p.bleed -= 20;
+      battleLog(battle, `血流如注！${p.name}流血崩裂，扣除${burstDmg}血量！`);
+      addFloater(battle, "player", "血流如注");
+      addFloater(battle, "player", `-${burstDmg}`, "bleed");
+    }
   }
 
   // venomInfuse（淬毒）：每回合流血+n(n=rank)
