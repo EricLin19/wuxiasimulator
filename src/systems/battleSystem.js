@@ -1570,7 +1570,7 @@ function applyBossTurnMechanics(battle) {
     }
   }
 
-  // bloodBlade（血刃）：每回合流血+n(n=rank)，上限由武器决定（基础15+武器bonus）
+  // bloodBlade（血刃）：每回合流血+n(n=rank)，上限由武器决定（基础15+武器bonus）；25层引爆血流如注
   if (trait === "bloodBlade") {
     if (p.cleanseShield > 0) continue;
     const rank = e.stats.rank || 1;
@@ -1581,9 +1581,18 @@ function applyBossTurnMechanics(battle) {
     p.bleed = Math.min(cap, p.bleed + stacks);
     battleLog(battle, `${e.name}血刃添伤！`);
     addFloater(battle, "player", `流血+${stacks}`);
+    // 25层流血引爆：血流如注
+    if (p.bleed >= 25) {
+      const burstDmg = Math.floor(p.hp * 0.15);
+      p.hp = Math.max(0, p.hp - burstDmg);
+      p.bleed -= 25;
+      battleLog(battle, `血流如注！${p.name}流血崩裂，扣除${burstDmg}血量！`);
+      addFloater(battle, "player", "血流如注");
+      addFloater(battle, "player", `-${burstDmg}`, "bleed");
+    }
   }
 
-  // venomInfuse（淬毒）：每回合流血+n(n=rank)
+  // venomInfuse（淬毒）：每回合流血+n(n=rank)；25层引爆血流如注
   if (trait === "venomInfuse") {
     if (p.cleanseShield > 0) continue;
     const rank = e.stats.rank || 1;
@@ -1594,6 +1603,15 @@ function applyBossTurnMechanics(battle) {
     p.bleed = Math.min(cap, p.bleed + stacks);
     battleLog(battle, `${e.name}淬毒弥漫！`);
     addFloater(battle, "player", `流血+${stacks}`);
+    // 25层流血引爆：血流如注
+    if (p.bleed >= 25) {
+      const burstDmg = Math.floor(p.hp * 0.15);
+      p.hp = Math.max(0, p.hp - burstDmg);
+      p.bleed -= 25;
+      battleLog(battle, `血流如注！${p.name}流血崩裂，扣除${burstDmg}血量！`);
+      addFloater(battle, "player", "血流如注");
+      addFloater(battle, "player", `-${burstDmg}`, "bleed");
+    }
   }
 
   } // end for trait loop
