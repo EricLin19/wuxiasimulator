@@ -144,7 +144,7 @@ export function createBattle(run, enemyTemplate, isBoss = false) {
     speed: 1,
     run,
     // Per-turn trackers
-    turnTrackers: { comboChains: 0, evasiveTriggers: 0, coinThrows: 0, guDisrupts: 0, frostHits: 0, stealTriggers: 0 },
+    turnTrackers: { comboChains: 0, evasiveTriggers: 0, coinThrows: 0, guDisrupts: 0, frostHits: 0, stealTriggers: 0, playerTurnCount: 0 },
     // 敌人行动计数（用于限制断脉拳师等前N回合特性）
     enemyActionCount: 0,
     // Armor trackers
@@ -232,7 +232,7 @@ export function createBattle(run, enemyTemplate, isBoss = false) {
       battle.player.hamstring = 0;
       battle.player.gu = 0;
       battle.player.cleanseShield = 5; // 前5己方回合免疫负面
-      battleLog(battle, `【大罗洗髓经】净化所有负面状态，前5己方回合免疫负面。`);
+      battleLog(battle, `【大罗洗髓经】净化所有负面状态，前5己方回合免疫负面，每5回合所有负面减半。`);
     }
   });
 
@@ -289,7 +289,7 @@ export function tickBattle(battle, dt) {
     }
     battle.actor = "player";
     // Reset per-turn trackers on player turn
-    battle.turnTrackers = { comboChains: 0, evasiveTriggers: 0, coinThrows: 0, guDisrupts: 0, frostHits: 0, stealTriggers: 0 };
+    battle.turnTrackers = { comboChains: 0, evasiveTriggers: 0, coinThrows: 0, guDisrupts: 0, frostHits: 0, stealTriggers: 0, playerTurnCount: 0 };
     applyTurnStart(battle, p);
     if (checkBattleEnd(battle).ended) return "ended";
     battle.phase = p.auto ? "autoPlayer" : "waitPlayer";
@@ -843,8 +843,20 @@ function applyTurnStart(battle, unit) {
         battleLog(battle, `【${art.name}】${unit.name}恢复${qiAmt}内力。`);
         addFloater(battle, sideOf(battle, unit), `+${qiAmt}`, "qi");
       }
-      if (art.combatEffect === "cleanse" && unit.cleanseShield > 0) {
-        unit.cleanseShield--;
+      if (art.combatEffect === "cleanse") {
+        if (unit.cleanseShield > 0) unit.cleanseShield--;
+        // 大罗洗髓经：每5个己方回合（第5/10/15...回合开始时），身上所有负面效果减半（取整）
+        battle.turnTrackers.playerTurnCount++;
+        if (battle.turnTrackers.playerTurnCount % 5 === 0) {
+          const p = unit;
+          const fields = ["bleed", "poison", "inner", "frost", "hamstring", "veinBreak", "gu"];
+          const before = fields.reduce((s, k) => s + (p[k] || 0), 0);
+          if (before > 0) {
+            fields.forEach(k => { p[k] = Math.floor((p[k] || 0) / 2); });
+            battleLog(battle, `【大罗洗髓】第${battle.turnTrackers.playerTurnCount}回合，${unit.name}身上所有负面效果减半！`);
+            addFloater(battle, sideOf(battle, unit), "大罗洗髓");
+          }
+        }
       }
     });
   }
@@ -1592,17 +1604,29 @@ function applyBossTurnMechanics(battle) {
     }
   }
 
-  // venomInfuse（淬毒）：每回合流血+n(n=rank)
+  // venomInfuse（淬毒）：每回合毒+n(n=rank)，上限由武器决定（基础15+武器bonus）；25层引爆毒入骨髓
   if (trait === "venomInfuse") {
     if (p.cleanseShield > 0) continue;
     const rank = e.stats.rank || 1;
     let stacks = Math.min(rank, 3);
     // Boss武器debuff加成
-    if (bossWeaponObj && bossWeaponObj.bleedBonus) stacks += bossWeaponObj.bleedBonus;
-    const cap = getDebuffCap(battle.run, null, "bleed", bossWeaponObj);
-    p.bleed = Math.min(cap, p.bleed + stacks);
+    if (bossWeaponObj && bossWeaponObj.poisonBonus) stacks += bossWeaponObj.poisonBonus;
+    const cap = getDebuffCap(battle.run, null, "poison", bossWeaponObj);
+    p.poison = Math.min(cap, p.poison + stacks);
     battleLog(battle, `${e.name}淬毒弥漫！`);
-    addFloater(battle, "player", `流血+${stacks}`);
+    addFloater(battle, "player", `中毒+${stacks}`);
+    // 25层中毒引爆：毒入骨髓（扣7.5%当前血 + 7.5%当前内）
+    if (p.poison >= 25) {
+      const hpDmg = Math.floor(p.hp * 0.075);
+      const qiDmg = Math.floor(p.qi * 0.075);
+      p.hp = Math.max(0, p.hp - hpDmg);
+      p.qi = Math.max(0, p.qi - qiDmg);
+      p.poison -= 25;
+      battleLog(battle, `毒入骨髓！${p.name}毒发攻心，扣除${hpDmg}血量、${qiDmg}内力！`);
+      addFloater(battle, "player", "毒入骨髓");
+      addFloater(battle, "player", `-${hpDmg}`, "poison");
+      if (qiDmg > 0) addFloater(battle, "player", `-${qiDmg}`, "qi");
+    }
   }
 
   } // end for trait loop
