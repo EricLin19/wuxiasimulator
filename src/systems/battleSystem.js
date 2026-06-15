@@ -892,8 +892,8 @@ function applySkillEffects(run, battle, actor, target, skill, damage, multiplier
   if (skill.debuff === "bleed" && skill.style === "bleed") {
     const cap = getDebuffCap(run, weapon, "bleed");
     target.bleed = Math.min(cap, target.bleed + stacks);
-    // 20层流血引爆（仅首次命中触发，连击额外攻击不触发）
-    if (multiplier >= 1 && target.bleed >= 20) {
+    // 25层流血引爆（仅首次命中触发，连击额外攻击不触发）
+    if (multiplier >= 1 && target.bleed >= 25) {
       let burstPct = 0.15;
       // 血河断刃+饮血封喉刀 combo：引爆伤害提高至25%
       if (actor === battle.player && run) {
@@ -906,7 +906,7 @@ function applySkillEffects(run, battle, actor, target, skill, damage, multiplier
       target.hp = Math.max(0, target.hp - burstDmg);
       addFloater(battle, sideOf(battle, target), "血流如注");
       addFloater(battle, sideOf(battle, target), `-${burstDmg}`, "bleed");
-      target.bleed -= 20;
+      target.bleed -= 25;
       battleLog(battle, `血流如注！${target.name}流血崩裂，扣除${burstDmg}血量！`);
     }
   }
@@ -1570,7 +1570,7 @@ function applyBossTurnMechanics(battle) {
     }
   }
 
-  // bloodBlade（血刃）：每回合流血+n(n=rank)；玩家流血≥20层引爆"血流如注"
+  // bloodBlade（血刃）：每回合流血+n(n=rank)，上限25
   if (trait === "bloodBlade") {
     if (p.cleanseShield > 0) continue;
     const rank = e.stats.rank || 1;
@@ -1581,15 +1581,6 @@ function applyBossTurnMechanics(battle) {
     p.bleed = Math.min(cap, p.bleed + stacks);
     battleLog(battle, `${e.name}血刃添伤！`);
     addFloater(battle, "player", `流血+${stacks}`);
-    // 20层流血引爆：血流如注（扣除20%最大血量）
-    if (p.bleed >= 20) {
-      const burstDmg = Math.floor(p.stats.hp * 0.20);
-      p.hp = Math.max(1, p.hp - burstDmg);
-      p.bleed -= 20;
-      battleLog(battle, `血流如注！${p.name}流血崩裂，扣除${burstDmg}血量！`);
-      addFloater(battle, "player", "血流如注");
-      addFloater(battle, "player", `-${burstDmg}`, "bleed");
-    }
   }
 
   // venomInfuse（淬毒）：每回合流血+n(n=rank)
