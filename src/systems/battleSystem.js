@@ -7,7 +7,7 @@ const MAX_PALM_CHAIN_ACTIONS = 3; // arm can increase to 4
 
 // Debuff caps
 const DEBUFF_CAPS = {
-  bleed: 25,
+  bleed: 15,
   poison: 15,
   inner: 12,
   frost: 15,
@@ -1570,7 +1570,7 @@ function applyBossTurnMechanics(battle) {
     }
   }
 
-  // bloodBlade（血刃）：每回合流血+n(n=rank)，上限25
+  // bloodBlade（血刃）：每回合流血+n(n=rank)，上限由武器决定（基础15+武器bonus）
   if (trait === "bloodBlade") {
     if (p.cleanseShield > 0) continue;
     const rank = e.stats.rank || 1;
