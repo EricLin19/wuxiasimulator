@@ -324,9 +324,15 @@ function resolveBattleResult(result) {
           if (leveled && !state.modal) state.modal = { type: "reward", options: buildRewardChoices(state.run) };
         }
       }
-      // 赢：散人决心+1
-      state.run.wandererResolve = Math.min(10, (state.run.wandererResolve || 0) + 1);
-      log(state.run, `击败${battle.enemy.name}！散人决心 +1（当前：${state.run.wandererResolve}/10）`);
+      // 赢：boss战胜利计数，每3场散人决心+1
+      state.run.bossWinCount = (state.run.bossWinCount || 0) + 1;
+      if (state.run.bossWinCount >= 3) {
+        state.run.bossWinCount = 0;
+        state.run.wandererResolve = Math.min(10, (state.run.wandererResolve || 0) + 1);
+        log(state.run, `连胜3场Boss战！散人决心+1（当前：${state.run.wandererResolve}/10）`);
+      } else {
+        log(state.run, `击败${battle.enemy.name}！Boss连胜（${state.run.bossWinCount}/3）。`);
+      }
 
       // M36最终Boss：展示结局选择
       if (storyBattle.isFinalBoss && storyBattle.endings) {

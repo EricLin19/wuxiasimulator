@@ -74,6 +74,7 @@ export function createRun(characterId, treasureId, meta, perRunAllocations) {
     storylineId: characterId,
     mainThreat: 0,
     wandererResolve: 0,
+    bossWinCount: 0,
     collectedHeritages: [],
     storyFlags: {},
     log: [],
@@ -397,7 +398,7 @@ function makeWandererGrowthPool(run) {
           const isWeapon = Math.random() < 0.5;
           let pool, item;
           if (isWeapon) {
-            pool = Object.values(DATA.weapons).filter(w => w.rarity === yrRarity);
+            pool = Object.values(DATA.weapons).filter(w => w.rarity === yrRarity && !w.bossOnly);
           } else {
             pool = Object.values(DATA.armors).filter(a => a.rarity === yrRarity);
           }

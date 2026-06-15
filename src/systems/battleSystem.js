@@ -7,7 +7,7 @@ const MAX_PALM_CHAIN_ACTIONS = 3; // arm can increase to 4
 
 // Debuff caps
 const DEBUFF_CAPS = {
-  bleed: 15,
+  bleed: 25,
   poison: 15,
   inner: 12,
   frost: 15,
@@ -809,9 +809,9 @@ function applyTurnStart(battle, unit) {
   if (unit.hamstring > 0) {
     unit.hamstring = Math.max(0, unit.hamstring - 1);
   }
-  // 断脉结算（每层内力-2%，减速2%，结算后-1）
+  // 断脉结算（每层内力-1%，减速2%，结算后-1）
   if (unit.veinBreak > 0) {
-    const qiLoss = Math.floor(unit.stats.qi * 0.02 * unit.veinBreak * dotReduceMult);
+    const qiLoss = Math.floor(unit.stats.qi * 0.01 * unit.veinBreak * dotReduceMult);
     if (qiLoss > 0) {
       unit.qi = Math.max(0, unit.qi - qiLoss);
       addFloater(battle, unit === battle.player ? "player" : "enemy", `-${qiLoss}`, "qi");
@@ -892,8 +892,8 @@ function applySkillEffects(run, battle, actor, target, skill, damage, multiplier
   if (skill.debuff === "bleed" && skill.style === "bleed") {
     const cap = getDebuffCap(run, weapon, "bleed");
     target.bleed = Math.min(cap, target.bleed + stacks);
-    // 25层流血引爆（仅首次命中触发，连击额外攻击不触发）
-    if (multiplier >= 1 && target.bleed >= 25) {
+    // 20层流血引爆（仅首次命中触发，连击额外攻击不触发）
+    if (multiplier >= 1 && target.bleed >= 20) {
       let burstPct = 0.15;
       // 血河断刃+饮血封喉刀 combo：引爆伤害提高至25%
       if (actor === battle.player && run) {
@@ -906,7 +906,7 @@ function applySkillEffects(run, battle, actor, target, skill, damage, multiplier
       target.hp = Math.max(0, target.hp - burstDmg);
       addFloater(battle, sideOf(battle, target), "血流如注");
       addFloater(battle, sideOf(battle, target), `-${burstDmg}`, "bleed");
-      target.bleed -= 25;
+      target.bleed -= 20;
       battleLog(battle, `血流如注！${target.name}流血崩裂，扣除${burstDmg}血量！`);
     }
   }

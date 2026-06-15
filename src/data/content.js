@@ -645,13 +645,9 @@ DATA.wandererMonths = {
     isEndNode: true, isFinalBoss: true,
     fightLabel: "终结秩序",
     enemyId: "main_m36_chu_zongxuan",
-    endings: [
-      { id: "accept", label: "归云入泽", desc: "战后与残余谈判为散人争未来", effect: { ending: "wanderer_accept", endingEpilogue: "settle" } },
-      { id: "resist", label: "孤云独行", desc: "拒绝所有妥协走最自由也最难的路", effect: { ending: "wanderer_resist", endingEpilogue: "wander" } },
-      { id: "special", label: "继任统领【隐藏】", desc: "以统领身份重塑规则", condition: "fame>=2000 && flag_becameLeader", effect: { ending: "wanderer_reform", endingEpilogue: "reform" } }
-    ],
     battleDesc: "武盟统领楚宗玄，天罡正气终极Boss。开场25%护体；50%血净化一次；15%血攻翻倍防归零。",
     battleReward: { exp:5000, fame:2000, money:3000, atk:10, def:10, int:10, agi:10 } },
+
   // === 孤云支线 (M37-M48) ===
   37: { title: "归云不系",
     text: "楚宗玄败后，群雄推你为散人领袖。你整顿旧案，立三不令：不贩人，不欺弱，不借散人之名敛财。半年后诸事渐定，你却厌了案牍与拜帖，只留一封短笺给方平：“云在山中，莫来寻我。”" },
@@ -695,10 +691,7 @@ DATA.wandererMonths = {
     isEndNode: true, isFinalBoss: true,
     fightLabel: "终结毒君",
     enemyId: "main_m48_xu_jiasheng",
-    endings: [
-      { id: "purge", label: "清洗毒疮", desc: "彻底清洗散人帮派中的毒瘤", effect: { ending: "wanderer_purge", endingEpilogue: "purge" } },
-      { id: "reform", label: "重修帮规", desc: "保留散人帮派，但彻底改革规则", effect: { ending: "wanderer_reform_v2", endingEpilogue: "reform" } }
-    ],
+
     battleDesc: "双修毒君徐迦笙，阴阳双修、采补邪功、毒雾缠身，低血量转入『阴阳逆鼎』狂暴。",
     battleReward: { exp:6000, fame:2500, money:5000, atk:12, def:12, int:12, agi:12 } }
 };
