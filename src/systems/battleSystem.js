@@ -14,7 +14,7 @@ const DEBUFF_CAPS = {
   hamstring: 15,
   veinBreak: 15,
   gu: 6,
-  imbalance: 15
+  imbalance: 22
 };
 const BLEED_DMG = 15;
 const POISON_DMG = 8;
@@ -992,12 +992,12 @@ function applySkillEffects(run, battle, actor, target, skill, damage, multiplier
       addFloater(battle, sideOf(battle, target), "筋断力竭");
     }
   }
-  // 25层失衡引爆：破甲归零（防御归零2回合，命中时降低）→ v6.7改为：失衡不计防御=双倍真伤
+  // 25层失衡引爆：真伤受到3倍伤害（持续2回合）
   if (skill.debuff === "imbalance" || skill.style === "lowKick") {
     if (multiplier >= 1 && target.imbalance >= 25) {
       target.imbalance -= 25;
-      target.armorBreak = 2;  // v6.7：防御归零2回合
-      battleLog(battle, `失衡破甲！${target.name}护甲崩碎，防御归零2回合！`);
+      target.armorBreak = 2;  // v6.8：真伤3倍伤害 持续2回合
+      battleLog(battle, `失衡破甲！${target.name}护甲崩碎，受到真伤时承受3倍伤害！`);
       addFloater(battle, sideOf(battle, target), "失衡破甲");
     }
   }
@@ -1111,7 +1111,7 @@ function applySkillEffects(run, battle, actor, target, skill, damage, multiplier
       if (weapon && weapon.school === "lightness" && weapon.style === "lowKick" && weapon.imbalanceBonus) {
         imbBonus += weapon.imbalanceBonus;
       }
-      if (hasStyleMastery(run, "lowKick")) imbBonus += 1;
+      if (hasStyleMastery(run, "lowKick")) imbBonus += 1;  // v6.8：地裂无声失衡额外+1
       if (imbBonus > 0) {
         const cap = getDebuffCap(run, weapon, "imbalance");
         target.imbalance = Math.min(cap, target.imbalance + imbBonus);
@@ -1167,6 +1167,7 @@ function getDebuffCap(run, weapon, type, bossWeapon = null) {
   if (hasStyleMastery(run, type)) {
     if (type === "bleed") cap += 7;
     if (type === "poison") cap += 7;
+    if (type === "imbalance") cap += 7;  // v6.8：地裂无声失衡上限+7
   }
   return cap;
 }
@@ -1195,6 +1196,16 @@ function calcDamage(run, battle, actor, target, skill) {
     battleLog(battle, `暴击！×${cm.toFixed(1)}倍`);
   }
   if (target.guard) dmg = Math.floor(dmg * 0.55);
+  // v6.8：真伤腿法命中时，失衡>0 时真伤额外受到 3%/层 伤害
+  if (skill.style === "lowKick" && target.imbalance > 0) {
+    const imbPct = target.imbalance * 0.03;
+    dmg = Math.floor(dmg * (1 + imbPct));
+  }
+  // v6.8：失衡25层爆伤后，目标真伤受到3倍伤害，持续2回合
+  if (target.armorBreak > 0 && skill.style === "lowKick") {
+    dmg = dmg * 3;
+    battleLog(battle, `【失衡破甲】${target.name}真伤受到3倍伤害！`);
+  }
   return dmg;
 }
 
@@ -1286,6 +1297,8 @@ function effectiveDef(unit) {
   if (!unit || !unit.stats) { console.error("[effectiveDef] unit or unit.stats is undefined"); return 0; }
   let def = unit.stats.def - unit.poison * 2;
   if (unit.imbalance > 0) def -= Math.floor(unit.stats.def * 0.02 * unit.imbalance);
+  // v6.8：失衡25层后armorBreak=2回合，防御归零
+  if (unit.armorBreak > 0) def = 0;
   return Math.max(0, def);
 }
 
@@ -1324,11 +1337,11 @@ function critChance(run, actor, skill) {
   let value = actor.stats.crit + (skill.school === "blade" ? 8 : 0) + (skill.style === "critPalm" ? 12 : 0);
   const weapon = run.equippedWeapon ? DATA.weapons[run.equippedWeapon] : null;
   if (weapon && weapon.school === skill.school && weapon.style === skill.style) value += weapon.critBonus || 0;
-  if (hasStyleMastery(run, skill.style) && skill.style === "critPalm") value += 10;  // v6.7：碎星连震→地爆天星 +10
+  if (hasStyleMastery(run, skill.style) && skill.style === "critPalm") value += 10;  // v6.8：碎星连震 crit+10
   // 临时Buff：暴击概率加成
   if (actor.tempBuffs?.crit) value += actor.tempBuffs.crit.critAdd || 0;
-  // 暴击率软上限65%
-  return clamp(value, 0, 65);
+  // v6.8：取消暴击率上限
+  return Math.max(0, value);
 }
 
 function critMultiplier(run, skill, actor = null) {
@@ -1336,7 +1349,7 @@ function critMultiplier(run, skill, actor = null) {
   for (const trait of run.skillTraits || []) value += trait.effects?.critPower || 0;
   const weapon = run.equippedWeapon ? DATA.weapons[run.equippedWeapon] : null;
   if (weapon && weapon.school === skill.school && weapon.style === skill.style) value += weapon.critPower || 0;
-  if (hasStyleMastery(run, skill.style) && skill.style === "critPalm") value += 0.5;  // v6.7：碎星连震→地爆天星 +0.5
+  if (hasStyleMastery(run, skill.style) && skill.style === "critPalm") value += 0.5;  // v6.8：碎星连震 critPower+0.5
   if (skill.school === "blade") value += 0.1;
   // 临时Buff：暴击倍率加成
   if (actor?.tempBuffs?.crit) value += actor.tempBuffs.crit.critPowerAdd || 0;

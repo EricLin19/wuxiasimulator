@@ -347,7 +347,7 @@ const SKILL_TIER_LABELS = {
 
 export const STYLE_TRAITS = {
   combo: { id: "comboMastery", name: "长江三叠浪", desc: "连击掌触发连击时，其他连击掌冷却-1；若有掌法就绪，可立即继续出掌。每己方回合最多额外出掌2次。" },
-  critPalm: { id: "critPalmMastery", name: "地爆天星", desc: "暴击拳掌暴击率+10，暴击倍率+0.5。暴击率软上限65%。" },
+  critPalm: { id: "critPalmMastery", name: "碎星连震", desc: "暴击拳掌暴击+10，暴伤+0.5。暴击率无上限。" },
   qiBreak: { id: "qiBreakMastery", name: "断脉归元", desc: "断脉拳掌削内力提高，目标内力归零时额外受伤。每己方回合最多削目标最大内力25%。" },
   bleed: { id: "bleedBladeMastery", name: "百创刀势", desc: "流血刀造成流血时额外+1层，流血上限+7。流不暴击。" },
   frost: { id: "frostBladeMastery", name: "玄冥寒河", desc: "寒冰刀附加更多寒气，并进一步削减内力。速度最低降至60%。" },
@@ -356,7 +356,7 @@ export const STYLE_TRAITS = {
   poison: { id: "poisonMastery", name: "孔雀毒雨", desc: "淬毒暗器造成中毒时额外+1层，中毒上限+7，额外削减内力。毒不暴击。" },
   coin: { id: "coinMastery", name: "漫天金雨", desc: "金钱暗器固定伤害提高，终极金钱暗器花费降低。每己方回合最多1次，不暴击。" },
   evasive: { id: "evasiveLegMastery", name: "凌波回息", desc: "闪避后减冷却与调息效果提高。每回合最多触发1次。" },
-  lowKick: { id: "lowKickMastery", name: "地裂无声", desc: "下盘腿法真伤提高，并额外压低目标速度。真伤不暴击。" },
+  lowKick: { id: "lowKickMastery", name: "地裂无声", desc: "下盘腿法真伤+100，失衡额外+1，失衡上限+7。真伤不暴击。" },
   steal: { id: "stealLegMastery", name: "摘星夺魄", desc: "偷盗型腿法获得更多金钱，并提高出手速度。每己方回合最多1次。" }
 };
 
