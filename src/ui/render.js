@@ -187,7 +187,7 @@ function renderAllocate(state, actions) {
   const points = state.allocPoints || 0;
   const allKeys = [...STAT_KEYS, "money"];
   const ALLOC_BONUS = {
-    hp: 90, qi: 30, atk: 3, def: 3, combo: 8, hit: 3, dodge: 1, crit: 2, speed: 0.04,
+    hp: 90, qi: 30, atk: 3, def: 3, combo: 2, hit: 3, dodge: 1, crit: 2, speed: 0.04,
     money: 100
   };
   const ALLOC_HELP = {
@@ -415,7 +415,7 @@ function renderModal(state, actions) {
 }
 
 const META_BONUS = {
-  hp: 90, qi: 30, atk: 3, def: 3, combo: 8, hit: 3, dodge: 1, crit: 2, speed: 0.04,
+  hp: 90, qi: 30, atk: 3, def: 3, combo: 2, hit: 3, dodge: 1, crit: 2, speed: 0.04,
   money: 100
 };
 
