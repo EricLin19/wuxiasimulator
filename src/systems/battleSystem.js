@@ -289,8 +289,13 @@ export function tickBattle(battle, dt) {
       return null;
     }
     battle.actor = "player";
-    // Reset per-turn trackers on player turn
-    battle.turnTrackers = { comboChains: 0, evasiveTriggers: 0, coinThrows: 0, guDisrupts: 0, frostHits: 0, stealTriggers: 0, playerTurnCount: 0 };
+    // Reset per-turn trackers on player turn (保留 playerTurnCount 跨回合累计)
+    battle.turnTrackers.comboChains = 0;
+    battle.turnTrackers.evasiveTriggers = 0;
+    battle.turnTrackers.coinThrows = 0;
+    battle.turnTrackers.guDisrupts = 0;
+    battle.turnTrackers.frostHits = 0;
+    battle.turnTrackers.stealTriggers = 0;
     applyTurnStart(battle, p);
     if (checkBattleEnd(battle).ended) return "ended";
     battle.phase = p.auto ? "autoPlayer" : "waitPlayer";
