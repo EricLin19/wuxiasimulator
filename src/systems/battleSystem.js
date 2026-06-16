@@ -835,7 +835,7 @@ function applyTurnStart(battle, unit) {
   }
 
   // 鲸息特性：每回合自动恢复 5% 内力（无论是否调息）
-  if (unit === battle.player && run?.traits?.includes("jingxi")) {
+  if (unit === battle.player && battle.run?.traits?.includes("jingxi")) {
     const extraQi = Math.floor(unit.stats.qi * 0.05);
     unit.qi = Math.min(unit.stats.qi, unit.qi + extraQi);
     battleLog(battle, `【鲸息】${unit.name}恢复${extraQi}内力。`);
