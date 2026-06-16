@@ -14,7 +14,8 @@ const DEBUFF_CAPS = {
   hamstring: 15,
   veinBreak: 15,
   gu: 6,
-  imbalance: 22
+  imbalance: 15,
+  breakDefense: 15
 };
 const BLEED_DMG = 15;
 const POISON_DMG = 8;
@@ -144,6 +145,8 @@ export function createBattle(run, enemyTemplate, isBoss = false) {
     floaters: [],
     speed: 1,
     run,
+    // 破防系统的原始 DEF 基准（用于破防清零后恢复）
+    _defBaseInit: true,
     // Per-turn trackers
     turnTrackers: { comboChains: 0, evasiveTriggers: 0, coinThrows: 0, guDisrupts: 0, frostHits: 0, stealTriggers: 0, playerTurnCount: 0 },
     // 敌人行动计数（用于限制断脉拳师等前N回合特性）
@@ -167,6 +170,9 @@ export function createBattle(run, enemyTemplate, isBoss = false) {
     playerPortrait: run.character.portraitImage || null,
     enemyPortrait: enemyTemplate.portraitImage || null
   };
+  // v6.x 破防系统：记录双方原始 DEF 基准（用于破防清零后恢复）
+  battle.player.defBase = battle.player.stats.def;
+  battle.enemy.defBase = battle.enemy.stats.def;
   // v6.0.3 debug: 记录 Boss 特性初始化
   if (battle.bossTraits.length) {
     console.log(`[createBattle] ${enemyTemplate.name} bossTraits=`, battle.bossTraits, `isBoss=${isBoss}`);
@@ -267,7 +273,7 @@ function scaleEnemyStats(stats) {
 }
 
 function makeUnit(name, icon, stats, hp, qi, skills, items) {
-  return { name, icon, stats, hp, qi, gauge: 0, skills, items, cooldowns: {}, auto: false, bleed: 0, poison: 0, inner: 0, frost: 0, hamstring: 0, veinBreak: 0, gu: 0, imbalance: 0, guard: 0, cleanseShield: 0, dodgeHealCount: 0, frozen: 0, atkZero: 0, armorBreak: 0, imbalanceMult: 0, tempBuffs: {}, weapon: null };
+  return { name, icon, stats, hp, qi, gauge: 0, skills, items, cooldowns: {}, auto: false, bleed: 0, poison: 0, inner: 0, frost: 0, hamstring: 0, veinBreak: 0, gu: 0, imbalance: 0, guard: 0, cleanseShield: 0, dodgeHealCount: 0, frozen: 0, atkZero: 0, weakpointExposed: 0, imbalanceMult: 0, breakDefense: 0, breakDefenseShatter: 0, defBase: 0, tempBuffs: {}, weapon: null };
 }
 
 export function tickBattle(battle, dt) {
@@ -828,13 +834,19 @@ function applyTurnStart(battle, unit) {
   if (unit.imbalance > 0) {
     unit.imbalance = Math.max(0, unit.imbalance - 1);
   }
+  // v6.x 破防结算：每层持续 -2% DEF（不递减，破防是 debuff 不自动 -1，引爆时才-25）
+  // 破防仅在 25 层引爆时由引爆代码扣 25 层，平时不动
+  // 破防引爆计时器
+  if (unit.breakDefenseShatter > 0) {
+    unit.breakDefenseShatter--;
+  }
   // 筋断力竭计时
   if (unit.atkZero > 0) {
     unit.atkZero--;
   }
   // 弱点暴露计时
-  if (unit.armorBreak > 0) {
-    unit.armorBreak--;
+  if (unit.weakpointExposed > 0) {
+    unit.weakpointExposed--;
   }
 
   // 鲸息特性：每回合自动恢复 5% 内力（无论是否调息）
@@ -870,7 +882,7 @@ function applyTurnStart(battle, unit) {
         battle.turnTrackers.playerTurnCount++;
         if (battle.turnTrackers.playerTurnCount % 5 === 0) {
           const p = unit;
-          const fields = ["bleed", "poison", "inner", "frost", "hamstring", "veinBreak", "gu", "imbalance"];
+          const fields = ["bleed", "poison", "inner", "frost", "hamstring", "veinBreak", "gu", "imbalance", "breakDefense"];
           const before = fields.reduce((s, k) => s + (p[k] || 0), 0);
           if (before > 0) {
             fields.forEach(k => { p[k] = Math.floor((p[k] || 0) / 2); });
@@ -897,9 +909,11 @@ function applySkillEffects(run, battle, actor, target, skill, damage, multiplier
     if (skill.debuff === "hamstring" && skill.style === "hamstring") stacks += weapon.hamstringBonus || weapon.debuffBonus || 0;
     if (skill.debuff === "gu" && skill.style === "gu") stacks += weapon.guBonus || weapon.debuffBonus || 0;
     if (skill.debuff === "poison" && skill.style === "poison") stacks += weapon.poisonBonus || weapon.debuffBonus || 0;
+    if (skill.debuff === "breakDefense" && skill.style === "critPalm") stacks += weapon.breakDefenseBonus || 0;
   }
 
   if (hasStyleMastery(run, skill.style) && ["bleed", "frost", "hamstring", "gu", "poison"].includes(skill.style)) stacks += 1;
+  // critPalm 流派大师碎星连震没有大师额外+1（大师只加 cap=+7）
   if (run.traits.includes("nightPoison") && skill.debuff === "poison") stacks += 1;
   if (run.traits.includes("tieyi_blood_debt") && skill.style === "bleed") stacks += 3;
   for (const trait of run.skillTraits || []) {
@@ -972,6 +986,26 @@ function applySkillEffects(run, battle, actor, target, skill, damage, multiplier
     const cap = getDebuffCap(run, weapon, "inner");
     target.inner = Math.min(cap, target.inner + stacks);
   }
+  if (skill.debuff === "breakDefense" && skill.style === "critPalm") {
+    const cap = getDebuffCap(run, weapon, "breakDefense");
+    const before = target.breakDefense;
+    target.breakDefense = Math.min(cap, target.breakDefense + stacks);
+    const actual = target.breakDefense - before;
+    if (actual > 0) {
+      addFloater(battle, sideOf(battle, target), `破防+${actual}`, "breakDefense");
+    }
+    // 25层破防引爆（仅首次命中触发，连击额外攻击不触发）
+    if (multiplier >= 1 && target.breakDefense >= 25) {
+      // 红武器+红武功协同：清零持续3回合，否则2回合
+      const isSynergy = (weapon && weapon.school === "fist" && weapon.style === "critPalm"
+                         && weapon.rarity === "red" && skill.rarity === "red");
+      const shatterTurns = isSynergy ? 3 : 2;
+      target.breakDefense -= 25;
+      target.breakDefenseShatter = shatterTurns;
+      battleLog(battle, `破防一击！${target.name}防御直接归零，持续${shatterTurns}回合！`);
+      addFloater(battle, sideOf(battle, target), `破防一击×${shatterTurns}`);
+    }
+  }
   if (skill.debuff === "frost") {
     const cap = getDebuffCap(run, weapon, "frost");
     target.frost = Math.min(cap, target.frost + stacks);
@@ -996,15 +1030,15 @@ function applySkillEffects(run, battle, actor, target, skill, damage, multiplier
       addFloater(battle, sideOf(battle, target), "筋断力竭");
     }
   }
-  // 25层失衡引爆：弱点暴露（真伤受到3倍伤害，持续2回合）
+  // 25层失衡引爆：weakpointExposed（真伤受到倍数伤害，持续2回合）
   if (skill.debuff === "imbalance" || skill.style === "lowKick") {
     if (multiplier >= 1 && target.imbalance >= 25) {
       target.imbalance -= 25;
-      // v6.9：协同奖励仅限红武器+红武功
+      // v6.9：协同奖励仅限红武器+红武功 → 4.0x；否则3.0x
       const weapon = run.equippedWeapon ? DATA.weapons[run.equippedWeapon] : null;
       const imbMult = (weapon && weapon.school === "lightness" && weapon.style === "lowKick"
-                       && weapon.rarity === "red" && skill.rarity === "red") ? 3.5 : 3.0;
-      target.armorBreak = 2;
+                       && weapon.rarity === "red" && skill.rarity === "red") ? 4.0 : 3.0;
+      target.weakpointExposed = 2;
       target.imbalanceMult = imbMult;
       battleLog(battle, `弱点暴露！${target.name}防御崩坏，受到真伤时承受${imbMult.toFixed(2)}倍伤害！`);
       addFloater(battle, sideOf(battle, target), `弱点暴露×${imbMult.toFixed(2)}`);
@@ -1163,6 +1197,7 @@ function getDebuffCap(run, weapon, type, bossWeapon = null) {
     if (type === "gu" && weapon.guCapBonus) cap += weapon.guCapBonus;
     if (type === "poison" && weapon.poisonCapBonus) cap += weapon.poisonCapBonus;
     if (type === "imbalance" && weapon.imbalanceCapBonus) cap += weapon.imbalanceCapBonus;
+    if (type === "breakDefense" && weapon.breakDefenseCapBonus) cap += weapon.breakDefenseCapBonus;
   }
   // Boss weapon cap bonus
   if (bossWeapon) {
@@ -1177,6 +1212,7 @@ function getDebuffCap(run, weapon, type, bossWeapon = null) {
     if (type === "bleed") cap += 7;
     if (type === "poison") cap += 7;
     if (type === "imbalance") cap += 7;  // v6.8：地裂无声失衡上限+7
+    if (type === "breakDefense") cap += 7;  // v6.x：碎星连震破防上限+7
   }
   return cap;
 }
@@ -1211,7 +1247,7 @@ function calcDamage(run, battle, actor, target, skill) {
     dmg = Math.floor(dmg * (1 + imbPct));
   }
   // v6.9：弱点暴露：25层后真伤受到imbMult倍伤害，持续2回合
-  if (target.armorBreak > 0 && skill.style === "lowKick") {
+  if (target.weakpointExposed > 0 && skill.style === "lowKick") {
     const imbMult = target.imbalanceMult || 3.0;
     dmg = dmg * imbMult;
     battleLog(battle, `【弱点暴露】${target.name}真伤受到${imbMult.toFixed(2)}倍伤害！`);
@@ -1305,7 +1341,13 @@ function stealMoneyValue(run, skill) {
 
 function effectiveDef(unit) {
   if (!unit || !unit.stats) { console.error("[effectiveDef] unit or unit.stats is undefined"); return 0; }
-  let def = unit.stats.def - unit.poison * 2;
+  // 破防引爆期间：DEF 直接归零
+  if (unit.breakDefenseShatter > 0) return 0;
+  // 破防层数累乘：每层 -2% DEF（即保留 0.98）
+  const base = unit.defBase > 0 ? unit.defBase : unit.stats.def;
+  const n = unit.breakDefense || 0;
+  const defMul = Math.pow(0.98, n);
+  let def = (base - unit.poison * 2) * defMul;
   return Math.max(0, def);
 }
 
@@ -1720,7 +1762,7 @@ function applyBossTurnMechanics(battle) {
       battle.celestialBurnTriggered = false;
       if (e.stats._origAtk2) e.stats.atk = e.stats._origAtk2;
       if (e.stats._origSpd2) e.stats.speed = e.stats._origSpd2;
-      if (e.stats._origDef2) e.stats.def = e.stats._origDef2;
+      if (e.stats._origDef2) { e.stats.def = e.stats._origDef2; e.defBase = e.stats.def; }
       battle._celestialBurnTurn = 0;
       battleLog(battle, `${e.name}的天罡燃命效果消失。`);
       addFloater(battle, "enemy", "燃命结束");
@@ -1743,7 +1785,7 @@ function checkBossPhaseTriggers(battle) {
   // poisonGuCapCleanse：50%血时净化并回血20%（保留向后兼容）
   if (trait === "poisonGuCapCleanse" && hpPct <= 0.5 && !battle.bossPhaseTriggered["50pct"]) {
     battle.bossPhaseTriggered["50pct"] = true;
-    e.bleed = 0; e.poison = 0; e.inner = 0; e.frost = 0; e.hamstring = 0; e.veinBreak = 0; e.gu = 0; e.imbalance = 0; e.frozen = 0; e.atkZero = 0; e.armorBreak = 0;
+    e.bleed = 0; e.poison = 0; e.inner = 0; e.frost = 0; e.hamstring = 0; e.veinBreak = 0; e.gu = 0; e.imbalance = 0; e.frozen = 0; e.atkZero = 0; e.weakpointExposed = 0; e.breakDefense = 0; e.breakDefenseShatter = 0;
     const healAmt = Math.floor(e.stats.hp * 0.2);
     e.hp = Math.min(e.stats.hp, e.hp + healAmt);
     battleLog(battle, `${e.name}净化了所有负面状态，恢复了${healAmt}血量！`);
@@ -1785,7 +1827,7 @@ function checkBossPhaseTriggers(battle) {
   // celestialCleanse（天罡净化）：≤50%HP自动释放，净化所有负面+回血30%，每场战斗一次
   if (trait === "celestialCleanse" && hpPct <= 0.5 && !battle.celestialCleanseUsed) {
     battle.celestialCleanseUsed = true;
-    e.bleed = 0; e.poison = 0; e.inner = 0; e.frost = 0; e.hamstring = 0; e.veinBreak = 0; e.gu = 0; e.imbalance = 0; e.frozen = 0; e.atkZero = 0; e.armorBreak = 0;
+    e.bleed = 0; e.poison = 0; e.inner = 0; e.frost = 0; e.hamstring = 0; e.veinBreak = 0; e.gu = 0; e.imbalance = 0; e.frozen = 0; e.atkZero = 0; e.weakpointExposed = 0; e.breakDefense = 0; e.breakDefenseShatter = 0;
     const healAmt = Math.floor(e.stats.hp * 0.30);
     e.hp = Math.min(e.stats.hp, e.hp + healAmt);
     battleLog(battle, `${e.name}天罡净化！清除所有负面，恢复${healAmt}血量！`);
@@ -1801,6 +1843,7 @@ function checkBossPhaseTriggers(battle) {
     e.stats.atk = Math.round(e.stats.atk * 2);
     e.stats.speed = Math.round(e.stats.speed * 2 * 100) / 100;
     e.stats.def = Math.round(e.stats.def * 0.5);
+    e.defBase = e.stats.def;  // v6.x 破防系统：同步 defBase
     battle._celestialBurnTurn = 0;
     battleLog(battle, `${e.name}天罡燃命！攻击×2，速度×2，防御×0.5，持续5回合！`);
     addFloater(battle, "enemy", "燃命一击");

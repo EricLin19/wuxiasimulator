@@ -930,7 +930,9 @@ function debuffBadges(unit) {
   if (unit.frost) badges.push(`<span class="debuff-badge" title="寒气：每层减速4%，回合后-1层。">寒气 ${unit.frost}</span>`);
   if (unit.hamstring) badges.push(`<span class="debuff-badge" title="断筋：每层攻击-2%+减速2%，回合后-1层。">断筋 ${unit.hamstring}</span>`);
   if (unit.veinBreak) badges.push(`<span class="debuff-badge" title="断脉：每层内力-2%+减速2%，回合后-1层。">断脉 ${unit.veinBreak}</span>`);
-  if (unit.imbalance) badges.push(`<span class="debuff-badge" title="失衡：每层防御-1%+减速1%，回合后-1层；25层引爆：真伤受到3倍伤害。">失衡 ${unit.imbalance}</span>`);
+  if (unit.imbalance) badges.push(`<span class="debuff-badge" title="失衡：每层+3%真伤，回合后-1层；15层引爆：弱点暴露（真伤受到3~4倍伤害，2回合）。">失衡 ${unit.imbalance}</span>`);
+  if (unit.breakDefense) badges.push(`<span class="debuff-badge" title="破防：每层-2% DEF（累乘）；15层引爆：破防一击（DEF直接归零，2~3回合后恢复）。">破防 ${unit.breakDefense}</span>`);
+  if (unit.breakDefenseShatter) badges.push(`<span class="debuff-badge" title="破防一击：DEF 已归零，剩余${unit.breakDefenseShatter}回合后恢复。">破防一击 ${unit.breakDefenseShatter}</span>`);
   if (unit.gu) badges.push(`<span class="debuff-badge" title="蛊：提高招式内力消耗，并扰乱气息。">蛊 ${unit.gu}</span>`);
   // 临时Buff显示（快/力/杀）
   if (unit.tempBuffs) {
@@ -1011,11 +1013,11 @@ function buildUnitDetailPopup(unit, side, state, actions) {
   }
 
   // Debuff
-  const debuffLabels = { bleed: "流血", poison: "中毒", inner: "内伤", frost: "寒气", hamstring: "断筋", veinBreak: "断脉", imbalance: "失衡", gu: "蛊" };
+  const debuffLabels = { bleed: "流血", poison: "中毒", inner: "内伤", frost: "寒气", hamstring: "断筋", veinBreak: "断脉", imbalance: "失衡", breakDefense: "破防", gu: "蛊" };
   for (const [type, label] of Object.entries(debuffLabels)) {
     if (unit[type]) {
       const row = el("div", "detail-row");
-      const detail = type === "bleed" ? `行动开始受到${unit[type]*12}伤害` : type === "poison" ? "降攻/防/命/闪/速" : type === "inner" ? "行动开始失去内力" : type === "frost" ? "降速+失去内力" : type === "hamstring" ? "降速+削攻" : type === "veinBreak" ? "降内力+减速" : type === "imbalance" ? "降防+降速，真伤加成" : "提高招式消耗+扰乱";
+      const detail = type === "bleed" ? `行动开始受到${unit[type]*12}伤害` : type === "poison" ? "降攻/防/命/闪/速" : type === "inner" ? "行动开始失去内力" : type === "frost" ? "降速+失去内力" : type === "hamstring" ? "降速+削攻" : type === "veinBreak" ? "降内力+减速" : type === "imbalance" ? "降防+降速，真伤加成" : type === "breakDefense" ? "每层-2% DEF（累乘）" : "提高招式消耗+扰乱";
       row.innerHTML = `<span class="debuff-badge">${label} ${unit[type]}</span>：${detail}`;
       popup.appendChild(row);
     }
