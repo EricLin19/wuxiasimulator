@@ -180,7 +180,7 @@ export const DATA = {
     { id: "clearMind", name: "明心", desc: "每月开始额外获得1行动力。" },
     { id: "tieyi_blood_debt", name: "血偿", desc: "流血招式层数+3，无论武器类型均生效。" },
     { id: "tieyi_body_tempering", name: "铁衣锻体", desc: "每回合调息额外恢复5%最大血量。" },
-    { id: "jingxi", name: "静息", desc: "每回合自动恢复5%最大内力。" },
+    { id: "jingxi", name: "鲸息", desc: "每回合自动恢复5%最大内力。" },
     { id: "merchantFriend", name: "奇智", desc: "商人价格降低15%。" },
     { id: "hardBone", name: "硬骨", desc: "最大血量+60。" },
     { id: "innerRoot", name: "内息深长", desc: "最大内力+80。" }
@@ -436,7 +436,7 @@ export const INTERNAL_ARTS = {
   art_blue_4: { id: "art_blue_4", name: "回照心经", rarity: "blue", icon: "照", cultivateCost: 3, desc: "心光回照，滋养肉身。血量+150，内力+40，战斗开始时恢复35%血量。", statGain: { hp: 150, qi: 40 }, combatEffect: "healOnStart", combatDesc: "战斗开始时恢复35%血量" },
   art_blue_5: { id: "art_blue_5", name: "太玄入门篇", rarity: "blue", icon: "玄", cultivateCost: 3, desc: "玄门筑基心法。内力+60，暴击+4。", statGain: { qi: 60, crit: 4 } },
   art_blue_6: { id: "art_blue_6", name: "龙象锻骨功", rarity: "blue", icon: "象", cultivateCost: 3, desc: "锻骨炼体，力大无穷。血量+150，攻击+7。", statGain: { hp: 150, atk: 7 } },
-  art_blue_7: { id: "art_blue_7", name: "先天归元功", rarity: "blue", icon: "先", cultivateCost: 3, desc: "归元守一，内息绵绵。内力+70，命中+5，每回合恢复6%最大内力（上限10%）。", statGain: { qi: 70, hit: 5 }, combatEffect: "qiRegen", combatDesc: "每回合恢复6%最大内力" },
+  art_blue_7: { id: "art_blue_7", name: "归元功", rarity: "blue", icon: "元", cultivateCost: 3, desc: "归元守一，内息绵绵。内力+70，命中+5，每回合恢复6%最大内力（上限10%）。", statGain: { qi: 70, hit: 5 }, combatEffect: "qiRegen", combatDesc: "每回合恢复6%最大内力" },
   art_blue_8: { id: "art_blue_8", name: "葵影残篇", rarity: "blue", icon: "葵", cultivateCost: 3, desc: "残卷仅有速功心法。闪避+6，出手速度+0.18。", statGain: { dodge: 6, speed: 0.18 } },
   art_orange_1: { id: "art_orange_1", name: "虚玄无相功", rarity: "orange", icon: "相", cultivateCost: 4, desc: "无形无相，气随意转。内力+110，连击+6，每次攻击吸取对方5%内力，自己增加等量内力。", statGain: { qi: 110, combo: 6 }, combatEffect: "stealQi", combatDesc: "攻击吸5%内力+自身增加等量" },
   art_orange_2: { id: "art_orange_2", name: "纯阳正气诀", rarity: "orange", icon: "阳", cultivateCost: 4, desc: "纯阳之体，正气凛然。血量+300，攻击+10，暴击+4，暴击伤害+150%。", statGain: { hp: 300, atk: 10, crit: 4 }, combatEffect: "critUp", combatDesc: "暴击伤害+150%" },
@@ -733,7 +733,7 @@ DATA.wandererGrowthEvents = {
       category: "传功",
       unlockMonth: 10,
       desc: "龙井谷废墟的清晨有股特别的清气。韩铁衣生前每天早上都在这里打坐——他说「谷里的风会教你呼吸」。你盘腿坐在他坐过的石头上，让风吹进丹田。几个月下来你发现自己的内力运转比从前顺畅许多——不是多了什么招式，是底子比以前厚实了。",
-      effect: { qiUp: 60, traitGain: "jingxi", desc: "内力上限+60，获得特性「静息」：每回合调息多回复5%内力" }
+      effect: { qiUp: 60, traitGain: "jingxi", desc: "内力上限+60，获得特性「鲸息」：每回合自动回复5%内力" }
     },
     {
       id: "wanderer_heritage_break",
@@ -950,7 +950,7 @@ DATA.wandererMerchantPool = {
   internalArts: [
     { id: "art_blue_3", name: "罗汉镇岳功", rarity: "blue", price: 500, desc: "少林叛僧流传出来的站桩功夫，散人没有门派护体，只能靠自己扛。" },
     { id: "art_blue_4", name: "回照心经", rarity: "blue", price: 500, desc: "江湖药店常配的内功入门——不会这个功法你连毒都扛不住。" },
-    { id: "art_blue_7", name: "先天归元功", rarity: "blue", price: 500, desc: "玄门筑基心法。归元守一，内息绵绵。散人没有师门调息，纯靠自己盘坐吐纳。" },
+    { id: "art_blue_7", name: "归元功", rarity: "blue", price: 500, desc: "归元守一，内息绵绵。散人没有师门调息，纯靠自己盘坐吐纳。" },
     { id: "art_orange_1", name: "虚玄无相功", rarity: "orange", price: 1500, desc: "传说是一个偷遍江南的老贼头创的，内力运转不浪费一丝，真正的省着用——每次攻击吸取对方内力。" },
     { id: "art_orange_2", name: "纯阳正气诀", rarity: "orange", price: 1600, desc: "名字很正派，实则是散人对抗武盟压迫的底气——心中坦荡，气贯长虹。" },
     { id: "art_red_2", name: "大罗洗髓经", rarity: "red", price: 5000, desc: "来自一个活了两甲子的老散人——洗掉过去的伤，重新站起来的功法。" },

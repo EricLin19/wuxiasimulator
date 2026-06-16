@@ -517,8 +517,8 @@ export function restAction(run, battle) {
     hpAmt += extraHp;
     battleLog(battle, `【铁衣锻体】调息额外恢复${extraHp}血量。`);
   }
-  // 静息特性已改为"每回合自动恢复5%内力"，见 applyTurnStart 中触发
-  // （此处不再处理，静息在每个回合开始时结算）
+  // 鲸息特性已改为"每回合自动恢复5%内力"，见 applyTurnStart 中触发
+  // （此处不再处理，鲸息在每个回合开始时结算）
   heal(run, p, hpAmt);
   p.qi = Math.min(p.stats.qi, p.qi + qiAmt);
   battleLog(battle, `${p.name}调息，恢复${hpAmt}血量和${qiAmt}内力。`);
@@ -819,11 +819,11 @@ function applyTurnStart(battle, unit) {
     unit.atkZero--;
   }
 
-  // 静息：每回合自动恢复 5% 内力（无论是否调息）
+  // 鲸息特性：每回合自动恢复 5% 内力（无论是否调息）
   if (unit === battle.player && run?.traits?.includes("jingxi")) {
     const extraQi = Math.floor(unit.stats.qi * 0.05);
     unit.qi = Math.min(unit.stats.qi, unit.qi + extraQi);
-    battleLog(battle, `【静息】${unit.name}恢复${extraQi}内力。`);
+    battleLog(battle, `【鲸息】${unit.name}恢复${extraQi}内力。`);
     addFloater(battle, "player", `+${extraQi}`, "qi");
   }
   // 内功效果：玩家回合开始（回血上限6%最大血量，回内上限10%最大内力）
