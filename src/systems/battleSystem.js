@@ -13,7 +13,8 @@ const DEBUFF_CAPS = {
   frost: 15,
   hamstring: 15,
   veinBreak: 15,
-  gu: 6
+  gu: 6,
+  imbalance: 15
 };
 const BLEED_DMG = 15;
 const POISON_DMG = 8;
@@ -266,7 +267,7 @@ function scaleEnemyStats(stats) {
 }
 
 function makeUnit(name, icon, stats, hp, qi, skills, items) {
-  return { name, icon, stats, hp, qi, gauge: 0, skills, items, cooldowns: {}, auto: false, bleed: 0, poison: 0, inner: 0, frost: 0, hamstring: 0, veinBreak: 0, gu: 0, guard: 0, cleanseShield: 0, dodgeHealCount: 0, frozen: 0, atkZero: 0, tempBuffs: {}, weapon: null };
+  return { name, icon, stats, hp, qi, gauge: 0, skills, items, cooldowns: {}, auto: false, bleed: 0, poison: 0, inner: 0, frost: 0, hamstring: 0, veinBreak: 0, gu: 0, imbalance: 0, guard: 0, cleanseShield: 0, dodgeHealCount: 0, frozen: 0, atkZero: 0, tempBuffs: {}, weapon: null };
 }
 
 export function tickBattle(battle, dt) {
@@ -415,9 +416,11 @@ function resolveAttack(run, battle, actor, target, skill) {
 
   target.hp = Math.max(0, target.hp - dmg);
   const _isCrit = battle._lastCrit;
+  const _critMult = battle._lastCritMult || 2;
   battle._lastCrit = false;
+  battle._lastCritMult = 0;
   addFloater(battle, sideOf(battle, target), `-${dmg}`, _isCrit ? "crit" : "normal");
-  if (_isCrit) addFloater(battle, sideOf(battle, actor), "暴击！", "crit");
+  if (_isCrit) addFloater(battle, sideOf(battle, actor), `暴击×${_critMult.toFixed(1)}倍`, "crit");
   applySkillEffects(run, battle, actor, target, skill, dmg);
   battleLog(battle, `${actor.name}施展${skill.name}，造成${dmg}伤害。`);
   if (skill.tags?.includes("heal")) { const h = heal(run, actor, 70); addFloater(battle, sideOf(battle, actor), `+${h}`, "heal"); }
@@ -611,8 +614,9 @@ export function enemyAction(run, battle) {
     }
     if (Math.random() * 100 < e.stats.crit) {
       dmg = Math.floor(dmg * critMult);
-      battleLog(battle, `${e.name}暴击！`);
       battle._enemyLastCrit = true;
+      battle._enemyLastCritMult = critMult;  // v6.6：记录暴击倍率
+      battleLog(battle, `${e.name}暴击！×${critMult.toFixed(1)}倍`);
       if (run.equippedArmor) {
         const a = DATA.armors[run.equippedArmor];
         if (a?.critReduce) {
@@ -622,9 +626,11 @@ export function enemyAction(run, battle) {
     }
     p.hp = Math.max(0, p.hp - dmg);
     const _eCrit = battle._enemyLastCrit;
+    const _eCritMult = battle._enemyLastCritMult || 2;
     battle._enemyLastCrit = false;
+    battle._enemyLastCritMult = 0;
     addFloater(battle, "player", `-${dmg}`, _eCrit ? "crit" : "normal");
-    if (_eCrit) addFloater(battle, "enemy", "暴击！", "crit");
+    if (_eCrit) addFloater(battle, "enemy", `暴击×${_eCritMult.toFixed(1)}倍`, "crit");
     // 无相秘甲：反弹25%伤害
     if (run.equippedArmor && dmg > 0) {
       const armor = DATA.armors[run.equippedArmor];
@@ -814,6 +820,10 @@ function applyTurnStart(battle, unit) {
     }
     unit.veinBreak = Math.max(0, unit.veinBreak - 1);
   }
+  // 失衡结算：每层 -1% DEF，-1% 速度，结算后-1
+  if (unit.imbalance > 0) {
+    unit.imbalance = Math.max(0, unit.imbalance - 1);
+  }
   // 筋断力竭计时
   if (unit.atkZero > 0) {
     unit.atkZero--;
@@ -852,7 +862,7 @@ function applyTurnStart(battle, unit) {
         battle.turnTrackers.playerTurnCount++;
         if (battle.turnTrackers.playerTurnCount % 5 === 0) {
           const p = unit;
-          const fields = ["bleed", "poison", "inner", "frost", "hamstring", "veinBreak", "gu"];
+          const fields = ["bleed", "poison", "inner", "frost", "hamstring", "veinBreak", "gu", "imbalance"];
           const before = fields.reduce((s, k) => s + (p[k] || 0), 0);
           if (before > 0) {
             fields.forEach(k => { p[k] = Math.floor((p[k] || 0) / 2); });
@@ -1080,6 +1090,23 @@ function applySkillEffects(run, battle, actor, target, skill, damage, multiplier
         addFloater(battle, sideOf(battle, target), "蛊乱");
       }
     }
+    // 失衡：真伤腿法命中时叠失衡
+    if (skill.style === "lowKick") {
+      const trait = skill.trait;
+      let imbBonus = trait?.effects?.imbalanceBonus || 0;
+      // 武器也可带失衡加成
+      if (weapon && weapon.school === "lightness" && weapon.style === "lowKick" && weapon.imbalanceBonus) {
+        imbBonus += weapon.imbalanceBonus;
+      }
+      if (hasStyleMastery(run, "lowKick")) imbBonus += 1;
+      if (imbBonus > 0) {
+        const cap = getDebuffCap(run, weapon, "imbalance");
+        target.imbalance = Math.min(cap, target.imbalance + imbBonus);
+        if (Math.random() < 1) {  // 总是显示
+          addFloater(battle, sideOf(battle, target), `失衡+${imbBonus}`, "imbalance");
+        }
+      }
+    }
   }
 
   // 内功效果：命中时
@@ -1113,6 +1140,7 @@ function getDebuffCap(run, weapon, type, bossWeapon = null) {
     if (type === "veinBreak" && weapon.veinBreakCapBonus) cap += weapon.veinBreakCapBonus;
     if (type === "gu" && weapon.guCapBonus) cap += weapon.guCapBonus;
     if (type === "poison" && weapon.poisonCapBonus) cap += weapon.poisonCapBonus;
+    if (type === "imbalance" && weapon.imbalanceCapBonus) cap += weapon.imbalanceCapBonus;
   }
   // Boss weapon cap bonus
   if (bossWeapon) {
@@ -1149,8 +1177,9 @@ function calcDamage(run, battle, actor, target, skill) {
       if (art?.combatEffect === "critUp") cm += 1.5;
     });
     dmg = Math.floor(dmg * cm);
-    battleLog(battle, "暴击！");
     battle._lastCrit = true;
+    battle._lastCritMult = cm;  // v6.6：记录暴击倍率供浮字显示
+    battleLog(battle, `暴击！×${cm.toFixed(1)}倍`);
   }
   if (target.guard) dmg = Math.floor(dmg * 0.55);
   return dmg;
@@ -1242,7 +1271,9 @@ function stealMoneyValue(run, skill) {
 
 function effectiveDef(unit) {
   if (!unit || !unit.stats) { console.error("[effectiveDef] unit or unit.stats is undefined"); return 0; }
-  return Math.max(0, unit.stats.def - unit.poison * 2);
+  let def = unit.stats.def - unit.poison * 2;
+  if (unit.imbalance > 0) def -= Math.floor(unit.stats.def * 0.02 * unit.imbalance);
+  return Math.max(0, def);
 }
 
 function effectiveHit(unit) {
@@ -1263,6 +1294,7 @@ function effectiveSpeed(unit, battle = null) {
   if (unit.hamstring > 0) spd -= unit.hamstring * HAMSTRING_SLOW;
   if (unit.veinBreak > 0) spd -= unit.veinBreak * 0.02;
   if (unit.gu > 0) spd -= unit.gu * 0.02;
+  if (unit.imbalance > 0) spd -= unit.imbalance * 0.02;
   // 临时Buff：速度加成
   if (unit.tempBuffs?.speed) spd *= unit.tempBuffs.speed.mult;
   // hamstringCap Boss特性：玩家速度最低被压到70%（而非默认的60%）
@@ -1295,7 +1327,8 @@ function critMultiplier(run, skill, actor = null) {
   if (skill.school === "blade") value += 0.1;
   // 临时Buff：暴击倍率加成
   if (actor?.tempBuffs?.crit) value += actor.tempBuffs.crit.critPowerAdd || 0;
-  return clamp(value, 2, 2.8);
+  // v6.6：取消暴击倍率上限（原来 clamp 2~2.8）
+  return Math.max(2, value);
 }
 
 function comboChance(run, skill, actor) {
@@ -1678,7 +1711,7 @@ function checkBossPhaseTriggers(battle) {
   // poisonGuCapCleanse：50%血时净化并回血20%（保留向后兼容）
   if (trait === "poisonGuCapCleanse" && hpPct <= 0.5 && !battle.bossPhaseTriggered["50pct"]) {
     battle.bossPhaseTriggered["50pct"] = true;
-    e.bleed = 0; e.poison = 0; e.inner = 0; e.frost = 0; e.hamstring = 0; e.veinBreak = 0; e.gu = 0; e.frozen = 0; e.atkZero = 0;
+    e.bleed = 0; e.poison = 0; e.inner = 0; e.frost = 0; e.hamstring = 0; e.veinBreak = 0; e.gu = 0; e.imbalance = 0; e.frozen = 0; e.atkZero = 0;
     const healAmt = Math.floor(e.stats.hp * 0.2);
     e.hp = Math.min(e.stats.hp, e.hp + healAmt);
     battleLog(battle, `${e.name}净化了所有负面状态，恢复了${healAmt}血量！`);
@@ -1720,7 +1753,7 @@ function checkBossPhaseTriggers(battle) {
   // celestialCleanse（天罡净化）：≤50%HP自动释放，净化所有负面+回血30%，每场战斗一次
   if (trait === "celestialCleanse" && hpPct <= 0.5 && !battle.celestialCleanseUsed) {
     battle.celestialCleanseUsed = true;
-    e.bleed = 0; e.poison = 0; e.inner = 0; e.frost = 0; e.hamstring = 0; e.veinBreak = 0; e.gu = 0; e.frozen = 0; e.atkZero = 0;
+    e.bleed = 0; e.poison = 0; e.inner = 0; e.frost = 0; e.hamstring = 0; e.veinBreak = 0; e.gu = 0; e.imbalance = 0; e.frozen = 0; e.atkZero = 0;
     const healAmt = Math.floor(e.stats.hp * 0.30);
     e.hp = Math.min(e.stats.hp, e.hp + healAmt);
     battleLog(battle, `${e.name}天罡净化！清除所有负面，恢复${healAmt}血量！`);

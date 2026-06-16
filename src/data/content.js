@@ -129,9 +129,9 @@ export const DATA = {
     light_orange_1: qinggong("light_orange_1", "游龙腿", "orange", 4, gain(0, 1, 7, 0, 0.12), { id: "manySteps", name: "百变身法", desc: "命中+1，闪避+7，出手速度+0.12。", effects: { hit: 1, dodge: 7, speed: 0.12 } }),
     light_red_1: qinggong("light_red_1", "凌波腿", "red", 5, gain(0, 2, 12, 0, 0.18), { id: "lingbo", name: "步生波纹", desc: "命中+2，闪避+12，出手速度+0.18。", effects: { hit: 2, dodge: 12, speed: 0.18 } }),
     // 下盘路线: light_blue_2(基础) -> light_orange_2(进阶) -> light_red_2(终极)
-    light_blue_2: qinggong("light_blue_2", "扫堂腿", "blue", 3, gain(0, 0, 4, 0, 0.06), { id: "swallowStep", name: "燕影回环", desc: "闪避+4，出手速度+0.06，真伤50。", effects: { dodge: 4, speed: 0.06 } }, 50),
-    light_orange_2: qinggong("light_orange_2", "盘龙腿", "orange", 4, gain(0, 0, 8, 0, 0.10), { id: "cloudLadder", name: "盘根折势", desc: "闪避+8，出手速度+0.10，真伤200。", effects: { dodge: 8, speed: 0.1 } }, 200),
-    light_red_2: qinggong("light_red_2", "碎岳沉桩腿", "red", 5, gain(0, 4, 3, 4, 0.08), { id: "mountainKick", name: "碎岳真劲", desc: "命中+4，闪避+3，暴击+4，出手速度+0.08，真伤500。", effects: { hit: 4, dodge: 3, crit: 4, speed: 0.08 } }, 500),
+    light_blue_2: qinggong("light_blue_2", "扫堂腿", "blue", 3, gain(0, 0, 4, 0, 0.06), { id: "swallowStep", name: "燕影回环", desc: "闪避+4，出手速度+0.06，真伤+200，命中时+1失衡。", effects: { dodge: 4, speed: 0.06, imbalanceBonus: 1 } }, 200),
+    light_orange_2: qinggong("light_orange_2", "盘龙腿", "orange", 4, gain(0, 0, 8, 0, 0.12), { id: "cloudLadder", name: "盘根折势", desc: "闪避+8，出手速度+0.12，真伤+500，命中时+3失衡。", effects: { dodge: 8, speed: 0.12, imbalanceBonus: 3 } }, 500),
+    light_red_2: qinggong("light_red_2", "碎岳沉桩腿", "red", 5, gain(0, 4, 3, 4, 0.20), { id: "mountainKick", name: "碎岳真劲", desc: "命中+4，闪避+3，暴击+4，出手速度+0.20，真伤+1000，命中时+5失衡。", effects: { hit: 4, dodge: 3, crit: 4, speed: 0.20, imbalanceBonus: 5 } }, 1000),
     // 偷盗路线: light_blue_3(基础) -> light_orange_3(进阶) -> light_red_3(终极)
     light_blue_3: qinggong("light_blue_3", "探囊腿", "blue", 3, gain(0, 1, 2, 0, 0.08), { id: "eightSteps", name: "步步抢先", desc: "命中+1，闪避+2，出手速度+0.08。", effects: { hit: 1, dodge: 2, speed: 0.08 } }),
     light_orange_3: qinggong("light_orange_3", "飞檐探云腿", "orange", 4, gain(0, 2, 4, 2, 0.16), { id: "cloudThief", name: "探云取利", desc: "命中+2，闪避+4，暴击+2，出手速度+0.16。", effects: { hit: 2, dodge: 4, crit: 2, speed: 0.16 } }),
