@@ -267,7 +267,7 @@ function scaleEnemyStats(stats) {
 }
 
 function makeUnit(name, icon, stats, hp, qi, skills, items) {
-  return { name, icon, stats, hp, qi, gauge: 0, skills, items, cooldowns: {}, auto: false, bleed: 0, poison: 0, inner: 0, frost: 0, hamstring: 0, veinBreak: 0, gu: 0, imbalance: 0, guard: 0, cleanseShield: 0, dodgeHealCount: 0, frozen: 0, atkZero: 0, armorBreak: 0, tempBuffs: {}, weapon: null };
+  return { name, icon, stats, hp, qi, gauge: 0, skills, items, cooldowns: {}, auto: false, bleed: 0, poison: 0, inner: 0, frost: 0, hamstring: 0, veinBreak: 0, gu: 0, imbalance: 0, guard: 0, cleanseShield: 0, dodgeHealCount: 0, frozen: 0, atkZero: 0, armorBreak: 0, imbalanceMult: 0, tempBuffs: {}, weapon: null };
 }
 
 export function tickBattle(battle, dt) {
@@ -831,6 +831,7 @@ function applyTurnStart(battle, unit) {
   // 失衡破甲计时（v6.7）
   if (unit.armorBreak > 0) {
     unit.armorBreak--;
+    if (unit.armorBreak === 0) unit.imbalanceMult = 0;  // 破甲结束清零倍率
   }
 
   // 鲸息特性：每回合自动恢复 5% 内力（无论是否调息）
@@ -996,9 +997,15 @@ function applySkillEffects(run, battle, actor, target, skill, damage, multiplier
   if (skill.debuff === "imbalance" || skill.style === "lowKick") {
     if (multiplier >= 1 && target.imbalance >= 25) {
       target.imbalance -= 25;
-      target.armorBreak = 2;  // v6.8：真伤3倍伤害 持续2回合
-      battleLog(battle, `失衡破甲！${target.name}护甲崩碎，受到真伤时承受3倍伤害！`);
-      addFloater(battle, sideOf(battle, target), "失衡破甲");
+      // v6.9：协同奖励仅限红武器+红武功（跟血河断刃+饮血封喉刀、孔雀毒匣+孔雀毒翎一个性质）
+      // 蓝色、橙色没有协同奖励
+      const weapon = run.equippedWeapon ? DATA.weapons[run.equippedWeapon] : null;
+      const imbMult = (weapon && weapon.school === "lightness" && weapon.style === "lowKick"
+                       && weapon.rarity === "red" && skill.rarity === "red") ? 3.5 : 3.0;
+      target.armorBreak = 2;
+      target.imbalanceMult = imbMult;  // 记录倍率供 calcDamage 使用
+      battleLog(battle, `失衡破甲！${target.name}护甲崩碎，受到真伤时承受${imbMult.toFixed(2)}倍伤害！`);
+      addFloater(battle, sideOf(battle, target), `失衡破甲×${imbMult.toFixed(2)}`);
     }
   }
   if (skill.debuff === "gu") {
@@ -1201,10 +1208,11 @@ function calcDamage(run, battle, actor, target, skill) {
     const imbPct = target.imbalance * 0.03;
     dmg = Math.floor(dmg * (1 + imbPct));
   }
-  // v6.8：失衡25层爆伤后，目标真伤受到3倍伤害，持续2回合
+  // v6.9：失衡25层爆伤后，目标真伤受到imbMult倍伤害，持续2回合
   if (target.armorBreak > 0 && skill.style === "lowKick") {
-    dmg = dmg * 3;
-    battleLog(battle, `【失衡破甲】${target.name}真伤受到3倍伤害！`);
+    const imbMult = target.imbalanceMult || 3.0;
+    dmg = dmg * imbMult;
+    battleLog(battle, `【失衡破甲】${target.name}真伤受到${imbMult.toFixed(2)}倍伤害！`);
   }
   return dmg;
 }
