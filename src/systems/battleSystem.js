@@ -832,10 +832,9 @@ function applyTurnStart(battle, unit) {
   if (unit.atkZero > 0) {
     unit.atkZero--;
   }
-  // 失衡破甲计时（v6.7）
+  // 弱点暴露计时
   if (unit.armorBreak > 0) {
     unit.armorBreak--;
-    if (unit.armorBreak === 0) unit.imbalanceMult = 0;  // 破甲结束清零倍率
   }
 
   // 鲸息特性：每回合自动恢复 5% 内力（无论是否调息）
@@ -997,19 +996,18 @@ function applySkillEffects(run, battle, actor, target, skill, damage, multiplier
       addFloater(battle, sideOf(battle, target), "筋断力竭");
     }
   }
-  // 25层失衡引爆：真伤受到3倍伤害（持续2回合）
+  // 25层失衡引爆：弱点暴露（真伤受到3倍伤害，持续2回合）
   if (skill.debuff === "imbalance" || skill.style === "lowKick") {
     if (multiplier >= 1 && target.imbalance >= 25) {
       target.imbalance -= 25;
-      // v6.9：协同奖励仅限红武器+红武功（跟血河断刃+饮血封喉刀、孔雀毒匣+孔雀毒翎一个性质）
-      // 蓝色、橙色没有协同奖励
+      // v6.9：协同奖励仅限红武器+红武功
       const weapon = run.equippedWeapon ? DATA.weapons[run.equippedWeapon] : null;
       const imbMult = (weapon && weapon.school === "lightness" && weapon.style === "lowKick"
                        && weapon.rarity === "red" && skill.rarity === "red") ? 3.5 : 3.0;
       target.armorBreak = 2;
-      target.imbalanceMult = imbMult;  // 记录倍率供 calcDamage 使用
-      battleLog(battle, `失衡破甲！${target.name}护甲崩碎，受到真伤时承受${imbMult.toFixed(2)}倍伤害！`);
-      addFloater(battle, sideOf(battle, target), `失衡破甲×${imbMult.toFixed(2)}`);
+      target.imbalanceMult = imbMult;
+      battleLog(battle, `弱点暴露！${target.name}防御崩坏，受到真伤时承受${imbMult.toFixed(2)}倍伤害！`);
+      addFloater(battle, sideOf(battle, target), `弱点暴露×${imbMult.toFixed(2)}`);
     }
   }
   if (skill.debuff === "gu") {
@@ -1212,11 +1210,11 @@ function calcDamage(run, battle, actor, target, skill) {
     const imbPct = target.imbalance * 0.03;
     dmg = Math.floor(dmg * (1 + imbPct));
   }
-  // v6.9：失衡25层爆伤后，目标真伤受到imbMult倍伤害，持续2回合
+  // v6.9：弱点暴露：25层后真伤受到imbMult倍伤害，持续2回合
   if (target.armorBreak > 0 && skill.style === "lowKick") {
     const imbMult = target.imbalanceMult || 3.0;
     dmg = dmg * imbMult;
-    battleLog(battle, `【失衡破甲】${target.name}真伤受到${imbMult.toFixed(2)}倍伤害！`);
+    battleLog(battle, `【弱点暴露】${target.name}真伤受到${imbMult.toFixed(2)}倍伤害！`);
   }
   return dmg;
 }
@@ -1308,9 +1306,6 @@ function stealMoneyValue(run, skill) {
 function effectiveDef(unit) {
   if (!unit || !unit.stats) { console.error("[effectiveDef] unit or unit.stats is undefined"); return 0; }
   let def = unit.stats.def - unit.poison * 2;
-  if (unit.imbalance > 0) def -= Math.floor(unit.stats.def * 0.02 * unit.imbalance);
-  // v6.8：失衡25层后armorBreak=2回合，防御归零
-  if (unit.armorBreak > 0) def = 0;
   return Math.max(0, def);
 }
 
@@ -1332,7 +1327,6 @@ function effectiveSpeed(unit, battle = null) {
   if (unit.hamstring > 0) spd -= unit.hamstring * HAMSTRING_SLOW;
   if (unit.veinBreak > 0) spd -= unit.veinBreak * 0.02;
   if (unit.gu > 0) spd -= unit.gu * 0.02;
-  if (unit.imbalance > 0) spd -= unit.imbalance * 0.02;
   // 临时Buff：速度加成
   if (unit.tempBuffs?.speed) spd *= unit.tempBuffs.speed.mult;
   // hamstringCap Boss特性：玩家速度最低被压到70%（而非默认的60%）
