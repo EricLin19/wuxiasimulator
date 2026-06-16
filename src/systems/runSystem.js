@@ -1680,7 +1680,7 @@ function applyMetaAllocations(stats, allocations) {
   stats.qi += (allocations.qi || 0) * 30;
   stats.atk += (allocations.atk || 0) * 3;
   stats.def += (allocations.def || 0) * 3;
-  stats.combo += (allocations.combo || 0) * 4;
+  stats.combo += (allocations.combo || 0) * 2;  // v6.10：跨周目每点combo 4→2
   stats.hit += (allocations.hit || 0) * 3;
   stats.dodge += allocations.dodge || 0;
   stats.crit += (allocations.crit || 0) * 2;
