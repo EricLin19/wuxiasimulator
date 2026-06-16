@@ -218,9 +218,9 @@ export const DATA = {
     fist_combo_orange: { id: "fist_combo_orange", name: "拦江臂铠", icon: "腕", school: "fist", rarity: "orange", style: "combo", price: 520, atk: 28, desc: "连击掌。连击+12，连击后本回合伤害+8%。", comboBonus: 12, comboDmgPct: 8 },
     fist_combo_red: { id: "fist_combo_red", name: "惊浪拳套", icon: "拳", school: "fist", rarity: "red", style: "combo", price: 980, atk: 58, desc: "连击掌。连击+18，三叠浪额外出掌上限+1。", comboBonus: 18, palmChainBonus: 1 },
 
-    fist_crit_blue: { id: "fist_crit_blue", name: "炽星拳套", icon: "拳", school: "fist", rarity: "blue", style: "critPalm", price: 260, atk: 12, desc: "暴击掌。暴击+4。", critBonus: 4 },
-    fist_crit_orange: { id: "fist_crit_orange", name: "纯阳拳甲", icon: "拳", school: "fist", rarity: "orange", style: "critPalm", price: 520, atk: 28, desc: "暴击掌。暴击+8，暴伤+0.5。", critBonus: 8, critPower: 0.5 },
-    fist_crit_red: { id: "fist_crit_red", name: "碎星拳套", icon: "拳", school: "fist", rarity: "red", style: "critPalm", price: 980, atk: 58, desc: "暴击掌。暴击+16，暴伤+1。", critBonus: 16, critPower: 1 },
+    fist_crit_blue: { id: "fist_crit_blue", name: "炽星拳套", icon: "拳", school: "fist", rarity: "blue", style: "critPalm", price: 500, atk: 12, desc: "暴击掌。暴击+4。", critBonus: 4 },
+    fist_crit_orange: { id: "fist_crit_orange", name: "纯阳拳甲", icon: "拳", school: "fist", rarity: "orange", style: "critPalm", price: 1500, atk: 28, desc: "暴击掌。暴击+8，暴伤+0.5。", critBonus: 8, critPower: 0.5 },
+    fist_crit_red: { id: "fist_crit_red", name: "碎星拳套", icon: "拳", school: "fist", rarity: "red", style: "critPalm", price: 4200, atk: 58, desc: "暴击掌。暴击+16，暴伤+1。", critBonus: 16, critPower: 1 },
 
     fist_qibreak_blue: { id: "fist_qibreak_blue", name: "破劲拳套", icon: "拳", school: "fist", rarity: "blue", style: "qiBreak", price: 260, atk: 12, desc: "断脉掌。削内+8。", qiBreakBonus: 8 },
     fist_qibreak_orange: { id: "fist_qibreak_orange", name: "截脉臂甲", icon: "腕", school: "fist", rarity: "orange", style: "qiBreak", price: 520, atk: 28, desc: "断脉掌。削内+18。", qiBreakBonus: 18 },
@@ -231,9 +231,9 @@ export const DATA = {
     hidden_gu_orange: { id: "hidden_gu_orange", name: "夺魂针盒", icon: "镖", school: "hidden", rarity: "orange", style: "gu", price: 520, atk: 24, desc: "下蛊暗器。蛊+2，耗内增加。", guBonus: 2, guQiBonus: 1 },
     hidden_gu_red: { id: "hidden_gu_red", name: "九窍蛊匣", icon: "镖", school: "hidden", rarity: "red", style: "gu", price: 980, atk: 50, desc: "下蛊暗器。蛊+4，蛊上限+2。", guBonus: 4, guCapBonus: 2 },
 
-    hidden_poison_blue: { id: "hidden_poison_blue", name: "淬毒针匣", icon: "镖", school: "hidden", rarity: "blue", style: "poison", price: 260, atk: 10, desc: "淬毒暗器。毒+2。", poisonBonus: 2 },
-    hidden_poison_orange: { id: "hidden_poison_orange", name: "淬毒银针", icon: "镖", school: "hidden", rarity: "orange", style: "poison", price: 520, atk: 24, desc: "淬毒暗器。毒+5，毒上限+3。", poisonBonus: 5, poisonCapBonus: 3 },
-    hidden_poison_red: { id: "hidden_poison_red", name: "孔雀毒匣", icon: "镖", school: "hidden", rarity: "red", style: "poison", price: 980, atk: 50, desc: "淬毒暗器。毒+10，毒上限+15。", poisonBonus: 10, poisonCapBonus: 15 },
+    hidden_poison_blue: { id: "hidden_poison_blue", name: "淬毒针匣", icon: "镖", school: "hidden", rarity: "blue", style: "poison", price: 500, atk: 10, desc: "淬毒暗器。毒+2。", poisonBonus: 2 },
+    hidden_poison_orange: { id: "hidden_poison_orange", name: "淬毒银针", icon: "镖", school: "hidden", rarity: "orange", style: "poison", price: 1400, atk: 24, desc: "淬毒暗器。毒+5，毒上限+3。", poisonBonus: 5, poisonCapBonus: 3 },
+    hidden_poison_red: { id: "hidden_poison_red", name: "孔雀毒匣", icon: "镖", school: "hidden", rarity: "red", style: "poison", price: 4300, atk: 50, desc: "淬毒暗器。毒+10，毒上限+15。", poisonBonus: 10, poisonCapBonus: 15 },
 
     hidden_coin_blue: { id: "hidden_coin_blue", name: "金钱飞镖", icon: "镖", school: "hidden", rarity: "blue", style: "coin", price: 260, atk: 10, desc: "金钱暗器。金钱伤害+40。", coinDamageBonus: 40 },
     hidden_coin_orange: { id: "hidden_coin_orange", name: "贯钱镖", icon: "镖", school: "hidden", rarity: "orange", style: "coin", price: 520, atk: 24, desc: "金钱暗器。金钱伤害+120。", coinDamageBonus: 120 },
@@ -244,9 +244,9 @@ export const DATA = {
     leg_evasive_orange: { id: "leg_evasive_orange", name: "游龙靴", icon: "腿", school: "lightness", rarity: "orange", style: "evasive", price: 520, atk: 24, desc: "高闪避腿法。闪避+8，闪避回息提高。", dodgeBonus: 8, evasiveBoost: 1 },
     leg_evasive_red: { id: "leg_evasive_red", name: "踏浪战靴", icon: "腿", school: "lightness", rarity: "red", style: "evasive", price: 980, atk: 50, desc: "高闪避腿法。闪避+14，闪避收益每回合上限+1。", dodgeBonus: 14, evasiveCapBonus: 1 },
 
-    leg_low_blue: { id: "leg_low_blue", name: "破门靴", icon: "腿", school: "lightness", rarity: "blue", style: "lowKick", price: 260, atk: 10, desc: "下盘腿法。真伤+50。", trueDamageBonus: 50 },
-    leg_low_orange: { id: "leg_low_orange", name: "压山靴", icon: "腿", school: "lightness", rarity: "orange", style: "lowKick", price: 520, atk: 24, desc: "下盘腿法。真伤+200。", trueDamageBonus: 200 },
-    leg_low_red: { id: "leg_low_red", name: "断岳沉步靴", icon: "腿", school: "lightness", rarity: "red", style: "lowKick", price: 980, atk: 50, desc: "下盘腿法。真伤+500。", trueDamageBonus: 500 },
+    leg_low_blue: { id: "leg_low_blue", name: "破门靴", icon: "腿", school: "lightness", rarity: "blue", style: "lowKick", price: 550, atk: 10, desc: "下盘腿法。真伤+100，失衡+1。", trueDamageBonus: 100, imbalanceBonus: 1 },
+    leg_low_orange: { id: "leg_low_orange", name: "压山靴", icon: "腿", school: "lightness", rarity: "orange", style: "lowKick", price: 1500, atk: 24, desc: "下盘腿法。真伤+300，失衡+3，失衡上限+3。", trueDamageBonus: 300, imbalanceBonus: 3, imbalanceCapBonus: 3 },
+    leg_low_red: { id: "leg_low_red", name: "断岳沉步靴", icon: "腿", school: "lightness", rarity: "red", style: "lowKick", price: 4200, atk: 50, desc: "下盘腿法。真伤+700，失衡+5，失衡上限+10。", trueDamageBonus: 700, imbalanceBonus: 5, imbalanceCapBonus: 10 },
 
     leg_steal_blue: { id: "leg_steal_blue", name: "盗影靴", icon: "腿", school: "lightness", rarity: "blue", style: "steal", price: 260, atk: 10, desc: "偷盗腿法。速度+0.04，偷钱+10。", speedBonus: 0.04, moneyBonus: 10 },
     leg_steal_orange: { id: "leg_steal_orange", name: "飞檐靴", icon: "腿", school: "lightness", rarity: "orange", style: "steal", price: 520, atk: 24, desc: "偷盗腿法。速度+0.08，偷钱+35。", speedBonus: 0.08, moneyBonus: 35 },
@@ -347,7 +347,7 @@ const SKILL_TIER_LABELS = {
 
 export const STYLE_TRAITS = {
   combo: { id: "comboMastery", name: "长江三叠浪", desc: "连击掌触发连击时，其他连击掌冷却-1；若有掌法就绪，可立即继续出掌。每己方回合最多额外出掌2次。" },
-  critPalm: { id: "critPalmMastery", name: "碎星连震", desc: "暴击拳掌暴击率提高，暴击倍率提高。暴击率软上限65%。" },
+  critPalm: { id: "critPalmMastery", name: "地爆天星", desc: "暴击拳掌暴击率+10，暴击倍率+0.5。暴击率软上限65%。" },
   qiBreak: { id: "qiBreakMastery", name: "断脉归元", desc: "断脉拳掌削内力提高，目标内力归零时额外受伤。每己方回合最多削目标最大内力25%。" },
   bleed: { id: "bleedBladeMastery", name: "百创刀势", desc: "流血刀造成流血时额外+1层，流血上限+7。流不暴击。" },
   frost: { id: "frostBladeMastery", name: "玄冥寒河", desc: "寒冰刀附加更多寒气，并进一步削减内力。速度最低降至60%。" },
@@ -932,12 +932,12 @@ DATA.wandererMerchantPool = {
     { id: "blade_bleed_blue", name: "饮血雁翎刀", school: "blade", rarity: "blue", price: 550 },
     { id: "blade_bleed_orange", name: "裂血长刀", school: "blade", rarity: "orange", price: 1600 },
     { id: "blade_bleed_red", name: "血河断刃", school: "blade", rarity: "red", price: 4500 },
-    { id: "fist_crit_blue", name: "炽星拳套", school: "fist", rarity: "blue", price: 400 },
-    { id: "fist_crit_orange", name: "纯阳拳甲", school: "fist", rarity: "orange", price: 1000 },
-    { id: "fist_crit_red", name: "碎星拳套", school: "fist", rarity: "red", price: 2000 },
-    { id: "hidden_poison_blue", name: "淬毒针匣", school: "hidden", rarity: "blue", price: 400 },
-    { id: "hidden_poison_orange", name: "淬毒银针", school: "hidden", rarity: "orange", price: 1000 },
-    { id: "hidden_poison_red", name: "孔雀毒匣", school: "hidden", rarity: "red", price: 2000 },
+    { id: "fist_crit_blue", name: "炽星拳套", school: "fist", rarity: "blue", price: 500 },
+    { id: "fist_crit_orange", name: "纯阳拳甲", school: "fist", rarity: "orange", price: 1500 },
+    { id: "fist_crit_red", name: "碎星拳套", school: "fist", rarity: "red", price: 4200 },
+    { id: "hidden_poison_blue", name: "淬毒针匣", school: "hidden", rarity: "blue", price: 500 },
+    { id: "hidden_poison_orange", name: "淬毒银针", school: "hidden", rarity: "orange", price: 1400 },
+    { id: "hidden_poison_red", name: "孔雀毒匣", school: "hidden", rarity: "red", price: 4300 },
     { id: "leg_low_blue", name: "破门靴", school: "lightness", rarity: "blue", price: 400 },
     { id: "leg_low_orange", name: "压山靴", school: "lightness", rarity: "orange", price: 1000 },
     { id: "leg_low_red", name: "断岳沉步靴", school: "lightness", rarity: "red", price: 2000 }

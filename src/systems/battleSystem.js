@@ -267,7 +267,7 @@ function scaleEnemyStats(stats) {
 }
 
 function makeUnit(name, icon, stats, hp, qi, skills, items) {
-  return { name, icon, stats, hp, qi, gauge: 0, skills, items, cooldowns: {}, auto: false, bleed: 0, poison: 0, inner: 0, frost: 0, hamstring: 0, veinBreak: 0, gu: 0, imbalance: 0, guard: 0, cleanseShield: 0, dodgeHealCount: 0, frozen: 0, atkZero: 0, tempBuffs: {}, weapon: null };
+  return { name, icon, stats, hp, qi, gauge: 0, skills, items, cooldowns: {}, auto: false, bleed: 0, poison: 0, inner: 0, frost: 0, hamstring: 0, veinBreak: 0, gu: 0, imbalance: 0, guard: 0, cleanseShield: 0, dodgeHealCount: 0, frozen: 0, atkZero: 0, armorBreak: 0, tempBuffs: {}, weapon: null };
 }
 
 export function tickBattle(battle, dt) {
@@ -828,6 +828,10 @@ function applyTurnStart(battle, unit) {
   if (unit.atkZero > 0) {
     unit.atkZero--;
   }
+  // 失衡破甲计时（v6.7）
+  if (unit.armorBreak > 0) {
+    unit.armorBreak--;
+  }
 
   // 鲸息特性：每回合自动恢复 5% 内力（无论是否调息）
   if (unit === battle.player && run?.traits?.includes("jingxi")) {
@@ -986,6 +990,15 @@ function applySkillEffects(run, battle, actor, target, skill, damage, multiplier
       target.hamstring -= 25;
       battleLog(battle, `筋断力竭！${target.name}筋脉尽废，攻击归零2回合！`);
       addFloater(battle, sideOf(battle, target), "筋断力竭");
+    }
+  }
+  // 25层失衡引爆：破甲归零（防御归零2回合，命中时降低）→ v6.7改为：失衡不计防御=双倍真伤
+  if (skill.debuff === "imbalance" || skill.style === "lowKick") {
+    if (multiplier >= 1 && target.imbalance >= 25) {
+      target.imbalance -= 25;
+      target.armorBreak = 2;  // v6.7：防御归零2回合
+      battleLog(battle, `失衡破甲！${target.name}护甲崩碎，防御归零2回合！`);
+      addFloater(battle, sideOf(battle, target), "失衡破甲");
     }
   }
   if (skill.debuff === "gu") {
@@ -1248,7 +1261,7 @@ function trueDamageBonus(run, skill) {
   let value = 0;
   const weapon = run.equippedWeapon ? DATA.weapons[run.equippedWeapon] : null;
   if (weapon && weapon.school === "lightness" && weapon.style === "lowKick") value += weapon.trueDamageBonus || 0;
-  if (hasStyleMastery(run, skill.style)) value += 30;
+  if (hasStyleMastery(run, skill.style)) value += 100;  // v6.7：地裂无声真伤+30→+100
   if (skill.trueDamage) value += skill.trueDamage;
   return value;
 }
@@ -1311,7 +1324,7 @@ function critChance(run, actor, skill) {
   let value = actor.stats.crit + (skill.school === "blade" ? 8 : 0) + (skill.style === "critPalm" ? 12 : 0);
   const weapon = run.equippedWeapon ? DATA.weapons[run.equippedWeapon] : null;
   if (weapon && weapon.school === skill.school && weapon.style === skill.style) value += weapon.critBonus || 0;
-  if (hasStyleMastery(run, skill.style) && skill.style === "critPalm") value += 8;
+  if (hasStyleMastery(run, skill.style) && skill.style === "critPalm") value += 10;  // v6.7：碎星连震→地爆天星 +10
   // 临时Buff：暴击概率加成
   if (actor.tempBuffs?.crit) value += actor.tempBuffs.crit.critAdd || 0;
   // 暴击率软上限65%
@@ -1323,7 +1336,7 @@ function critMultiplier(run, skill, actor = null) {
   for (const trait of run.skillTraits || []) value += trait.effects?.critPower || 0;
   const weapon = run.equippedWeapon ? DATA.weapons[run.equippedWeapon] : null;
   if (weapon && weapon.school === skill.school && weapon.style === skill.style) value += weapon.critPower || 0;
-  if (hasStyleMastery(run, skill.style) && skill.style === "critPalm") value += 0.2;
+  if (hasStyleMastery(run, skill.style) && skill.style === "critPalm") value += 0.5;  // v6.7：碎星连震→地爆天星 +0.5
   if (skill.school === "blade") value += 0.1;
   // 临时Buff：暴击倍率加成
   if (actor?.tempBuffs?.crit) value += actor.tempBuffs.crit.critPowerAdd || 0;
@@ -1711,7 +1724,7 @@ function checkBossPhaseTriggers(battle) {
   // poisonGuCapCleanse：50%血时净化并回血20%（保留向后兼容）
   if (trait === "poisonGuCapCleanse" && hpPct <= 0.5 && !battle.bossPhaseTriggered["50pct"]) {
     battle.bossPhaseTriggered["50pct"] = true;
-    e.bleed = 0; e.poison = 0; e.inner = 0; e.frost = 0; e.hamstring = 0; e.veinBreak = 0; e.gu = 0; e.imbalance = 0; e.frozen = 0; e.atkZero = 0;
+    e.bleed = 0; e.poison = 0; e.inner = 0; e.frost = 0; e.hamstring = 0; e.veinBreak = 0; e.gu = 0; e.imbalance = 0; e.frozen = 0; e.atkZero = 0; e.armorBreak = 0;
     const healAmt = Math.floor(e.stats.hp * 0.2);
     e.hp = Math.min(e.stats.hp, e.hp + healAmt);
     battleLog(battle, `${e.name}净化了所有负面状态，恢复了${healAmt}血量！`);
@@ -1753,7 +1766,7 @@ function checkBossPhaseTriggers(battle) {
   // celestialCleanse（天罡净化）：≤50%HP自动释放，净化所有负面+回血30%，每场战斗一次
   if (trait === "celestialCleanse" && hpPct <= 0.5 && !battle.celestialCleanseUsed) {
     battle.celestialCleanseUsed = true;
-    e.bleed = 0; e.poison = 0; e.inner = 0; e.frost = 0; e.hamstring = 0; e.veinBreak = 0; e.gu = 0; e.imbalance = 0; e.frozen = 0; e.atkZero = 0;
+    e.bleed = 0; e.poison = 0; e.inner = 0; e.frost = 0; e.hamstring = 0; e.veinBreak = 0; e.gu = 0; e.imbalance = 0; e.frozen = 0; e.atkZero = 0; e.armorBreak = 0;
     const healAmt = Math.floor(e.stats.hp * 0.30);
     e.hp = Math.min(e.stats.hp, e.hp + healAmt);
     battleLog(battle, `${e.name}天罡净化！清除所有负面，恢复${healAmt}血量！`);
