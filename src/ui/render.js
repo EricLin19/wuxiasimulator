@@ -4,7 +4,7 @@ import { expNeed, getRankTitle, getInternalArtPrice, getBattleDifficulty, getArm
 
 // Boss 特性中文名映射
 const BOSS_TRAIT_META = {
-  armorBreak:     { name: "破防贯通", desc: "玩家DEF剩50%；每次命中玩家DEF-5%" },
+  armorBreak:     { name: "护甲穿透", desc: "玩家DEF剩50%；每次命中玩家DEF-5%" },
   hamstringStrike: { name: "断筋",     desc: "每回合断筋+n（n为Boss阶级），上限15层（每层攻击-2%，减速2%；25层引爆：筋断力竭）" },
   veinBreak:       { name: "断脉",     desc: "每回合断脉+n，上限15层（每层内力-2%，减速2%；25层引爆：脉路全封）" },
   chillAura:      { name: "寒气逼人", desc: "每回合寒气+n，上限15层（每层减速4%；25层引爆：极度寒冷）" },
