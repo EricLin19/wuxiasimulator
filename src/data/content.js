@@ -180,7 +180,7 @@ export const DATA = {
     { id: "clearMind", name: "明心", desc: "每月开始额外获得1行动力。" },
     { id: "tieyi_blood_debt", name: "血偿", desc: "流血招式层数+3，无论武器类型均生效。" },
     { id: "tieyi_body_tempering", name: "铁衣锻体", desc: "每回合调息额外恢复5%最大血量。" },
-    { id: "jingxi", name: "静息", desc: "每回合调息额外恢复5%最大内力。" },
+    { id: "jingxi", name: "静息", desc: "每回合自动恢复5%最大内力。" },
     { id: "merchantFriend", name: "奇智", desc: "商人价格降低15%。" },
     { id: "hardBone", name: "硬骨", desc: "最大血量+60。" },
     { id: "innerRoot", name: "内息深长", desc: "最大内力+80。" }
@@ -253,8 +253,8 @@ export const DATA = {
     leg_steal_red: { id: "leg_steal_red", name: "摘星掠影靴", icon: "腿", school: "lightness", rarity: "red", style: "steal", price: 980, atk: 50, desc: "偷盗腿法。速度+0.16，偷钱+90。", speedBonus: 0.16, moneyBonus: 90 },
     // === Boss 专属红色武器（商店不出售）===
     blade_hamstring_red_zhao: { id: "blade_hamstring_red_zhao", name: "九环大刀", icon: "刀", school: "blade", rarity: "red", style: "hamstring", price: 0, atk: 58, desc: "赵崇岳的佩刀。断筋+6，断筋上限+10。", hamstringBonus: 6, hamstringCapBonus: 10, bossOnly: true },
-    blade_frost_red_liu: { id: "blade_frost_red_liu", name: "寒剑", icon: "剑", school: "blade", rarity: "red", style: "frost", price: 0, atk: 58, desc: "柳长卿的佩剑。寒气+6，寒气上限+10。", frostBonus: 6, frostCapBonus: 10, bossOnly: true },
-    blade_blood_frost_red_shen: { id: "blade_blood_frost_red_shen", name: "霜血方天戟", icon: "戟", school: "blade", rarity: "red", style: "bleed", price: 0, atk: 58, desc: "沈千山的方天画戟。流血+6，寒气+6，流血上限+10，寒气上限+10。", bleedBonus: 6, frostBonus: 6, bleedCapBonus: 10, frostCapBonus: 10, bossOnly: true },
+    blade_frost_red_liu: { id: "blade_frost_red_liu", name: "寒剑", icon: "剑", school: "blade", rarity: "red", style: "frost", price: 0, atk: 58, desc: "柳长卿的佩剑。寒气+2，寒气上限+10。", frostBonus: 2, frostCapBonus: 10, bossOnly: true },
+    blade_blood_frost_red_shen: { id: "blade_blood_frost_red_shen", name: "霜血方天戟", icon: "戟", school: "blade", rarity: "red", style: "bleed", price: 0, atk: 58, desc: "沈千山的方天画戟。流血+2，寒气+2，流血上限+10，寒气上限+10。", bleedBonus: 2, frostBonus: 2, bleedCapBonus: 10, frostCapBonus: 10, bossOnly: true },
     blade_bleed_red_gongsun: { id: "blade_bleed_red_gongsun", name: "浑铁裂血枪", icon: "枪", school: "blade", rarity: "red", style: "bleed", price: 0, atk: 58, desc: "公孙烈的浑铁枪。流血+6，流血上限+10。", bleedBonus: 6, bleedCapBonus: 10, bossOnly: true },
     fist_hamstring_vein_red_chu: { id: "fist_hamstring_vein_red_chu", name: "碎筋断脉套", icon: "拳", school: "fist", rarity: "red", style: "hamstring", price: 0, atk: 58, desc: "楚宗玄的拳套。断筋+6，断脉+6，断筋上限+10，断脉上限+10。", hamstringBonus: 6, veinBreakBonus: 6, hamstringCapBonus: 10, veinBreakCapBonus: 10, bossOnly: true }
   },
