@@ -271,9 +271,10 @@ body.mobile-viewport .combat-floater {
   overflow: visible;
 }
 body.mobile-viewport .damage-pop        { font-size: 36px; }
-body.mobile-viewport .damage-pop.crit   { font-size: 72px; }
+body.mobile-viewport .damage-pop.crit   { font-size: 54px; }
 body.mobile-viewport .damage-pop.bleed  { font-size: 54px; }
 body.mobile-viewport .damage-pop.poison { font-size: 54px; }
+body.mobile-viewport .damage-pop.combo   { font-size: 28px; }
 body.mobile-viewport .combat-floater    { font-size: 28px; }
 body.mobile-viewport .damage-pop.player,
 body.mobile-viewport .combat-floater.player { left: calc(-82px + var(--ox, 0px)); }
@@ -1585,12 +1586,13 @@ button {
 
 /* 伤害颜色 */
 .damage-pop.normal  { color: #cc2200; text-shadow: 0 3px 0 rgba(255,200,200,.6); }
-.damage-pop.crit    { color: #cc2200; font-size: 84px; -webkit-text-stroke: 2px #fff; text-shadow: 0 3px 0 #fff; }
+.damage-pop.crit    { color: #cc2200; font-size: 63px; -webkit-text-stroke: 2px #fff; text-shadow: 0 3px 0 #fff; }
 .damage-pop.bleed   { color: #8b0000; font-size: 63px; text-shadow: 0 3px 0 rgba(255,200,180,.6); }
 .damage-pop.poison  { color: #7b1fa2; font-size: 63px; text-shadow: 0 3px 0 rgba(220,200,255,.6); }
 .damage-pop.qi      { color: #2563eb; text-shadow: 0 3px 0 rgba(200,220,255,.6); }
 .damage-pop.heal    { color: #16a34a; text-shadow: 0 3px 0 rgba(200,255,210,.6); }
 .damage-pop.reflect { color: #d97706; text-shadow: 0 3px 0 rgba(255,230,180,.6); }
+.damage-pop.combo   { color: #f39c12; font-size: 63px; text-shadow: 0 3px 0 rgba(255,200,100,.6); }
 
 .battle-bottom {
   position: absolute;

@@ -420,7 +420,7 @@ function resolveAttack(run, battle, actor, target, skill) {
   battle._lastCrit = false;
   battle._lastCritMult = 0;
   addFloater(battle, sideOf(battle, target), `-${dmg}`, _isCrit ? "crit" : "normal");
-  if (_isCrit) addFloater(battle, sideOf(battle, actor), `暴击×${_critMult.toFixed(1)}倍`, "crit");
+  if (_isCrit) addFloater(battle, sideOf(battle, actor), `${_critMult.toFixed(1)}×暴击`);
   applySkillEffects(run, battle, actor, target, skill, dmg);
   battleLog(battle, `${actor.name}施展${skill.name}，造成${dmg}伤害。`);
   if (skill.tags?.includes("heal")) { const h = heal(run, actor, 70); addFloater(battle, sideOf(battle, actor), `+${h}`, "heal"); }
@@ -442,11 +442,10 @@ function resolveAttack(run, battle, actor, target, skill) {
     applySkillEffects(run, battle, actor, target, skill, comboDmg, dmgMult);
     battleLog(battle, `连击触发，追加${comboDmg}伤害。`);
     addFloater(battle, sideOf(battle, target), `-${comboDmg}`, "normal");
-    if (chain === 2) addFloater(battle, sideOf(battle, actor), "连击！", "crit");
     chance *= 0.5;
     if (chain >= 3) break; // 最多3次（含初始攻击）
   }
-  if (chain > 1) addFloater(battle, sideOf(battle, actor), `${chain}连击`);
+  if (chain > 1) addFloater(battle, sideOf(battle, actor), `${chain}连击`, "combo");
   return { comboTriggered };
 }
 
@@ -630,7 +629,7 @@ export function enemyAction(run, battle) {
     battle._enemyLastCrit = false;
     battle._enemyLastCritMult = 0;
     addFloater(battle, "player", `-${dmg}`, _eCrit ? "crit" : "normal");
-    if (_eCrit) addFloater(battle, "enemy", `暴击×${_eCritMult.toFixed(1)}倍`, "crit");
+    if (_eCrit) addFloater(battle, "enemy", `${_eCritMult.toFixed(1)}×暴击`);
     // 无相秘甲：反弹25%伤害
     if (run.equippedArmor && dmg > 0) {
       const armor = DATA.armors[run.equippedArmor];
