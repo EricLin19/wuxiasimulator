@@ -27,7 +27,10 @@ import {
   settleRun,
   toggleActiveSkill,
   getBattleDifficulty,
-  refreshWandererMerchantAction
+  refreshWandererMerchantAction,
+  getMonthSnapshot,
+  applyMonthStart,
+  refreshEvents
 } from "./systems/runSystem.js";
 import { buildRewardChoices, takeReward } from "./systems/rewardSystem.js";
 import { syncMusicForState, setVolume as audioSetVolume } from "./systems/audioSystem.js";
@@ -289,6 +292,12 @@ function resolveBattleResult(result) {
   const storyBattle = state.run.storyBattle;
   if (storyBattle) delete state.run.storyBattle;
 
+  // 判断是否应显示Boss战结果页面
+  const isBossFight = battle.isBoss || (storyBattle && battle.enemy && (
+    battle.enemy.bossTraits || storyBattle.isFinalBoss
+  ));
+  const isFinalBossYear = battle.bossYear >= 4;
+
   if (result.winner === "player") {
     state.run.hp = Math.max(1, battle.player.hp);
     state.run.qi = Math.max(0, battle.player.qi);
@@ -343,20 +352,20 @@ function resolveBattleResult(result) {
       if (battle.isBoss && battle.bossYear) {
         state.run.yearlyBossDefeated[battle.bossYear] = true;
       }
-      state.screen = "run";
-      finishDeferredEvent(state.run);
+      // Boss战→显示结果页面
+      if (isBossFight) {
+        state.bossResult = { type: "win", bossName: battle.enemy.name, bossYear: battle.bossYear || state.run.year, isFinalBoss: isFinalBossYear };
+        saveRun(state.run);
+      } else {
+        state.screen = "run";
+        finishDeferredEvent(state.run);
+      }
     } else if (battle.isBoss) {
       state.run.yearlyBossDefeated[battle.bossYear] = true;
       log(state.run, `击败年末强敌：${battle.enemy.name}。`);
-      if (battle.bossYear >= 3) {
-        settleRun(state, "win", `你击败了${battle.enemy.name}，江湖传遍你的名号。`);
-      } else {
-        state.screen = "run";
-        state.modal = { type: "reward", options: buildRewardChoices(state.run) };
-        console.time("[Battle] saveRun(boss)");
-        saveRun(state.run);
-        console.timeEnd("[Battle] saveRun(boss)");
-      }
+      // Boss战→显示结果页面
+      state.bossResult = { type: "win", bossName: battle.enemy.name, bossYear: battle.bossYear || state.run.year, isFinalBoss: isFinalBossYear };
+      saveRun(state.run);
     } else {
       const diff = getBattleDifficulty(battle.player.stats.hp, battle.enemy.stats.hp);
       const enemyHp = battle.enemy.stats.hp;
@@ -391,11 +400,23 @@ function resolveBattleResult(result) {
         state.run.storyBattleResult = "lose";
       }
 
-      state.screen = "run";
-      state.modal = null;
-      saveRun(state.run);
+      // Boss战→显示结果页面
+      if (isBossFight) {
+        state.bossResult = { type: "lose", bossName: battle.enemy.name, bossYear: battle.bossYear || state.run.year, isFinalBoss: isFinalBossYear };
+        state.modal = null;
+        saveRun(state.run);
+      } else {
+        state.screen = "run";
+        state.modal = null;
+        saveRun(state.run);
+      }
     } else {
-      settleRun(state, "lose", `你败给了${battle.enemy.name}。`);
+      // 非故事战斗失败且非Boss→直接settleRun
+      if (battle.isBoss) {
+        state.bossResult = { type: "lose", bossName: battle.enemy.name, bossYear: battle.bossYear || state.run.year, isFinalBoss: isFinalBossYear };
+      } else {
+        settleRun(state, "lose", `你败给了${battle.enemy.name}。`);
+      }
     }
   }
   console.time("[Battle] render结算");
@@ -686,6 +707,53 @@ const actions = {
     const sl = DATA.storylines?.[state.run.storylineId];
     const bossTemplate = sl?.bosses?.[state.run.year];
     if (bossTemplate) startBattle(bossTemplate, true);
+  },
+  handleBossResult: action => {
+    const br = state.bossResult;
+    if (!br) return;
+    state.bossResult = null;
+
+    if (action === "rewind") {
+      // 回到本月初：从快照恢复
+      const snap = getMonthSnapshot();
+      if (snap) {
+        state.run = snap;
+        state.run.activeSkills ||= state.run.skills.filter(id => DATA.skills[id]?.battle !== false).slice(0, 4);
+        state.run.internalArts ||= [];
+        state.run.activeInternalArts ||= [];
+        state.run.armors ||= [];
+        state.run.equippedArmor = state.run.equippedArmor || null;
+        saveRun(state.run);
+        state.screen = "run";
+        state.modal = null;
+        log(state.run, `时光回溯——回到了本月初。`);
+        render();
+      } else {
+        showToast("没有月初存档，无法回退");
+      }
+    } else if (action === "retire" || action === "mainMenu") {
+      // 退隐江湖 / 结束游戏 / 继续挑战其他支线 → 回到主菜单
+      if (br.type === "win") {
+        // 结算胜利（退隐江湖）
+        settleRun(state, "win", `你击败了${br.bossName}，江湖传遍你的名号。`);
+      } else {
+        // 结算失败
+        settleRun(state, "lose", `你败给了${br.bossName}。`);
+      }
+    } else if (action === "continue") {
+      // 继续挑战 → 进入下一年
+      const run = state.run;
+      run.year++;
+      run.month = 1;
+      run.eventRemaining = 3;
+      applyMonthStart(run);
+      refreshEvents(run);
+      log(run, `击败${br.bossName}！进入第${run.year}年${run.month}月。`);
+      saveRun(run);
+      state.screen = "run";
+      state.modal = null;
+      render();
+    }
   }
 };
 

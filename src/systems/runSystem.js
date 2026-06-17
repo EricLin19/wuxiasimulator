@@ -109,6 +109,8 @@ export function applyMonthStart(run) {
     run.hp = Math.min(run.stats.hp + getArmorStats(run).hp, run.hp + amount);
     run.qi = Math.min(run.stats.qi, run.qi + amount);
   }
+  // 保存月初快照（用于Boss战失败时回退）
+  saveMonthSnapshot(run);
   // 加载当前月份剧情（孤云逐浪线）
   if (run.storylineId === "wanderer") {
     loadWandererStory(run);
@@ -1685,4 +1687,19 @@ function applyMetaAllocations(stats, allocations) {
   stats.dodge += allocations.dodge || 0;
   stats.crit += (allocations.crit || 0) * 2;
   stats.speed = Number((stats.speed + (allocations.speed || 0) * 0.04).toFixed(2));
+}
+
+// 月初快照：Boss战失败时用于回退
+export function saveMonthSnapshot(run) {
+  try {
+    const snap = JSON.parse(JSON.stringify(run));
+    localStorage.setItem("wuxia_monthStartSnapshot", JSON.stringify(snap));
+  } catch (e) { /* 静默失败 */ }
+}
+
+export function getMonthSnapshot() {
+  try {
+    const raw = localStorage.getItem("wuxia_monthStartSnapshot");
+    return raw ? JSON.parse(raw) : null;
+  } catch (e) { return null; }
 }
