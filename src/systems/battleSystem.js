@@ -685,7 +685,7 @@ function enemyBasicAttack(run, battle, e, p) {
 }
 
 function enemySkillDamage(battle, e, p) {
-  return Math.max(1, effectiveAtk(e) + 35 - enemyEffectiveDef(battle, e, p));
+  return Math.max(1, Math.floor(effectiveAtk(e) + 35 - enemyEffectiveDef(battle, e, p)));
 }
 
 function enemyEffectiveDef(battle, e, p) {
@@ -1284,7 +1284,7 @@ function effectiveAtk(unit) {
 function baseSkillDamage(run, actor, target, skill) {
   if (skill.style === "coin") return coinDamageValue(run, skill);
   if (skill.style === "lowKick") return Math.max(1, Math.floor(skill.power * 0.72 + effectiveAtk(actor) * 0.65 + trueDamageBonus(run, skill)));
-  return Math.max(1, skill.power + effectiveAtk(actor) - effectiveDef(target));
+  return Math.max(1, Math.floor(skill.power + effectiveAtk(actor) - effectiveDef(target)));
 }
 
 function skillQiCost(actor, skill, run) {
@@ -1348,7 +1348,7 @@ function effectiveDef(unit) {
   const n = unit.breakDefense || 0;
   const defMul = Math.pow(0.98, n);
   let def = (base - unit.poison * 2) * defMul;
-  return Math.max(0, def);
+  return Math.max(0, Math.floor(def));
 }
 
 function effectiveHit(unit) {
