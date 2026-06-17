@@ -27,7 +27,10 @@ import {
   settleRun,
   toggleActiveSkill,
   getBattleDifficulty,
-  refreshWandererMerchantAction
+  refreshWandererMerchantAction,
+  applyMonthStart,
+  refreshEvents,
+  getMonthSnapshot
 } from "./systems/runSystem.js";
 import { buildRewardChoices, takeReward } from "./systems/rewardSystem.js";
 import { syncMusicForState, setVolume as audioSetVolume } from "./systems/audioSystem.js";
@@ -343,8 +346,17 @@ function resolveBattleResult(result) {
       if (battle.isBoss && battle.bossYear) {
         state.run.yearlyBossDefeated[battle.bossYear] = true;
       }
-      state.screen = "run";
-      finishDeferredEvent(state.run);
+
+      // Boss战结果页面（仅 M36/M48 战胜弹窗，其余 boss 战胜走原逻辑）
+      const bm = storyBattle.month;
+      if (bm === 36) {
+        state.bossResult = { mode: "m36Win", type: "win", bossName: battle.enemy.name, month: 36 };
+      } else if (bm === 48) {
+        state.bossResult = { mode: "m48Win", type: "win", bossName: battle.enemy.name, month: 48 };
+      } else {
+        state.screen = "run";
+        finishDeferredEvent(state.run);
+      }
     } else if (battle.isBoss) {
       state.run.yearlyBossDefeated[battle.bossYear] = true;
       log(state.run, `击败年末强敌：${battle.enemy.name}。`);
@@ -376,24 +388,15 @@ function resolveBattleResult(result) {
       else state.modal = null;
     }
   } else {
-    // === 故事战斗失败处理 ===
+    // === 故事战斗失败 → Boss战结果页面 ===
     if (storyBattle) {
-      // 输：武盟威慑+1，不结束游戏
-      state.run.mainThreat = (state.run.mainThreat || 0) + 1;
-      log(state.run, `败给${battle.enemy.name}。武盟威慑 +1（当前：${state.run.mainThreat}）`);
-      const maxHp = state.run.stats.hp + getArmorStats(state.run).hp;
-      state.run.hp = Math.max(1, Math.floor(maxHp * 0.3)); // 残血存活
-      state.run.qi = 0;
-
-      // M36最终Boss败：展示结局选择（可能有限）
-      if (storyBattle.isFinalBoss && storyBattle.endings) {
-        state.run.storyEndings = storyBattle.endings;
-        state.run.storyBattleResult = "lose";
-      }
-
-      state.screen = "run";
-      state.modal = null;
-      saveRun(state.run);
+      const bm = storyBattle.month;
+      state.bossResult = {
+        mode: bm === 48 ? "m48Lose" : "normal",
+        type: "lose",
+        bossName: battle.enemy.name,
+        month: bm
+      };
     } else {
       settleRun(state, "lose", `你败给了${battle.enemy.name}。`);
     }
@@ -686,6 +689,75 @@ const actions = {
     const sl = DATA.storylines?.[state.run.storylineId];
     const bossTemplate = sl?.bosses?.[state.run.year];
     if (bossTemplate) startBattle(bossTemplate, true);
+  },
+  handleBossResult: action => {
+    const br = state.bossResult;
+    if (!br) return;
+    const run = state.run;
+
+    if (action === "rewind") {
+      // 回到本月初：快照恢复
+      const snap = getMonthSnapshot();
+      if (snap) {
+        state.run = snap;
+        state.run.activeSkills ||= state.run.skills.filter(id => DATA.skills[id]?.battle !== false).slice(0, 4);
+        state.run.internalArts ||= [];
+        state.run.activeInternalArts ||= [];
+        state.run.armors ||= [];
+        state.run.skillTraits ||= [];
+        state.run.wandererResolve = state.run.wandererResolve || 0;
+        state.run.mainThreat = state.run.mainThreat || 0;
+        state.screen = "run";
+        state.bossResult = null;
+        render();
+      }
+      return;
+    }
+
+    if (action === "nextMonth" || action === "continue") {
+      // 继续游戏 → 到下一个月（跨年自动）
+      state.bossResult = null;
+      run.month++;
+      if (run.month > 12) { run.month = 1; run.year++; }
+      run.eventRemaining = 3;
+      const maxHp = run.stats.hp + getArmorStats(run).hp;
+      run.hp = Math.min(maxHp, run.hp + 100);
+      run.qi = Math.min(run.stats.qi, run.qi + 50);
+      applyMonthStart(run);
+      refreshEvents(run);
+      log(run, action === "continue"
+        ? `击败${br.bossName}！继续前行——进入第${run.year}年${run.month}月。`
+        : `败给${br.bossName}。重整旗鼓——进入第${run.year}年${run.month}月。`);
+      state.screen = "run";
+      state.modal = null;
+      saveRun(run);
+      render();
+      return;
+    }
+
+    if (action === "retire") {
+      // M36 战胜 → 退隐江湖
+      state.bossResult = null;
+      settleRun(state, "win", `你击败了${br.bossName}，归隐山林，江湖只余你的传说。`);
+      return;
+    }
+
+    if (action === "mainMenu") {
+      // 结束游戏 → 回到主页面
+      state.bossResult = null;
+      if (br.mode === "m48Win") {
+        // M48 战胜：孤云逐浪结束，直接回主页（不 settle）
+        saveMeta(state.meta);
+        state.screen = "menu";
+        state.run = null;
+        state.modal = null;
+      } else if (br.type === "win") {
+        settleRun(state, "win", `你击败了${br.bossName}，江湖传遍你的名号。`);
+      } else {
+        settleRun(state, "lose", `你败给了${br.bossName}。`);
+      }
+      render();
+    }
   }
 };
 

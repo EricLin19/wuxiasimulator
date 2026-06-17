@@ -101,6 +101,7 @@ export function log(run, text) {
 }
 
 export function applyMonthStart(run) {
+  saveMonthSnapshot(run);
   run.ap = run.maxAp;
   run.apUsedThisMonth = false;
   if (run.traits.includes("clearMind")) run.ap += 1;
@@ -1685,4 +1686,11 @@ function applyMetaAllocations(stats, allocations) {
   stats.dodge += allocations.dodge || 0;
   stats.crit += (allocations.crit || 0) * 2;
   stats.speed = Number((stats.speed + (allocations.speed || 0) * 0.04).toFixed(2));
+}
+
+export function saveMonthSnapshot(run) {
+  try { localStorage.setItem("wuxia_monthStartSnapshot", JSON.stringify(run)); } catch (e) {}
+}
+export function getMonthSnapshot() {
+  try { const s = localStorage.getItem("wuxia_monthStartSnapshot"); return s ? JSON.parse(s) : null; } catch (e) { return null; }
 }

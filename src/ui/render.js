@@ -117,6 +117,7 @@ export function renderApp(state, actions) {
   if (state.screen === "run") app.appendChild(renderRun(state, actions));
   if (state.screen === "battle") app.appendChild(renderBattle(state, actions));
   if (state.screen === "settlement") app.appendChild(renderSettlement(state, actions));
+  if (state.bossResult) app.appendChild(renderBossResult(state, actions));
   if (state.modal && (state.screen !== "battle" || state.modal.type === "battleItems")) {
     app.appendChild(renderModal(state, actions));
     const newModal = app.querySelector(".modal");
@@ -1068,6 +1069,45 @@ function renderSettlement(state, actions) {
   root.innerHTML = `<div class="menu-panel"><h2>${s.result === "win" ? "通关成功" : "江湖路断"}</h2><p>${s.reason}</p><p>获得局外属性点：${s.points}</p><button class="btn" data-back>返回主菜单</button></div>`;
   root.querySelector("[data-back]").onclick = actions.backToMenu;
   return root;
+}
+
+function renderBossResult(state, actions) {
+  const br = state.bossResult;
+  const isWin = br.type === "win";
+  const root = el("div", "boss-result");
+  root.innerHTML = `<div class="boss-result-panel">
+    <h2>${isWin ? "✦ 胜 ✦" : "✧ 败 ✧"}</h2>
+    <p class="boss-result-enemy">${br.bossName}</p>
+    <div class="boss-result-btns"></div>
+  </div>`;
+  const btns = root.querySelector(".boss-result-btns");
+
+  if (br.mode === "m36Win") {
+    // M36 战胜：继续额外剧情 / 退隐江湖
+    addBtn(btns, "继续前行（孤云支线）", () => actions.handleBossResult("continue"));
+    addBtn(btns, "退隐江湖", () => actions.handleBossResult("retire"), "danger");
+  } else if (br.mode === "m48Win") {
+    // M48 战胜：孤云逐浪结束
+    addBtn(btns, "返回主页面", () => actions.handleBossResult("mainMenu"));
+  } else if (br.mode === "m48Lose") {
+    // M48 战败：回到本月初 / 结束游戏
+    addBtn(btns, "回到本月初", () => actions.handleBossResult("rewind"));
+    addBtn(btns, "结束游戏", () => actions.handleBossResult("mainMenu"), "danger");
+  } else {
+    // 其他 boss 战败：回到本月初 / 继续游戏 / 结束游戏
+    addBtn(btns, "回到本月初", () => actions.handleBossResult("rewind"));
+    addBtn(btns, "继续游戏", () => actions.handleBossResult("nextMonth"));
+    addBtn(btns, "结束游戏", () => actions.handleBossResult("mainMenu"), "danger");
+  }
+  return root;
+}
+
+function addBtn(container, text, onclick, cls) {
+  const b = document.createElement("button");
+  b.className = "btn" + (cls ? " " + cls : "");
+  b.textContent = text;
+  b.onclick = onclick;
+  container.appendChild(b);
 }
 
 function rowCard(icon, title, meta, button, action) {

@@ -10,6 +10,7 @@ export const state = {
   toast: "",
   meta: loadMeta(),
   settlement: null,
+  bossResult: null,
   musicVolume: 0.5,
   perRunAllocations: null,
   allocPoints: 15,
