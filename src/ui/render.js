@@ -114,13 +114,7 @@ export function renderApp(state, actions) {
       });
     }
   }
-  if (state.screen === "run") {
-    if (state.bossResult) {
-      app.appendChild(renderBossResult(state, actions));
-    } else {
-      app.appendChild(renderRun(state, actions));
-    }
-  }
+  if (state.screen === "run") app.appendChild(renderRun(state, actions));
   if (state.screen === "battle") app.appendChild(renderBattle(state, actions));
   if (state.screen === "settlement") app.appendChild(renderSettlement(state, actions));
   if (state.modal && (state.screen !== "battle" || state.modal.type === "battleItems")) {
@@ -1073,45 +1067,6 @@ function renderSettlement(state, actions) {
   const root = el("div", "main-menu");
   root.innerHTML = `<div class="menu-panel"><h2>${s.result === "win" ? "通关成功" : "江湖路断"}</h2><p>${s.reason}</p><p>获得局外属性点：${s.points}</p><button class="btn" data-back>返回主菜单</button></div>`;
   root.querySelector("[data-back]").onclick = actions.backToMenu;
-  return root;
-}
-
-function renderBossResult(state, actions) {
-  const br = state.bossResult;
-  if (!br) return el("div");
-
-  const isWin = br.type === "win";
-  const isFinal = br.isFinalBoss;
-
-  const root = el("div", "boss-result-overlay");
-  root.innerHTML = `
-    <div class="boss-result-panel">
-      <div class="boss-result-icon">${isWin ? "⚔️" : "💀"}</div>
-      <h2 class="boss-result-title">${isWin ? "Boss挑战成功！" : "Boss挑战失败"}</h2>
-      <p class="boss-result-boss">${br.bossName}</p>
-      <p class="boss-result-desc">${isWin
-        ? (isFinal ? "孤云逐浪支线结束。江湖路远，后会有期。" : "你击败了强敌，江湖传遍你的名号。")
-        : "胜败乃兵家常事。重整旗鼓，再战江湖。"}</p>
-      <div class="boss-result-buttons">
-        ${isWin ? (
-          // 第4年(孤云逐浪支线结束)：单一"继续挑战其他支线"按钮
-          isFinal
-            ? `<button class="btn boss-btn-main" data-action="mainMenu">继续挑战其他支线</button>`
-            // 第1-3年：继续挑战(下一年)/退隐江湖
-            : `<button class="btn boss-btn-main" data-action="continue">继续挑战</button>
-               <button class="btn boss-btn-secondary" data-action="retire">退隐江湖</button>`
-        ) : (
-          // 年末Boss战失败：回到本月初/结束游戏
-          `<button class="btn boss-btn-main" data-action="rewind">回到本月初</button>
-           <button class="btn boss-btn-secondary" data-action="mainMenu">结束游戏</button>`
-        )}
-      </div>
-    </div>
-  `;
-  root.querySelector("[data-action='rewind']")?.addEventListener("click", () => actions.handleBossResult("rewind"));
-  root.querySelector("[data-action='retire']")?.addEventListener("click", () => actions.handleBossResult("retire"));
-  root.querySelector("[data-action='mainMenu']")?.addEventListener("click", () => actions.handleBossResult("mainMenu"));
-  root.querySelector("[data-action='continue']")?.addEventListener("click", () => actions.handleBossResult("continue"));
   return root;
 }
 

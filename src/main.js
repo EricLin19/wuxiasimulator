@@ -27,10 +27,7 @@ import {
   settleRun,
   toggleActiveSkill,
   getBattleDifficulty,
-  refreshWandererMerchantAction,
-  getMonthSnapshot,
-  applyMonthStart,
-  refreshEvents
+  refreshWandererMerchantAction
 } from "./systems/runSystem.js";
 import { buildRewardChoices, takeReward } from "./systems/rewardSystem.js";
 import { syncMusicForState, setVolume as audioSetVolume } from "./systems/audioSystem.js";
@@ -348,14 +345,18 @@ function resolveBattleResult(result) {
       }
       state.screen = "run";
       finishDeferredEvent(state.run);
-    } else if (battle.isBoss && battle.bossYear) {
-      // === 年末Boss战胜利 → 弹结果页面 ===
+    } else if (battle.isBoss) {
       state.run.yearlyBossDefeated[battle.bossYear] = true;
       log(state.run, `击败年末强敌：${battle.enemy.name}。`);
-      // 第4年(孤云支线结束)：单一"继续挑战其他支线"按钮
-      // 第1-3年：继续挑战/退隐江湖
-      state.bossResult = { type: "win", bossName: battle.enemy.name, bossYear: battle.bossYear, isFinalBoss: (battle.bossYear >= 4) };
-      saveRun(state.run);
+      if (battle.bossYear >= 3) {
+        settleRun(state, "win", `你击败了${battle.enemy.name}，江湖传遍你的名号。`);
+      } else {
+        state.screen = "run";
+        state.modal = { type: "reward", options: buildRewardChoices(state.run) };
+        console.time("[Battle] saveRun(boss)");
+        saveRun(state.run);
+        console.timeEnd("[Battle] saveRun(boss)");
+      }
     } else {
       const diff = getBattleDifficulty(battle.player.stats.hp, battle.enemy.stats.hp);
       const enemyHp = battle.enemy.stats.hp;
@@ -392,11 +393,6 @@ function resolveBattleResult(result) {
 
       state.screen = "run";
       state.modal = null;
-      saveRun(state.run);
-    } else if (battle.isBoss && battle.bossYear) {
-      // === 年末Boss战失败 → 弹结果页面（回本月初/结束游戏）===
-      log(state.run, `败给年末强敌：${battle.enemy.name}。`);
-      state.bossResult = { type: "lose", bossName: battle.enemy.name, bossYear: battle.bossYear, isFinalBoss: false };
       saveRun(state.run);
     } else {
       settleRun(state, "lose", `你败给了${battle.enemy.name}。`);
@@ -690,69 +686,6 @@ const actions = {
     const sl = DATA.storylines?.[state.run.storylineId];
     const bossTemplate = sl?.bosses?.[state.run.year];
     if (bossTemplate) startBattle(bossTemplate, true);
-  },
-  handleBossResult: action => {
-    const br = state.bossResult;
-    if (!br) return;
-    state.bossResult = null;
-
-    if (action === "rewind") {
-      // 回到本月初：从快照恢复
-      const snap = getMonthSnapshot();
-      if (snap) {
-        state.run = snap;
-        state.run.activeSkills ||= state.run.skills.filter(id => DATA.skills[id]?.battle !== false).slice(0, 4);
-        state.run.internalArts ||= [];
-        state.run.activeInternalArts ||= [];
-        state.run.armors ||= [];
-        state.run.equippedArmor = state.run.equippedArmor || null;
-        saveRun(state.run);
-        state.screen = "run";
-        state.modal = null;
-        state.bossResult = null;
-        log(state.run, `时光回溯——回到了本月初。`);
-        render();
-      } else {
-        showToast("没有月初存档，无法回退");
-      }
-    } else if (action === "retire") {
-      // 退隐江湖：结算胜利
-      settleRun(state, "win", `你击败了${br.bossName}，江湖传遍你的名号。`);
-    } else if (action === "mainMenu") {
-      // 继续挑战其他支线 / 结束游戏：回到主页面
-      if (br.isFinalBoss) {
-        // 第4年孤云支线结束→回到主页面（不settle）
-        state.run.storylineId = null;  // 清空支线
-        state.run.yearlyBossDefeated = {};  // 清空
-        saveMeta(state.meta);
-        saveRun(state.run);
-        state.screen = "menu";
-        state.run = null;
-        state.battle = null;
-        state.modal = null;
-        render();
-      } else if (br.type === "win") {
-        // 1-3年胜利→结束游戏
-        settleRun(state, "win", `你击败了${br.bossName}，江湖传遍你的名号。`);
-      } else {
-        // 失败→结束游戏
-        settleRun(state, "lose", `你败给了${br.bossName}。`);
-      }
-    } else if (action === "continue") {
-      // 继续挑战 → 进入下一年
-      const run = state.run;
-      run.year++;
-      run.month = 1;
-      run.eventRemaining = 3;
-      applyMonthStart(run);
-      refreshEvents(run);
-      log(run, `击败${br.bossName}！进入第${run.year}年${run.month}月。`);
-      saveRun(run);
-      state.bossResult = null;
-      state.screen = "run";
-      state.modal = null;
-      render();
-    }
   }
 };
 
