@@ -1094,11 +1094,14 @@ function renderBossResult(state, actions) {
         : "胜败乃兵家常事。重整旗鼓，再战江湖。"}</p>
       <div class="boss-result-buttons">
         ${isWin ? (
+          // 第4年(孤云逐浪支线结束)：单一"继续挑战其他支线"按钮
           isFinal
             ? `<button class="btn boss-btn-main" data-action="mainMenu">继续挑战其他支线</button>`
+            // 第1-3年：继续挑战(下一年)/退隐江湖
             : `<button class="btn boss-btn-main" data-action="continue">继续挑战</button>
                <button class="btn boss-btn-secondary" data-action="retire">退隐江湖</button>`
         ) : (
+          // 年末Boss战失败：回到本月初/结束游戏
           `<button class="btn boss-btn-main" data-action="rewind">回到本月初</button>
            <button class="btn boss-btn-secondary" data-action="mainMenu">结束游戏</button>`
         )}
