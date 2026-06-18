@@ -115,7 +115,7 @@ export function renderApp(state, actions) {
     }
   }
   if (state.screen === "run") app.appendChild(renderRun(state, actions));
-  if (state.screen === "battle") app.appendChild(renderBattle(state, actions));
+  if (state.screen === "battle" && !state.bossResult) app.appendChild(renderBattle(state, actions));
   if (state.screen === "settlement") app.appendChild(renderSettlement(state, actions));
   if (state.bossResult) app.appendChild(renderBossResult(state, actions));
   if (state.modal && (state.screen !== "battle" || state.modal.type === "battleItems")) {
@@ -827,6 +827,7 @@ function renderDebugModal(modal, actions, close) {
 }
 
 function renderBattle(state, actions) {
+  if (!state.battle) return el("div"); // 防御：battle已清空时不渲染
   const b = state.battle;
   const root = el("div", "battle-screen");
   root.innerHTML = `
