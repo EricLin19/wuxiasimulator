@@ -277,7 +277,7 @@ function renderTopbar(run, actions) {
 
 function renderRun(state, actions) {
   const run = state.run;
-  if (run.storylineId === "wanderer") return renderWandererRun(state, actions);
+  if (["wanderer","constable"].includes(run.storylineId)) return renderWandererRun(state, actions);
   const root = el("div");
   root.appendChild(renderTopbar(run, actions));
   const screen = el("div", "screen run-layout");

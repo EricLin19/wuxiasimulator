@@ -599,8 +599,8 @@ export function refreshManuals(run) {
     manuals.push(one);
   }
   run.manuals = manuals.slice(0, 4);
-  // 孤云线武林商人由刷新按钮手动控制，不在此处触发
-  if (run.storylineId !== "wanderer") refreshMerchantStock(run);
+  // 剧情线武林商人由刷新按钮手动控制，不在此处触发
+  if (!["wanderer","constable"].includes(run.storylineId)) refreshMerchantStock(run);
 }
 
 export function getAvailableManuals(run) {
@@ -683,7 +683,7 @@ export function refreshWandererMerchantAction(run) {
 }
 
 export function refreshMerchantStock(run) {
-  if (run.storylineId === "wanderer") return initWandererMerchant(run);
+  if (["wanderer","constable"].includes(run.storylineId)) return initWandererMerchant(run);
   const rarity = run.year >= 3 ? "red" : run.year >= 2 ? "orange" : "blue";
   // 内功：随机2本同稀有度
   const artPool = Object.values(DATA.internalArts).filter(a => a.rarity === rarity && !run.internalArts.includes(a.id));
@@ -948,8 +948,8 @@ export function resolveEvent(run, eventId, actions) {
     event.apply({ run, ...actions });
   }
     if (event.type !== "merchant" && event.type !== "battle") {
-      // 孤云线六选三无需补充，非孤云线维持旧 refill 机制
-      if (run.storylineId !== "wanderer" && run.eventRemaining > 0) refillOneEvent(run);
+      // 剧情线六选三无需补充，非剧情线维持旧 refill 机制
+      if (!["wanderer","constable"].includes(run.storylineId) && run.eventRemaining > 0) refillOneEvent(run);
       // 延迟1.5秒输出"已处理完"，避免与第3个奇遇结果toast重叠
       if (run.eventRemaining === 0) {
         setTimeout(() => log(run, "本月奇遇已处理完。"), 1500);
@@ -1175,20 +1175,20 @@ export function resolveStoryChoice(run, eventId, choice, actions) {
     run.storyFlags[eventId] = true;
   }
 
-  if (run.storylineId !== "wanderer" && run.eventRemaining > 0) refillOneEvent(run);
+  if (!["wanderer","constable"].includes(run.storylineId) && run.eventRemaining > 0) refillOneEvent(run);
   if (run.eventRemaining === 0) log(run, "本月奇遇已处理完。");
   saveRun(run);
   return true;
 }
 
 export function finishDeferredEvent(run) {
-  if (run.storylineId !== "wanderer" && run.eventRemaining > 0) refillOneEvent(run);
+  if (!["wanderer","constable"].includes(run.storylineId) && run.eventRemaining > 0) refillOneEvent(run);
   saveRun(run);
 }
 
 export function endMonth(run, startBoss) {
-  // 孤云逐浪线Boss通过主线抗争触发，不在此自动触发
-  if (run.month === 12 && !run.yearlyBossDefeated[run.year] && run.storylineId !== "wanderer") {
+  // 剧情线Boss通过主线抗争触发，不在此自动触发
+  if (run.month === 12 && !run.yearlyBossDefeated[run.year] && !["wanderer","constable"].includes(run.storylineId)) {
     // 从当前主线获取对应年份Boss
     const sl = DATA.storylines?.[run.storylineId];
     const bossTemplate = sl?.bosses?.[run.year];
