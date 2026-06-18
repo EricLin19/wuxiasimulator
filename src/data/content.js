@@ -167,24 +167,27 @@ export const DATA = {
   },
   strategies: [],
   traits: [
-    { id: "wanderer", name: "浪游", desc: "战斗开始出手速度+0.12，金钱获取+8%。" },
     { id: "constable", name: "缉凶", desc: "命中+6，获得经验时额外+8。" },
     { id: "orthodox", name: "正脉", desc: "血量+50，内力+40，经验获取+8%。" },
     { id: "swift", name: "迅影", desc: "出手速度+0.25，闪避+4。" },
     { id: "tough", name: "铜皮铁骨", desc: "血量+80，防御+10。" },
     { id: "healer", name: "青囊", desc: "治疗效果+25%，每月开始额外恢复90血量和内力。" },
-    { id: "nightPoison", name: "夜行", desc: "暴击+8，中毒层数更高。" },
     { id: "critUp", name: "战意", desc: "暴击+2。" },
     { id: "breath", name: "龟息", desc: "调息额外恢复80血量和内力。" },
     { id: "force", name: "刚力", desc: "伤害增加2%。" },
     { id: "clearMind", name: "明心", desc: "每月开始额外获得1行动力。" },
-    { id: "tieyi_blood_debt", name: "血偿", desc: "流血招式层数+3，无论武器类型均生效。" },
-    { id: "tieyi_body_tempering", name: "铁衣锻体", desc: "每回合调息额外恢复5%最大血量。" },
-    { id: "jingxi", name: "鲸息", desc: "每回合自动恢复5%最大内力。" },
     { id: "merchantFriend", name: "奇智", desc: "商人价格降低15%。" },
     { id: "hardBone", name: "硬骨", desc: "最大血量+60。" },
     { id: "innerRoot", name: "内息深长", desc: "最大内力+80。" }
   ],
+  wandererTraits: [
+    { id: "wanderer", name: "浪游", desc: "战斗开始出手速度+0.12，金钱获取+8%。" },
+    { id: "nightPoison", name: "夜行", desc: "暴击+8，中毒层数更高。" },
+    { id: "tieyi_blood_debt", name: "血偿", desc: "流血招式层数+3，无论武器类型均生效。" },
+    { id: "tieyi_body_tempering", name: "铁衣锻体", desc: "每回合调息额外恢复5%最大血量。" },
+    { id: "jingxi", name: "鲸息", desc: "每回合自动恢复5%最大内力。" }
+  ],
+  constableTraits: [],
   items: {
     pill: { id: "pill", name: "金疮药", icon: "药", type: "heal", price: 90, desc: "恢复20%最大血量。", hpPct: 0.2 },
     bigPill: { id: "bigPill", name: "大金疮药", icon: "药", type: "heal", price: 180, desc: "恢复35%最大血量。", hpPct: 0.35 },
@@ -1093,6 +1096,11 @@ DATA.wandererGrowthEvents = {
 };
 
 // ============================================================
+// 铁鹰入局 成长事件池（待设计）
+// ============================================================
+DATA.constableGrowthEvents = [];
+
+// ============================================================
 // 孤云逐浪 武林商人货品池（精选江湖气质秘籍/兵器/防具/丹药）
 // 定价基准：100钱=50血=10内=1攻/防
 // ============================================================
@@ -1154,76 +1162,18 @@ DATA.wandererMerchantPool = {
   ]
 };
 DATA.constableMerchantPool = {
-  manuals: [
-    { id: "quickSlash", name: "雁门快刀", school: "blade", rarity: "blue", style: "bleed", price: 200, desc: "快刀+流血是绿林散人最实用的打法。雁门快刀据说是边关逃兵带回来的刀法。" },
-    { id: "blade_orange_1", name: "燃木刀法", school: "blade", rarity: "orange", style: "bleed", price: 500, desc: "来自一个被武盟追杀了三年的老刀客。刀势焦灼，伤口更深。" },
-    { id: "blade_red_1", name: "饮血封喉刀", school: "blade", rarity: "red", style: "bleed", price: 1500, desc: "散人中间口耳相传的终极刀法——对手流血的速度就是你的活命时间。" },
-    { id: "fist_blue_3", name: "太祖长拳", school: "fist", rarity: "blue", style: "critPalm", price: 200, desc: "街头斗殴里打出来的拳法，不讲究招式讲究一拳下去对面得趴下。" },
-    { id: "fist_orange_2", name: "黯魂掌", school: "fist", rarity: "orange", style: "critPalm", price: 600, desc: "据传是韩铁衣在龙井谷改良的拳路，出招时带着一股子老子跟你拼命的蛮劲。" },
-    { id: "fist_red_2", name: "碎星拳", school: "fist", rarity: "red", style: "critPalm", price: 1600, desc: "重拳碎星，暴击倍率提高。散人没有门派——拳头就是最后的尊严。" },
-    { id: "springNeedle", name: "青囊毒针", school: "hidden", rarity: "blue", style: "poison", price: 200, desc: "散人没有门派资源，毒是最好的以小博大手段。来自江湖郎中的偏方。" },
-    { id: "hidden_orange_1", name: "冰魄毒针", school: "hidden", rarity: "orange", style: "poison", price: 500, desc: "据说是从武盟刑讯室流出来的配方——他们用来对付我们的，我们用来对付他们。" },
-    { id: "hidden_red_1", name: "孔雀毒翎", school: "hidden", rarity: "red", style: "poison", price: 1500, desc: "毒雨齐发，淬毒暗器终极式。" },
-    { id: "light_blue_2", name: "扫堂腿", school: "lightness", rarity: "blue", style: "lowKick", price: 200, desc: "每个散人都会的打架基本功。" },
-    { id: "light_orange_2", name: "盘龙腿", school: "lightness", rarity: "orange", style: "lowKick", price: 500, desc: "龙井谷一个瘸腿老散人教的——腿断了这辈子跑不了，那就把底盘练稳，谁来踢谁。" },
-    { id: "light_red_2", name: "碎岳沉桩腿", school: "lightness", rarity: "red", style: "lowKick", price: 1500, desc: "核心是站住了就是赢。" },
-    { id: "manual_speed", name: "唯快不破", school: "none", rarity: "blue", style: "buff", price: 500, desc: "天下武功，唯快不破。读条速度提升3倍，持续5回合。" },
-    { id: "manual_atk", name: "力大无穷", school: "none", rarity: "blue", style: "buff", price: 500, desc: "一力降十会。攻击力提升2倍，持续5回合。" },
-    { id: "manual_crit", name: "屠杀盛宴", school: "none", rarity: "blue", style: "buff", price: 500, desc: "杀意沸腾之时，无坚不摧。暴击/连击概率双倍，暴击倍率+1，持续5回合。" }
-  ],
-  weapons: [
-    { id: "blade_bleed_blue", name: "饮血雁翎刀", school: "blade", rarity: "blue", price: 550 },
-    { id: "blade_bleed_orange", name: "裂血长刀", school: "blade", rarity: "orange", price: 1600 },
-    { id: "blade_bleed_red", name: "血河断刃", school: "blade", rarity: "red", price: 4500 },
-    { id: "fist_crit_blue", name: "炽星拳套", school: "fist", rarity: "blue", price: 500 },
-    { id: "fist_crit_orange", name: "纯阳拳甲", school: "fist", rarity: "orange", price: 1500 },
-    { id: "fist_crit_red", name: "碎星拳套", school: "fist", rarity: "red", price: 4200 },
-    { id: "hidden_poison_blue", name: "淬毒针匣", school: "hidden", rarity: "blue", price: 500 },
-    { id: "hidden_poison_orange", name: "淬毒银针", school: "hidden", rarity: "orange", price: 1400 },
-    { id: "hidden_poison_red", name: "孔雀毒匣", school: "hidden", rarity: "red", price: 4300 },
-    { id: "leg_low_blue", name: "破门靴", school: "lightness", rarity: "blue", price: 400 },
-    { id: "leg_low_orange", name: "压山靴", school: "lightness", rarity: "orange", price: 1000 },
-    { id: "leg_low_red", name: "断岳沉步靴", school: "lightness", rarity: "red", price: 2000 }
-  ],
-  armors: [
-    { id: "armor_heavy_blue", name: "硬布背心", rarity: "blue", price: 600, desc: "散人的标准防具——粗布层层叠叠缝制，不美观但是实在。" },
-    { id: "armor_light_orange", name: "游云轻甲", rarity: "orange", price: 1200, desc: "据说是一个退役的武盟捕快卖给黑市的——穿上跑得快，跑路的时候派大用场。" },
-    { id: "armor_wuxiang_red", name: "无相秘甲", rarity: "red", price: 2400, desc: "据传来自楚宗玄的私人武库，被孟天衡暗中调包流出来的。" }
-  ],
-  internalArts: [
-    { id: "art_blue_3", name: "罗汉镇岳功", rarity: "blue", price: 500, desc: "少林叛僧流传出来的站桩功夫，散人没有门派护体，只能靠自己扛。" },
-    { id: "art_blue_4", name: "回照心经", rarity: "blue", price: 500, desc: "江湖药店常配的内功入门——不会这个功法你连毒都扛不住。" },
-    { id: "art_blue_7", name: "归元功", rarity: "blue", price: 500, desc: "归元守一，内息绵绵。散人没有师门调息，纯靠自己盘坐吐纳。" },
-    { id: "art_orange_1", name: "虚玄无相功", rarity: "orange", price: 1500, desc: "传说是一个偷遍江南的老贼头创的，内力运转不浪费一丝，真正的省着用——每次攻击吸取对方内力。" },
-    { id: "art_orange_2", name: "纯阳正气诀", rarity: "orange", price: 1600, desc: "名字很正派，实则是散人对抗武盟压迫的底气——心中坦荡，气贯长虹。" },
-    { id: "art_red_2", name: "大罗洗髓经", rarity: "red", price: 5000, desc: "来自一个活了两甲子的老散人——洗掉过去的伤，重新站起来的功法。" },
-    { id: "art_red_1", name: "九曜真功", rarity: "red", price: 5000, desc: "孤本，孟天衡从总坛藏书阁偷出来的——他自己没练，因为不想欠武盟的人情。" }
-  ],
-  pills: [
-    { id: "pill" },
-    { id: "bigPill" },
-    { id: "springPaste" },
-    { id: "qiWine" },
-    { id: "qiPill" },
-    { id: "yuanPowder" },
-    { id: "statPill" },
-    { id: "superPill" }
-  ]
+  manuals: [],
+  weapons: [],
+  armors: [],
+  internalArts: [],
+  pills: []
 };
 
 
 // 主线故事事件执行函数映射（在 runSystem.js 中实现，这里只定义数据结构）
 // 注意：这些事件的实际 apply 逻辑在 runSystem.js 的 resolveStoryEvent 中
 
-// 小Boss池（通用）
-DATA.miniBosses = [
-  { id: "mini_bleed_blade", name: "血刀客", icon: "刀", portraitImage: "assets/portraits_pixel/mini_bleed_blade_pixel_320.webp", yearMin: 2, hp: 1400, qi: 420, atk: 85, def: 45, combo: 4, hit: 72, dodge: 6, crit: 10, speed: 1.42, boss: true, bossTraits: ["miniBleed"], bossTraitDesc: "每回合流血+5", rank: 3, taunt: "流血三尺，方显刀意。" },
-  { id: "mini_frost_assassin", name: "寒衣刺客", icon: "影", portraitImage: "assets/portraits_pixel/mini_frost_assassin_pixel_320.webp", yearMin: 2, hp: 1200, qi: 500, atk: 78, def: 38, combo: 5, hit: 80, dodge: 28, crit: 12, speed: 1.70, boss: true, bossTraits: ["miniFrost"], bossTraitDesc: "每回合寒气+5，高闪避", rank: 3, taunt: "寒气入脉，你跑不了。" },
-  { id: "mini_hamstring_blade", name: "断筋刀师", icon: "刀", portraitImage: "assets/portraits_pixel/mini_hamstring_blade_pixel_320.webp", yearMin: 2, hp: 2400, qi: 760, atk: 120, def: 70, combo: 5, hit: 80, dodge: 10, crit: 12, speed: 1.50, boss: true, bossTraits: ["miniHamstring"], bossTraitDesc: "断筋+2，削攻", rank: 4, taunt: "断你筋脉，看你怎么逃。" },
-  { id: "mini_gu_priest", name: "蛊道人", icon: "毒", portraitImage: "assets/portraits_pixel/mini_gu_priest_pixel_320.webp", yearMin: 2, hp: 2200, qi: 900, atk: 105, def: 60, combo: 4, hit: 78, dodge: 14, crit: 10, speed: 1.48, boss: true, bossTraits: ["miniGu"], bossTraitDesc: "蛊+2，增加耗内", rank: 4, taunt: "蛊已入体，越动越痛。" },
-  { id: "mini_coin_dart", name: "金钱镖客", icon: "镖", portraitImage: "assets/portraits_pixel/mini_coin_dart_pixel_320.webp", yearMin: 2, hp: 2000, qi: 600, atk: 110, def: 55, combo: 5, hit: 88, dodge: 12, crit: 12, speed: 1.62, boss: true, bossTraits: ["miniCoin"], bossTraitDesc: "每2回合一次必中固定伤害", rank: 4, taunt: "有钱能使鬼推磨，也能要你命。" },
-  { id: "mini_armor_monk", name: "玄甲武师", icon: "甲", portraitImage: "assets/portraits_pixel/mini_armor_monk_pixel_320.webp", yearMin: 3, hp: 3600, qi: 1000, atk: 150, def: 130, combo: 3, hit: 82, dodge: 8, crit: 10, speed: 1.35, boss: true, bossTraits: ["armorShield"], bossTraitDesc: "开场20%HP护体真气，高防稳守", rank: 5, taunt: "金钟罩下，你破不了防。" }
-];
+
 
 // ============================================================
 // 孤云逐浪 专属敌人池（v5.4，数据源：孤云逐浪人物.md）
@@ -1244,8 +1194,7 @@ DATA.wandererEnemyPool = {
     { id: "wanderer_grunt_fighter_yr2", name: "二流高手", icon: "擂", portraitImage: "assets/portraits_guyun_pixel/enc_duel_y2_second_rate_pixel_320.webp", hp: 800, qi: 220, atk: 54, def: 24, combo: 4, hit: 74, dodge: 8, crit: 9, speed: 1.30, rank: 2, taunt: "报上名来，我的刀下不斩无名之辈。" },
     { id: "wanderer_grunt_fighter_yr3", name: "一流高手", icon: "擂", portraitImage: "assets/portraits_guyun_pixel/enc_duel_y3_first_rate_pixel_320.webp", hp: 1600, qi: 360, atk: 72, def: 32, combo: 5, hit: 78, dodge: 10, crit: 11, speed: 1.36, rank: 3, taunt: "十年未逢对手——希望你不是下一个让我失望的人。" }
   ],
-  // --- 小Boss（已删除孤儿数据，2026-06-15 清理）---
-  miniBosses: []
+  // --- 小Boss机制已删除（2026-06-15 清理）---
 };
 DATA.constableEnemyPool = {
   // --- 普通敌人（奇遇通用战斗，仅三大事件年份变体）---
@@ -1263,8 +1212,7 @@ DATA.constableEnemyPool = {
     { id: "constable_grunt_fighter_yr2", name: "二流高手", icon: "擂", portraitImage: "assets/portraits_guyun_pixel/enc_duel_y2_second_rate_pixel_320.webp", hp: 800, qi: 220, atk: 54, def: 24, combo: 4, hit: 74, dodge: 8, crit: 9, speed: 1.30, rank: 2, taunt: "报上名来，我的刀下不斩无名之辈。" },
     { id: "constable_grunt_fighter_yr3", name: "一流高手", icon: "擂", portraitImage: "assets/portraits_guyun_pixel/enc_duel_y3_first_rate_pixel_320.webp", hp: 1600, qi: 360, atk: 72, def: 32, combo: 5, hit: 78, dodge: 10, crit: 11, speed: 1.36, rank: 3, taunt: "十年未逢对手——希望你不是下一个让我失望的人。" }
   ],
-  // --- 小Boss（已删除孤儿数据，2026-06-15 清理）---
-  miniBosses: []
+  // --- 小Boss机制已删除（2026-06-15 清理）---
 };
 
 

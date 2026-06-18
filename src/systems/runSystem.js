@@ -309,19 +309,7 @@ function makeRiskEventPool(run) {
       gainExp(run, 80);
     }}
   ];
-  // 小Boss事件（较低概率单独出现，这里并入风险池）
-  const miniBossEvents = (DATA.miniBosses || []).filter(b => run.year >= (b.yearMin || 1)).map(b => ({
-    id: "mini_" + b.id,
-    name: b.name,
-    category: "小Boss",
-    icon: b.icon,
-    desc: `遭遇${b.name}，胜利可获得丰厚奖励。`,
-    apply: ({ run, startBattle }) => {
-      const template = { ...b, id: b.id };
-      startBattle(template);
-    }
-  }));
-  return [...duel, ...price, ...miniBossEvents];
+  return [...duel, ...price];
 }
 
 // ============================================================
@@ -1068,7 +1056,7 @@ export function resolveStoryChoice(run, eventId, choice, actions) {
         r.hp += 200; r.qi += 100;
         gainExp(r, 300);
       }, rewardText: "全属性+3，血量+200，内力+100" },
-      resist: { threat: 0, log: "你策划了一场小型战役，带领散人们击退围剿。", type: "battle_mini" }
+      resist: { threat: 0, log: "你策划了一场小型战役，带领散人们击退围剿。", type: "battle" }
     },
     // constable
     "constable_edict": {
@@ -1093,7 +1081,7 @@ export function resolveStoryChoice(run, eventId, choice, actions) {
         r.hp += 150; r.qi += 80;
         gainExp(r, 200);
       }, rewardText: "全属性+2，经验+200" },
-      resist: { threat: 0, log: "你设下埋伏引追杀者入瓮，一网打尽。", type: "battle_mini" }
+      resist: { threat: 0, log: "你设下埋伏引追杀者入瓮，一网打尽。", type: "battle" }
     },
     // orthodox
     "orthodox_plague": {
@@ -1118,7 +1106,7 @@ export function resolveStoryChoice(run, eventId, choice, actions) {
         r.hp += 200; r.qi += 100;
         gainExp(r, 250);
       }, rewardText: "全属性+3，经验+250" },
-      resist: { threat: 0, log: "你召集天衡剑阵同门联合发动剑阵反击鬼教。", type: "battle_mini" }
+      resist: { threat: 0, log: "你召集天衡剑阵同门联合发动剑阵反击鬼教。", type: "battle" }
     }
   };
   const h = handlers[eventId];
@@ -1145,20 +1133,6 @@ export function resolveStoryChoice(run, eventId, choice, actions) {
           return true; // 战斗触发，不继续处理
         }
         log(run, `【抗争】${result.log}但并无敌手可战。`);
-      } else if (result.type === "battle_mini") {
-        // 触发小Boss级别战斗
-        const miniPool = (DATA.miniBosses || []).filter(b => run.year >= (b.yearMin || 1));
-        const boss = miniPool[Math.floor(Math.random() * miniPool.length)];
-        if (boss && actions.startBattle) {
-          log(run, `【抗争】${result.log}你迎战强敌。散人决心+2。`);
-          run.routeResolve = Math.min(10, (run.routeResolve || 0) + 2);
-          run.storyFlags[eventId + "_resist"] = true;
-          const template = { ...boss, id: "mini_" + boss.id };
-          actions.startBattle(template);
-          saveRun(run);
-          return true; // 战斗触发
-        }
-        log(run, `【抗争】${result.log}但并无强敌可战。`);
       } else if (result.type === "pay") {
         const cost = result.cost || 100;
         if (run.money >= cost) {

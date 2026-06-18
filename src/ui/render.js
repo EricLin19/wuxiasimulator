@@ -445,19 +445,19 @@ function renderEventsModal(modal, run, actions, close) {
     "wanderer_rescue": { threat: 2, acceptName: "见义勇为", acceptLog: "你冒着被武盟标记的风险救下几位散人，他们在暗处为你通风报信。", acceptReward: "经验+180，攻击+2", rejectName: "明哲保身", rejectLog: "你选择用金钱打通关节，悄悄放走散人。", rejectType: "pay", rejectCost: 180 },
     "wanderer_order": { threat: 1, acceptName: "研读密令", acceptLog: "你仔细研读武盟的密令，从中窥见了对付他们的策略。", acceptReward: "随机修炼笔记进度+2，经验+80", rejectName: "匿名举报", rejectLog: "你匿名将密令透露给江湖各方，花钱买通传递渠道。", rejectType: "pay", rejectCost: 100 },
     "wanderer_friend": { threat: 2, acceptName: "劫狱救人", acceptLog: "你孤身闯入执法堂，击退守卫救出旧友。武盟对你恨之入骨。", acceptReward: "防御+3，经验+150", rejectName: "买通狱卒", rejectLog: "你花重金买通狱卒，旧友得以脱身。", rejectType: "pay", rejectCost: 280 },
-    "wanderer_purge": { threat: 3, acceptName: "正面对抗", acceptLog: "你直面武盟围剿，以战止战。江湖散人视你为旗帜。", acceptReward: "全属性+3，获得强力武器", rejectName: "集结散人", rejectLog: "你策划了一场小型战役，带领散人们击退围剿。", rejectType: "battle_mini" },
+    "wanderer_purge": { threat: 3, acceptName: "正面对抗", acceptLog: "你直面武盟围剿，以战止战。江湖散人视你为旗帜。", acceptReward: "全属性+3，获得强力武器", rejectName: "集结散人", rejectLog: "你策划了一场小型战役，带领散人们击退围剿。", rejectType: "battle" },
     // constable
     "constable_edict": { threat: 1, acceptName: "接旨暗查", acceptLog: "你接下密诏，表面听从内廷调遣，暗中搜集证据。", acceptReward: "金钱+150，经验+80", rejectName: "阳奉阴违", rejectLog: "你表面领旨，实则花钱暗中转移证人。", rejectType: "pay", rejectCost: 120 },
     "constable_file": { threat: 2, acceptName: "深入追查", acceptLog: "你顺着卷宗线索顺藤摸瓜，掌握了厂卫的布局。", acceptReward: "命中+3，经验+140", rejectName: "紧急焚毁", rejectLog: "你赶在厂卫到来前焚毁卷宗，造成一场混乱的遭遇战。", rejectType: "battle" },
     "constable_test": { threat: 1, acceptName: "虚与委蛇", acceptLog: "你故意示弱，让厂卫以为你不足为虑。暗中调查得以继续。", acceptReward: "闪避+2，经验+60", rejectName: "强势还击", rejectLog: "你击退来访厂卫，表明立场。但也暴露了自己。", rejectType: "battle" },
     "constable_oldcase": { threat: 2, acceptName: "彻查真相", acceptLog: "你深入调查宫中旧案，揭开了掌印太监的罪证。", acceptReward: "攻击+3，防御+2，经验+180", rejectName: "花钱封口", rejectLog: "你花重金买通关键证人，暂时压制此事。", rejectType: "pay", rejectCost: 350 },
-    "constable_witness": { threat: 3, acceptName: "护送证人", acceptLog: "你亲自护送江湖证人突出重围，与厂卫刺客正面交锋。", acceptReward: "全属性+2，经验+200", rejectName: "设伏反击", rejectLog: "你设下埋伏引追杀者入瓮，一网打尽。", rejectType: "battle_mini" },
+    "constable_witness": { threat: 3, acceptName: "护送证人", acceptLog: "你亲自护送江湖证人突出重围，与厂卫刺客正面交锋。", acceptReward: "全属性+2，经验+200", rejectName: "设伏反击", rejectLog: "你设下埋伏引追杀者入瓮，一网打尽。", rejectType: "battle" },
     // orthodox
     "orthodox_plague": { threat: 1, acceptName: "救治村民", acceptLog: "你冒着被传染的风险为村民解蛊，获得了村民的感激。", acceptReward: "血量+150，获得金疮药x2", rejectName: "焚烧疫区", rejectLog: "你花钱组织人手隔离焚烧，阻止疫情扩散。", rejectType: "pay", rejectCost: 100 },
     "orthodox_lotus": { threat: 1, acceptName: "暗中调查", acceptLog: "你记下了所有符印的位置，追寻鬼教渗透的线索。", acceptReward: "经验+80，命中+2", rejectName: "当众清除", rejectLog: "你当众抹除符印，引来鬼教信徒的袭击。", rejectType: "battle" },
     "orthodox_missing": { threat: 2, acceptName: "追踪秘道", acceptLog: "你顺着打斗痕迹找到鬼教秘道，救出被困的同门。", acceptReward: "攻击+2，防御+2，经验+120", rejectName: "花钱买消息", rejectLog: "你花钱从江湖情报贩子口中打探出秘道入口。", rejectType: "pay", rejectCost: 220 },
     "orthodox_ruin": { threat: 2, acceptName: "闯入祭坛", acceptLog: "你闯入祭坛打乱仪式，与鬼教教徒正面交锋。", acceptReward: "暴击+3，经验+150", rejectName: "集结同门", rejectLog: "你花钱组织同门力量，围剿祭坛。", rejectType: "pay", rejectCost: 300 },
-    "orthodox_bell": { threat: 3, acceptName: "破阵灭鬼", acceptLog: "你独自闯入鬼教总坛，以钟声为号发起最后一战。", acceptReward: "全属性+3，经验+250", rejectName: "天衡剑阵", rejectLog: "你召集天衡剑阵同门联合发动剑阵反击鬼教。", rejectType: "battle_mini" }
+    "orthodox_bell": { threat: 3, acceptName: "破阵灭鬼", acceptLog: "你独自闯入鬼教总坛，以钟声为号发起最后一战。", acceptReward: "全属性+3，经验+250", rejectName: "天衡剑阵", rejectLog: "你召集天衡剑阵同门联合发动剑阵反击鬼教。", rejectType: "battle" }
   };
   modal.innerHTML = `<div class="modal-head"><h2 class="modal-title">江湖奇遇</h2>${close}</div><div class="event-count">可参与事件数：${run.eventRemaining} / ${run.events.length}（六选三）</div><div class="event-grid"></div>`;
   run.events.forEach(e => {
@@ -1175,11 +1175,6 @@ function computeEventDifficulty(run, event) {
     const yr = Math.min(run.year, 3);
     const enemy = wp.grunts.find(e => e.id === `wanderer_grunt_${pool}_yr${yr}`);
     enemyHp = enemy ? enemy.hp * 2 : 0;
-  } else if (event.id && event.id.startsWith("mini_")) {
-    // 通用小Boss
-    const miniId = event.id.replace("mini_", "");
-    const mini = (DATA.miniBosses || []).find(b => b.id === miniId);
-    enemyHp = mini ? mini.hp * 2 : 0;
   } else if (event.category === "切磋") {
     // 通用切磋：按当前rank上限取平均敌人血量
     const maxRank = Math.min(4, 1 + Math.floor(monthAbs(run) / 8));

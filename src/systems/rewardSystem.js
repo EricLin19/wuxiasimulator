@@ -54,10 +54,16 @@ export function buildRewardChoices(run) {
 }
 
 function buildTraitReward(run) {
-  const available = DATA.traits.filter(t =>
+  // 根据剧情线选择特性池：路线专属 + 通用
+  let routeTraits = [];
+  if (run.storylineId === "wanderer" && DATA.wandererTraits) {
+    routeTraits = DATA.wandererTraits;
+  } else if (run.storylineId === "constable" && DATA.constableTraits) {
+    routeTraits = DATA.constableTraits;
+  }
+  const combined = [...routeTraits, ...DATA.traits];
+  const available = combined.filter(t =>
     !run.traits.includes(t.id) && !run.skillTraits.some(st => st.id === t.id)
-    // 剧情线：排除其他剧情线的专属特性
-    && !((["wanderer","constable"].includes(run.storylineId)) && ((run.storylineId !== "wanderer" && t.id === "wanderer_exclusive") || (run.storylineId !== "constable" && t.id === "constable_exclusive")))
   );
   if (!available.length) return null;
   const trait = sample(available, 1)[0];
