@@ -708,6 +708,185 @@ DATA.wandererMonths = {
 // 权重分布：传功10% | 道具10% | 加属性20% | 打斗30% | 金钱30%
 // 传功6个每局各限领一次（collectedHeritages）；道具/打斗/金钱可重复
 // ============================================================
+
+// ===========================================================
+// 铁鹰入局 48月叙事数据（占位符，待填写）
+// ===========================================================
+DATA.constableMonths = {
+  // === 第一年 ===
+  1: { title: "待填写M1",
+    text: "待填写" },
+  2: { title: "待填写M2",
+    text: "待填写",
+    fightLabel: "战斗", enemyId: "constable_m2_enemy", hasBattle: true, isBoss: false,
+    battleDesc: "待填写",
+    battleReward: { exp:100, money:60, fame:20 } },
+  3: { title: "待填写M3",
+    text: "待填写" },
+  4: { title: "待填写M4",
+    text: "待填写",
+    fightLabel: "战斗", enemyId: "constable_m4_enemy", hasBattle: true, isBoss: false,
+    battleDesc: "待填写",
+    battleReward: { exp:200, money:120, fame:40 } },
+  5: { title: "待填写M5",
+    text: "待填写" },
+  6: { title: "待填写M6",
+    text: "待填写",
+    fightLabel: "战斗", enemyId: "constable_m6_enemy", hasBattle: true, isBoss: false,
+    battleDesc: "待填写",
+    battleReward: { exp:300, money:180, fame:60 } },
+  7: { title: "待填写M7",
+    text: "待填写" },
+  8: { title: "待填写M8",
+    text: "待填写",
+    fightLabel: "战斗", enemyId: "constable_m8_enemy", hasBattle: true, isBoss: false,
+    battleDesc: "待填写",
+    battleReward: { exp:400, money:240, fame:80 } },
+  9: { title: "待填写M9",
+    text: "待填写" },
+  10: { title: "待填写M10",
+    text: "待填写",
+    fightLabel: "战斗", enemyId: "constable_m10_enemy", hasBattle: true, isBoss: false,
+    battleDesc: "待填写",
+    battleReward: { exp:500, money:300, fame:100 } },
+  11: { title: "待填写M11",
+    text: "待填写" },
+  12: { title: "待填写M12",
+    text: "待填写",
+    fightLabel: "战斗", enemyId: "constable_m12_enemy", hasBattle: true, isBoss: false,
+    battleDesc: "待填写",
+    battleReward: { exp:600, money:360, fame:120 } },
+  // === 第二年 ===
+  13: { title: "待填写M13",
+    text: "待填写" },
+  14: { title: "待填写M14",
+    text: "待填写",
+    fightLabel: "战斗", enemyId: "constable_m14_enemy", hasBattle: true, isBoss: false,
+    battleDesc: "待填写",
+    battleReward: { exp:700, money:420, fame:140 } },
+  15: { title: "待填写M15",
+    text: "待填写" },
+  16: { title: "待填写M16",
+    text: "待填写",
+    fightLabel: "战斗", enemyId: "constable_m16_enemy", hasBattle: true, isBoss: false,
+    battleDesc: "待填写",
+    battleReward: { exp:800, money:480, fame:160 } },
+  17: { title: "待填写M17",
+    text: "待填写" },
+  18: { title: "待填写M18",
+    text: "待填写",
+    fightLabel: "战斗", enemyId: "constable_m18_enemy", hasBattle: true, isBoss: false,
+    battleDesc: "待填写",
+    battleReward: { exp:900, money:540, fame:180 } },
+  19: { title: "待填写M19",
+    text: "待填写" },
+  20: { title: "待填写M20",
+    text: "待填写",
+    fightLabel: "战斗", enemyId: "constable_m20_enemy", hasBattle: true, isBoss: false,
+    battleDesc: "待填写",
+    battleReward: { exp:1000, money:600, fame:200 } },
+  21: { title: "待填写M21",
+    text: "待填写" },
+  22: { title: "待填写M22",
+    text: "待填写",
+    fightLabel: "战斗", enemyId: "constable_m22_enemy", hasBattle: true, isBoss: false,
+    battleDesc: "待填写",
+    battleReward: { exp:1100, money:660, fame:220 } },
+  23: { title: "待填写M23",
+    text: "待填写" },
+  24: { title: "待填写M24",
+    text: "待填写",
+    fightLabel: "战斗", enemyId: "constable_m24_enemy", hasBattle: true, isBoss: false,
+    battleDesc: "待填写",
+    battleReward: { exp:1200, money:720, fame:240 } },
+  // === 第三年 ===
+  25: { title: "待填写M25",
+    text: "待填写" },
+  26: { title: "待填写M26",
+    text: "待填写",
+    fightLabel: "战斗", enemyId: "constable_m26_enemy", hasBattle: true, isBoss: false,
+    battleDesc: "待填写",
+    battleReward: { exp:1300, money:780, fame:260 } },
+  27: { title: "待填写M27",
+    text: "待填写" },
+  28: { title: "待填写M28",
+    text: "待填写",
+    fightLabel: "战斗", enemyId: "constable_m28_enemy", hasBattle: true, isBoss: false,
+    battleDesc: "待填写",
+    battleReward: { exp:1400, money:840, fame:280 } },
+  29: { title: "待填写M29",
+    text: "待填写" },
+  30: { title: "待填写M30",
+    text: "待填写",
+    fightLabel: "战斗", enemyId: "constable_m30_enemy", hasBattle: true, isBoss: false,
+    battleDesc: "待填写",
+    battleReward: { exp:1500, money:900, fame:300 } },
+  31: { title: "待填写M31",
+    text: "待填写" },
+  32: { title: "待填写M32",
+    text: "待填写",
+    fightLabel: "战斗", enemyId: "constable_m32_enemy", hasBattle: true, isBoss: false,
+    battleDesc: "待填写",
+    battleReward: { exp:1600, money:960, fame:320 } },
+  33: { title: "待填写M33",
+    text: "待填写" },
+  34: { title: "待填写M34",
+    text: "待填写",
+    fightLabel: "战斗", enemyId: "constable_m34_enemy", hasBattle: true, isBoss: false,
+    battleDesc: "待填写",
+    battleReward: { exp:1700, money:1020, fame:340 } },
+  35: { title: "待填写M35",
+    text: "待填写" },
+  36: { title: "待填写M36",
+    text: "待填写",
+    fightLabel: "战斗", enemyId: "constable_m36_enemy", hasBattle: true, isBoss: false,
+    battleDesc: "待填写",
+    battleReward: { exp:1800, money:1080, fame:360 } },
+  // === 第四年 ===
+  37: { title: "待填写M37",
+    text: "待填写" },
+  38: { title: "待填写M38",
+    text: "待填写",
+    fightLabel: "战斗", enemyId: "constable_m38_enemy", hasBattle: true, isBoss: false,
+    battleDesc: "待填写",
+    battleReward: { exp:1900, money:1140, fame:380 } },
+  39: { title: "待填写M39",
+    text: "待填写" },
+  40: { title: "待填写M40",
+    text: "待填写",
+    fightLabel: "战斗", enemyId: "constable_m40_enemy", hasBattle: true, isBoss: false,
+    battleDesc: "待填写",
+    battleReward: { exp:2000, money:1200, fame:400 } },
+  41: { title: "待填写M41",
+    text: "待填写" },
+  42: { title: "待填写M42",
+    text: "待填写",
+    fightLabel: "战斗", enemyId: "constable_m42_enemy", hasBattle: true, isBoss: false,
+    battleDesc: "待填写",
+    battleReward: { exp:2100, money:1260, fame:420 } },
+  43: { title: "待填写M43",
+    text: "待填写" },
+  44: { title: "待填写M44",
+    text: "待填写",
+    fightLabel: "战斗", enemyId: "constable_m44_enemy", hasBattle: true, isBoss: false,
+    battleDesc: "待填写",
+    battleReward: { exp:2200, money:1320, fame:440 } },
+  45: { title: "待填写M45",
+    text: "待填写" },
+  46: { title: "待填写M46",
+    text: "待填写",
+    fightLabel: "战斗", enemyId: "constable_m46_enemy", hasBattle: true, isBoss: false,
+    battleDesc: "待填写",
+    battleReward: { exp:2300, money:1380, fame:460 } },
+  47: { title: "待填写M47",
+    text: "待填写" },
+  48: { title: "待填写M48",
+    text: "待填写",
+    fightLabel: "战斗", enemyId: "constable_m48_enemy", hasBattle: true, isBoss: false,
+    battleDesc: "待填写",
+    battleReward: { exp:2400, money:1440, fame:480 } },
+};
+
 DATA.wandererGrowthEvents = {
   heritage: [
     {
@@ -974,6 +1153,64 @@ DATA.wandererMerchantPool = {
     { id: "superPill" }
   ]
 };
+DATA.constableMerchantPool = {
+  manuals: [
+    { id: "quickSlash", name: "雁门快刀", school: "blade", rarity: "blue", style: "bleed", price: 200, desc: "快刀+流血是绿林散人最实用的打法。雁门快刀据说是边关逃兵带回来的刀法。" },
+    { id: "blade_orange_1", name: "燃木刀法", school: "blade", rarity: "orange", style: "bleed", price: 500, desc: "来自一个被武盟追杀了三年的老刀客。刀势焦灼，伤口更深。" },
+    { id: "blade_red_1", name: "饮血封喉刀", school: "blade", rarity: "red", style: "bleed", price: 1500, desc: "散人中间口耳相传的终极刀法——对手流血的速度就是你的活命时间。" },
+    { id: "fist_blue_3", name: "太祖长拳", school: "fist", rarity: "blue", style: "critPalm", price: 200, desc: "街头斗殴里打出来的拳法，不讲究招式讲究一拳下去对面得趴下。" },
+    { id: "fist_orange_2", name: "黯魂掌", school: "fist", rarity: "orange", style: "critPalm", price: 600, desc: "据传是韩铁衣在龙井谷改良的拳路，出招时带着一股子老子跟你拼命的蛮劲。" },
+    { id: "fist_red_2", name: "碎星拳", school: "fist", rarity: "red", style: "critPalm", price: 1600, desc: "重拳碎星，暴击倍率提高。散人没有门派——拳头就是最后的尊严。" },
+    { id: "springNeedle", name: "青囊毒针", school: "hidden", rarity: "blue", style: "poison", price: 200, desc: "散人没有门派资源，毒是最好的以小博大手段。来自江湖郎中的偏方。" },
+    { id: "hidden_orange_1", name: "冰魄毒针", school: "hidden", rarity: "orange", style: "poison", price: 500, desc: "据说是从武盟刑讯室流出来的配方——他们用来对付我们的，我们用来对付他们。" },
+    { id: "hidden_red_1", name: "孔雀毒翎", school: "hidden", rarity: "red", style: "poison", price: 1500, desc: "毒雨齐发，淬毒暗器终极式。" },
+    { id: "light_blue_2", name: "扫堂腿", school: "lightness", rarity: "blue", style: "lowKick", price: 200, desc: "每个散人都会的打架基本功。" },
+    { id: "light_orange_2", name: "盘龙腿", school: "lightness", rarity: "orange", style: "lowKick", price: 500, desc: "龙井谷一个瘸腿老散人教的——腿断了这辈子跑不了，那就把底盘练稳，谁来踢谁。" },
+    { id: "light_red_2", name: "碎岳沉桩腿", school: "lightness", rarity: "red", style: "lowKick", price: 1500, desc: "核心是站住了就是赢。" },
+    { id: "manual_speed", name: "唯快不破", school: "none", rarity: "blue", style: "buff", price: 500, desc: "天下武功，唯快不破。读条速度提升3倍，持续5回合。" },
+    { id: "manual_atk", name: "力大无穷", school: "none", rarity: "blue", style: "buff", price: 500, desc: "一力降十会。攻击力提升2倍，持续5回合。" },
+    { id: "manual_crit", name: "屠杀盛宴", school: "none", rarity: "blue", style: "buff", price: 500, desc: "杀意沸腾之时，无坚不摧。暴击/连击概率双倍，暴击倍率+1，持续5回合。" }
+  ],
+  weapons: [
+    { id: "blade_bleed_blue", name: "饮血雁翎刀", school: "blade", rarity: "blue", price: 550 },
+    { id: "blade_bleed_orange", name: "裂血长刀", school: "blade", rarity: "orange", price: 1600 },
+    { id: "blade_bleed_red", name: "血河断刃", school: "blade", rarity: "red", price: 4500 },
+    { id: "fist_crit_blue", name: "炽星拳套", school: "fist", rarity: "blue", price: 500 },
+    { id: "fist_crit_orange", name: "纯阳拳甲", school: "fist", rarity: "orange", price: 1500 },
+    { id: "fist_crit_red", name: "碎星拳套", school: "fist", rarity: "red", price: 4200 },
+    { id: "hidden_poison_blue", name: "淬毒针匣", school: "hidden", rarity: "blue", price: 500 },
+    { id: "hidden_poison_orange", name: "淬毒银针", school: "hidden", rarity: "orange", price: 1400 },
+    { id: "hidden_poison_red", name: "孔雀毒匣", school: "hidden", rarity: "red", price: 4300 },
+    { id: "leg_low_blue", name: "破门靴", school: "lightness", rarity: "blue", price: 400 },
+    { id: "leg_low_orange", name: "压山靴", school: "lightness", rarity: "orange", price: 1000 },
+    { id: "leg_low_red", name: "断岳沉步靴", school: "lightness", rarity: "red", price: 2000 }
+  ],
+  armors: [
+    { id: "armor_heavy_blue", name: "硬布背心", rarity: "blue", price: 600, desc: "散人的标准防具——粗布层层叠叠缝制，不美观但是实在。" },
+    { id: "armor_light_orange", name: "游云轻甲", rarity: "orange", price: 1200, desc: "据说是一个退役的武盟捕快卖给黑市的——穿上跑得快，跑路的时候派大用场。" },
+    { id: "armor_wuxiang_red", name: "无相秘甲", rarity: "red", price: 2400, desc: "据传来自楚宗玄的私人武库，被孟天衡暗中调包流出来的。" }
+  ],
+  internalArts: [
+    { id: "art_blue_3", name: "罗汉镇岳功", rarity: "blue", price: 500, desc: "少林叛僧流传出来的站桩功夫，散人没有门派护体，只能靠自己扛。" },
+    { id: "art_blue_4", name: "回照心经", rarity: "blue", price: 500, desc: "江湖药店常配的内功入门——不会这个功法你连毒都扛不住。" },
+    { id: "art_blue_7", name: "归元功", rarity: "blue", price: 500, desc: "归元守一，内息绵绵。散人没有师门调息，纯靠自己盘坐吐纳。" },
+    { id: "art_orange_1", name: "虚玄无相功", rarity: "orange", price: 1500, desc: "传说是一个偷遍江南的老贼头创的，内力运转不浪费一丝，真正的省着用——每次攻击吸取对方内力。" },
+    { id: "art_orange_2", name: "纯阳正气诀", rarity: "orange", price: 1600, desc: "名字很正派，实则是散人对抗武盟压迫的底气——心中坦荡，气贯长虹。" },
+    { id: "art_red_2", name: "大罗洗髓经", rarity: "red", price: 5000, desc: "来自一个活了两甲子的老散人——洗掉过去的伤，重新站起来的功法。" },
+    { id: "art_red_1", name: "九曜真功", rarity: "red", price: 5000, desc: "孤本，孟天衡从总坛藏书阁偷出来的——他自己没练，因为不想欠武盟的人情。" }
+  ],
+  pills: [
+    { id: "pill" },
+    { id: "bigPill" },
+    { id: "springPaste" },
+    { id: "qiWine" },
+    { id: "qiPill" },
+    { id: "yuanPowder" },
+    { id: "statPill" },
+    { id: "superPill" }
+  ]
+};
+
 
 // 主线故事事件执行函数映射（在 runSystem.js 中实现，这里只定义数据结构）
 // 注意：这些事件的实际 apply 逻辑在 runSystem.js 的 resolveStoryEvent 中
@@ -1010,6 +1247,26 @@ DATA.wandererEnemyPool = {
   // --- 小Boss（已删除孤儿数据，2026-06-15 清理）---
   miniBosses: []
 };
+DATA.constableEnemyPool = {
+  // --- 普通敌人（奇遇通用战斗，仅三大事件年份变体）---
+  grunts: [
+    // --- 林中伏击逐年变体 ---
+    { id: "constable_grunt_ambush_yr1", name: "武盟喽啰", icon: "伏", portraitImage: "assets/portraits_guyun_pixel/enc_ambush_y1_wumeng_luoluo_pixel_320.webp", hp: 350, qi: 120, atk: 32, def: 14, combo: 3, hit: 68, dodge: 5, crit: 6, speed: 1.20, rank: 1, taunt: "嘿，又一个散人！兄弟们，围上！" },
+    { id: "constable_grunt_ambush_yr2", name: "武盟打手", icon: "伏", portraitImage: "assets/portraits_guyun_pixel/enc_ambush_y2_wumeng_dasher_pixel_320.webp", hp: 700, qi: 200, atk: 48, def: 21, combo: 4, hit: 72, dodge: 7, crit: 8, speed: 1.25, rank: 2, taunt: "武盟的地盘你也敢闯？给我拿下！" },
+    { id: "constable_grunt_ambush_yr3", name: "武盟精英", icon: "伏", portraitImage: "assets/portraits_guyun_pixel/enc_ambush_y3_wumeng_elite_pixel_320.webp", hp: 1400, qi: 320, atk: 64, def: 28, combo: 5, hit: 76, dodge: 9, crit: 10, speed: 1.30, rank: 3, taunt: "奉统领令——散人抗册者，杀无赦。" },
+    // --- 悬赏缉拿逐年变体 ---
+    { id: "constable_grunt_bandit_yr1", name: "绿林强盗", icon: "赏", portraitImage: "assets/portraits_guyun_pixel/enc_wanted_y1_greenwood_bandit_pixel_320.webp", hp: 380, qi: 100, atk: 34, def: 12, combo: 3, hit: 66, dodge: 4, crit: 7, speed: 1.22, rank: 1, taunt: "此路是我开，此树是我栽——要想从此过，留下买路财！" },
+    { id: "constable_grunt_bandit_yr2", name: "强盗好手", icon: "赏", portraitImage: "assets/portraits_guyun_pixel/enc_wanted_y2_bandit_veteran_pixel_320.webp", hp: 760, qi: 180, atk: 51, def: 18, combo: 4, hit: 70, dodge: 6, crit: 9, speed: 1.28, rank: 2, taunt: "听说你身上油水不少？乖乖交出来，爷爷饶你一命。" },
+    { id: "constable_grunt_bandit_yr3", name: "强盗首领", icon: "赏", portraitImage: "assets/portraits_guyun_pixel/enc_wanted_y3_bandit_chief_pixel_320.webp", hp: 1520, qi: 280, atk: 68, def: 24, combo: 5, hit: 74, dodge: 8, crit: 11, speed: 1.35, rank: 3, taunt: "官府管不了这山头，更管不了老子的刀。" },
+    // --- 擂台切磋逐年变体 ---
+    { id: "constable_grunt_fighter_yr1", name: "三流高手", icon: "擂", portraitImage: "assets/portraits_guyun_pixel/enc_duel_y1_third_rate_pixel_320.webp", hp: 400, qi: 130, atk: 36, def: 16, combo: 3, hit: 70, dodge: 6, crit: 7, speed: 1.24, rank: 1, taunt: "来得正好，正缺个练手的。" },
+    { id: "constable_grunt_fighter_yr2", name: "二流高手", icon: "擂", portraitImage: "assets/portraits_guyun_pixel/enc_duel_y2_second_rate_pixel_320.webp", hp: 800, qi: 220, atk: 54, def: 24, combo: 4, hit: 74, dodge: 8, crit: 9, speed: 1.30, rank: 2, taunt: "报上名来，我的刀下不斩无名之辈。" },
+    { id: "constable_grunt_fighter_yr3", name: "一流高手", icon: "擂", portraitImage: "assets/portraits_guyun_pixel/enc_duel_y3_first_rate_pixel_320.webp", hp: 1600, qi: 360, atk: 72, def: 32, combo: 5, hit: 78, dodge: 10, crit: 11, speed: 1.36, rank: 3, taunt: "十年未逢对手——希望你不是下一个让我失望的人。" }
+  ],
+  // --- 小Boss（已删除孤儿数据，2026-06-15 清理）---
+  miniBosses: []
+};
+
 
 // 主线事件处理逻辑（由 resolveStoryEvent 调用）
 // 这些函数在 runSystem.js 中通过 DATA.storyEventHandlers 注册

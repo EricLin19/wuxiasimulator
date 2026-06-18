@@ -347,12 +347,12 @@ function resolveBattleResult(result) {
         state.run.yearlyBossDefeated[battle.bossYear] = true;
       }
 
-      // Boss战结果页面（仅 M36/M48 战胜弹窗，其余 boss 战胜走原逻辑）
+      // Boss战结果页面（M12/M24战胜弹窗，M48战胜弹窗，其余boss战胜走原逻辑）
       const bm = storyBattle.month;
-      if (bm === 36) {
-        state.bossResult = { mode: "m36Win", type: "win", bossName: battle.enemy.name, month: 36 };
-      } else if (bm === 48) {
-        state.bossResult = { mode: "m48Win", type: "win", bossName: battle.enemy.name, month: 48 };
+      const isConstable = run.storylineId === "constable";
+      const showBossResult = bm === 12 || bm === 24 || bm === 36 || (isConstable ? bm === 48 : bm === 48);
+      if (showBossResult) {
+        state.bossResult = { mode: bm === 48 ? "m48Win" : bm === 36 ? "m36Win" : "yearlyWin", type: "win", bossName: battle.enemy.name, month: bm };
       } else {
         state.screen = "run";
         finishDeferredEvent(state.run);

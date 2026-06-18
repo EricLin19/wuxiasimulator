@@ -553,13 +553,13 @@ function renderRewardModal(modal, state, actions) {
 }
 
 function renderMerchantModal(modal, run, actions, isHall = false) {
-  const isWanderer = run.storylineId === "wanderer";
-  const refreshes = Math.max(0, 1 + (run.wandererResolve || 0) - (run._merchantRefreshesUsed || 0));
+  const isWandererStyle = ["wanderer", "constable"].includes(run.storylineId);
+  const refreshes = Math.max(0, 1 + (run.routeResolve || 0) - (run._merchantRefreshesUsed || 0));
 
   // 标题栏：标题 + 刷新(孤云线) + 离开
   modal.innerHTML = `<div class="modal-head"><h2 class="modal-title">武林商人</h2>
     <div style="display:flex;gap:8px;align-items:center">
-    ${isWanderer ? `<button class="btn small" data-refresh style="background:#d4a056;color:#2c2c1a;font-weight:700" ${refreshes <= 0 ? "disabled" : ""}>刷新 ${refreshes}</button>` : ""}
+    ${isWandererStyle ? `<button class="btn small" data-refresh style="background:#d4a056;color:#2c2c1a;font-weight:700" ${refreshes <= 0 ? "disabled" : ""}>刷新 ${refreshes}</button>` : ""}
     <button class="btn red small" data-done>离开</button></div></div>
     <div class="merchant-body">
       <div class="merchant-main">
@@ -576,7 +576,7 @@ function renderMerchantModal(modal, run, actions, isHall = false) {
 
   const cols = modal.querySelectorAll(".merchant-col");
 
-  if (isWanderer) {
+  if (isWandererStyle) {
     // === 孤云线：恢复rowCard布局，6/2/3/5 ===
     // 外功秘籍 ×6
     run.merchantStock.filter(e => e.kind === "manual").forEach(entry => {
@@ -688,10 +688,11 @@ function renderCharacterModal(modal, run, actions, close) {
   const sl = DATA.storylines?.[run.storylineId];
   const storylineInfo = sl ? `<h3>主线剧情</h3><p>${sl.name}　<span style="color:#f39c12">${sl.threatName}：${run.mainThreat || 0}</span></p><p style="font-size:12px;color:#999">${sl.threatDesc}</p>` : "";
 
-  // 散人决心（仅孤云线）
-  const resolve = run.wandererResolve || 0;
-  const resolveLevel = resolve >= 9 ? "齐心" : resolve >= 6 ? "暗助" : resolve >= 3 ? "初聚" : "";
-  const resolveInfo = run.storylineId === "wanderer" ? `<h3>散人决心</h3><p style="color:${resolve >= 6 ? '#2ecc71' : resolve >= 3 ? '#27ae60' : '#888'}">${resolve}/10${resolveLevel ? ` 【散人${resolveLevel}】` : ""}${resolve > 0 ? `　我方属性+${resolve * 5}%` : ""}</p><p style="font-size:12px;color:#999">每+1战斗中我方全属性+5%。主线"抗争"胜利增加决心。</p>` : "";
+  // 路线决心（孤云线=散人决心，陆惊尘线=朝廷威势）
+  const routeResolve = run.routeResolve || 0;
+  const resolveLabel = run.storylineId === "constable" ? "朝廷威势" : "散人决心";
+  const resolveLevel = routeResolve >= 9 ? "齐心" : routeResolve >= 6 ? "暗助" : routeResolve >= 3 ? "初聚" : "";
+  const resolveInfo = DATA.storylines?.[run.storylineId] ? `<h3>${resolveLabel}</h3><p style="color:${routeResolve >= 6 ? '#2ecc71' : routeResolve >= 3 ? '#27ae60' : '#888'}">${routeResolve}/10${resolveLevel ? ` 【${resolveLabel}${resolveLevel}】` : ""}${routeResolve > 0 ? `　我方属性+${routeResolve * 5}%` : ""}</p><p style="font-size:12px;color:#999">每+1战斗中我方全属性+5%。主线"抗争"胜利增加决心。</p>` : "";
 
   modal.innerHTML = `
     <div class="modal-head"><h2 class="modal-title">角色属性</h2>${close}</div>
@@ -1083,9 +1084,9 @@ function renderBossResult(state, actions) {
   </div>`;
   const btns = root.querySelector(".boss-result-btns");
 
-  if (br.mode === "m36Win") {
-    // M36 战胜：继续额外剧情 / 退隐江湖
-    addBtn(btns, "继续前行（孤云支线）", () => actions.handleBossResult("continue"));
+  if (br.mode === "m36Win" || br.mode === "yearlyWin") {
+    // M36/年常Boss战胜：继续前行 / 退隐江湖
+    addBtn(btns, "继续前行", () => actions.handleBossResult("continue"));
     addBtn(btns, "退隐江湖", () => actions.handleBossResult("retire"), "danger");
   } else if (br.mode === "m48Win") {
     // M48 战胜：孤云逐浪结束
