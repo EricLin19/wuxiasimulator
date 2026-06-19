@@ -122,14 +122,14 @@
 
 | 路线 | 基础 ID / 名称 | 进阶 ID / 名称 | 终极 ID / 名称 | 机制 |
 |---|---|---|---|---|
-| 高闪避 | light_blue_1 / 燕回腿 | light_orange_1 / 游龙腿 | light_red_1 / 凌波腿 | 闪避后减 CD + 调息 |
-| 下盘 | light_blue_2 / 扫堂腿 | light_orange_2 / 盘龙腿 | light_red_2 / 碎岳沉桩腿 | 忽略闪避防御，造成真伤 |
-| 偷盗 | light_blue_3 / 探囊腿 | light_orange_3 / 飞檐探云腿 | light_red_3 / 摘星无影腿 | 高出手 + 额外金钱 |
+| 高闪避 | leg_light_blue / 燕回腿 | leg_light_orange / 游龙腿 | leg_light_red / 凌波腿 | 闪避后减 CD + 调息 |
+| 下盘 | leg_kick_blue / 扫堂腿 | leg_kick_orange / 盘龙腿 | leg_kick_red / 碎岳沉桩腿 | 忽略闪避防御，造成真伤 |
+| 偷盗 | leg_steal_blue / 探囊腿 | leg_steal_orange / 飞檐探云腿 | leg_steal_red / 摘星无影腿 | 高出手 + 额外金钱 |
 
 命名修正：
 
-- `light_red_1` 原名 `凌波微步` 太接近金庸原名，建议改成 `凌波腿` 或 `踏浪无痕腿`。
-- `light_orange_2` 原名 `梯云纵` 也较接近经典武侠名词，建议用 `盘龙腿`，贴合下盘路线。
+- `leg_light_red` 原名 `凌波微步` 太接近金庸原名，建议改成 `凌波腿` 或 `踏浪无痕腿`。
+- `leg_kick_orange` 原名 `梯云纵` 也较接近经典武侠名词，建议用 `盘龙腿`，贴合下盘路线。
 
 ### 腿法机制数值
 
@@ -149,26 +149,26 @@
 
 | ID 建议 | 名称 | 品质 | 攻击 | 路线 | 机制 |
 |---|---|---|---:|---|---|
-| blade_bleed_blue | 饮血雁翎刀 | 蓝 | +12 | 流血 | 流血 +1，流血上限 +1 |
-| blade_bleed_orange | 裂血长刀 | 橙 | +28 | 流血 | 流血 +2，流血上限 +3 |
-| blade_bleed_red | 血河断刃 | 红 | +58 | 流血 | 流血 +4，流血上限 +15，终极流血刀引爆伤害 +30% |
+| blade_bleed_blue | 饮血雁翎刀 | 蓝 | +12 | 流血 | 流血 +2 |
+| blade_bleed_orange | 裂血长刀 | 橙 | +28 | 流血 | 流血 +5，流血上限 +3 |
+| blade_bleed_red | 血河断刃 | 红 | +58 | 流血 | 流血 +10，流血上限 +15 |
 | blade_frost_blue | 霜刃刀 | 蓝 | +12 | 寒冰 | 寒气 +1 |
 | blade_frost_orange | 玄霜刀 | 橙 | +28 | 寒冰 | 寒气 +2，削内 +15 |
-| blade_frost_red | 寒渊刀 | 红 | +58 | 寒冰 | 寒气 +4，寒气上限 +2，终极寒冰刀立即削内提高 |
+| blade_frost_red | 寒渊刀 | 红 | +58 | 寒冰 | 寒气 +4，寒气上限 +2 |
 | blade_hamstring_blue | 断步短刀 | 蓝 | +11 | 断筋 | 断筋 +1 |
-| blade_hamstring_orange | 截脉刀 | 橙 | +28 | 断筋 | 断筋 +2，削攻 +2 |
-| blade_hamstring_red | 天残断骨刀 | 红 | +58 | 断筋 | 断筋 +4，断筋上限 +2，削攻提高 |
+| blade_hamstring_orange | 截脉刀 | 橙 | +28 | 断筋 | 断筋 +2 |
+| blade_hamstring_red | 天残断骨刀 | 红 | +58 | 断筋 | 断筋 +4，断筋上限 +2 |
 
 ### 拳掌
 
 | ID 建议 | 名称 | 品质 | 攻击 | 路线 | 机制 |
 |---|---|---|---:|---|---|
 | fist_combo_blue | 缠丝护腕 | 蓝 | +12 | 连击 | 连击 +6，连击掌基础招只吃半效 |
-| fist_combo_orange | 拦江臂铠 | 橙 | +28 | 连击 | 连击 +12，连击后本回合伤害 +8% |
+| fist_combo_orange | 拦江臂铠 | 橙 | +28 | 连击 | 连击 +12 |
 | fist_combo_red | 惊浪拳套 | 红 | +58 | 连击 | 连击 +18，三叠浪额外出掌上限 +1 |
-| fist_crit_blue | 炽星拳套 | 蓝 | +12 | 暴击 | 暴击 +4 |
-| fist_crit_orange | 纯阳拳甲 | 橙 | +28 | 暴击 | 暴击 +7，暴伤 +0.2 |
-| fist_crit_red | 碎星拳套 | 红 | +58 | 暴击 | 暴击 +12，暴伤 +0.35 |
+| fist_crit_blue | 炽星拳套 | 蓝 | +12 | 暴击 | 暴击 +4，破防 +2 |
+| fist_crit_orange | 纯阳拳甲 | 橙 | +28 | 暴击 | 暴击 +8，暴伤 +0.75，破防 +5，破防上限 +3 |
+| fist_crit_red | 碎星拳套 | 红 | +58 | 暴击 | 暴击 +16，暴伤 +2，破防 +10，破防上限 +10 |
 | fist_qibreak_blue | 破劲拳套 | 蓝 | +12 | 断脉 | 削内 +8 |
 | fist_qibreak_orange | 截脉臂甲 | 橙 | +28 | 断脉 | 削内 +18 |
 | fist_qibreak_red | 断脉神拳套 | 红 | +58 | 断脉 | 削内 +30，归零追加伤害提高 |
@@ -178,11 +178,11 @@
 | ID 建议 | 名称 | 品质 | 攻击 | 路线 | 机制 |
 |---|---|---|---:|---|---|
 | hidden_gu_blue | 蚀骨针囊 | 蓝 | +10 | 下蛊 | 蛊 +1 |
-| hidden_gu_orange | 夺魂针盒 | 橙 | +24 | 下蛊 | 蛊 +2，耗内增加 |
+| hidden_gu_orange | 夺魂针盒 | 橙 | +24 | 下蛊 | 蛊 +2 |
 | hidden_gu_red | 九窍蛊匣 | 红 | +50 | 下蛊 | 蛊 +4，蛊上限 +2 |
-| hidden_poison_blue | 淬毒针匣 | 蓝 | +10 | 淬毒 | 毒 +1 |
-| hidden_poison_orange | 淬毒银针 | 橙 | +24 | 淬毒 | 毒 +2，毒上限 +3 |
-| hidden_poison_red | 孔雀毒匣 | 红 | +50 | 淬毒 | 毒 +4，毒上限 +15 |
+| hidden_poison_blue | 淬毒针匣 | 蓝 | +10 | 淬毒 | 毒 +2 |
+| hidden_poison_orange | 淬毒银针 | 橙 | +24 | 淬毒 | 毒 +5，毒上限 +3 |
+| hidden_poison_red | 孔雀毒匣 | 红 | +50 | 淬毒 | 毒 +10，毒上限 +15 |
 | hidden_coin_blue | 金钱飞镖 | 蓝 | +10 | 金钱 | 金钱伤害 +40 |
 | hidden_coin_orange | 贯钱镖 | 橙 | +24 | 金钱 | 金钱伤害 +120 |
 | hidden_coin_red | 万贯金雨匣 | 红 | +50 | 金钱 | 金钱伤害 +260，终极金钱暗器花费降低 |
@@ -194,9 +194,9 @@
 | leg_evasive_blue | 探步靴 | 蓝 | +10 | 高闪避 | 闪避 +4 |
 | leg_evasive_orange | 游龙靴 | 橙 | +24 | 高闪避 | 闪避 +8，闪避回息提高 |
 | leg_evasive_red | 踏浪战靴 | 红 | +50 | 高闪避 | 闪避 +14，闪避收益每回合上限 +1 |
-| leg_low_blue | 破门靴 | 蓝 | +10 | 下盘 | 真伤 +25 |
-| leg_low_orange | 压山靴 | 橙 | +24 | 下盘 | 真伤 +90 |
-| leg_low_red | 断岳沉步靴 | 红 | +50 | 下盘 | 真伤 +220 |
+| leg_low_blue | 破门靴 | 蓝 | +10 | 下盘 | 真伤 +100，失衡 +1 |
+| leg_low_orange | 压山靴 | 橙 | +24 | 下盘 | 真伤 +200，失衡 +3，失衡上限 +3 |
+| leg_low_red | 断岳沉步靴 | 红 | +50 | 下盘 | 真伤 +500，失衡 +5，失衡上限 +10 |
 | leg_steal_blue | 盗影靴 | 蓝 | +10 | 偷盗 | 速度 +0.04，偷钱 +10 |
 | leg_steal_orange | 飞檐靴 | 橙 | +24 | 偷盗 | 速度 +0.08，偷钱 +35 |
 | leg_steal_red | 摘星掠影靴 | 红 | +50 | 偷盗 | 速度 +0.16，偷钱 +90 |

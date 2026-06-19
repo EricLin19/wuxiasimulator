@@ -9,7 +9,7 @@ const BOSS_TRAIT_META = {
   veinBreak:       { name: "断脉",     desc: "每回合断脉+n，上限15层（每层内力-2%，减速2%；25层引爆：脉路全封）" },
   chillAura:      { name: "寒气逼人", desc: "每回合寒气+n，上限15层（每层减速4%；25层引爆：极度寒冷）" },
   bloodBlade:      { name: "血刃",     desc: "每回合流血+n，上限15层" },
-  venomInfuse:    { name: "淬毒",     desc: "每回合流血+n（淬毒），上限15层" },
+  venomInfuse:    { name: "淬毒",     desc: "每回合中毒+n，上限15层" },
   lowHpBerserk:   { name: "低血狂暴", desc: "≤30%HP ATK×1.5，SPEED×n×0.3，持续5回合" },
   shadowStep:      { name: "影步",     desc: "基础DODGE=100；≤50%HP DODGE×1.75；每次闪避回血10%最大HP" },
   armorShield:     { name: "护体真气", desc: "开场20%最大HP护体" },
@@ -86,9 +86,9 @@ const STAT_HELP = {
 
 export function renderApp(state, actions) {
   const app = document.getElementById("app");
-  // v6.3.0: JS强制设版本号
+  // JS强制设版本号：用于确认浏览器已加载最新模块
   const bv = document.getElementById("build-ver");
-  if (bv && bv.textContent !== "v6.3.0") bv.textContent = "v6.3.0";
+  if (bv && bv.textContent !== "v6.5.1-651") bv.textContent = "v6.5.1-651";
   let savedScrollTop = 0;
   let allocateScrollTop = 0;
   if (state.modal && state.screen !== "battle") {
@@ -1020,7 +1020,7 @@ function buildUnitDetailPopup(unit, side, state, actions) {
   for (const [type, label] of Object.entries(debuffLabels)) {
     if (unit[type]) {
       const row = el("div", "detail-row");
-      const detail = type === "bleed" ? `行动开始受到${unit[type]*12}伤害` : type === "poison" ? "降攻/防/命/闪/速" : type === "inner" ? "行动开始失去内力" : type === "frost" ? "降速+失去内力" : type === "hamstring" ? "降速+削攻" : type === "veinBreak" ? "降内力+减速" : type === "imbalance" ? "每层+2%真伤，25层引爆弱点暴露×2~2.5" : type === "breakDefense" ? "每层-3% DEF（累乘）" : "提高招式消耗+扰乱";
+      const detail = type === "bleed" ? `行动开始受到${unit[type]*15}伤害` : type === "poison" ? "降攻/防/命/闪/速" : type === "inner" ? "行动开始失去内力" : type === "frost" ? "降速+失去内力" : type === "hamstring" ? "降速+削攻" : type === "veinBreak" ? "降内力+减速" : type === "imbalance" ? "每层+2%真伤，25层引爆弱点暴露×2~2.5" : type === "breakDefense" ? "每层-3% DEF（累乘）" : "提高招式消耗+扰乱";
       row.innerHTML = `<span class="debuff-badge">${label} ${unit[type]}</span>：${detail}`;
       popup.appendChild(row);
     }

@@ -727,14 +727,15 @@ function drainPlayerQi(battle, e, p, amount) {
 
 function triggerEvasiveLeg(run, battle, unit) {
   // 每己方回合最多触发1次
-  if (battle.turnTrackers.evasiveTriggers >= 1) return;
+  const weapon = run.equippedWeapon ? DATA.weapons[run.equippedWeapon] : null;
+  const triggerCap = 1 + (weapon?.evasiveCapBonus || 0);
+  if (battle.turnTrackers.evasiveTriggers >= triggerCap) return;
   const hasEvasiveLeg = unit.skills.some(id => DATA.skills[id]?.style === "evasive");
   if (!hasEvasiveLeg) return;
   battle.turnTrackers.evasiveTriggers++;
 
   for (const id of Object.keys(unit.cooldowns)) unit.cooldowns[id] = Math.max(0, unit.cooldowns[id] - 1);
   const mastered = battle.player === unit && hasStyleMastery(run, "evasive");
-  const weapon = run.equippedWeapon ? DATA.weapons[run.equippedWeapon] : null;
   const boost = weapon?.evasiveBoost ? 1.3 : 1;
   const hpAmt = Math.floor((mastered ? unit.stats.hp * 0.06 : unit.stats.hp * 0.04) * boost);
   const qiAmt = Math.floor((mastered ? unit.stats.qi * 0.08 : unit.stats.qi * 0.06) * boost);
@@ -830,11 +831,11 @@ function applyTurnStart(battle, unit) {
     }
     unit.veinBreak = Math.max(0, unit.veinBreak - 1);
   }
-  // 失衡结算：每层 -1% DEF，-1% 速度，结算后-1
+  // 失衡结算：回合后-1；伤害加成在真伤腿法命中时计算
   if (unit.imbalance > 0) {
     unit.imbalance = Math.max(0, unit.imbalance - 1);
   }
-  // v6.x 破防结算：每层持续 -2% DEF（不递减，破防是 debuff 不自动 -1，引爆时才-25）
+  // v6.x 破防结算：每层持续 -3% DEF（不递减，破防是 debuff 不自动 -1，引爆时才-25）
   // 破防仅在 25 层引爆时由引爆代码扣 25 层，平时不动
   // 破防引爆计时器
   if (unit.breakDefenseShatter > 0) {
@@ -916,6 +917,7 @@ function applySkillEffects(run, battle, actor, target, skill, damage, multiplier
   // critPalm 流派大师碎星连震没有大师额外+1（大师只加 cap=+7）
   if (run.traits.includes("nightPoison") && skill.debuff === "poison") stacks += 1;
   if (run.traits.includes("tieyi_blood_debt") && skill.style === "bleed") stacks += 3;
+  if (skill.style === "poison") stacks += skill.trait?.effects?.poisonBonus || 0;
   for (const trait of run.skillTraits || []) {
     if (skill.style === "poison") stacks += trait.effects?.poisonBonus || 0;
   }
@@ -1031,13 +1033,13 @@ function applySkillEffects(run, battle, actor, target, skill, damage, multiplier
     }
   }
   // 25层失衡引爆：weakpointExposed（真伤受到倍数伤害，持续2回合）
-  if (skill.debuff === "imbalance" || skill.style === "lowKick") {
+  if (skill.debuff === "imbalance") {
     if (multiplier >= 1 && target.imbalance >= 25) {
       target.imbalance -= 25;
-      // v6.9：协同奖励仅限红武器+红武功 → 4.0x；否则3.0x
+      // v6.9：协同奖励仅限红武器+红武功 → 2.5x；否则2.0x
       const weapon = run.equippedWeapon ? DATA.weapons[run.equippedWeapon] : null;
       const imbMult = (weapon && weapon.school === "lightness" && weapon.style === "lowKick"
-                       && weapon.rarity === "red" && skill.rarity === "red") ? 4.0 : 3.0;
+                       && weapon.rarity === "red" && skill.rarity === "red") ? 2.5 : 2.0;
       target.weakpointExposed = 2;
       target.imbalanceMult = imbMult;
       battleLog(battle, `弱点暴露！${target.name}防御崩坏，受到真伤时承受${imbMult.toFixed(2)}倍伤害！`);
@@ -1094,16 +1096,9 @@ function applySkillEffects(run, battle, actor, target, skill, damage, multiplier
       const bleedDmg = target.bleed * BLEED_DMG;
       if (bleedDmg > 0) {
         target.hp = Math.max(0, target.hp - bleedDmg);
-        let burstExtra = 0;
-        const w = run.equippedWeapon ? DATA.weapons[run.equippedWeapon] : null;
-        if (w?.bleedBurstPct) {
-          burstExtra = Math.floor(bleedDmg * w.bleedBurstPct / 100);
-          target.hp = Math.max(0, target.hp - burstExtra);
-        }
-        battleLog(battle, `血刃封喉！${target.name}流血立即结算，受到${bleedDmg}${burstExtra ? `（+${burstExtra}引爆）` : ""}伤害。`);
+        battleLog(battle, `血刃封喉！${target.name}流血立即结算，受到${bleedDmg}伤害。`);
         addFloater(battle, sideOf(battle, target), "血流如注");
         addFloater(battle, sideOf(battle, target), `-${bleedDmg}`, "bleed");
-        if (burstExtra > 0) addFloater(battle, sideOf(battle, target), `-${burstExtra}`, "bleed");
       }
     }
     if (skill.style === "frost") {
@@ -1146,20 +1141,31 @@ function applySkillEffects(run, battle, actor, target, skill, damage, multiplier
         addFloater(battle, sideOf(battle, target), "蛊乱");
       }
     }
-    // 失衡：真伤腿法命中时叠失衡
-    if (skill.style === "lowKick") {
-      const trait = skill.trait;
-      let imbBonus = trait?.effects?.imbalanceBonus || 0;
-      // 武器也可带失衡加成
-      if (weapon && weapon.school === "lightness" && weapon.style === "lowKick" && weapon.imbalanceBonus) {
-        imbBonus += weapon.imbalanceBonus;
-      }
-      if (hasStyleMastery(run, "lowKick")) imbBonus += 1;  // v6.8：地裂无声失衡额外+1
-      if (imbBonus > 0) {
-        const cap = getDebuffCap(run, weapon, "imbalance");
-        target.imbalance = Math.min(cap, target.imbalance + imbBonus);
-        addFloater(battle, sideOf(battle, target), `失衡+${imbBonus}`, "imbalance");
-      }
+  }
+
+  // 失衡：真伤腿法命中时叠失衡（蓝/橙/红都生效）
+  if (multiplier >= 1 && skill.style === "lowKick") {
+    const trait = skill.trait;
+    let imbBonus = trait?.effects?.imbalanceBonus || 0;
+    // 武器也可带失衡加成
+    if (weapon && weapon.school === "lightness" && weapon.style === "lowKick" && weapon.imbalanceBonus) {
+      imbBonus += weapon.imbalanceBonus;
+    }
+    if (hasStyleMastery(run, "lowKick")) imbBonus += 1;  // v6.8：地裂无声失衡额外+1
+    if (imbBonus > 0) {
+      const cap = getDebuffCap(run, weapon, "imbalance");
+      target.imbalance = Math.min(cap, target.imbalance + imbBonus);
+      addFloater(battle, sideOf(battle, target), `失衡+${imbBonus}`, "imbalance");
+    }
+    // 先叠本次失衡，再判断是否达到25层引爆。
+    if (target.imbalance >= 25) {
+      target.imbalance -= 25;
+      const imbMult = (weapon && weapon.school === "lightness" && weapon.style === "lowKick"
+                       && weapon.rarity === "red" && skill.rarity === "red") ? 2.5 : 2.0;
+      target.weakpointExposed = 2;
+      target.imbalanceMult = imbMult;
+      battleLog(battle, `弱点暴露！${target.name}防御崩坏，受到真伤时承受${imbMult.toFixed(2)}倍伤害！`);
+      addFloater(battle, sideOf(battle, target), `弱点暴露×${imbMult.toFixed(2)}`);
     }
   }
 
@@ -1206,7 +1212,8 @@ function getDebuffCap(run, weapon, type, bossWeapon = null) {
     if (type === "gu" && bossWeapon.guCapBonus) cap += bossWeapon.guCapBonus;
     if (type === "poison" && bossWeapon.poisonCapBonus) cap += bossWeapon.poisonCapBonus;
   }
-  if (hasStyleMastery(run, type)) {
+  const masteryStyle = type === "imbalance" ? "lowKick" : type === "breakDefense" ? "critPalm" : type;
+  if (hasStyleMastery(run, masteryStyle)) {
     if (type === "bleed") cap += 7;
     if (type === "poison") cap += 7;
     if (type === "imbalance") cap += 7;  // v6.8：地裂无声失衡上限+7
@@ -1239,14 +1246,14 @@ function calcDamage(run, battle, actor, target, skill) {
     battleLog(battle, `暴击！×${cm.toFixed(1)}倍`);
   }
   if (target.guard) dmg = Math.floor(dmg * 0.55);
-  // v6.8：真伤腿法命中时，失衡>0 时真伤额外受到 3%/层 伤害
+  // v6.8：真伤腿法命中时，失衡>0 时真伤额外受到 2%/层 伤害
   if (skill.style === "lowKick" && target.imbalance > 0) {
-    const imbPct = target.imbalance * 0.03;
+    const imbPct = target.imbalance * 0.02;
     dmg = Math.floor(dmg * (1 + imbPct));
   }
   // v6.9：弱点暴露：25层后真伤受到imbMult倍伤害，持续2回合
   if (target.weakpointExposed > 0 && skill.style === "lowKick") {
-    const imbMult = target.imbalanceMult || 3.0;
+    const imbMult = target.imbalanceMult || 2.0;
     dmg = dmg * imbMult;
     battleLog(battle, `【弱点暴露】${target.name}真伤受到${imbMult.toFixed(2)}倍伤害！`);
   }
@@ -1392,6 +1399,7 @@ function critChance(run, actor, skill) {
 
 function critMultiplier(run, skill, actor = null) {
   let value = 2;
+  value += skill.trait?.effects?.critPower || 0;
   for (const trait of run.skillTraits || []) value += trait.effects?.critPower || 0;
   const weapon = run.equippedWeapon ? DATA.weapons[run.equippedWeapon] : null;
   if (weapon && weapon.school === skill.school && weapon.style === skill.style) value += weapon.critPower || 0;

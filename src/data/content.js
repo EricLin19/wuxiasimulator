@@ -206,19 +206,19 @@ export const DATA = {
     // === 刀法 ===
     blade_bleed_blue: { id: "blade_bleed_blue", name: "饮血雁翎刀", icon: "刀", school: "blade", rarity: "blue", style: "bleed", price: 260, atk: 12, desc: "流血刀。流血+2。", debuffBonus: 2 },
     blade_bleed_orange: { id: "blade_bleed_orange", name: "裂血长刀", icon: "刀", school: "blade", rarity: "orange", style: "bleed", price: 520, atk: 28, desc: "流血刀。流血+5，流血上限+3。", debuffBonus: 5, bleedCapBonus: 3 },
-    blade_bleed_red: { id: "blade_bleed_red", name: "血河断刃", icon: "刀", school: "blade", rarity: "red", style: "bleed", price: 980, atk: 58, desc: "流血刀。流血+10，流血上限+15，终极流血刀引爆伤害+30%。", debuffBonus: 10, bleedCapBonus: 15, bleedBurstPct: 30 },
+    blade_bleed_red: { id: "blade_bleed_red", name: "血河断刃", icon: "刀", school: "blade", rarity: "red", style: "bleed", price: 980, atk: 58, desc: "流血刀。流血+10，流血上限+15。", debuffBonus: 10, bleedCapBonus: 15 },
 
     blade_frost_blue: { id: "blade_frost_blue", name: "霜刃刀", icon: "刀", school: "blade", rarity: "blue", style: "frost", price: 260, atk: 12, desc: "寒冰刀。寒气+1。", frostBonus: 1 },
     blade_frost_orange: { id: "blade_frost_orange", name: "玄霜刀", icon: "刀", school: "blade", rarity: "orange", style: "frost", price: 520, atk: 28, desc: "寒冰刀。寒气+2，削内+15。", frostBonus: 2, qiBreakBonus: 15 },
-    blade_frost_red: { id: "blade_frost_red", name: "寒渊刀", icon: "刀", school: "blade", rarity: "red", style: "frost", price: 980, atk: 58, desc: "寒冰刀。寒气+4，寒气上限+2，终极寒冰刀立即削内提高。", frostBonus: 4, frostCapBonus: 2, frostQiBoost: 1 },
+    blade_frost_red: { id: "blade_frost_red", name: "寒渊刀", icon: "刀", school: "blade", rarity: "red", style: "frost", price: 980, atk: 58, desc: "寒冰刀。寒气+4，寒气上限+2。", frostBonus: 4, frostCapBonus: 2 },
 
     blade_hamstring_blue: { id: "blade_hamstring_blue", name: "断步短刀", icon: "刀", school: "blade", rarity: "blue", style: "hamstring", price: 260, atk: 11, desc: "断筋刀。断筋+1。", hamstringBonus: 1 },
-    blade_hamstring_orange: { id: "blade_hamstring_orange", name: "截脉刀", icon: "刀", school: "blade", rarity: "orange", style: "hamstring", price: 520, atk: 28, desc: "断筋刀。断筋+2，削攻+2。", hamstringBonus: 2, atkBreakBonus: 2 },
-    blade_hamstring_red: { id: "blade_hamstring_red", name: "天残断骨刀", icon: "刀", school: "blade", rarity: "red", style: "hamstring", price: 980, atk: 58, desc: "断筋刀。断筋+4，断筋上限+2，削攻提高。", hamstringBonus: 4, hamstringCapBonus: 2, atkBreakBonus: 4 },
+    blade_hamstring_orange: { id: "blade_hamstring_orange", name: "截脉刀", icon: "刀", school: "blade", rarity: "orange", style: "hamstring", price: 520, atk: 28, desc: "断筋刀。断筋+2。", hamstringBonus: 2 },
+    blade_hamstring_red: { id: "blade_hamstring_red", name: "天残断骨刀", icon: "刀", school: "blade", rarity: "red", style: "hamstring", price: 980, atk: 58, desc: "断筋刀。断筋+4，断筋上限+2。", hamstringBonus: 4, hamstringCapBonus: 2 },
 
     // === 拳掌 ===
     fist_combo_blue: { id: "fist_combo_blue", name: "缠丝护腕", icon: "腕", school: "fist", rarity: "blue", style: "combo", price: 260, atk: 12, desc: "连击掌。连击+6，连击掌基础招只吃半效。", comboBonus: 6 },
-    fist_combo_orange: { id: "fist_combo_orange", name: "拦江臂铠", icon: "腕", school: "fist", rarity: "orange", style: "combo", price: 520, atk: 28, desc: "连击掌。连击+12，连击后本回合伤害+8%。", comboBonus: 12, comboDmgPct: 8 },
+    fist_combo_orange: { id: "fist_combo_orange", name: "拦江臂铠", icon: "腕", school: "fist", rarity: "orange", style: "combo", price: 520, atk: 28, desc: "连击掌。连击+12。", comboBonus: 12 },
     fist_combo_red: { id: "fist_combo_red", name: "惊浪拳套", icon: "拳", school: "fist", rarity: "red", style: "combo", price: 980, atk: 58, desc: "连击掌。连击+18，三叠浪额外出掌上限+1。", comboBonus: 18, palmChainBonus: 1 },
 
     fist_crit_blue: { id: "fist_crit_blue", name: "炽星拳套", icon: "拳", school: "fist", rarity: "blue", style: "critPalm", price: 500, atk: 12, desc: "暴击掌。暴击+4，破防+2。", critBonus: 4, breakDefenseBonus: 2 },
@@ -231,7 +231,7 @@ export const DATA = {
 
     // === 暗器 ===
     hidden_gu_blue: { id: "hidden_gu_blue", name: "蚀骨针囊", icon: "镖", school: "hidden", rarity: "blue", style: "gu", price: 260, atk: 10, desc: "下蛊暗器。蛊+1。", guBonus: 1 },
-    hidden_gu_orange: { id: "hidden_gu_orange", name: "夺魂针盒", icon: "镖", school: "hidden", rarity: "orange", style: "gu", price: 520, atk: 24, desc: "下蛊暗器。蛊+2，耗内增加。", guBonus: 2, guQiBonus: 1 },
+    hidden_gu_orange: { id: "hidden_gu_orange", name: "夺魂针盒", icon: "镖", school: "hidden", rarity: "orange", style: "gu", price: 520, atk: 24, desc: "下蛊暗器。蛊+2。", guBonus: 2 },
     hidden_gu_red: { id: "hidden_gu_red", name: "九窍蛊匣", icon: "镖", school: "hidden", rarity: "red", style: "gu", price: 980, atk: 50, desc: "下蛊暗器。蛊+4，蛊上限+2。", guBonus: 4, guCapBonus: 2 },
 
     hidden_poison_blue: { id: "hidden_poison_blue", name: "淬毒针匣", icon: "镖", school: "hidden", rarity: "blue", style: "poison", price: 500, atk: 10, desc: "淬毒暗器。毒+2。", poisonBonus: 2 },
@@ -358,7 +358,7 @@ export const STYLE_TRAITS = {
   combo: { id: "comboMastery", name: "长江三叠浪", desc: "连击掌触发连击时，其他连击掌冷却-1；若有掌法就绪，可立即继续出掌。每己方回合最多额外出掌2次。" },
   critPalm: { id: "critPalmMastery", name: "碎星连震", desc: "暴击拳掌暴击+10，暴伤+1，破防上限+7。暴击率无上限。" },
   qiBreak: { id: "qiBreakMastery", name: "断脉归元", desc: "断脉拳掌削内力提高，目标内力归零时额外受伤。每己方回合最多削目标最大内力25%。" },
-  bleed: { id: "bleedBladeMastery", name: "百创刀势", desc: "流血刀造成流血时额外+1层，流血上限+7。流不暴击。" },
+  bleed: { id: "bleedBladeMastery", name: "百创刀势", desc: "流血刀造成流血时额外+1层，流血上限+7。流血不暴击。" },
   frost: { id: "frostBladeMastery", name: "玄冥寒河", desc: "寒冰刀附加更多寒气，并进一步削减内力。速度最低降至60%。" },
   hamstring: { id: "hamstringBladeMastery", name: "天残绝路", desc: "断筋刀额外削攻击，断筋目标速度更低。攻击最低降至65%。" },
   gu: { id: "guMastery", name: "九窍蛊王", desc: "下蛊暗器附加更多蛊，并提高目标招式消耗。每己方回合最多扰乱CD一次。" },
@@ -408,13 +408,64 @@ const SKILL_STYLES = {
   leg_steal_red: ["steal", "ultimate", "摘星无影腿", "偷盗型腿法终极式。摘星取利。"]
 };
 
+const SKILL_DEBUFF_LABELS = {
+  bleed: "流血",
+  poison: "中毒",
+  inner: "内伤",
+  frost: "寒气",
+  hamstring: "断筋",
+  gu: "蛊",
+  coin: "金钱",
+  breakDefense: "破防"
+};
+
+const SKILL_EFFECT_LABELS = {
+  combo: "连击",
+  hit: "命中",
+  dodge: "闪避",
+  crit: "暴击",
+  speed: "出手速度",
+  critPower: "暴伤"
+};
+
+function signedStat(label, value) {
+  return `${label}${value > 0 ? "+" : ""}${value}`;
+}
+
+function buildSkillDesc(skill, tier, styleDesc) {
+  const parts = [`【${SKILL_TIER_LABELS[tier]}】${styleDesc}`];
+  const combat = [];
+  if (skill.power) combat.push(`威力${skill.power}`);
+  if (skill.qi) combat.push(`内力${skill.qi}`);
+  if (skill.cd != null) combat.push(`冷却${skill.cd}`);
+  if (combat.length) parts.push(`${combat.join("，")}。`);
+
+  if (skill.debuff && skill.debuffStacks) {
+    parts.push(`命中时+${skill.debuffStacks}层${SKILL_DEBUFF_LABELS[skill.debuff] || skill.debuff}。`);
+  }
+
+  const effects = skill.trait?.effects || {};
+  const details = [];
+  if (skill.trueDamage) details.push(`真伤+${skill.trueDamage}`);
+  if (effects.imbalanceBonus) details.push(`失衡+${effects.imbalanceBonus}`);
+  if (effects.poisonBonus) details.push(`中毒额外+${effects.poisonBonus}`);
+  if (skill.tags?.includes("surehit")) details.push("必中");
+  if (["bleed", "poison", "lowKick", "coin"].includes(skill.style) && !styleDesc.includes("不暴击")) details.push("不暴击");
+
+  const statTexts = Object.entries(SKILL_EFFECT_LABELS)
+    .filter(([key]) => effects[key] && !(key === "critPower" && ["bleed", "poison", "lowKick", "coin"].includes(skill.style)))
+    .map(([key, label]) => signedStat(label, effects[key]));
+  if (statTexts.length) details.push(`修炼：${statTexts.join("，")}`);
+  if (details.length) parts.push(`${details.join("，")}。`);
+  return parts.join("");
+}
+
 for (const [id, [style, tier, name, desc]] of Object.entries(SKILL_STYLES)) {
   if (!DATA.skills[id]) continue;
   DATA.skills[id].style = style;
   DATA.skills[id].tier = tier;
   DATA.skills[id].tierName = SKILL_TIER_LABELS[tier];
   DATA.skills[id].name = name;
-  DATA.skills[id].desc = `【${SKILL_TIER_LABELS[tier]}】${desc}`;
   DATA.skills[id].styleName = STYLE_LABELS[style];
   // 保留招式自身的 trait.effects（如 imbalanceBonus、poisonBonus 等），同时用路线特性覆盖名称/描述用于展示
   const originalTrait = DATA.skills[id].trait;
@@ -439,6 +490,7 @@ for (const [id, [style, tier, name, desc]] of Object.entries(SKILL_STYLES)) {
     critPalm: "breakDefense"
   }[style] || null;
   if (style === "coin") DATA.skills[id].tags = [...new Set([...(DATA.skills[id].tags || []), "surehit", "coin"])];
+  DATA.skills[id].desc = buildSkillDesc(DATA.skills[id], tier, desc);
 }
 
 DATA.styleSkillSets = Object.entries(SKILL_STYLES).reduce((sets, [id, [style, tier]]) => {
@@ -1127,9 +1179,9 @@ DATA.wandererMerchantPool = {
     { id: "leg_kick_blue", name: "扫堂腿", school: "lightness", rarity: "blue", style: "lowKick", price: 200, desc: "每个散人都会的打架基本功。" },
     { id: "leg_kick_orange", name: "盘龙腿", school: "lightness", rarity: "orange", style: "lowKick", price: 500, desc: "龙井谷一个瘸腿老散人教的——腿断了这辈子跑不了，那就把底盘练稳，谁来踢谁。" },
     { id: "leg_kick_red", name: "碎岳沉桩腿", school: "lightness", rarity: "red", style: "lowKick", price: 1500, desc: "核心是站住了就是赢。" },
-    { id: "manual_speed", name: "唯快不破", school: "none", rarity: "blue", style: "buff", price: 500, desc: "天下武功，唯快不破。读条速度提升3倍，持续5回合。" },
-    { id: "manual_atk", name: "力大无穷", school: "none", rarity: "blue", style: "buff", price: 500, desc: "一力降十会。攻击力提升2倍，持续5回合。" },
-    { id: "manual_crit", name: "屠杀盛宴", school: "none", rarity: "blue", style: "buff", price: 500, desc: "杀意沸腾之时，无坚不摧。暴击/连击概率双倍，暴击倍率+1，持续5回合。" }
+    { id: "manual_speed", name: "唯快不破", school: "none", rarity: "blue", style: "buff", price: 500, desc: "天下武功，唯快不破。读条速度提升3倍，持续3回合。" },
+    { id: "manual_atk", name: "力大无穷", school: "none", rarity: "blue", style: "buff", price: 500, desc: "一力降十会。攻击力提升2倍，持续3回合。" },
+    { id: "manual_crit", name: "屠杀盛宴", school: "none", rarity: "blue", style: "buff", price: 500, desc: "杀意沸腾之时，无坚不摧。暴击/连击概率+100%，暴击倍率+1，持续3回合。" }
   ],
   weapons: [
     { id: "blade_bleed_blue", name: "饮血雁翎刀", school: "blade", rarity: "blue", price: 550 },
