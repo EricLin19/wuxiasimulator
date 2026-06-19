@@ -698,7 +698,7 @@ DATA.wandererMonths = {
   48: { title: "终战·徐迦笙",
     text: "徐迦笙立于孤云堂上，白衣金带，掌心一阴一阳，笑称双修大道本就取长补短，女子、毒客、帮众皆是鼎炉。你问他可还记得散人二字。他说散人既散，正该由强者收拢。话尽，阴毒入风，灯火尽青。",
     isEndNode: true, isFinalBoss: true,
-    fightLabel: "终结毒君", enemyId: "main_m48_xu_jiasheng", hasBattle: true, isFinalBoss: true, onWin: "m48Win",
+    fightLabel: "终结毒君", enemyId: "main_m48_xu_jiasheng", hasBattle: true, isFinalBoss: true, onWin: "m48Win", onLose: "m48Lose",
 
     battleDesc: "双修毒君徐迦笙，阴阳双修、采补邪功、毒雾缠身，低血量转入『阴阳逆鼎』狂暴。",
     battleReward: { exp:6000, fame:2500, money:5000, atk:12, def:12, int:12, agi:12 } }

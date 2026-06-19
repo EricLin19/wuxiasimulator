@@ -386,14 +386,14 @@ function resolveBattleResult(result) {
       else state.modal = null;
     }
   } else {
-    // === 故事战斗失败 → Boss战结果页面 ===
+    // === 故事战斗失败 → Boss战结果页面（读 onLose 配置）===
     if (storyBattle) {
-      const bm = storyBattle.month;
+      const onLose = storyBattle.onLose || "normal";
       state.bossResult = {
-        mode: bm === 48 ? "m48Lose" : "normal",
+        mode: onLose,
         type: "lose",
         bossName: battle.enemy.name,
-        month: bm
+        month: storyBattle.month
       };
     } else {
       settleRun(state, "lose", `你败给了${battle.enemy.name}。`);
