@@ -1,7 +1,7 @@
 import { DATA, STYLE_TRAITS } from "./data/content.js";
 import { state } from "./core/state.js";
 import { saveRun, loadRun, saveMeta } from "./core/save.js";
-import { renderApp } from "./ui/render.js";
+import { renderApp, el } from "./ui/render.js";
 import {
   createRun,
   resolveEvent,
@@ -408,48 +408,67 @@ function resolveBattleResult(result) {
 const actions = {
   render,
   hasSavedRun: () => !!loadRun(),
-  enterTestMode: () => {
-    // 调试测试模式：进入M48站前准备状态（不直接开战）
-    // F5 刷新可重置（test 页面会清 localStorage）
-    const charId = "wanderer";
+  enterTestMode: (storylineId = "wanderer") => {
+    // 调试测试模式：先选支线 → 进入该支线 M48 站前准备
+    const charId = storylineId;
     const treasure = DATA.treasures.find(t => !t.locked || state.meta.unlockedTreasures.includes(t.id)) || DATA.treasures[0];
-    // 给 1000 点 perRunAllocations 拉满基础属性
     const maxAlloc = { hp: 200, qi: 200, atk: 200, def: 200, int: 200, agi: 200, hit: 200, crit: 200, dodge: 200, money: 500 };
     state.run = createRun(charId, treasure.id, state.meta, maxAlloc);
-    // 满级：拉满经验、所有内功、所有流派特性、所有武器秘籍
     state.run.level = 99;
     state.run.martialExp = 99999;
     state.run.money = 99999;
     state.run.ap = 99;
     state.run.maxAp = 99;
-    // 解锁所有内功 + 满级
+
+    // 支线专属：只解锁该支线对应的内功、特性、武器
+    const storyline = DATA.storylines?.[storylineId];
+    const allowedSchools = storylineId === "wanderer" ? null : null; // 暂用全部
+    // 通用：所有内功
     const allArts = Object.keys(DATA.internalArts || {});
     state.run.internalArts = [...allArts];
     state.run.cultivatedArts = [...allArts];
     state.run.artProgress = Object.fromEntries(allArts.map(a => [a, 99]));
-    // 解锁所有招式 + 满熟练
+
+    // 支线特性：只解锁本支线特性
     const allSkillStyles = ["bleed", "frost", "hamstring", "critPalm", "combo", "qiBreak", "lowKick", "evasive", "steal", "gu", "poison", "coin"];
-    // 所有路线特性全部开启
     for (const style of allSkillStyles) {
       const trait = STYLE_TRAITS?.[style];
       if (trait && !state.run.skillTraits.some(t => t.id === trait.id)) {
         state.run.skillTraits.push(trait);
       }
     }
-    // 解锁所有战斗招式（各路线红武+红招式）
-    const allSkills = Object.keys(DATA.skills || {}).filter(id => DATA.skills[id]?.battle);
+
+    // 支线招式：只解锁本支线学校
+    const schoolMap = { wanderer: "lightness", constable: "blade", orthodox: "fist" };
+    const allowedSchool = schoolMap[storylineId] || null;
+    const allSkills = Object.keys(DATA.skills || {}).filter(id => {
+      const sk = DATA.skills[id];
+      if (!sk?.battle) return false;
+      if (!allowedSchool) return true;
+      return sk.school === allowedSchool || sk.school === "none" || sk.school === "hidden";
+    });
     state.run.skills = allSkills;
     state.run.activeSkills = allSkills.slice(0, 4);
     state.run.skillProgress = Object.fromEntries(allSkills.map(s => [s, 99]));
-    // 解锁所有武器
-    const allWeapons = Object.keys(DATA.weapons || {}).filter(id => !DATA.weapons[id].bossOnly);
+
+    // 支线武器：只解锁本支线学校
+    const allWeapons = Object.keys(DATA.weapons || {}).filter(id => {
+      const wp = DATA.weapons[id];
+      if (wp.bossOnly) return false;
+      if (!allowedSchool) return true;
+      return wp.school === allowedSchool || wp.school === "lightness" && storylineId === "wanderer";
+    });
     state.run.weapons = allWeapons;
-    // 默认装备（用户可在战前准备里换）
-    state.run.equippedWeapon = "leg_low_red";
-    // 解锁所有防具
+    // 默认装备：按支线选最强者
+    if (storylineId === "wanderer") state.run.equippedWeapon = "leg_low_red";
+    else if (storylineId === "constable") state.run.equippedWeapon = "blade_bleed_red";
+    else if (storylineId === "orthodox") state.run.equippedWeapon = "fist_crit_red";
+    else state.run.equippedWeapon = allWeapons[0];
+
     const allArmors = Object.keys(DATA.armors || {});
     state.run.armors = allArmors;
     state.run.equippedArmor = "armor_dragon_red";
+
     // 跳到 M48
     state.run.year = 4;
     state.run.month = 12;
@@ -457,23 +476,50 @@ const actions = {
     state.run.qi = state.run.stats.qi;
     state.run.yearlyBossDefeated = { 1: true, 2: true, 3: true };
 
-    // 加载 M48 剧情节点，但不直接开战
+    // M48 剧情节点
     const m48Node = DATA.wandererMonths?.[48];
     if (m48Node) {
-      // 注入 storyBattle 元数据，待玩家点"开战"时由 startBattle 使用
       state.run.storyBattle = {
         isFinalBoss: true,
         month: 48,
         onWin: m48Node.onWin || "m48Win",
         onLose: m48Node.onLose || "m48Lose"
       };
-      // 设置 currentStory 让剧情面板显示
-      state.run.currentStory = { ...m48Node, id: "wanderer_m48" };
+      state.run.currentStory = { ...m48Node, id: `${storylineId}_m48` };
     }
     state.screen = "run";
     saveRun(state.run);
     render();
-    showToast(`测试模式：M48 站前准备（已解锁所有装备/特性）`);
+    showToast(`测试模式：${DATA.storylines?.[storylineId]?.name || storylineId} M48 站前准备`);
+  },
+  enterTestModeSelect: () => {
+    // 弹窗：选择支线
+    const root = el("div", "modal-overlay");
+    const panel = el("div", "modal-panel");
+    panel.innerHTML = `
+      <h3>选择测试支线</h3>
+      <div class="test-storyline-list" style="display:flex;gap:12px;margin:16px 0">
+        ${["wanderer", "constable", "orthodox"].map(id => {
+          const sl = DATA.storylines?.[id];
+          const ch = DATA.characters?.find(c => c.id === id);
+          return `<button class="btn" data-test-sl="${id}" style="flex:1;padding:16px;font-size:16px">
+            <div style="font-size:18px;font-weight:bold">${ch?.name || id}</div>
+            <div style="font-size:13px;opacity:.7">${sl?.name || id}</div>
+          </button>`;
+        }).join("")}
+      </div>
+      <button class="btn secondary" data-close style="margin-top:8px">取消</button>
+    `;
+    root.appendChild(panel);
+    document.body.appendChild(root);
+    panel.querySelectorAll("[data-test-sl]").forEach(btn => {
+      btn.onclick = () => {
+        const sl = btn.dataset.testSl;
+        document.body.removeChild(root);
+        actions.enterTestMode(sl);
+      };
+    });
+    panel.querySelector("[data-close]").onclick = () => document.body.removeChild(root);
   },
   gotoSelect: () => {
     state.screen = "select";
@@ -879,5 +925,5 @@ window.addEventListener("orientationchange", () => setTimeout(fitMobileViewport,
 render();
 // 测试模式自动触发（test_m48.html 入口）
 if (window.__TEST_MODE__) {
-  setTimeout(() => actions.enterTestMode(), 100);
+  setTimeout(() => actions.enterTestModeSelect(), 100);
 }

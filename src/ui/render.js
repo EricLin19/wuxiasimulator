@@ -142,7 +142,7 @@ function renderMenu(state, actions) {
   root.querySelector("[data-act=start]").onclick = actions.gotoSelect;
   root.querySelector("[data-act=continue]").onclick = actions.continueRun;
   root.querySelector("[data-act=meta]").onclick = () => actions.openModal("meta");
-  root.querySelector("[data-act=test]").onclick = actions.enterTestMode;
+  root.querySelector("[data-act=test]").onclick = actions.enterTestModeSelect;
   return root;
 }
 
