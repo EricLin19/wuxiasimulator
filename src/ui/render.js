@@ -1194,7 +1194,7 @@ function bar(value, max, label, fillClass = "") {
   return `<div class="bar"><div class="bar-fill ${fillClass}" style="width:${pct}%"></div><div class="bar-label">${label}</div></div>`;
 }
 
-function el(tag, cls = "", html = "") {
+export function el(tag, cls = "", html = "") {
   const node = document.createElement(tag);
   if (cls) node.className = cls;
   if (html) node.innerHTML = html;

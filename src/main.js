@@ -1,7 +1,7 @@
-import { DATA } from "./data/content.js";
+import { DATA, STYLE_TRAITS } from "./data/content.js";
 import { state } from "./core/state.js";
 import { saveRun, loadRun, saveMeta } from "./core/save.js";
-import { renderApp } from "./ui/render.js";
+import { renderApp, el } from "./ui/render.js";
 import {
   createRun,
   resolveEvent,
@@ -408,6 +408,100 @@ function resolveBattleResult(result) {
 const actions = {
   render,
   hasSavedRun: () => !!loadRun(),
+  enterTestMode: (storylineId = "wanderer") => {
+    const charId = storylineId;
+    const treasure = DATA.treasures.find(t => !t.locked || state.meta.unlockedTreasures.includes(t.id)) || DATA.treasures[0];
+    const maxAlloc = { hp: 200, qi: 200, atk: 200, def: 200, int: 200, agi: 200, hit: 200, crit: 200, dodge: 200, money: 500 };
+    state.run = createRun(charId, treasure.id, state.meta, maxAlloc);
+    state.run.level = 99;
+    state.run.martialExp = 99999;
+    state.run.money = 99999;
+    state.run.ap = 99;
+    state.run.maxAp = 99;
+    const allArts = Object.keys(DATA.internalArts || {});
+    state.run.internalArts = [...allArts];
+    state.run.cultivatedArts = [...allArts];
+    state.run.artProgress = Object.fromEntries(allArts.map(a => [a, 99]));
+    const allSkillStyles = ["bleed", "frost", "hamstring", "critPalm", "combo", "qiBreak", "lowKick", "evasive", "steal", "gu", "poison", "coin"];
+    for (const style of allSkillStyles) {
+      const trait = STYLE_TRAITS?.[style];
+      if (trait && !state.run.skillTraits.some(t => t.id === trait.id)) {
+        state.run.skillTraits.push(trait);
+      }
+    }
+    const schoolMap = { wanderer: "lightness", constable: "blade", orthodox: "fist" };
+    const allowedSchool = schoolMap[storylineId] || null;
+    const allSkills = Object.keys(DATA.skills || {}).filter(id => {
+      const sk = DATA.skills[id];
+      if (!sk?.battle) return false;
+      if (!allowedSchool) return true;
+      return sk.school === allowedSchool || sk.school === "none" || sk.school === "hidden";
+    });
+    state.run.skills = allSkills;
+    state.run.activeSkills = allSkills.slice(0, 4);
+    state.run.skillProgress = Object.fromEntries(allSkills.map(s => [s, 99]));
+    const allWeapons = Object.keys(DATA.weapons || {}).filter(id => {
+      const wp = DATA.weapons[id];
+      if (wp.bossOnly) return false;
+      if (!allowedSchool) return true;
+      return wp.school === allowedSchool || (wp.school === "lightness" && storylineId === "wanderer");
+    });
+    state.run.weapons = allWeapons;
+    if (storylineId === "wanderer") state.run.equippedWeapon = "leg_low_red";
+    else if (storylineId === "constable") state.run.equippedWeapon = "blade_bleed_red";
+    else if (storylineId === "orthodox") state.run.equippedWeapon = "fist_crit_red";
+    else state.run.equippedWeapon = allWeapons[0];
+    const allArmors = Object.keys(DATA.armors || {});
+    state.run.armors = allArmors;
+    state.run.equippedArmor = "armor_dragon_red";
+    state.run.year = 4;
+    state.run.month = 12;
+    state.run.hp = state.run.stats.hp;
+    state.run.qi = state.run.stats.qi;
+    state.run.yearlyBossDefeated = { 1: true, 2: true, 3: true };
+    const m48Node = DATA.wandererMonths?.[48];
+    if (m48Node) {
+      state.run.storyBattle = {
+        isFinalBoss: true,
+        month: 48,
+        onWin: m48Node.onWin || "m48Win",
+        onLose: m48Node.onLose || "m48Lose"
+      };
+      state.run.currentStory = { ...m48Node, id: `${storylineId}_m48` };
+    }
+    state.screen = "run";
+    saveRun(state.run);
+    render();
+    showToast(`测试模式：${DATA.storylines?.[storylineId]?.name || storylineId} M48 站前准备`);
+  },
+  enterTestModeSelect: () => {
+    const root = el("div", "modal-backdrop");
+    const panel = el("div", "modal");
+    panel.innerHTML = `
+      <h3>选择测试支线</h3>
+      <div style="display:flex;gap:12px;margin:16px 0">
+        ${["wanderer", "constable", "orthodox"].map(id => {
+          const sl = DATA.storylines?.[id];
+          const ch = DATA.characters?.find(c => c.id === id);
+          return `<button class="btn" data-test-sl="${id}" style="flex:1;padding:16px;font-size:16px">
+            <div style="font-size:18px;font-weight:bold">${ch?.name || id}</div>
+            <div style="font-size:13px;opacity:.7">${sl?.name || id}</div>
+          </button>`;
+        }).join("")}
+      </div>
+      <button class="btn secondary" data-close style="margin-top:8px">取消</button>
+    `;
+    root.appendChild(panel);
+    document.body.appendChild(root);
+    panel.querySelectorAll("[data-test-sl]").forEach(btn => {
+      btn.onclick = () => {
+        const sl = btn.dataset.testSl;
+        document.body.removeChild(root);
+        actions.enterTestMode(sl);
+      };
+    });
+    panel.querySelector("[data-close]").onclick = () => document.body.removeChild(root);
+  },
   gotoSelect: () => {
     state.screen = "select";
     state.selectedCharacter = DATA.characters[0].id;
@@ -810,3 +904,7 @@ fitMobileViewport();
 window.addEventListener("resize", fitMobileViewport);
 window.addEventListener("orientationchange", () => setTimeout(fitMobileViewport, 120));
 render();
+// 测试模式自动触发（仅 test_m48.html 入口）
+if (location.pathname.includes("test_m48")) {
+  setTimeout(() => actions.enterTestModeSelect(), 100);
+}
