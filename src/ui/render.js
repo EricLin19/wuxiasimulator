@@ -934,7 +934,7 @@ function debuffBadges(unit) {
   if (unit.hamstring) badges.push(`<span class="debuff-badge" title="断筋：每层攻击-2%+减速2%，回合后-1层。">断筋 ${unit.hamstring}</span>`);
   if (unit.veinBreak) badges.push(`<span class="debuff-badge" title="断脉：每层内力-2%+减速2%，回合后-1层。">断脉 ${unit.veinBreak}</span>`);
   if (unit.imbalance) badges.push(`<span class="debuff-badge" title="失衡：每层+2%真伤，回合后-1层；25层引爆：弱点暴露（真伤受到2~2.5倍伤害，2回合）。">失衡 ${unit.imbalance}</span>`);
-  if (unit.breakDefense) badges.push(`<span class="debuff-badge" title="破防：每层-3% DEF（累乘）；15层引爆：破防一击（DEF直接归零，2~3回合后恢复）。">破防 ${unit.breakDefense}</span>`);
+  if (unit.breakDefense) badges.push(`<span class="debuff-badge" title="破防：每层-3% DEF（累乘）；25层引爆：破防一击（DEF直接归零，2~3回合后恢复）。">破防 ${unit.breakDefense}</span>`);
   if (unit.breakDefenseShatter) badges.push(`<span class="debuff-badge" title="破防一击：DEF 已归零，剩余${unit.breakDefenseShatter}回合后恢复。">破防一击 ${unit.breakDefenseShatter}</span>`);
   if (unit.gu) badges.push(`<span class="debuff-badge" title="蛊：提高招式内力消耗，并扰乱气息。">蛊 ${unit.gu}</span>`);
   // 临时Buff显示（快/力/杀）
