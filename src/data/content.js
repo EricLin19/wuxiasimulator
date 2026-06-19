@@ -116,9 +116,9 @@ export const DATA = {
     fist_orange_1: skill("fist_orange_1", "排云掌", "fist", "orange", 120, 90, 2, 4, "inner", 2, ["combo", "threeWaves"], gain(6, 1, 0, 3, 0), { id: "vajraPalm", name: "排云叠劲", desc: "连击+6，命中+1，暴击+3。", effects: { combo: 6, hit: 1, crit: 3 } }),
     fist_red_1: skill("fist_red_1", "惊涛掌", "fist", "red", 190, 145, 3, 5, "inner", 4, ["combo", "threeWaves"], gain(9, 2, 0, 5, 0), { id: "dragonPalm", name: "惊涛拍岸", desc: "连击+9，命中+2，暴击+5，暴击倍率提高。", effects: { combo: 9, hit: 2, crit: 5, critPower: 0.35 } }),
     // 暴击路线: fist_blue_3(基础) -> fist_orange_2(进阶) -> fist_red_2(终极)
-    fist_blue_3: skill("fist_blue_3", "太祖长拳", "fist", "blue", 58, 35, 1, 3, "breakDefense", 2, ["combo"], gain(0, 0, 0, 5, 0), { id: "founderFist", name: "拳路刚猛", desc: "暴击+5，命中+1破防。", effects: { crit: 5 } }),
-    fist_orange_2: skill("fist_orange_2", "黯魂掌", "fist", "orange", 105, 85, 2, 4, "breakDefense", 5, ["combo"], gain(0, 0, 0, 10, 0), { id: "sadPalm", name: "黯魂夺魄", desc: "暴击+10，暴击倍率+0.75，命中+3破防。", effects: { crit: 10, critPower: 0.75 } }),
-    fist_red_2: skill("fist_red_2", "碎星拳", "fist", "red", 178, 135, 3, 5, "breakDefense", 10, ["combo"], gain(0, 0, 0, 20, 0), { id: "starCrush", name: "碎星暴劲", desc: "暴击+20，暴击倍率+2.0，命中+5破防。", effects: { crit: 20, critPower: 2 } }),
+    fist_blue_3: skill("fist_blue_3", "太祖长拳", "fist", "blue", 58, 35, 1, 3, "breakDefense", 2, ["combo"], gain(0, 0, 0, 5, 0), { id: "founderFist", name: "拳路刚猛", desc: "暴击+5，命中+2破防。", effects: { crit: 5 } }),
+    fist_orange_2: skill("fist_orange_2", "黯魂掌", "fist", "orange", 105, 85, 2, 4, "breakDefense", 5, ["combo"], gain(0, 0, 0, 10, 0), { id: "sadPalm", name: "黯魂夺魄", desc: "暴击+10，暴击倍率+0.75，命中+5破防。", effects: { crit: 10, critPower: 0.75 } }),
+    fist_red_2: skill("fist_red_2", "碎星拳", "fist", "red", 178, 135, 3, 5, "breakDefense", 10, ["combo"], gain(0, 0, 0, 20, 0), { id: "starCrush", name: "碎星暴劲", desc: "暴击+20，暴击倍率+2.0，命中+10破防。", effects: { crit: 20, critPower: 2 } }),
     // 断脉路线: mixedFist(基础) -> fist_orange_3(进阶) -> fist_red_3(终极)
     fist_orange_3: skill("fist_orange_3", "截脉掌", "fist", "orange", 108, 82, 2, 4, "inner", 3, ["combo"], gain(5, 2, 0, 2, 0), { id: "cutMeridian", name: "截脉断息", desc: "连击+5，命中+2，暴击+2。", effects: { combo: 5, hit: 2, crit: 2 } }),
     fist_red_3: skill("fist_red_3", "断海掌", "fist", "red", 168, 130, 3, 5, "inner", 5, ["combo"], gain(8, 3, 0, 4, 0), { id: "seaBreak", name: "断海截息", desc: "连击+8，命中+3，暴击+4。", effects: { combo: 8, hit: 3, crit: 4 } }),
