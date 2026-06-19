@@ -135,12 +135,14 @@ function renderMenu(state, actions) {
         <button class="btn" data-act="start">开始新局</button>
         <button class="btn secondary" data-act="continue" ${actions.hasSavedRun() ? "" : "disabled"}>继续存档</button>
         <button class="btn secondary" data-act="meta">局外成长</button>
+        <button class="btn secondary" data-act="test" style="background:#663300;color:#ffd">⚙ 调试测试模式</button>
         <div class="desc">通关：${state.meta.wins}/${state.meta.runs}　可分配属性点：${state.meta.metaPoints}</div>
       </div>
     </div>`;
   root.querySelector("[data-act=start]").onclick = actions.gotoSelect;
   root.querySelector("[data-act=continue]").onclick = actions.continueRun;
   root.querySelector("[data-act=meta]").onclick = () => actions.openModal("meta");
+  root.querySelector("[data-act=test]").onclick = actions.enterTestMode;
   return root;
 }
 

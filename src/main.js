@@ -1,4 +1,4 @@
-import { DATA } from "./data/content.js";
+import { DATA, STYLE_TRAITS } from "./data/content.js";
 import { state } from "./core/state.js";
 import { saveRun, loadRun, saveMeta } from "./core/save.js";
 import { renderApp } from "./ui/render.js";
@@ -408,6 +408,72 @@ function resolveBattleResult(result) {
 const actions = {
   render,
   hasSavedRun: () => !!loadRun(),
+  enterTestMode: () => {
+    // 调试测试模式：跳过选角，直接开局到M48最终Boss战
+    const charId = "wanderer";
+    const treasure = DATA.treasures.find(t => !t.locked || state.meta.unlockedTreasures.includes(t.id)) || DATA.treasures[0];
+    // 给 1000 点 perRunAllocations 拉满基础属性
+    const maxAlloc = { hp: 200, qi: 200, atk: 200, def: 200, int: 200, agi: 200, hit: 200, crit: 200, dodge: 200, money: 500 };
+    state.run = createRun(charId, treasure.id, state.meta, maxAlloc);
+    // 满级：拉满经验、所有内功、所有流派特性、所有武器秘籍
+    state.run.level = 99;
+    state.run.martialExp = 99999;
+    state.run.money = 99999;
+    state.run.ap = 99;
+    state.run.maxAp = 99;
+    // 解锁所有内功 + 满级
+    const allArts = Object.keys(DATA.internalArts || {});
+    state.run.internalArts = [...allArts];
+    state.run.cultivatedArts = [...allArts];
+    state.run.artProgress = Object.fromEntries(allArts.map(a => [a, 99]));
+    // 解锁所有招式 + 满熟练
+    const allSkillStyles = ["bleed", "frost", "hamstring", "critPalm", "combo", "qiBreak", "lowKick", "evasive", "steal", "gu", "poison", "coin"];
+    // 所有路线特性全部开启
+    for (const style of allSkillStyles) {
+      const trait = STYLE_TRAITS?.[style];
+      if (trait && !state.run.skillTraits.some(t => t.id === trait.id)) {
+        state.run.skillTraits.push(trait);
+      }
+    }
+    // 解锁所有战斗招式（各路线红武+红招式）
+    const allSkills = Object.keys(DATA.skills || {}).filter(id => DATA.skills[id]?.battle);
+    state.run.skills = allSkills;
+    state.run.activeSkills = allSkills.slice(0, 4);
+    state.run.skillProgress = Object.fromEntries(allSkills.map(s => [s, 99]));
+    // 解锁所有武器
+    const allWeapons = Object.keys(DATA.weapons || {}).filter(id => !DATA.weapons[id].bossOnly);
+    state.run.weapons = allWeapons;
+    state.run.equippedWeapon = "leg_low_red";
+    // 解锁所有防具 + 装备红防
+    const allArmors = Object.keys(DATA.armors || {});
+    state.run.armors = allArmors;
+    state.run.equippedArmor = "armor_dragon_red";
+    // 拉满所有已知红武词条（已装备 leg_low_red）
+    // 跳到 M48
+    state.run.year = 4;
+    state.run.month = 12;
+    state.run.hp = state.run.stats.hp;
+    state.run.qi = state.run.stats.qi;
+    // 推进到 M48 触发最终 boss
+    state.run.month = 12; // M48 内部按 (year-1)*12+month = 48
+    state.run.yearlyBossDefeated = { 1: true, 2: true, 3: true };
+    const m48Node = DATA.wandererMonths?.[48];
+    if (m48Node) {
+      const enemy = DATA.enemies?.find(e => e.id === m48Node.enemyId);
+      if (enemy) {
+        // 把 storyBattle 元数据塞进 run，供 resolveBattleResult 读取
+        state.run.storyBattle = {
+          isFinalBoss: true,
+          month: 48,
+          onWin: m48Node.onWin || "m48Win",
+          onLose: m48Node.onLose || "m48Lose"
+        };
+        startBattle(enemy, true);
+      }
+    }
+    render();
+    showToast(`测试模式：M48 ${m48Node?.title || '最终Boss'}`);
+  },
   gotoSelect: () => {
     state.screen = "select";
     state.selectedCharacter = DATA.characters[0].id;
