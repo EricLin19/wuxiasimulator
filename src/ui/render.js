@@ -1020,7 +1020,7 @@ function buildUnitDetailPopup(unit, side, state, actions) {
   for (const [type, label] of Object.entries(debuffLabels)) {
     if (unit[type]) {
       const row = el("div", "detail-row");
-      const detail = type === "bleed" ? `行动开始受到${unit[type]*12}伤害` : type === "poison" ? "降攻/防/命/闪/速" : type === "inner" ? "行动开始失去内力" : type === "frost" ? "降速+失去内力" : type === "hamstring" ? "降速+削攻" : type === "veinBreak" ? "降内力+减速" : type === "imbalance" ? "降防+降速，真伤加成" : type === "breakDefense" ? "每层-2% DEF（累乘）" : "提高招式消耗+扰乱";
+      const detail = type === "bleed" ? `行动开始受到${unit[type]*12}伤害` : type === "poison" ? "降攻/防/命/闪/速" : type === "inner" ? "行动开始失去内力" : type === "frost" ? "降速+失去内力" : type === "hamstring" ? "降速+削攻" : type === "veinBreak" ? "降内力+减速" : type === "imbalance" ? "每层+2%真伤，25层引爆弱点暴露×2~2.5" : type === "breakDefense" ? "每层-3% DEF（累乘）" : "提高招式消耗+扰乱";
       row.innerHTML = `<span class="debuff-badge">${label} ${unit[type]}</span>：${detail}`;
       popup.appendChild(row);
     }
