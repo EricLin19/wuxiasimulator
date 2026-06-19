@@ -566,7 +566,7 @@ DATA.wandererMonths = {
     text: "龙井谷的消息飞遍江湖。武盟搜捕更急，每天都有散人投奔或求救。方平熬红了眼擦剑，说一闭眼便看见韩铁衣。有人开始叫你“扛旗的”。你不知道这是荣誉还是诅咒，但已没有回头路。" },
   12: { title: "赵崇岳",
     text: "黄昏，赵崇岳亲临谷前，九环大刀插地，刀环作响。他笑问你知不知道自己害他少赚多少银子。",
-    fightLabel: "斩首之剑", enemyId: "main_m12_zhao_chongyue", hasBattle: true, isBoss: true,
+    fightLabel: "斩首之剑", enemyId: "main_m12_zhao_chongyue", hasBattle: true, isBoss: true, onWin: "yearlyWin",
     battleDesc: "杭州堂主赵崇岳，九环大刀，大开大合。低血量时攻速双升——他是你面对的第一个真正的Boss。",
     battleReward: { exp:1000, fame:500, gainItem:"zhao_nine_ring_blade", money:500, atk:5, def:3 } },
   // === 第二年 ===
@@ -609,7 +609,7 @@ DATA.wandererMonths = {
     text: "刺客事件后，散人联盟反而稳固。动摇的人重新归队，说连刺客都没杀掉扛旗的，还怕什么。方平笑说咱俩值五千两了。你没笑，因为你知道武盟真正怕的是证据。" },
   24: { title: "沈千山",
     text: "太湖之滨决战。沈千山黑甲持戟，只说你站错了边。战至力竭时，孟天衡浴血赶来。",
-    fightLabel: "终结护法", enemyId: "main_m24_shen_qianshan", hasBattle: true, isBoss: true,
+    fightLabel: "终结护法", enemyId: "main_m24_shen_qianshan", hasBattle: true, isBoss: true, onWin: "yearlyWin",
     battleDesc: "左护法沈千山，方天画戟，攻守全能。70%血狂暴，30%血召唤护卫——这是他最后的力量。",
     battleReward: { exp:2000, fame:800, gainItem:"shen_halberd_fragment", money:1000, atk:8, def:6 } },
   // === 第三年 ===
@@ -653,8 +653,7 @@ DATA.wandererMonths = {
   36: { title: "楚宗玄",
     text: "正殿中，楚宗玄负手而立，茶尚温。他说自己曾为江湖秩序立誓，也确实惩恶调纷无数，最后不得不把人当资源。你若赢了，希望不要成为下一个他。沉默片刻，他说：“来吧。”天罡正气起，大殿砖石龟裂。",
     isEndNode: true, isFinalBoss: true,
-    fightLabel: "终结秩序",
-    enemyId: "main_m36_chu_zongxuan",
+    fightLabel: "终结秩序", enemyId: "main_m36_chu_zongxuan", hasBattle: true, isFinalBoss: true, onWin: "m36Win",
     battleDesc: "武盟统领楚宗玄，天罡正气终极Boss。开场25%护体；50%血净化一次；15%血攻翻倍防归零。",
     battleReward: { exp:5000, fame:2000, money:3000, atk:10, def:10, int:10, agi:10 } },
 
@@ -699,8 +698,7 @@ DATA.wandererMonths = {
   48: { title: "终战·徐迦笙",
     text: "徐迦笙立于孤云堂上，白衣金带，掌心一阴一阳，笑称双修大道本就取长补短，女子、毒客、帮众皆是鼎炉。你问他可还记得散人二字。他说散人既散，正该由强者收拢。话尽，阴毒入风，灯火尽青。",
     isEndNode: true, isFinalBoss: true,
-    fightLabel: "终结毒君",
-    enemyId: "main_m48_xu_jiasheng",
+    fightLabel: "终结毒君", enemyId: "main_m48_xu_jiasheng", hasBattle: true, isFinalBoss: true, onWin: "m48Win",
 
     battleDesc: "双修毒君徐迦笙，阴阳双修、采补邪功、毒雾缠身，低血量转入『阴阳逆鼎』狂暴。",
     battleReward: { exp:6000, fame:2500, money:5000, atk:12, def:12, int:12, agi:12 } }
