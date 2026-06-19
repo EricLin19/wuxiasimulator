@@ -877,3 +877,7 @@ fitMobileViewport();
 window.addEventListener("resize", fitMobileViewport);
 window.addEventListener("orientationchange", () => setTimeout(fitMobileViewport, 120));
 render();
+// 测试模式自动触发（test_m48.html 入口）
+if (window.__TEST_MODE__) {
+  setTimeout(() => actions.enterTestMode(), 100);
+}
