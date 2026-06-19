@@ -520,6 +520,8 @@ const actions = {
       };
     });
     panel.querySelector("[data-close]").onclick = () => document.body.removeChild(root);
+    // 立即打印日志确认入口被调用
+    console.log("[TEST] 支线选择弹窗已显示", panel);
   },
   gotoSelect: () => {
     state.screen = "select";
