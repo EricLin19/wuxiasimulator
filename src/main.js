@@ -471,6 +471,7 @@ const actions = {
       state.run.currentStory = { ...m48Node, id: "wanderer_m48" };
     }
     state.screen = "run";
+    saveRun(state.run);
     render();
     showToast(`测试模式：M48 站前准备（已解锁所有装备/特性）`);
   },
