@@ -1156,7 +1156,7 @@ function applySkillEffects(run, battle, actor, target, skill, damage, multiplier
       }
       if (hasStyleMastery(run, "lowKick")) imbBonus += 1;  // v6.8：地裂无声失衡额外+1
       // 弹屏：明确告诉玩家代码走到了腿法叠失衡
-      addFloater(battle, sideOf(battle, actor), `腿法命中 style=${skill.style}`, "imbalance");
+      addFloater(battle, sideOf(battle, target), `腿法进入 imbalanceBonus=${trait?.effects?.imbalanceBonus}`, "imbalance");
       console.log("[低盘腿法] skill=" + skill.id + " style=" + skill.style + " trait=" + JSON.stringify(trait?.effects) + " weapon=" + (weapon?.id||"none") + " imbBonus=" + imbBonus + " target.imbalance=" + target.imbalance);
       if (imbBonus > 0) {
         const cap = getDebuffCap(run, weapon, "imbalance");
@@ -1164,6 +1164,9 @@ function applySkillEffects(run, battle, actor, target, skill, damage, multiplier
         if (Math.random() < 1) {  // 总是显示
           addFloater(battle, sideOf(battle, target), `失衡+${imbBonus}`, "imbalance");
         }
+      } else {
+        // imbBonus=0 原因排查
+        addFloater(battle, sideOf(battle, target), `imbBonus=0! trait=${JSON.stringify(trait?.effects)}`, "imbalance");
       }
     }
   }
