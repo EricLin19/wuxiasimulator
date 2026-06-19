@@ -409,7 +409,8 @@ const actions = {
   render,
   hasSavedRun: () => !!loadRun(),
   enterTestMode: () => {
-    // 调试测试模式：跳过选角，直接开局到M48最终Boss战
+    // 调试测试模式：进入M48站前准备状态（不直接开战）
+    // F5 刷新可重置（test 页面会清 localStorage）
     const charId = "wanderer";
     const treasure = DATA.treasures.find(t => !t.locked || state.meta.unlockedTreasures.includes(t.id)) || DATA.treasures[0];
     // 给 1000 点 perRunAllocations 拉满基础属性
@@ -443,36 +444,35 @@ const actions = {
     // 解锁所有武器
     const allWeapons = Object.keys(DATA.weapons || {}).filter(id => !DATA.weapons[id].bossOnly);
     state.run.weapons = allWeapons;
+    // 默认装备（用户可在战前准备里换）
     state.run.equippedWeapon = "leg_low_red";
-    // 解锁所有防具 + 装备红防
+    // 解锁所有防具
     const allArmors = Object.keys(DATA.armors || {});
     state.run.armors = allArmors;
     state.run.equippedArmor = "armor_dragon_red";
-    // 拉满所有已知红武词条（已装备 leg_low_red）
     // 跳到 M48
     state.run.year = 4;
     state.run.month = 12;
     state.run.hp = state.run.stats.hp;
     state.run.qi = state.run.stats.qi;
-    // 推进到 M48 触发最终 boss
-    state.run.month = 12; // M48 内部按 (year-1)*12+month = 48
     state.run.yearlyBossDefeated = { 1: true, 2: true, 3: true };
+
+    // 加载 M48 剧情节点，但不直接开战
     const m48Node = DATA.wandererMonths?.[48];
     if (m48Node) {
-      const enemy = DATA.enemies?.find(e => e.id === m48Node.enemyId);
-      if (enemy) {
-        // 把 storyBattle 元数据塞进 run，供 resolveBattleResult 读取
-        state.run.storyBattle = {
-          isFinalBoss: true,
-          month: 48,
-          onWin: m48Node.onWin || "m48Win",
-          onLose: m48Node.onLose || "m48Lose"
-        };
-        startBattle(enemy, true);
-      }
+      // 注入 storyBattle 元数据，待玩家点"开战"时由 startBattle 使用
+      state.run.storyBattle = {
+        isFinalBoss: true,
+        month: 48,
+        onWin: m48Node.onWin || "m48Win",
+        onLose: m48Node.onLose || "m48Lose"
+      };
+      // 设置 currentStory 让剧情面板显示
+      state.run.currentStory = { ...m48Node, id: "wanderer_m48" };
     }
+    state.screen = "run";
     render();
-    showToast(`测试模式：M48 ${m48Node?.title || '最终Boss'}`);
+    showToast(`测试模式：M48 站前准备（已解锁所有装备/特性）`);
   },
   gotoSelect: () => {
     state.screen = "select";

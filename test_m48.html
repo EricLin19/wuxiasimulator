@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <title>调试测试 - 跳到M48最终Boss战</title>
+  <title>调试测试 - 选角+战前准备</title>
   <link rel="stylesheet" href="./styles.css">
   <style>
     .test-info { position:fixed; top:8px; right:8px; z-index:9999; background:rgba(0,0,0,.7); color:#ffd700; padding:8px 12px; font-size:12px; border-radius:4px; font-family:monospace; pointer-events:none; }
@@ -16,23 +16,21 @@
       <div id="floater-layer" class="floater-layer"></div>
     </div>
   </div>
-  <div class="test-info">TEST PAGE (no-cache) | 直接挑战M48徐迦笙 | 属性/装备/特性已满</div>
+  <div class="test-info">TEST PAGE | M48 | 自由选角+战前准备 | F5 刷新重置</div>
   <div id="build-ver" style="position:fixed;bottom:4px;right:8px;color:rgba(255,255,255,.55);font-size:13px;z-index:999;pointer-events:none;font-family:monospace">TEST</div>
   <script type="module">
-    // 进入页面立即注入测试模式标记
     window.__TEST_MODE__ = true;
-    // 屏蔽 localStorage 中的旧存档（避免读到旧 run 干扰测试）
+    // 清空存档，但保留 meta
     try { localStorage.removeItem("wuxia_save"); } catch (e) {}
-    try { localStorage.removeItem("wuxia_meta"); } catch (e) {}
     try { localStorage.removeItem("wuxia_monthStartSnapshot"); } catch (e) {}
   </script>
   <script type="module" src="./src/main.js"></script>
   <script type="module">
-    // 等 main.js 加载完后自动触发测试模式
+    // 加载完后：把 main.js 的 actions 暴露给 window（需 main.js 配合导出）
     import("./src/main.js").then(() => {
       setTimeout(() => {
-        const btn = document.querySelector('[data-act="test"]');
-        if (btn) btn.click();
+        // 通过事件总线触发测试初始化
+        window.dispatchEvent(new CustomEvent("__test_init__", { detail: { mode: "m48" } }));
       }, 200);
     });
   </script>
