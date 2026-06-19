@@ -493,9 +493,9 @@ const actions = {
     showToast(`测试模式：${DATA.storylines?.[storylineId]?.name || storylineId} M48 站前准备`);
   },
   enterTestModeSelect: () => {
-    // 弹窗：选择支线
-    const root = el("div", "modal-overlay");
-    const panel = el("div", "modal-panel");
+    // 弹窗：选择支线（复用 .modal-backdrop + .modal 样式）
+    const root = el("div", "modal-backdrop");
+    const panel = el("div", "modal");
     panel.innerHTML = `
       <h3>选择测试支线</h3>
       <div class="test-storyline-list" style="display:flex;gap:12px;margin:16px 0">
@@ -520,7 +520,6 @@ const actions = {
       };
     });
     panel.querySelector("[data-close]").onclick = () => document.body.removeChild(root);
-    // 立即打印日志确认入口被调用
     console.log("[TEST] 支线选择弹窗已显示", panel);
   },
   gotoSelect: () => {
