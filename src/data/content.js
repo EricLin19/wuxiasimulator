@@ -57,11 +57,11 @@ function skill(id, name, school, rarity, power, qi, cd, train, debuff, debuffSta
   return { id, name, icon: icon || SCHOOLS[school].icon, school, rarity, power, qi, cd, train, debuff, debuffStacks, tags, statGain, trait, desc: trait.desc, battle: school !== "lightness", ...extra };
 }
 
-function qinggong(id, name, rarity, train, statGain, trait, trueDamage) {
+function qinggong(id, name, rarity, train, statGain, trait, trueDamage, style) {
   const power = rarity === "red" ? 170 : rarity === "orange" ? 110 : 62;
   const qi = rarity === "red" ? 125 : rarity === "orange" ? 78 : 42;
   const cd = rarity === "red" ? 3 : rarity === "orange" ? 2 : 1;
-  return { id, name, icon: SCHOOLS.lightness.icon, school: "lightness", rarity, power, qi, cd, train, debuff: null, debuffStacks: 0, tags: ["leg"], statGain, trait, desc: trait.desc, battle: true, trueDamage: trueDamage || 0 };
+  return { id, name, icon: SCHOOLS.lightness.icon, school: "lightness", rarity, power, qi, cd, train, debuff: null, debuffStacks: 0, tags: ["leg"], statGain, trait, desc: trait.desc, battle: true, trueDamage: trueDamage || 0, style: style || undefined };
 }
 
 export const DATA = {
@@ -125,17 +125,17 @@ export const DATA = {
 
     // === 腿法 ===
     // 高闪避路线: light_blue_1(基础) -> light_orange_1(进阶) -> light_red_1(终极)
-    light_blue_1: qinggong("light_blue_1", "燕回腿", "blue", 3, gain(0, 0, 3, 0, 0.08), { id: "grassStep", name: "踏草无痕", desc: "闪避+3，出手速度+0.08。", effects: { dodge: 3, speed: 0.08 } }),
-    light_orange_1: qinggong("light_orange_1", "游龙腿", "orange", 4, gain(0, 1, 7, 0, 0.12), { id: "manySteps", name: "百变身法", desc: "命中+1，闪避+7，出手速度+0.12。", effects: { hit: 1, dodge: 7, speed: 0.12 } }),
-    light_red_1: qinggong("light_red_1", "凌波腿", "red", 5, gain(0, 2, 12, 0, 0.18), { id: "lingbo", name: "步生波纹", desc: "命中+2，闪避+12，出手速度+0.18。", effects: { hit: 2, dodge: 12, speed: 0.18 } }),
+    light_blue_1: qinggong("light_blue_1", "燕回腿", "blue", 3, gain(0, 0, 3, 0, 0.08), { id: "grassStep", name: "踏草无痕", desc: "闪避+3，出手速度+0.08。", effects: { dodge: 3, speed: 0.08 } }, 0, null),
+    light_orange_1: qinggong("light_orange_1", "游龙腿", "orange", 4, gain(0, 1, 7, 0, 0.12), { id: "manySteps", name: "百变身法", desc: "命中+1，闪避+7，出手速度+0.12。", effects: { hit: 1, dodge: 7, speed: 0.12 } }, 0, null),
+    light_red_1: qinggong("light_red_1", "凌波腿", "red", 5, gain(0, 2, 12, 0, 0.18), { id: "lingbo", name: "步生波纹", desc: "命中+2，闪避+12，出手速度+0.18。", effects: { hit: 2, dodge: 12, speed: 0.18 } }, 0, null),
     // 下盘路线: light_blue_2(基础) -> light_orange_2(进阶) -> light_red_2(终极)
-    light_blue_2: qinggong("light_blue_2", "扫堂腿", "blue", 3, gain(0, 0, 4, 0, 0.06), { id: "swallowStep", name: "燕影回环", desc: "闪避+4，出手速度+0.06，真伤+200，命中时+1失衡。", effects: { dodge: 4, speed: 0.06, imbalanceBonus: 1 } }, 200),
-    light_orange_2: qinggong("light_orange_2", "盘龙腿", "orange", 4, gain(0, 0, 8, 0, 0.12), { id: "cloudLadder", name: "盘根折势", desc: "闪避+8，出手速度+0.12，真伤+500，命中时+3失衡。", effects: { dodge: 8, speed: 0.12, imbalanceBonus: 3 } }, 500),
-    light_red_2: qinggong("light_red_2", "碎岳沉桩腿", "red", 5, gain(0, 4, 3, 4, 0.20), { id: "mountainKick", name: "碎岳真劲", desc: "命中+4，闪避+3，暴击+4，出手速度+0.20，真伤+1000，命中时+5失衡。", effects: { hit: 4, dodge: 3, crit: 4, speed: 0.20, imbalanceBonus: 5 } }, 1000),
+    light_blue_2: qinggong("light_blue_2", "扫堂腿", "blue", 3, gain(0, 0, 4, 0, 0.06), { id: "swallowStep", name: "燕影回环", desc: "闪避+4，出手速度+0.06，真伤+200，命中时+1失衡。", effects: { dodge: 4, speed: 0.06, imbalanceBonus: 1 } }, 200, "lowKick"),
+    light_orange_2: qinggong("light_orange_2", "盘龙腿", "orange", 4, gain(0, 0, 8, 0, 0.12), { id: "cloudLadder", name: "盘根折势", desc: "闪避+8，出手速度+0.12，真伤+500，命中时+3失衡。", effects: { dodge: 8, speed: 0.12, imbalanceBonus: 3 } }, 500, "lowKick"),
+    light_red_2: qinggong("light_red_2", "碎岳沉桩腿", "red", 5, gain(0, 4, 3, 4, 0.20), { id: "mountainKick", name: "碎岳真劲", desc: "命中+4，闪避+3，暴击+4，出手速度+0.20，真伤+1000，命中时+5失衡。", effects: { hit: 4, dodge: 3, crit: 4, speed: 0.20, imbalanceBonus: 5 } }, 1000, "lowKick"),
     // 偷盗路线: light_blue_3(基础) -> light_orange_3(进阶) -> light_red_3(终极)
-    light_blue_3: qinggong("light_blue_3", "探囊腿", "blue", 3, gain(0, 1, 2, 0, 0.08), { id: "eightSteps", name: "步步抢先", desc: "命中+1，闪避+2，出手速度+0.08。", effects: { hit: 1, dodge: 2, speed: 0.08 } }),
-    light_orange_3: qinggong("light_orange_3", "飞檐探云腿", "orange", 4, gain(0, 2, 4, 2, 0.16), { id: "cloudThief", name: "探云取利", desc: "命中+2，闪避+4，暴击+2，出手速度+0.16。", effects: { hit: 2, dodge: 4, crit: 2, speed: 0.16 } }),
-    light_red_3: qinggong("light_red_3", "摘星无影腿", "red", 5, gain(0, 3, 8, 3, 0.22), { id: "starThief", name: "摘星掠影", desc: "命中+3，闪避+8，暴击+3，出手速度+0.22。", effects: { hit: 3, dodge: 8, crit: 3, speed: 0.22 } }),
+    light_blue_3: qinggong("light_blue_3", "探囊腿", "blue", 3, gain(0, 1, 2, 0, 0.08), { id: "eightSteps", name: "步步抢先", desc: "命中+1，闪避+2，出手速度+0.08。", effects: { hit: 1, dodge: 2, speed: 0.08 } }, 0, "steal"),
+    light_orange_3: qinggong("light_orange_3", "飞檐探云腿", "orange", 4, gain(0, 2, 4, 2, 0.16), { id: "cloudThief", name: "探云取利", desc: "命中+2，闪避+4，暴击+2，出手速度+0.16。", effects: { hit: 2, dodge: 4, crit: 2, speed: 0.16 } }, 0, "steal"),
+    light_red_3: qinggong("light_red_3", "摘星无影腿", "red", 5, gain(0, 3, 8, 3, 0.22), { id: "starThief", name: "摘星掠影", desc: "命中+3，闪避+8，暴击+3，出手速度+0.22。", effects: { hit: 3, dodge: 8, crit: 3, speed: 0.22 } }, 0, "steal"),
     // === 攻击型秘籍（自用Buff，修炼后可在战斗中使用）===
     manual_speed: {
       id: "manual_speed", name: "唯快不破", icon: "速",
