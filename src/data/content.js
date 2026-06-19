@@ -247,9 +247,9 @@ export const DATA = {
     leg_evasive_orange: { id: "leg_evasive_orange", name: "游龙靴", icon: "腿", school: "lightness", rarity: "orange", style: "evasive", price: 520, atk: 24, desc: "高闪避腿法。闪避+8，闪避回息提高。", dodgeBonus: 8, evasiveBoost: 1 },
     leg_evasive_red: { id: "leg_evasive_red", name: "踏浪战靴", icon: "腿", school: "lightness", rarity: "red", style: "evasive", price: 980, atk: 50, desc: "高闪避腿法。闪避+14，闪避收益每回合上限+1。", dodgeBonus: 14, evasiveCapBonus: 1 },
 
-    leg_low_blue: { id: "leg_low_blue", name: "破门靴", icon: "腿", school: "lightness", rarity: "blue", style: "lowKick", price: 550, atk: 10, desc: "下盘腿法。真伤+100，失衡+1。", trueDamageBonus: 100, imbalanceBonus: 1 },
+    leg_low_blue: { id: "leg_low_blue", name: "破门靴", icon: "腿", school: "lightness", rarity: "blue", style: "lowKick", price: 500, atk: 10, desc: "下盘腿法。真伤+100，失衡+1。", trueDamageBonus: 100, imbalanceBonus: 1 },
     leg_low_orange: { id: "leg_low_orange", name: "压山靴", icon: "腿", school: "lightness", rarity: "orange", style: "lowKick", price: 1500, atk: 24, desc: "下盘腿法。真伤+200，失衡+3，失衡上限+3。", trueDamageBonus: 200, imbalanceBonus: 3, imbalanceCapBonus: 3 },
-    leg_low_red: { id: "leg_low_red", name: "断岳沉步靴", icon: "腿", school: "lightness", rarity: "red", style: "lowKick", price: 4200, atk: 50, desc: "下盘腿法。真伤+500，失衡+5，失衡上限+10。", trueDamageBonus: 500, imbalanceBonus: 5, imbalanceCapBonus: 10 },
+    leg_low_red: { id: "leg_low_red", name: "断岳沉步靴", icon: "腿", school: "lightness", rarity: "red", style: "lowKick", price: 4500, atk: 50, desc: "下盘腿法。真伤+500，失衡+5，失衡上限+10。", trueDamageBonus: 500, imbalanceBonus: 5, imbalanceCapBonus: 10 },
 
     leg_steal_blue: { id: "leg_steal_blue", name: "盗影靴", icon: "腿", school: "lightness", rarity: "blue", style: "steal", price: 260, atk: 10, desc: "偷盗腿法。速度+0.04，偷钱+10。", speedBonus: 0.04, moneyBonus: 10 },
     leg_steal_orange: { id: "leg_steal_orange", name: "飞檐靴", icon: "腿", school: "lightness", rarity: "orange", style: "steal", price: 520, atk: 24, desc: "偷盗腿法。速度+0.08，偷钱+35。", speedBonus: 0.08, moneyBonus: 35 },
@@ -1132,9 +1132,9 @@ DATA.wandererMerchantPool = {
     { id: "hidden_poison_blue", name: "淬毒针匣", school: "hidden", rarity: "blue", price: 500 },
     { id: "hidden_poison_orange", name: "淬毒银针", school: "hidden", rarity: "orange", price: 1400 },
     { id: "hidden_poison_red", name: "孔雀毒匣", school: "hidden", rarity: "red", price: 4300 },
-    { id: "leg_low_blue", name: "破门靴", school: "lightness", rarity: "blue", price: 400 },
-    { id: "leg_low_orange", name: "压山靴", school: "lightness", rarity: "orange", price: 1000 },
-    { id: "leg_low_red", name: "断岳沉步靴", school: "lightness", rarity: "red", price: 2000 }
+    { id: "leg_low_blue", name: "破门靴", school: "lightness", rarity: "blue", price: 500 },
+    { id: "leg_low_orange", name: "压山靴", school: "lightness", rarity: "orange", price: 1500 },
+    { id: "leg_low_red", name: "断岳沉步靴", school: "lightness", rarity: "red", price: 4500 }
   ],
   armors: [
     { id: "armor_heavy_blue", name: "硬布背心", rarity: "blue", price: 600, desc: "散人的标准防具——粗布层层叠叠缝制，不美观但是实在。" },
