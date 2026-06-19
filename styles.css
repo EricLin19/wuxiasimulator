@@ -275,6 +275,7 @@ body.mobile-viewport .damage-pop.crit   { font-size: 54px; }
 body.mobile-viewport .damage-pop.bleed  { font-size: 54px; }
 body.mobile-viewport .damage-pop.poison { font-size: 54px; }
 body.mobile-viewport .damage-pop.combo   { font-size: 28px; }
+body.mobile-viewport .damage-pop.imbalance { font-size: 28px; }
 body.mobile-viewport .combat-floater    { font-size: 28px; }
 body.mobile-viewport .damage-pop.player,
 body.mobile-viewport .combat-floater.player { left: calc(-82px + var(--ox, 0px)); }
@@ -1593,6 +1594,7 @@ button {
 .damage-pop.heal    { color: #16a34a; text-shadow: 0 3px 0 rgba(200,255,210,.6); }
 .damage-pop.reflect { color: #d97706; text-shadow: 0 3px 0 rgba(255,230,180,.6); }
 .damage-pop.combo   { color: #f39c12; font-size: 34px; text-shadow: 0 3px 0 rgba(255,200,100,.6); }
+.damage-pop.imbalance { color: #8e44ad; font-size: 34px; text-shadow: 0 2px 0 rgba(230,200,255,.6); }
 
 .battle-bottom {
   position: absolute;

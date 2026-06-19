@@ -416,7 +416,18 @@ for (const [id, [style, tier, name, desc]] of Object.entries(SKILL_STYLES)) {
   DATA.skills[id].name = name;
   DATA.skills[id].desc = `【${SKILL_TIER_LABELS[tier]}】${desc}`;
   DATA.skills[id].styleName = STYLE_LABELS[style];
-  DATA.skills[id].trait = STYLE_TRAITS[style];
+  // 保留招式自身的 trait.effects（如 imbalanceBonus、poisonBonus 等），同时用路线特性覆盖名称/描述用于展示
+  const originalTrait = DATA.skills[id].trait;
+  const styleTrait = STYLE_TRAITS[style];
+  if (styleTrait && originalTrait) {
+    DATA.skills[id].trait = {
+      ...originalTrait,
+      ...styleTrait,
+      effects: { ...(styleTrait.effects || {}), ...(originalTrait.effects || {}) }
+    };
+  } else {
+    DATA.skills[id].trait = styleTrait || originalTrait;
+  }
   DATA.skills[id].debuff = {
     qiBreak: "inner",
     bleed: "bleed",
