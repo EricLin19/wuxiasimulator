@@ -1343,10 +1343,10 @@ function effectiveDef(unit) {
   if (!unit || !unit.stats) { console.error("[effectiveDef] unit or unit.stats is undefined"); return 0; }
   // 破防引爆期间：DEF 直接归零
   if (unit.breakDefenseShatter > 0) return 0;
-  // 破防层数累乘：每层 -2% DEF（即保留 0.98）
+  // 破防层数累乘：每层 -3% DEF（即保留 0.97）
   const base = unit.defBase > 0 ? unit.defBase : unit.stats.def;
   const n = unit.breakDefense || 0;
-  const defMul = Math.pow(0.98, n);
+  const defMul = Math.pow(0.97, n);
   let def = (base - unit.poison * 2) * defMul;
   return Math.max(0, Math.floor(def));
 }
@@ -1397,7 +1397,7 @@ function critMultiplier(run, skill, actor = null) {
   for (const trait of run.skillTraits || []) value += trait.effects?.critPower || 0;
   const weapon = run.equippedWeapon ? DATA.weapons[run.equippedWeapon] : null;
   if (weapon && weapon.school === skill.school && weapon.style === skill.style) value += weapon.critPower || 0;
-  if (hasStyleMastery(run, skill.style) && skill.style === "critPalm") value += 0.5;  // v6.8：碎星连震 critPower+0.5
+  if (hasStyleMastery(run, skill.style) && skill.style === "critPalm") value += 1;  // v6.8：碎星连震 critPower+1
   if (skill.school === "blade") value += 0.1;
   // 临时Buff：暴击倍率加成
   if (actor?.tempBuffs?.crit) value += actor.tempBuffs.crit.critPowerAdd || 0;

@@ -116,9 +116,9 @@ export const DATA = {
     fist_orange_1: skill("fist_orange_1", "排云掌", "fist", "orange", 120, 90, 2, 4, "inner", 2, ["combo", "threeWaves"], gain(6, 1, 0, 3, 0), { id: "vajraPalm", name: "排云叠劲", desc: "连击+6，命中+1，暴击+3。", effects: { combo: 6, hit: 1, crit: 3 } }),
     fist_red_1: skill("fist_red_1", "惊涛掌", "fist", "red", 190, 145, 3, 5, "inner", 4, ["combo", "threeWaves"], gain(9, 2, 0, 5, 0), { id: "dragonPalm", name: "惊涛拍岸", desc: "连击+9，命中+2，暴击+5，暴击倍率提高。", effects: { combo: 9, hit: 2, crit: 5, critPower: 0.35 } }),
     // 暴击路线: fist_blue_3(基础) -> fist_orange_2(进阶) -> fist_red_2(终极)
-    fist_blue_3: skill("fist_blue_3", "太祖长拳", "fist", "blue", 58, 35, 1, 3, "breakDefense", 1, ["combo"], gain(0, 0, 0, 5, 0), { id: "founderFist", name: "拳路刚猛", desc: "暴击+5，命中+1破防。", effects: { crit: 5 } }),
-    fist_orange_2: skill("fist_orange_2", "黯魂掌", "fist", "orange", 105, 85, 2, 4, "breakDefense", 3, ["combo"], gain(0, 0, 0, 10, 0), { id: "sadPalm", name: "黯魂夺魄", desc: "暴击+10，暴击倍率+0.5，命中+3破防。", effects: { crit: 10, critPower: 0.5 } }),
-    fist_red_2: skill("fist_red_2", "碎星拳", "fist", "red", 178, 135, 3, 5, "breakDefense", 5, ["combo"], gain(0, 0, 0, 20, 0), { id: "starCrush", name: "碎星暴劲", desc: "暴击+20，暴击倍率+1.5，命中+5破防。", effects: { crit: 20, critPower: 1.5 } }),
+    fist_blue_3: skill("fist_blue_3", "太祖长拳", "fist", "blue", 58, 35, 1, 3, "breakDefense", 2, ["combo"], gain(0, 0, 0, 5, 0), { id: "founderFist", name: "拳路刚猛", desc: "暴击+5，命中+1破防。", effects: { crit: 5 } }),
+    fist_orange_2: skill("fist_orange_2", "黯魂掌", "fist", "orange", 105, 85, 2, 4, "breakDefense", 5, ["combo"], gain(0, 0, 0, 10, 0), { id: "sadPalm", name: "黯魂夺魄", desc: "暴击+10，暴击倍率+0.75，命中+3破防。", effects: { crit: 10, critPower: 0.75 } }),
+    fist_red_2: skill("fist_red_2", "碎星拳", "fist", "red", 178, 135, 3, 5, "breakDefense", 10, ["combo"], gain(0, 0, 0, 20, 0), { id: "starCrush", name: "碎星暴劲", desc: "暴击+20，暴击倍率+2.0，命中+5破防。", effects: { crit: 20, critPower: 2 } }),
     // 断脉路线: mixedFist(基础) -> fist_orange_3(进阶) -> fist_red_3(终极)
     fist_orange_3: skill("fist_orange_3", "截脉掌", "fist", "orange", 108, 82, 2, 4, "inner", 3, ["combo"], gain(5, 2, 0, 2, 0), { id: "cutMeridian", name: "截脉断息", desc: "连击+5，命中+2，暴击+2。", effects: { combo: 5, hit: 2, crit: 2 } }),
     fist_red_3: skill("fist_red_3", "断海掌", "fist", "red", 168, 130, 3, 5, "inner", 5, ["combo"], gain(8, 3, 0, 4, 0), { id: "seaBreak", name: "断海截息", desc: "连击+8，命中+3，暴击+4。", effects: { combo: 8, hit: 3, crit: 4 } }),
@@ -129,9 +129,9 @@ export const DATA = {
     light_orange_1: qinggong("light_orange_1", "游龙腿", "orange", 4, gain(0, 1, 7, 0, 0.12), { id: "manySteps", name: "百变身法", desc: "命中+1，闪避+7，出手速度+0.12。", effects: { hit: 1, dodge: 7, speed: 0.12 } }, 0, null),
     light_red_1: qinggong("light_red_1", "凌波腿", "red", 5, gain(0, 2, 12, 0, 0.18), { id: "lingbo", name: "步生波纹", desc: "命中+2，闪避+12，出手速度+0.18。", effects: { hit: 2, dodge: 12, speed: 0.18 } }, 0, null),
     // 下盘路线: light_blue_2(基础) -> light_orange_2(进阶) -> light_red_2(终极)
-    light_blue_2: qinggong("light_blue_2", "扫堂腿", "blue", 3, gain(0, 0, 4, 0, 0.06), { id: "swallowStep", name: "燕影回环", desc: "闪避+4，出手速度+0.06，真伤+200，命中时+1失衡。", effects: { dodge: 4, speed: 0.06, imbalanceBonus: 1 } }, 200, "lowKick"),
-    light_orange_2: qinggong("light_orange_2", "盘龙腿", "orange", 4, gain(0, 0, 8, 0, 0.12), { id: "cloudLadder", name: "盘根折势", desc: "闪避+8，出手速度+0.12，真伤+500，命中时+3失衡。", effects: { dodge: 8, speed: 0.12, imbalanceBonus: 3 } }, 500, "lowKick"),
-    light_red_2: qinggong("light_red_2", "碎岳沉桩腿", "red", 5, gain(0, 4, 3, 4, 0.20), { id: "mountainKick", name: "碎岳真劲", desc: "命中+4，闪避+3，暴击+4，出手速度+0.20，真伤+1000，命中时+5失衡。", effects: { hit: 4, dodge: 3, crit: 4, speed: 0.20, imbalanceBonus: 5 } }, 1000, "lowKick"),
+    light_blue_2: qinggong("light_blue_2", "扫堂腿", "blue", 3, gain(0, 0, 4, 0, 0.06), { id: "swallowStep", name: "燕影回环", desc: "闪避+4，出手速度+0.06，真伤+100，命中时+1失衡。", effects: { dodge: 4, speed: 0.06, imbalanceBonus: 1 } }, 100, "lowKick"),
+    light_orange_2: qinggong("light_orange_2", "盘龙腿", "orange", 4, gain(0, 0, 8, 0, 0.12), { id: "cloudLadder", name: "盘根折势", desc: "闪避+8，出手速度+0.12，真伤+200，命中时+3失衡。", effects: { dodge: 8, speed: 0.12, imbalanceBonus: 3 } }, 200, "lowKick"),
+    light_red_2: qinggong("light_red_2", "碎岳沉桩腿", "red", 5, gain(0, 4, 3, 4, 0.20), { id: "mountainKick", name: "碎岳真劲", desc: "命中+4，闪避+3，暴击+4，出手速度+0.20，真伤+500，命中时+5失衡。", effects: { hit: 4, dodge: 3, crit: 4, speed: 0.20, imbalanceBonus: 5 } }, 500, "lowKick"),
     // 偷盗路线: light_blue_3(基础) -> light_orange_3(进阶) -> light_red_3(终极)
     light_blue_3: qinggong("light_blue_3", "探囊腿", "blue", 3, gain(0, 1, 2, 0, 0.08), { id: "eightSteps", name: "步步抢先", desc: "命中+1，闪避+2，出手速度+0.08。", effects: { hit: 1, dodge: 2, speed: 0.08 } }, 0, "steal"),
     light_orange_3: qinggong("light_orange_3", "飞檐探云腿", "orange", 4, gain(0, 2, 4, 2, 0.16), { id: "cloudThief", name: "探云取利", desc: "命中+2，闪避+4，暴击+2，出手速度+0.16。", effects: { hit: 2, dodge: 4, crit: 2, speed: 0.16 } }, 0, "steal"),
@@ -221,9 +221,9 @@ export const DATA = {
     fist_combo_orange: { id: "fist_combo_orange", name: "拦江臂铠", icon: "腕", school: "fist", rarity: "orange", style: "combo", price: 520, atk: 28, desc: "连击掌。连击+12，连击后本回合伤害+8%。", comboBonus: 12, comboDmgPct: 8 },
     fist_combo_red: { id: "fist_combo_red", name: "惊浪拳套", icon: "拳", school: "fist", rarity: "red", style: "combo", price: 980, atk: 58, desc: "连击掌。连击+18，三叠浪额外出掌上限+1。", comboBonus: 18, palmChainBonus: 1 },
 
-    fist_crit_blue: { id: "fist_crit_blue", name: "炽星拳套", icon: "拳", school: "fist", rarity: "blue", style: "critPalm", price: 500, atk: 12, desc: "暴击掌。暴击+4，破防+1。", critBonus: 4, breakDefenseBonus: 1 },
-    fist_crit_orange: { id: "fist_crit_orange", name: "纯阳拳甲", icon: "拳", school: "fist", rarity: "orange", style: "critPalm", price: 1500, atk: 28, desc: "暴击掌。暴击+8，暴伤+0.5，破防+3，破防上限+3。", critBonus: 8, critPower: 0.5, breakDefenseBonus: 3, breakDefenseCapBonus: 3 },
-    fist_crit_red: { id: "fist_crit_red", name: "碎星拳套", icon: "拳", school: "fist", rarity: "red", style: "critPalm", price: 4200, atk: 58, desc: "暴击掌。暴击+16，暴伤+1，破防+5，破防上限+10。", critBonus: 16, critPower: 1, breakDefenseBonus: 5, breakDefenseCapBonus: 10 },
+    fist_crit_blue: { id: "fist_crit_blue", name: "炽星拳套", icon: "拳", school: "fist", rarity: "blue", style: "critPalm", price: 500, atk: 12, desc: "暴击掌。暴击+4，破防+2。", critBonus: 4, breakDefenseBonus: 2 },
+    fist_crit_orange: { id: "fist_crit_orange", name: "纯阳拳甲", icon: "拳", school: "fist", rarity: "orange", style: "critPalm", price: 1500, atk: 28, desc: "暴击掌。暴击+8，暴伤+0.75，破防+5，破防上限+3。", critBonus: 8, critPower: 0.75, breakDefenseBonus: 5, breakDefenseCapBonus: 3 },
+    fist_crit_red: { id: "fist_crit_red", name: "碎星拳套", icon: "拳", school: "fist", rarity: "red", style: "critPalm", price: 4200, atk: 58, desc: "暴击掌。暴击+16，暴伤+2，破防+10，破防上限+10。", critBonus: 16, critPower: 2, breakDefenseBonus: 10, breakDefenseCapBonus: 10 },
 
     fist_qibreak_blue: { id: "fist_qibreak_blue", name: "破劲拳套", icon: "拳", school: "fist", rarity: "blue", style: "qiBreak", price: 260, atk: 12, desc: "断脉掌。削内+8。", qiBreakBonus: 8 },
     fist_qibreak_orange: { id: "fist_qibreak_orange", name: "截脉臂甲", icon: "腕", school: "fist", rarity: "orange", style: "qiBreak", price: 520, atk: 28, desc: "断脉掌。削内+18。", qiBreakBonus: 18 },
@@ -248,8 +248,8 @@ export const DATA = {
     leg_evasive_red: { id: "leg_evasive_red", name: "踏浪战靴", icon: "腿", school: "lightness", rarity: "red", style: "evasive", price: 980, atk: 50, desc: "高闪避腿法。闪避+14，闪避收益每回合上限+1。", dodgeBonus: 14, evasiveCapBonus: 1 },
 
     leg_low_blue: { id: "leg_low_blue", name: "破门靴", icon: "腿", school: "lightness", rarity: "blue", style: "lowKick", price: 550, atk: 10, desc: "下盘腿法。真伤+100，失衡+1。", trueDamageBonus: 100, imbalanceBonus: 1 },
-    leg_low_orange: { id: "leg_low_orange", name: "压山靴", icon: "腿", school: "lightness", rarity: "orange", style: "lowKick", price: 1500, atk: 24, desc: "下盘腿法。真伤+300，失衡+3，失衡上限+3。", trueDamageBonus: 300, imbalanceBonus: 3, imbalanceCapBonus: 3 },
-    leg_low_red: { id: "leg_low_red", name: "断岳沉步靴", icon: "腿", school: "lightness", rarity: "red", style: "lowKick", price: 4200, atk: 50, desc: "下盘腿法。真伤+700，失衡+5，失衡上限+10。", trueDamageBonus: 700, imbalanceBonus: 5, imbalanceCapBonus: 10 },
+    leg_low_orange: { id: "leg_low_orange", name: "压山靴", icon: "腿", school: "lightness", rarity: "orange", style: "lowKick", price: 1500, atk: 24, desc: "下盘腿法。真伤+200，失衡+3，失衡上限+3。", trueDamageBonus: 200, imbalanceBonus: 3, imbalanceCapBonus: 3 },
+    leg_low_red: { id: "leg_low_red", name: "断岳沉步靴", icon: "腿", school: "lightness", rarity: "red", style: "lowKick", price: 4200, atk: 50, desc: "下盘腿法。真伤+500，失衡+5，失衡上限+10。", trueDamageBonus: 500, imbalanceBonus: 5, imbalanceCapBonus: 10 },
 
     leg_steal_blue: { id: "leg_steal_blue", name: "盗影靴", icon: "腿", school: "lightness", rarity: "blue", style: "steal", price: 260, atk: 10, desc: "偷盗腿法。速度+0.04，偷钱+10。", speedBonus: 0.04, moneyBonus: 10 },
     leg_steal_orange: { id: "leg_steal_orange", name: "飞檐靴", icon: "腿", school: "lightness", rarity: "orange", style: "steal", price: 520, atk: 24, desc: "偷盗腿法。速度+0.08，偷钱+35。", speedBonus: 0.08, moneyBonus: 35 },
@@ -356,7 +356,7 @@ const SKILL_TIER_LABELS = {
 
 export const STYLE_TRAITS = {
   combo: { id: "comboMastery", name: "长江三叠浪", desc: "连击掌触发连击时，其他连击掌冷却-1；若有掌法就绪，可立即继续出掌。每己方回合最多额外出掌2次。" },
-  critPalm: { id: "critPalmMastery", name: "碎星连震", desc: "暴击拳掌暴击+10，暴伤+0.5，破防上限+7。暴击率无上限。" },
+  critPalm: { id: "critPalmMastery", name: "碎星连震", desc: "暴击拳掌暴击+10，暴伤+1，破防上限+7。暴击率无上限。" },
   qiBreak: { id: "qiBreakMastery", name: "断脉归元", desc: "断脉拳掌削内力提高，目标内力归零时额外受伤。每己方回合最多削目标最大内力25%。" },
   bleed: { id: "bleedBladeMastery", name: "百创刀势", desc: "流血刀造成流血时额外+1层，流血上限+7。流不暴击。" },
   frost: { id: "frostBladeMastery", name: "玄冥寒河", desc: "寒冰刀附加更多寒气，并进一步削减内力。速度最低降至60%。" },
