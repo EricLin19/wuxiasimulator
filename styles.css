@@ -885,11 +885,44 @@ button {
 
 /* wanderer 模式下主线画布轻量化 */
 .wanderer-run-layout .story-canvas {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 260px;
+  align-items: stretch;
   background: transparent;
   border: 2px solid rgba(108, 63, 54, 0.25);
   box-shadow: none;
   padding: 8px 12px;
   border-radius: 0;
+}
+
+.story-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.story-art {
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+  border: 4px solid rgba(108, 63, 54, 0.35);
+  background: rgba(255, 243, 221, 0.55);
+  box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.35);
+}
+
+.story-art img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  image-rendering: pixelated;
+}
+
+.wanderer-run-layout .story-canvas:not(.has-story-art) {
+  grid-template-columns: minmax(0, 1fr);
 }
 
 .wanderer-run-layout .story-no-event {
@@ -993,16 +1026,16 @@ button {
 
 .wanderer-command-deck {
   display: grid;
-  grid-template-columns: 240px minmax(0, 1fr);
+  grid-template-columns: 192px minmax(0, 1fr);
   gap: 14px;
-  align-items: end;
+  align-items: start;
   min-height: 0;
   min-width: 0;
 }
 
 .portrait-command.action-card {
-  width: 240px;
-  height: 256px;
+  width: 192px;
+  height: 205px;
   min-width: 0;
   min-height: 0;
   padding: 0;
@@ -1027,7 +1060,8 @@ button {
   grid-template-rows: auto auto;
   gap: 8px;
   min-width: 0;
-  align-self: end;
+  align-self: start;
+  align-content: start;
 }
 
 .wanderer-run-layout .story-bars {
@@ -1046,8 +1080,8 @@ button {
 
 .wanderer-run-layout .bottom-actions .action-card {
   min-width: 0;
-  min-height: 58px;
-  font-size: 18px;
+  min-height: 136px;
+  font-size: 20px;
   padding: 6px;
   border-width: 5px;
   box-shadow: 0 5px 0 var(--shadow), inset 0 1px 0 rgba(255, 255, 255, 0.45);
@@ -1927,24 +1961,35 @@ body.mobile-viewport .wanderer-run-layout .story-month-title {
   letter-spacing: 1px;
   padding-bottom: 4px;
 }
+body.mobile-viewport .wanderer-run-layout .story-canvas {
+  grid-template-columns: minmax(0, 1fr) 170px;
+  gap: 7px;
+}
 body.mobile-viewport .wanderer-run-layout .story-body {
   font-size: 18px;
   line-height: 1.55;
   padding: 4px 2px;
 }
+body.mobile-viewport .story-copy {
+  gap: 7px;
+}
+body.mobile-viewport .story-art {
+  border-width: 3px;
+}
 body.mobile-viewport .wanderer-command-deck {
-  grid-template-columns: 172px minmax(0, 1fr);
+  grid-template-columns: 138px minmax(0, 1fr);
   gap: 8px;
-  align-items: end;
+  align-items: start;
 }
 body.mobile-viewport .portrait-command.action-card {
-  width: 172px;
-  height: 192px;
+  width: 138px;
+  height: 152px;
   border-width: 3px;
 }
 body.mobile-viewport .command-main {
   gap: 5px;
-  align-self: end;
+  align-self: start;
+  align-content: start;
 }
 body.mobile-viewport .wanderer-run-layout .story-bars {
   gap: 3px;
@@ -1955,8 +2000,8 @@ body.mobile-viewport .wanderer-run-layout .bottom-actions {
   gap: 5px;
 }
 body.mobile-viewport .wanderer-run-layout .bottom-actions .action-card {
-  min-height: 43px;
-  font-size: 14px;
+  min-height: 88px;
+  font-size: 15px;
   padding: 4px 2px;
   border-width: 3px;
   box-shadow: 0 3px 0 var(--shadow), inset 0 1px 0 rgba(255, 255, 255, 0.45);

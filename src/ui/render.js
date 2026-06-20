@@ -317,6 +317,17 @@ function renderRun(state, actions) {
   return root;
 }
 
+function storyArtwork(run, story) {
+  if (story?.image || story?.storyImage || story?.portraitImage) {
+    return story.image || story.storyImage || story.portraitImage;
+  }
+  if (story?.enemyId) {
+    const enemy = DATA.enemies?.find(e => e.id === story.enemyId);
+    if (enemy?.portraitImage) return enemy.portraitImage;
+  }
+  return run.character?.portraitImage || "";
+}
+
 function renderWandererRun(state, actions) {
   const run = state.run;
   const story = run.currentStory;
@@ -327,9 +338,15 @@ function renderWandererRun(state, actions) {
   const center = el("div", "center-stage");
   const storyCanvas = el("div", "story-canvas");
   if (story) {
+    const art = storyArtwork(run, story);
+    storyCanvas.classList.toggle("has-story-art", !!art);
     storyCanvas.innerHTML = `
-      ${story.title ? `<div class="story-month-title">${escapeHtml(story.title)}</div>` : ""}
-      <div class="story-body">${escapeHtml(story.text || "")}</div>`;
+      <div class="story-copy">
+        ${story.title ? `<div class="story-month-title">${escapeHtml(story.title)}</div>` : ""}
+        <div class="story-body">${escapeHtml(story.text || "")}</div>
+      </div>
+      ${art ? `<div class="story-art"><img src="${escapeHtml(art)}" alt="${escapeHtml(story.title || "剧情图")}" loading="lazy" decoding="async"></div>` : ""}`;
+    const storyCopy = storyCanvas.querySelector(".story-copy") || storyCanvas;
 
     // 最终Boss：只显示战斗按钮（结局在战后 run.storyEndings 中展示）
     if (story.isFinalBoss && story.fightLabel) {
@@ -337,7 +354,7 @@ function renderWandererRun(state, actions) {
       choicesDiv.innerHTML = `
         <button class="btn red fight-btn" data-story-choice="fight" style="font-size:18px;padding:16px;width:100%">${story.fightLabel}</button>`;
       choicesDiv.querySelector("[data-story-choice=fight]").onclick = () => actions.chooseStoryEvent(story.id || story.month, "fight");
-      storyCanvas.appendChild(choicesDiv);
+      storyCopy.appendChild(choicesDiv);
     }
     // 普通战斗月（偶数月）：抗争按钮 + 跳过
     else if (story.fightLabel) {
@@ -347,12 +364,15 @@ function renderWandererRun(state, actions) {
         <div class="skip-link" data-story-choice="skip" style="text-align:center;margin-top:12px;color:#777;cursor:pointer;font-size:13px;text-decoration:underline">跳过本月 →</div>`;
       choicesDiv.querySelector("[data-story-choice=fight]").onclick = () => actions.chooseStoryEvent(story.id || story.month, "fight");
       choicesDiv.querySelector("[data-story-choice=skip]").onclick = () => actions.chooseStoryEvent(story.id || story.month, "skip");
-      storyCanvas.appendChild(choicesDiv);
+      storyCopy.appendChild(choicesDiv);
     }
     // 纯结局展示（非战斗故事的结局）
   } else if (run.storyEndings) {
     // M36 战后结局选择（从 battle 结算回来）
-    storyCanvas.innerHTML = `<div class="story-month-title">太行之巅</div><div class="story-body">太行之巅，风云变色。楚宗玄倒下后，武盟群龙无首——天下散人的命运，握在你手中。</div>`;
+    const art = run.character?.portraitImage || "";
+    storyCanvas.classList.toggle("has-story-art", !!art);
+    storyCanvas.innerHTML = `<div class="story-copy"><div class="story-month-title">太行之巅</div><div class="story-body">太行之巅，风云变色。楚宗玄倒下后，武盟群龙无首——天下散人的命运，握在你手中。</div></div>${art ? `<div class="story-art"><img src="${escapeHtml(art)}" alt="太行之巅" loading="lazy" decoding="async"></div>` : ""}`;
+    const storyCopy = storyCanvas.querySelector(".story-copy") || storyCanvas;
     const endingsDiv = el("div", "story-choices");
     endingsDiv.innerHTML = run.storyEndings.map(e => {
       const condNote = e.condition ? `<span style="font-size:10px;color:#999;display:block">条件：${e.condition}</span>` : "";
@@ -361,7 +381,7 @@ function renderWandererRun(state, actions) {
     endingsDiv.querySelectorAll("[data-ending-id]").forEach(btn => {
       btn.onclick = () => actions.chooseStoryEvent("m36_endings", "ending", btn.getAttribute("data-ending-id"));
     });
-    storyCanvas.appendChild(endingsDiv);
+    storyCopy.appendChild(endingsDiv);
   } else {
     storyCanvas.innerHTML = `<div class="story-no-event">江湖风平浪静，且待下回分晓……</div>`;
   }
