@@ -31,6 +31,8 @@ import {
   applyMonthStart,
   refreshEvents,
   getMonthSnapshot,
+  saveMonthSnapshot,
+  loadRouteStory,
   getRouteResolve,
   getRouteResolveLabel
 } from "./systems/runSystem.js";
@@ -389,7 +391,7 @@ function resolveBattleResult(result) {
       else state.modal = null;
     }
   } else {
-    // === 故事战斗失败 → Boss战结果页面（读 onLose 配置）===
+    // === Boss战失败 → Boss战结果页面（读 onLose 配置；非剧情Boss也可回到月初）===
     if (storyBattle) {
       const onLose = storyBattle.onLose || "normal";
       state.bossResult = {
@@ -397,6 +399,13 @@ function resolveBattleResult(result) {
         type: "lose",
         bossName: battle.enemy.name,
         month: storyBattle.month
+      };
+    } else if (battle.isBoss) {
+      state.bossResult = {
+        mode: "normal",
+        type: "lose",
+        bossName: battle.enemy.name,
+        month: (state.run.year - 1) * 12 + state.run.month
       };
     } else {
       settleRun(state, "lose", `你败给了${battle.enemy.name}。`);
@@ -708,8 +717,14 @@ const actions = {
         state.run.skillTraits ||= [];
         state.run.routeResolve = state.run.routeResolve ?? state.run.wandererResolve ?? 0;
         state.run.mainThreat = state.run.mainThreat || 0;
+        state.run.storyBattle = null;
+        state.run.storyEndings = null;
+        state.run.storyBattleResult = null;
+        loadRouteStory(state.run);
+        saveMonthSnapshot(state.run);
         state.screen = "run";
         state.bossResult = null;
+        saveRun(state.run);
         render();
       }
       return;
@@ -726,6 +741,7 @@ const actions = {
       run.qi = Math.min(run.stats.qi, run.qi + 50);
       applyMonthStart(run);
       refreshEvents(run);
+      saveMonthSnapshot(run);
       log(run, action === "continue"
         ? `击败${br.bossName}！继续前行——进入第${run.year}年${run.month}月。`
         : `败给${br.bossName}。重整旗鼓——进入第${run.year}年${run.month}月。`);

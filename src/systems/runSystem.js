@@ -127,6 +127,7 @@ export function createRun(characterId, treasureId, meta, perRunAllocations) {
   applyMonthStart(run);
   refreshEvents(run);
   reconcileStyleMasteries(run);
+  saveMonthSnapshot(run);
   log(run, `第${run.year}年${run.month}月，${character.name}携带${treasure.name}踏入江湖。`);
   saveRun(run);
   return run;
@@ -142,7 +143,6 @@ export function log(run, text) {
 }
 
 export function applyMonthStart(run) {
-  saveMonthSnapshot(run);
   run.ap = run.maxAp;
   run.apUsedThisMonth = false;
   if (run.traits.includes("clearMind")) run.ap += 1;
@@ -1074,6 +1074,7 @@ export function resolveStoryChoice(run, eventId, choice, actions) {
       run.eventRemaining = 3;
       applyMonthStart(run);
       refreshEvents(run);
+      saveMonthSnapshot(run);
       saveRun(run);
       return true;
     }
@@ -1239,6 +1240,7 @@ export function endMonth(run, startBoss) {
   run.eventRemaining = 3;
   applyMonthStart(run);
   refreshEvents(run);
+  saveMonthSnapshot(run);
   log(run, `进入第${run.year}年${run.month}月。`);
   saveRun(run);
 }

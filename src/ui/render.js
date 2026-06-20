@@ -684,7 +684,7 @@ function renderCharacterModal(modal, run, actions, close) {
   run.activeSkills ||= run.skills.filter(id => DATA.skills[id]?.battle !== false).slice(0, 4);
   const traitNames = [
     ...run.traits.map(id => {
-      const t = DATA.traits.find(x => x.id === id);
+      const t = findTrait(id, run);
       return traitChip(t?.name || id, t?.desc || "");
     }),
     ...(run.skillTraits || []).map(t => traitChip(t.name, t.desc || ""))
@@ -896,7 +896,7 @@ function fighterPanel(run, unit, battle = null) {
   const isPlayer = !!run;
   // 主角特性+内功
   const traitHtml = isPlayer ? (run.traits || []).map(tid => {
-    const t = DATA.traits.find(x => x.id === tid);
+    const t = findTrait(tid, run);
     return t ? `<span class="buff-badge" title="${escapeHtml(t.desc || "")}">${t.name}</span>` : "";
   }).filter(Boolean).join("") : "";
   const artHtml = isPlayer ? (run.activeInternalArts || []).map(aid => {
@@ -968,7 +968,7 @@ function buildUnitDetailPopup(unit, side, state, actions) {
 
   // 特性
   if (isPlayer && state.run.traits) {
-    const traitArr = state.run.traits.map(tid => DATA.traits.find(t => t.id === tid)).filter(Boolean);
+    const traitArr = state.run.traits.map(tid => findTrait(tid, state.run)).filter(Boolean);
     if (traitArr.length) {
       const row = el("div", "detail-row");
       row.innerHTML = `<b>特性</b>：` + traitArr.map(t => `<span class="buff-badge" title="${escapeHtml(t.desc || "")}">${t.name}</span>`).join(" ");
@@ -1136,6 +1136,18 @@ function statLine(key, value) {
 function traitChip(name, title, desc) {
   const d = escapeHtml(desc || title || "");
   return `<span class="trait-chip" title="${escapeHtml(title || "")}" data-trait-name="${escapeHtml(name)}" data-trait-desc="${d}" onclick="if(window.__showTraitDesc)window.__showTraitDesc(this)">${name}</span>`;
+}
+
+function findTrait(id, run = null) {
+  const routeTraits = run?.storylineId ? (DATA[`${run.storylineId}Traits`] || []) : [];
+  const allRouteTraits = Object.keys(DATA)
+    .filter(key => key.endsWith("Traits") && Array.isArray(DATA[key]))
+    .flatMap(key => DATA[key]);
+  return [
+    ...routeTraits,
+    ...(DATA.traits || []),
+    ...allRouteTraits
+  ].find(t => t?.id === id) || null;
 }
 
 function weaponTitle(weapon) {
