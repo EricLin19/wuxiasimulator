@@ -594,13 +594,16 @@ DATA.storylines = {
 DATA.wandererMonths = {
   // === 第一年 ===
   1: { title: "活人变鬼",
+    storyImage: "assets/story_guyun/m01_huorenbiangui.png",
     text: "半个月前隔壁老李被武盟带走，说是去杭州“做差事”，一个月二十两银子。他老婆当时还笑。今天老李回来了。是被抬回来的。两条腿没了，胸口一道贯穿伤。临死前只说：“别去登记，那是矿坑。”第二天，烫金帖子飞进院门：三日内入册。你握剑的手在抖，不是怕，是怒。" },
   2: { title: "堂口来人",
+    storyImage: "assets/story_guyun/m02_tangkou_lairen.png",
     text: "子时敲门，方平来了，左臂渗血。他带来一卷名单，上面写着矿坑、边关、私邸，许多名字旁打了叉。方平低声说：“打叉的，死了。”话音未落，院外脚步杂乱，火把的光映上窗纸。",
     fightLabel: "挺身迎战", enemyId: "main_m2_liu_tie", hasBattle: true, isBoss: false,
     battleDesc: "堂口捕头刘铁带着手下破门而入，短棍和绳索是专门拿来收人的。方平左臂有伤，你得独自挡住大部。",
     battleReward: { exp:150, money:80, gainItem:"waibian_team_roster", fame:15 } },
   3: { title: "密令与茶",
+    storyImage: "assets/story_guyun/m03_miling_yucha.png",
     text: "你在堂口偷翻到密令：拒册者编入敢死队，充作剿匪前驱；每交付外编人员五十名，堂口可获赏银。角落批注是赵崇岳亲笔：“人命不值钱。”离开时廊下遇见灰袍人，他看了看你手中东西，没有告发，只点了点头。" },
   4: { title: "铁窗内外",
     text: "方平被抓了。因为他在茶馆里大声念外编队名单，一个一个念，连死因都念出来。他入狱前笑着说：“老子念的是真话。”你赶到杭州大牢，隔着铁栅栏看见他嘴角淤青，右手两指已被扭得变形。你必须行动了。",

@@ -1,7 +1,7 @@
 import { DATA } from "./data/content.js";
 import { state } from "./core/state.js";
 import { saveRun, loadRun, saveMeta } from "./core/save.js";
-import { renderApp } from "./ui/render.js";
+import { renderApp } from "./ui/render.js?v=652";
 import {
   createRun,
   resolveEvent,

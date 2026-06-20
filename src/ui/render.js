@@ -321,6 +321,21 @@ function storyArtwork(run, story) {
   if (story?.image || story?.storyImage || story?.portraitImage) {
     return story.image || story.storyImage || story.portraitImage;
   }
+  const titleStoryImages = {
+    "活人变鬼": "assets/story_guyun/m01_huorenbiangui.png",
+    "堂口来人": "assets/story_guyun/m02_tangkou_lairen.png",
+    "密令与茶": "assets/story_guyun/m03_miling_yucha.png"
+  };
+  if (titleStoryImages[story?.title]) return titleStoryImages[story.title];
+  const routeMonths = {
+    wanderer: DATA.wandererMonths,
+    constable: DATA.constableMonths,
+    orthodox: DATA.orthodoxMonths
+  }[run.storylineId];
+  const routeStory = routeMonths?.[monthAbs(run.year, run.month)];
+  if (routeStory?.image || routeStory?.storyImage || routeStory?.portraitImage) {
+    return routeStory.image || routeStory.storyImage || routeStory.portraitImage;
+  }
   if (story?.enemyId) {
     const enemy = DATA.enemies?.find(e => e.id === story.enemyId);
     if (enemy?.portraitImage) return enemy.portraitImage;
