@@ -900,10 +900,15 @@ button {
 .story-copy {
   display: flex;
   flex-direction: column;
+  justify-content: center;
   gap: 10px;
   min-width: 0;
   min-height: 0;
   overflow: hidden;
+}
+
+.wanderer-run-layout .story-copy .story-body {
+  flex: 0 1 auto;
 }
 
 .story-art {
