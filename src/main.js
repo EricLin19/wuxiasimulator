@@ -164,10 +164,12 @@ function fitMobileViewport() {
   const fit = document.getElementById("stage-fit");
   if (!app) return;
   const viewport = window.visualViewport;
-  const widthCandidates = [window.outerWidth, window.innerWidth, document.documentElement.clientWidth, viewport?.width].filter(Boolean);
-  const heightCandidates = [window.outerHeight, window.innerHeight, document.documentElement.clientHeight, viewport?.height].filter(Boolean);
-  const w = Math.floor(Math.min(...widthCandidates));
-  const h = Math.floor(Math.min(...heightCandidates));
+  const widthCandidates = [window.innerWidth, document.documentElement.clientWidth, window.outerWidth].filter(v => Number.isFinite(v) && v > 0);
+  const heightCandidates = [window.innerHeight, document.documentElement.clientHeight, window.outerHeight].filter(v => Number.isFinite(v) && v > 0);
+  const visualW = viewport?.width;
+  const visualH = viewport?.height;
+  const w = Math.floor(Number.isFinite(visualW) && visualW > 0 ? visualW : Math.min(...widthCandidates));
+  const h = Math.floor(Number.isFinite(visualH) && visualH > 0 ? visualH : Math.min(...heightCandidates));
   const useMobileStage = w < 980 || h < 560 || /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent);
   document.documentElement.classList.toggle("mobile-viewport", useMobileStage);
   document.body.classList.toggle("mobile-viewport", useMobileStage);
@@ -257,6 +259,12 @@ function fitMobileViewport() {
       ? "translate(-50%, -50%) rotate(90deg)"
       : "translate(-50%, -50%)";
   }
+}
+
+function scheduleFitMobileViewport() {
+  fitMobileViewport();
+  requestAnimationFrame(fitMobileViewport);
+  setTimeout(fitMobileViewport, 120);
 }
 
 // 清理战斗浮字
@@ -826,6 +834,8 @@ window.__wuxiaDebug = {
 
 ensureBattleTimer();
 fitMobileViewport();
-window.addEventListener("resize", fitMobileViewport);
-window.addEventListener("orientationchange", () => setTimeout(fitMobileViewport, 120));
+window.addEventListener("resize", scheduleFitMobileViewport);
+window.addEventListener("orientationchange", scheduleFitMobileViewport);
+window.visualViewport?.addEventListener("resize", scheduleFitMobileViewport);
+window.visualViewport?.addEventListener("scroll", scheduleFitMobileViewport);
 render();
