@@ -1,6 +1,16 @@
 import { DATA, STAT_LABELS, STAT_KEYS, SCHOOLS, RARITIES } from "../data/content.js";
 import { monthAbs } from "../core/utils.js";
-import { expNeed, getRankTitle, getInternalArtPrice, getBattleDifficulty, getArmorStats } from "../systems/runSystem.js";
+import {
+  expNeed,
+  getRankTitle,
+  getInternalArtPrice,
+  getBattleDifficulty,
+  getArmorStats,
+  usesRouteLayout,
+  hasRouteMerchant,
+  getRouteResolve,
+  getRouteResolveLabel
+} from "../systems/runSystem.js";
 
 // Boss 特性中文名映射
 const BOSS_TRAIT_META = {
@@ -277,7 +287,7 @@ function renderTopbar(run, actions) {
 
 function renderRun(state, actions) {
   const run = state.run;
-  if (["wanderer","constable"].includes(run.storylineId)) return renderWandererRun(state, actions);
+  if (usesRouteLayout(run)) return renderWandererRun(state, actions);
   const root = el("div");
   root.appendChild(renderTopbar(run, actions));
   const screen = el("div", "screen run-layout");
@@ -553,13 +563,13 @@ function renderRewardModal(modal, state, actions) {
 }
 
 function renderMerchantModal(modal, run, actions, isHall = false) {
-  const isWandererStyle = ["wanderer", "constable"].includes(run.storylineId);
-  const refreshes = Math.max(0, 1 + (run.routeResolve || 0) - (run._merchantRefreshesUsed || 0));
+  const isRouteMerchant = hasRouteMerchant(run);
+  const refreshes = Math.max(0, 1 + getRouteResolve(run) - (run._merchantRefreshesUsed || 0));
 
   // 标题栏：标题 + 刷新(孤云线) + 离开
   modal.innerHTML = `<div class="modal-head"><h2 class="modal-title">武林商人</h2>
     <div style="display:flex;gap:8px;align-items:center">
-    ${isWandererStyle ? `<button class="btn small" data-refresh style="background:#d4a056;color:#2c2c1a;font-weight:700" ${refreshes <= 0 ? "disabled" : ""}>刷新 ${refreshes}</button>` : ""}
+    ${isRouteMerchant ? `<button class="btn small" data-refresh style="background:#d4a056;color:#2c2c1a;font-weight:700" ${refreshes <= 0 ? "disabled" : ""}>刷新 ${refreshes}</button>` : ""}
     <button class="btn red small" data-done>离开</button></div></div>
     <div class="merchant-body">
       <div class="merchant-main">
@@ -576,7 +586,7 @@ function renderMerchantModal(modal, run, actions, isHall = false) {
 
   const cols = modal.querySelectorAll(".merchant-col");
 
-  if (isWandererStyle) {
+  if (isRouteMerchant) {
     // === 孤云线：恢复rowCard布局，6/2/3/5 ===
     // 外功秘籍 ×6
     run.merchantStock.filter(e => e.kind === "manual").forEach(entry => {
@@ -688,11 +698,11 @@ function renderCharacterModal(modal, run, actions, close) {
   const sl = DATA.storylines?.[run.storylineId];
   const storylineInfo = sl ? `<h3>主线剧情</h3><p>${sl.name}　<span style="color:#f39c12">${sl.threatName}：${run.mainThreat || 0}</span></p><p style="font-size:12px;color:#999">${sl.threatDesc}</p>` : "";
 
-  // 路线决心（孤云线=散人决心，陆惊尘线=朝廷威势）
-  const routeResolve = run.routeResolve || 0;
-  const resolveLabel = run.storylineId === "constable" ? "朝廷威势" : "散人决心";
+  // 路线决心名称由 storyline.resolveName 决定
+  const routeResolve = getRouteResolve(run);
+  const resolveLabel = getRouteResolveLabel(run);
   const resolveLevel = routeResolve >= 9 ? "齐心" : routeResolve >= 6 ? "暗助" : routeResolve >= 3 ? "初聚" : "";
-  const resolveInfo = DATA.storylines?.[run.storylineId] ? `<h3>${resolveLabel}</h3><p style="color:${routeResolve >= 6 ? '#2ecc71' : routeResolve >= 3 ? '#27ae60' : '#888'}">${routeResolve}/10${resolveLevel ? ` 【${resolveLabel}${resolveLevel}】` : ""}${routeResolve > 0 ? `　我方属性+${routeResolve * 5}%` : ""}</p><p style="font-size:12px;color:#999">每+1战斗中我方全属性+5%。主线"抗争"胜利增加决心。</p>` : "";
+  const resolveInfo = DATA.storylines?.[run.storylineId] ? `<h3>${resolveLabel}</h3><p style="color:${routeResolve >= 6 ? '#2ecc71' : routeResolve >= 3 ? '#27ae60' : '#888'}">${routeResolve}/10${resolveLevel ? ` 【${resolveLabel}${resolveLevel}】` : ""}${routeResolve > 0 ? `　我方属性+${routeResolve * 5}%` : ""}</p><p style="font-size:12px;color:#999">每+1战斗中我方全属性+5%。主线"抗争"或路线Boss连胜增加${resolveLabel}。</p>` : "";
 
   modal.innerHTML = `
     <div class="modal-head"><h2 class="modal-title">角色属性</h2>${close}</div>
@@ -793,18 +803,18 @@ function renderGoalsModal(modal, run, close) {
   // 威胁值威胁度（维度缩放 + Boss档位加成）
   const threatLevel = threatVal >= 9 ? "【威势压人】" : threatVal >= 6 ? "【暗流涌动】" : threatVal >= 3 ? "【山雨欲来】" : "";
   const threatDimPct = threatVal > 0 ? ` 敌方属性+${threatVal * 5}%` : "";
-  // 散人决心
-  const resolve = run.wandererResolve || 0;
-  const resolveLevel = resolve >= 9 ? "【散人齐心】" : resolve >= 6 ? "【散人暗助】" : resolve >= 3 ? "【散人初聚】" : "";
+  const resolve = getRouteResolve(run);
+  const resolveLabel = getRouteResolveLabel(run);
+  const resolveLevel = resolve >= 9 ? `【${resolveLabel}鼎盛】` : resolve >= 6 ? `【${resolveLabel}渐强】` : resolve >= 3 ? `【${resolveLabel}初显】` : "";
   const resolveDimPct = resolve > 0 ? ` 我方属性+${resolve * 5}%` : "";
   const resolveColor = resolve >= 6 ? "#2ecc71" : resolve >= 3 ? "#27ae60" : "#888";
   modal.innerHTML = `<div class="modal-head"><h2 class="modal-title">本局目标</h2>${close}</div><div class="goal-panel"><div class="boss-portrait">${bossPortraitImg ? `<img src="${bossPortraitImg}" alt="${bossName}" loading="lazy" decoding="async">` : bossIcon}</div><div>
     <h2>主线：${storylineName}</h2>
     <p style="color:${threatColor};margin:6px 0">${threatName}：${threatVal} ${threatLevel}<span style="font-size:12px">${threatDimPct}</span></p>
-    <p style="color:${resolveColor};margin:6px 0">散人决心：${resolve} ${resolveLevel}<span style="font-size:12px">${resolveDimPct}</span></p>
+    <p style="color:${resolveColor};margin:6px 0">${resolveLabel}：${resolve} ${resolveLevel}<span style="font-size:12px">${resolveDimPct}</span></p>
     <div style="background:#f5e6d3;padding:8px;margin:8px 0;border-left:3px solid #c0392b;font-size:13px;line-height:1.5">
       <b>${threatName}：</b>每+1使战斗中<b>敌方全属性+5%</b>（武盟维度增强）。主线选择"顺应"增加威视。<br>
-      <b>散人决心：</b>每+1使战斗中<b>我方全属性+5%</b>（散人维度增强）。主线"抗争"战斗胜利增加决心。<br>
+      <b>${resolveLabel}：</b>每+1使战斗中<b>我方全属性+5%</b>。主线"抗争"或路线Boss连胜增加${resolveLabel}。<br>
       <span style="font-size:12px;color:#999">属性加成四舍五入取整。威视越高，年底Boss额外获得档位加成；决心越高，年底Boss额外获得档位削弱。</span>
     </div>
     <h3>今年Boss：${bossName}</h3>
@@ -1163,17 +1173,17 @@ function countIds(ids) {
 function computeEventDifficulty(run, event) {
   if (event.category !== "切磋" && event.category !== "小Boss") return null;
   let enemyHp = 0;
-  // 孤云逐浪专属打斗事件：映射到三大通用年份池
-  const wandererFightPool = {
-    wanderer_fight_ambush: "ambush",
-    wanderer_fight_bandit: "bandit",
-    wanderer_fight_fighter: "fighter"
-  };
-  const wp = DATA.wandererEnemyPool;
-  if (wandererFightPool[event.id] && wp?.grunts) {
-    const pool = wandererFightPool[event.id];
+  const routeFight = event.id.match(new RegExp(`^${run.storylineId}_fight_(.+)$`));
+  const wp = DATA[`${run.storylineId}EnemyPool`];
+  if (routeFight && wp?.grunts) {
+    const pool = routeFight[1];
     const yr = Math.min(run.year, 3);
-    const enemy = wp.grunts.find(e => e.id === `wanderer_grunt_${pool}_yr${yr}`);
+    const enemyIds = [
+      `${run.storylineId}_grunt_${pool}_yr${yr}`,
+      `${run.storylineId}_grunts_${pool}_yr${yr}`,
+      `wanderer_grunt_${pool}_yr${yr}`
+    ];
+    const enemy = wp.grunts.find(e => enemyIds.includes(e.id));
     enemyHp = enemy ? enemy.hp * 2 : 0;
   } else if (event.category === "切磋") {
     // 通用切磋：按当前rank上限取平均敌人血量

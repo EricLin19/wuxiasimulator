@@ -55,12 +55,7 @@ export function buildRewardChoices(run) {
 
 function buildTraitReward(run) {
   // 根据剧情线选择特性池：路线专属 + 通用
-  let routeTraits = [];
-  if (run.storylineId === "wanderer" && DATA.wandererTraits) {
-    routeTraits = DATA.wandererTraits;
-  } else if (run.storylineId === "constable" && DATA.constableTraits) {
-    routeTraits = DATA.constableTraits;
-  }
+  const routeTraits = DATA[`${run.storylineId}Traits`] || [];
   const combined = [...routeTraits, ...DATA.traits];
   const available = combined.filter(t =>
     !run.traits.includes(t.id) && !run.skillTraits.some(st => st.id === t.id)

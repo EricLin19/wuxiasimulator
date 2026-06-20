@@ -7,6 +7,47 @@ const COMBAT_SCHOOLS = ["blade", "hidden", "fist", "lightness"];
 const ALL_SCHOOLS = ["blade", "hidden", "fist", "lightness"];
 export const RANK_TITLES = ["初窥门径", "驾轻就熟", "略有小成", "融会贯通", "炉火纯青", "所向披靡", "傲视群雄", "一代宗师", "天人合一", "天人之上"];
 
+export function getRouteConfig(runOrId) {
+  const id = typeof runOrId === "string" ? runOrId : runOrId?.storylineId;
+  return DATA.storylines?.[id] || null;
+}
+
+export function getRouteMerchantPool(runOrId) {
+  const id = typeof runOrId === "string" ? runOrId : runOrId?.storylineId;
+  return id ? DATA[`${id}MerchantPool`] || null : null;
+}
+
+export function getRouteMonths(runOrId) {
+  const id = typeof runOrId === "string" ? runOrId : runOrId?.storylineId;
+  return id ? DATA[`${id}Months`] || null : null;
+}
+
+export function hasRouteMerchant(runOrId) {
+  return !!getRouteMerchantPool(runOrId);
+}
+
+export function hasRouteMonths(runOrId) {
+  return !!getRouteMonths(runOrId);
+}
+
+export function usesRouteLayout(runOrId) {
+  const route = getRouteConfig(runOrId);
+  return !!route && route.routeLayout !== false && (hasRouteMonths(runOrId) || hasRouteMerchant(runOrId));
+}
+
+export function getRouteResolve(run) {
+  return run?.routeResolve ?? run?.wandererResolve ?? 0;
+}
+
+export function getRouteResolveLabel(run) {
+  const route = getRouteConfig(run);
+  return route?.resolveName || "路线决心";
+}
+
+function shouldRefillEvents(run) {
+  return !usesRouteLayout(run);
+}
+
 export function createRun(characterId, treasureId, meta, perRunAllocations) {
   const character = DATA.characters.find(x => x.id === characterId);
   const treasure = DATA.treasures.find(x => x.id === treasureId);
@@ -73,7 +114,7 @@ export function createRun(characterId, treasureId, meta, perRunAllocations) {
     // 三主线新增
     storylineId: characterId,
     mainThreat: 0,
-    routeResolve: 0,   // 通用：散人决心（孤云）/ 朝廷威势（陆惊尘）/ etc.
+    routeResolve: 0,   // 通用：由 storyline.resolveName 决定显示名称
     bossWinCount: 0,
     collectedHeritages: [],
     storyFlags: {},
@@ -110,15 +151,15 @@ export function applyMonthStart(run) {
     run.hp = Math.min(run.stats.hp + getArmorStats(run).hp, run.hp + amount);
     run.qi = Math.min(run.stats.qi, run.qi + amount);
   }
-  // 加载当前月份剧情（孤云逐浪线）
-  if (DATA[run.storylineId + "MerchantPool"]) {
-    loadWandererStory(run);
+  // 加载当前月份剧情（固定月叙事支线）
+  if (hasRouteMonths(run)) {
+    loadRouteStory(run);
   }
 }
 
-export function loadWandererStory(run) {
+export function loadRouteStory(run) {
   const monthAbsVal = (run.year - 1) * 12 + run.month;
-  const months = DATA[run.storylineId + "Months"];
+  const months = getRouteMonths(run);
   if (months && months[monthAbsVal]) {
     run.currentStory = { ...months[monthAbsVal], id: months[monthAbsVal].id || `${run.storylineId}_m${monthAbsVal}` };
   } else {
@@ -126,9 +167,11 @@ export function loadWandererStory(run) {
   }
 }
 
+export const loadWandererStory = loadRouteStory;
+
 export function refreshEvents(run) {
   // 主线逐浪线：每月生成6个奇遇，玩家六选三
-  if (DATA[run.storylineId + "Months"]) {
+  if (hasRouteMonths(run)) {
     const growthEvents = makeRouteGrowthPool(run);
     const riskEvents = makeRouteRiskPool(run);
     const allEvents = [...growthEvents, ...riskEvents];
@@ -171,14 +214,14 @@ export function refreshEvents(run) {
 
 function makeStoryEventPool(run) {
   // 孤云逐浪主线由36月叙事驱动，不参与随机故事池
-  if (DATA[run.storylineId + "Months"]) return [];
+  if (hasRouteMonths(run)) return [];
   const sl = DATA.storylines?.[run.storylineId];
   if (!sl) return [];
   return (sl.events || []).filter(e => run.year >= (e.yearMin || 1) && run.year <= (e.yearMax || 3));
 }
 
 function makeGrowthEventPool(run) {
-  if (DATA[run.storylineId + "Months"]) return makeRouteGrowthPool(run);
+  if (hasRouteMonths(run)) return makeRouteGrowthPool(run);
   const moneyGain = scaleMoney(run, 160);
   const heritage = [
     { id: "masterTeach", name: "隐世高手传功", category: "高手传功", icon: "传", desc: "路遇隐世高人，见你资质不凡，传你一套吐纳心法。内力上限+60，血量上限+200。", apply: ({ run }) => {
@@ -259,7 +302,7 @@ function pickYearEnemy(run, eventId, fallbackEnemies) {
 
 function makeRiskEventPool(run) {
   // 孤云逐浪线：使用专属风险事件池（含金钱任务和孤云敌人）
-  if (DATA[run.storylineId + "Months"]) return makeRouteRiskPool(run);
+  if (hasRouteMonths(run)) return makeRouteRiskPool(run);
   const maxRank = Math.min(4, 1 + Math.floor(monthAbs(run) / 8));
   const enemies = DATA.enemies.filter(e => e.rank <= maxRank);
   const moneyGain = scaleMoney(run, 160);
@@ -316,7 +359,7 @@ function makeRiskEventPool(run) {
 // 孤云逐浪 专属成长/风险事件池
 // ============================================================
 function makeRouteGrowthPool(run) {  // was: makeWandererGrowthPool
-  const g = DATA[run.storylineId + 'GrowthEvents'] || DATA.wandererGrowthEvents;
+  const g = DATA[`${run.storylineId}GrowthEvents`];
   if (!g) return [];
   const monthAbsVal = (run.year - 1) * 12 + run.month;
   const events = [];
@@ -433,7 +476,7 @@ function makeRouteGrowthPool(run) {  // was: makeWandererGrowthPool
 }
 
 function makeRouteRiskPool(run) {  // was: makeWandererRiskPool
-  const g = DATA[run.storylineId + 'GrowthEvents'] || DATA.wandererGrowthEvents;
+  const g = DATA[`${run.storylineId}GrowthEvents`];
   if (!g) return [];
   const monthAbsVal = (run.year - 1) * 12 + run.month;
   const events = [];
@@ -442,10 +485,9 @@ function makeRouteRiskPool(run) {  // was: makeWandererRiskPool
   // --- 切磋打斗 (fight): 三个通用池 ---
   (g.fight || []).forEach(f => {
     if (monthAbsVal < f.unlockMonth) return;
-    const wp = DATA[run.storylineId + 'EnemyPool'] || DATA.wandererEnemyPool;
+    const wp = DATA[`${run.storylineId}EnemyPool`];
     if (!wp) return;
-    const lookupId = `wanderer_grunt_${f.pool}_yr${run.year}`;
-    const enemy = wp.grunts.find(e => e.id === lookupId);
+    const enemy = findRouteEnemy(run, wp, f.pool);
     if (!enemy) return;
     const num = (f.count || [2,2,2])[yrIdx] || 2;
     events.push({
@@ -493,6 +535,16 @@ function makeRouteRiskPool(run) {  // was: makeWandererRiskPool
 
   // 应用权重调整并返回全部事件（六选三系统将在上层统一抽取）
   return applyEventWeights(events);
+}
+
+function findRouteEnemy(run, enemyPool, poolName) {
+  const yr = Math.min(run.year, 3);
+  const candidates = [
+    `${run.storylineId}_grunt_${poolName}_yr${yr}`,
+    `${run.storylineId}_grunts_${poolName}_yr${yr}`,
+    `wanderer_grunt_${poolName}_yr${yr}`
+  ];
+  return (enemyPool.grunts || []).find(e => candidates.includes(e.id));
 }
 
 // 对事件应用权重调整（传功/道具不可用时并入加属性），返回带 _w 的全部事件
@@ -561,9 +613,10 @@ function weightedPickMultiple(events, n) {
 
 export function refreshManuals(run) {
   let available = getAvailableManuals(run).filter(id => !run.skills.includes(id) && !run.trainingSkills.includes(id));
-  // 孤云线：仅限专属秘籍池
-  if (DATA[run.storylineId + "MerchantPool"]) {
-    const wpSkillIds = (DATA[run.storylineId + "MerchantPool"]?.manuals || []).map(m => m.id);
+  // 专属支线：仅限专属秘籍池
+  const merchantPool = getRouteMerchantPool(run);
+  if (merchantPool) {
+    const wpSkillIds = (merchantPool.manuals || []).map(m => m.id);
     available = available.filter(id => wpSkillIds.includes(id));
   }
   const manuals = [];
@@ -587,8 +640,8 @@ export function refreshManuals(run) {
     manuals.push(one);
   }
   run.manuals = manuals.slice(0, 4);
-  // 剧情线武林商人由刷新按钮手动控制，不在此处触发
-  if (!["wanderer","constable"].includes(run.storylineId)) refreshMerchantStock(run);
+  // 专属武林商人由刷新按钮手动控制，不在此处触发
+  if (!hasRouteMerchant(run)) refreshMerchantStock(run);
 }
 
 export function getAvailableManuals(run) {
@@ -604,7 +657,7 @@ export function getAvailableManuals(run) {
 // 孤云逐浪 专属武林商人（四象限栏位系统）
 // 左边上：外功秘籍×6 | 左边下：内功秘籍×2
 // 右边上：装备×3(武器+防具) | 右边下：丹药×5
-// 全部等概率，不分年份。刷新次数=1+散人决心，动态计算（散人决心+1自动获得+1刷新）。
+// 全部等概率，不分年份。刷新次数=1+路线决心，动态计算（路线决心+1自动获得+1刷新）。
 // ============================================================
 
 // 工具函数：等概率无放回抽取 n 个
@@ -619,8 +672,8 @@ function pickRandom(arr, n, filterFn) {
   return result;
 }
 
-function generateWandererMerchantStock(run) {
-  const pool = DATA[run.storylineId + 'MerchantPool'];
+function generateRouteMerchantStock(run) {
+  const pool = getRouteMerchantPool(run);
   if (!pool) return;
 
   // 外功秘籍 ×6（排除已学会的，等概率）
@@ -648,11 +701,11 @@ function generateWandererMerchantStock(run) {
   run.merchantStock = [...manuals, ...arts, ...equipment, ...pills];
 }
 
-function initWandererMerchant(run) {
-  generateWandererMerchantStock(run);
+function initRouteMerchant(run) {
+  generateRouteMerchantStock(run);
   // 向后兼容：旧存档的 _merchantRefreshes（绝对值）→ _merchantRefreshesUsed（已用次数）
   if (run._merchantRefreshesUsed === undefined && run._merchantRefreshes !== undefined) {
-    const maxRef = 1 + (run.routeResolve || 0);
+    const maxRef = 1 + getRouteResolve(run);
     run._merchantRefreshesUsed = Math.max(0, maxRef - run._merchantRefreshes);
     delete run._merchantRefreshes;
   } else {
@@ -661,17 +714,21 @@ function initWandererMerchant(run) {
 }
 
 export function refreshWandererMerchantAction(run) {
-  const maxRefreshes = 1 + (run.routeResolve || 0);
+  return refreshRouteMerchantAction(run);
+}
+
+export function refreshRouteMerchantAction(run) {
+  const maxRefreshes = 1 + getRouteResolve(run);
   const used = run._merchantRefreshesUsed || 0;
   if (used >= maxRefreshes) return { ok: false, message: "本月刷新次数已用完" };
   run._merchantRefreshesUsed = used + 1;
-  generateWandererMerchantStock(run);
+  generateRouteMerchantStock(run);
   saveRun(run);
   return { ok: true };
 }
 
 export function refreshMerchantStock(run) {
-  if (["wanderer","constable"].includes(run.storylineId)) return initWandererMerchant(run);
+  if (hasRouteMerchant(run)) return initRouteMerchant(run);
   const rarity = run.year >= 3 ? "red" : run.year >= 2 ? "orange" : "blue";
   // 内功：随机2本同稀有度
   const artPool = Object.values(DATA.internalArts).filter(a => a.rarity === rarity && !run.internalArts.includes(a.id));
@@ -937,7 +994,7 @@ export function resolveEvent(run, eventId, actions) {
   }
     if (event.type !== "merchant" && event.type !== "battle") {
       // 剧情线六选三无需补充，非剧情线维持旧 refill 机制
-      if (!["wanderer","constable"].includes(run.storylineId) && run.eventRemaining > 0) refillOneEvent(run);
+      if (shouldRefillEvents(run) && run.eventRemaining > 0) refillOneEvent(run);
       // 延迟1.5秒输出"已处理完"，避免与第3个奇遇结果toast重叠
       if (run.eventRemaining === 0) {
         setTimeout(() => log(run, "本月奇遇已处理完。"), 1500);
@@ -950,6 +1007,7 @@ export function resolveEvent(run, eventId, actions) {
 // 主线事件选择处理：抗争/跳过
 // choice: "fight" 触发战斗 | "skip" 跳过本月 | "ending" 选择结局
 export function resolveStoryChoice(run, eventId, choice, actions) {
+  const resolveLabel = getRouteResolveLabel(run);
   // 处理孤云逐浪月度主线剧情选择（不在run.events中，在run.currentStory）
   if (run.currentStory && run.currentStory.id === eventId) {
     const story = run.currentStory;
@@ -1125,8 +1183,8 @@ export function resolveStoryChoice(run, eventId, choice, actions) {
         const enemies = (DATA.enemies || []).filter(e => e.rank <= 2 + run.year);
         const enemy = enemies[Math.floor(Math.random() * enemies.length)];
         if (enemy && actions.startBattle) {
-          log(run, `【抗争】${result.log}你选择了正面交锋。散人决心+1。`);
-          run.routeResolve = Math.min(10, (run.routeResolve || 0) + 1);
+          log(run, `【抗争】${result.log}你选择了正面交锋。${resolveLabel}+1。`);
+          run.routeResolve = Math.min(10, getRouteResolve(run) + 1);
           run.storyFlags[eventId + "_resist"] = true;
           actions.startBattle(enemy);
           saveRun(run);
@@ -1137,8 +1195,8 @@ export function resolveStoryChoice(run, eventId, choice, actions) {
         const cost = result.cost || 100;
         if (run.money >= cost) {
           run.money -= cost;
-          run.routeResolve = Math.min(10, (run.routeResolve || 0) + 1);
-          log(run, `【抗争】${result.log}花费${cost}金钱。威胁值不变。散人决心+1。`);
+          run.routeResolve = Math.min(10, getRouteResolve(run) + 1);
+          log(run, `【抗争】${result.log}花费${cost}金钱。威胁值不变。${resolveLabel}+1。`);
         } else {
           // 钱不够，只能接受一半效果
           run.mainThreat = (run.mainThreat || 0) + Math.ceil(h.accept.threat / 2);
@@ -1149,20 +1207,20 @@ export function resolveStoryChoice(run, eventId, choice, actions) {
     run.storyFlags[eventId] = true;
   }
 
-  if (!["wanderer","constable"].includes(run.storylineId) && run.eventRemaining > 0) refillOneEvent(run);
+  if (shouldRefillEvents(run) && run.eventRemaining > 0) refillOneEvent(run);
   if (run.eventRemaining === 0) log(run, "本月奇遇已处理完。");
   saveRun(run);
   return true;
 }
 
 export function finishDeferredEvent(run) {
-  if (!["wanderer","constable"].includes(run.storylineId) && run.eventRemaining > 0) refillOneEvent(run);
+  if (shouldRefillEvents(run) && run.eventRemaining > 0) refillOneEvent(run);
   saveRun(run);
 }
 
 export function endMonth(run, startBoss) {
   // 剧情线Boss通过主线抗争触发，不在此自动触发
-  if (run.month === 12 && !run.yearlyBossDefeated[run.year] && !["wanderer","constable"].includes(run.storylineId)) {
+  if (run.month === 12 && !run.yearlyBossDefeated[run.year] && !usesRouteLayout(run)) {
     // 从当前主线获取对应年份Boss
     const sl = DATA.storylines?.[run.storylineId];
     const bossTemplate = sl?.bosses?.[run.year];
@@ -1206,8 +1264,8 @@ function buildBossWithThreat(run, bossTemplate) {
     boss.bossTraitDesc = (boss.bossTraitDesc || "") + "【山雨欲来：HP+10%, 攻击+5%】";
   }
 
-  // 2. 散人决心对玩家的增强buff（mainThreat为负时积累，抵消Boss增强）
-  const resolve = run.routeResolve || 0;
+  // 2. 路线决心对玩家的增强buff（mainThreat为负时积累，抵消Boss增强）
+  const resolve = getRouteResolve(run);
   if (resolve > 0) {
     if (resolve >= 9) {
       boss.hp = Math.floor(boss.hp * 0.85);
@@ -1287,10 +1345,11 @@ function reconcileStyleMasteries(run) {
 
 export function buyManual(run, skillId) {
   const skill = DATA.skills[skillId];
-  // 孤云逐浪使用商人池专属定价
+  // 专属支线使用商人池定价
   let price;
-  if (DATA[run.storylineId + "MerchantPool"]) {
-    const wpManual = (DATA.wandererMerchantPool?.manuals || []).find(m => m.id === skillId);
+  const merchantPool = getRouteMerchantPool(run);
+  if (merchantPool) {
+    const wpManual = (merchantPool.manuals || []).find(m => m.id === skillId);
     price = wpManual ? wpManual.price : Math.floor((skill.rarity === "red" ? 900 : skill.rarity === "orange" ? 520 : 300) * (run.treasure.effect === "manualMastery" ? 0.82 : 1));
   } else {
     price = Math.floor((skill.rarity === "red" ? 900 : skill.rarity === "orange" ? 520 : 300) * (run.treasure.effect === "manualMastery" ? 0.82 : 1));
@@ -1389,10 +1448,11 @@ export function buyItem(run, itemId) {
 export function buyWeapon(run, weaponId) {
   const weapon = DATA.weapons[weaponId];
   if (!weapon) return { ok: false, message: "武器不存在" };
-  // 孤云逐浪使用商人池专属定价（与 buyManual / buyInternalArt 一致）
+  // 专属支线使用商人池定价（与 buyManual / buyInternalArt 一致）
   let price;
-  if (DATA[run.storylineId + "MerchantPool"]) {
-    const wpWeapon = (DATA.wandererMerchantPool?.weapons || []).find(w => w.id === weaponId);
+  const merchantPool = getRouteMerchantPool(run);
+  if (merchantPool) {
+    const wpWeapon = (merchantPool.weapons || []).find(w => w.id === weaponId);
     price = wpWeapon ? wpWeapon.price : weapon.price;
   } else {
     price = weapon.price;
@@ -1409,8 +1469,9 @@ export function buyWeapon(run, weaponId) {
 export function getInternalArtPrice(run, artId) {
   const art = DATA.internalArts[artId];
   if (!art) return 0;
-  if (DATA[run.storylineId + "MerchantPool"]) {
-    const wpArt = (DATA.wandererMerchantPool?.internalArts || []).find(a => a.id === artId);
+  const merchantPool = getRouteMerchantPool(run);
+  if (merchantPool) {
+    const wpArt = (merchantPool.internalArts || []).find(a => a.id === artId);
     return wpArt ? wpArt.price : (art.rarity === "red" ? 1200 : art.rarity === "orange" ? 680 : 360);
   }
   return art.rarity === "red" ? 1200 : art.rarity === "orange" ? 680 : 360;
@@ -1567,10 +1628,11 @@ export function buyArmor(run, armorId) {
   const armor = DATA.armors[armorId];
   if (!armor) return { ok: false, message: "不存在该防具" };
   if (run.armors.includes(armorId)) return { ok: false, message: "已经拥有" };
-  // 孤云逐浪使用商人池专属定价
+  // 专属支线使用商人池定价
   let price;
-  if (DATA[run.storylineId + "MerchantPool"]) {
-    const wpArmor = (DATA.wandererMerchantPool?.armors || []).find(a => a.id === armorId);
+  const merchantPool = getRouteMerchantPool(run);
+  if (merchantPool) {
+    const wpArmor = (merchantPool.armors || []).find(a => a.id === armorId);
     price = wpArmor ? wpArmor.price : armor.price;
   } else {
     price = armor.price;

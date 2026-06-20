@@ -27,10 +27,12 @@ import {
   settleRun,
   toggleActiveSkill,
   getBattleDifficulty,
-  refreshWandererMerchantAction,
+  refreshRouteMerchantAction,
   applyMonthStart,
   refreshEvents,
-  getMonthSnapshot
+  getMonthSnapshot,
+  getRouteResolve,
+  getRouteResolveLabel
 } from "./systems/runSystem.js";
 import { buildRewardChoices, takeReward } from "./systems/rewardSystem.js";
 import { syncMusicForState, setVolume as audioSetVolume } from "./systems/audioSystem.js";
@@ -327,12 +329,13 @@ function resolveBattleResult(result) {
           if (leveled && !state.modal) state.modal = { type: "reward", options: buildRewardChoices(state.run) };
         }
       }
-      // 赢：boss战胜利计数，每3场散人决心+1
+      // 赢：boss战胜利计数，每3场路线决心+1
       state.run.bossWinCount = (state.run.bossWinCount || 0) + 1;
       if (state.run.bossWinCount >= 3) {
         state.run.bossWinCount = 0;
-        state.run.wandererResolve = Math.min(10, (state.run.wandererResolve || 0) + 1);
-        log(state.run, `连胜3场Boss战！散人决心+1（当前：${state.run.wandererResolve}/10）`);
+        state.run.routeResolve = Math.min(10, getRouteResolve(state.run) + 1);
+        const resolveLabel = getRouteResolveLabel(state.run);
+        log(state.run, `连胜3场Boss战！${resolveLabel}+1（当前：${state.run.routeResolve}/10）`);
       } else {
         log(state.run, `击败${battle.enemy.name}！Boss连胜（${state.run.bossWinCount}/3）。`);
       }
@@ -438,7 +441,7 @@ const actions = {
     state.run.equippedArmor = state.run.equippedArmor || null;
     state.run.apUsedThisMonth = state.run.apUsedThisMonth || false;
     state.run.skillTraits ||= [];
-    state.run.wandererResolve = state.run.wandererResolve || 0;
+    state.run.routeResolve = state.run.routeResolve ?? state.run.wandererResolve ?? 0;
     state.run.mainThreat = state.run.mainThreat || 0;
     state.screen = "run";
     state.modal = null;
@@ -520,7 +523,7 @@ const actions = {
     render();
   },
   refreshMerchant: () => {
-    const result = refreshWandererMerchantAction(state.run);
+    const result = refreshRouteMerchantAction(state.run);
     if (!result.ok) return showToast(result.message);
     render();
   },
@@ -703,7 +706,7 @@ const actions = {
         state.run.activeInternalArts ||= [];
         state.run.armors ||= [];
         state.run.skillTraits ||= [];
-        state.run.wandererResolve = state.run.wandererResolve || 0;
+        state.run.routeResolve = state.run.routeResolve ?? state.run.wandererResolve ?? 0;
         state.run.mainThreat = state.run.mainThreat || 0;
         state.screen = "run";
         state.bossResult = null;

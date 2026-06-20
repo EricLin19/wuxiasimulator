@@ -36,7 +36,8 @@ export function createBattle(run, enemyTemplate, isBoss = false) {
   // 威视/决心维度缩放
   // 威视每点使武盟全部维度+5%，决心每点使散人全部维度+5%，全部取整
   const threatMult = 1 + (run.mainThreat || 0) * 0.05;
-  const resolveMult = 1 + (run.wandererResolve || 0) * 0.05;
+  const routeResolve = run.routeResolve ?? run.wandererResolve ?? 0;
+  const resolveMult = 1 + routeResolve * 0.05;
   if (threatMult !== 1) {
     for (const k of ["hp", "atk", "def", "hit", "dodge", "crit", "speed"]) {
       if (enemyStats[k] !== undefined) enemyStats[k] = Math.round(enemyStats[k] * threatMult);
@@ -357,6 +358,8 @@ export function useSkill(run, battle, skillId) {
     return endActorTurn(run, battle, p);
   }
   const result = resolveAttack(run, battle, p, battle.enemy, skill);
+  const ended = checkBattleEnd(battle);
+  if (ended.ended) return ended;
   if (result.comboTriggered && DATA.skills[skillId]?.tags?.includes("threeWaves") && triggerThreeWaves(run, battle, p, skillId)) {
     return checkBattleEnd(battle);
   }
@@ -436,9 +439,11 @@ function resolveAttack(run, battle, actor, target, skill) {
   battleLog(battle, `${actor.name}施展${skill.name}，造成${dmg}伤害。`);
   if (skill.tags?.includes("heal")) { const h = heal(run, actor, 70); addFloater(battle, sideOf(battle, actor), `+${h}`, "heal"); }
   if (skill.tags?.includes("speed")) actor.stats.speed = Number((actor.stats.speed + 0.05).toFixed(2));
+  if (target.hp <= 0) return { comboTriggered: false };
 
   // 检查Boss阶段触发（玩家攻击Boss后）
   if (target === battle.enemy) checkBossPhaseTriggers(battle);
+  if (target.hp <= 0) return { comboTriggered: false };
 
   let comboTriggered = false;
   let chain = 1;
@@ -1471,8 +1476,18 @@ function endActorTurn(run, battle, actor) {
 }
 
 function checkBattleEnd(battle) {
-  if (battle.enemy.hp <= 0) return { ended: true, winner: "player" };
-  if (battle.player.hp <= 0) return { ended: true, winner: "enemy" };
+  if (battle.enemy.hp <= 0) {
+    battle.phase = "ended";
+    battle.actor = null;
+    battle.winner = "player";
+    return { ended: true, winner: "player" };
+  }
+  if (battle.player.hp <= 0) {
+    battle.phase = "ended";
+    battle.actor = null;
+    battle.winner = "enemy";
+    return { ended: true, winner: "enemy" };
+  }
   return { ended: false };
 }
 

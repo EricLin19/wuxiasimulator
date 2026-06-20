@@ -528,6 +528,7 @@ DATA.internalArts = INTERNAL_ARTS;
 DATA.storylines = {
   wanderer: {
     id: "wanderer",
+    resolveName: "散人决心",
     name: "孤云逐浪",
     threatName: "武盟威势",
     threatDesc: "武盟对散人的压迫日增",
@@ -546,6 +547,7 @@ DATA.storylines = {
   },
   constable: {
     id: "constable",
+    resolveName: "朝廷威势",
     name: "铁鹰入局",
     threatName: "内廷疑云",
     threatDesc: "内廷爪牙渗透日深",
@@ -564,6 +566,7 @@ DATA.storylines = {
   },
   orthodox: {
     id: "orthodox",
+    resolveName: "正道声望",
     name: "天衡照邪",
     threatName: "鬼教阴影",
     threatDesc: "鬼教势力暗中蔓延",
