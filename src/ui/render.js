@@ -98,7 +98,7 @@ export function renderApp(state, actions) {
   const app = document.getElementById("app");
   // JS强制设版本号：用于确认浏览器已加载最新模块
   const bv = document.getElementById("build-ver");
-  if (bv && bv.textContent !== "v6.5.1-651") bv.textContent = "v6.5.1-651";
+  if (bv && bv.textContent !== "v6.5.3-653") bv.textContent = "v6.5.3-653";
   let savedScrollTop = 0;
   let allocateScrollTop = 0;
   if (state.modal && state.screen !== "battle") {
@@ -322,9 +322,12 @@ function storyArtwork(run, story) {
     return story.image || story.storyImage || story.portraitImage;
   }
   const titleStoryImages = {
-    "活人变鬼": "assets/story_guyun/m01_huorenbiangui.png",
-    "堂口来人": "assets/story_guyun/m02_tangkou_lairen.png",
-    "密令与茶": "assets/story_guyun/m03_miling_yucha.png"
+    "活人变鬼": "assets/story_guyun/m01_huorenbiangui.webp",
+    "堂口来人": "assets/story_guyun/m02_tangkou_lairen.webp",
+    "密令与茶": "assets/story_guyun/m03_miling_yucha.webp",
+    "铁窗内外": "assets/story_guyun/m04_tiechuang_neiwai.webp",
+    "满城金旗": "assets/story_guyun/m05_mancheng_jinqi.webp",
+    "梅边二叙": "assets/story_guyun/m06_meibian_erxu.webp"
   };
   if (titleStoryImages[story?.title]) return titleStoryImages[story.title];
   const routeMonths = {
