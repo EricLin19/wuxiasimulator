@@ -886,13 +886,15 @@ button {
 /* wanderer 模式下主线画布轻量化 */
 .wanderer-run-layout .story-canvas {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 260px;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   align-items: stretch;
   background: transparent;
   border: 2px solid rgba(108, 63, 54, 0.25);
   box-shadow: none;
   padding: 8px 12px;
   border-radius: 0;
+  max-width: none;
+  align-self: stretch;
 }
 
 .story-copy {
@@ -1962,7 +1964,7 @@ body.mobile-viewport .wanderer-run-layout .story-month-title {
   padding-bottom: 4px;
 }
 body.mobile-viewport .wanderer-run-layout .story-canvas {
-  grid-template-columns: minmax(0, 1fr) 170px;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   gap: 7px;
 }
 body.mobile-viewport .wanderer-run-layout .story-body {
