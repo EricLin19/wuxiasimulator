@@ -963,7 +963,7 @@ button {
 
 .wanderer-run-layout {
   display: grid;
-  grid-template-columns: 120px minmax(0, 1fr);
+  grid-template-columns: minmax(0, 1fr);
   grid-template-rows: minmax(0, 1fr);
   gap: 10px;
   min-height: 0;
@@ -975,46 +975,85 @@ button {
   padding: 14px 22px 8px;
 }
 
-.wanderer-run-layout .left-nav {
-  align-self: start;
-  grid-template-columns: 1fr;
-  gap: 6px;
-  flex-shrink: 0;
-  min-width: 120px;
-}
-
-.wanderer-run-layout .nav-tile {
-  min-height: 64px;
-  min-width: 60px;
-  font-size: 24px;
-  writing-mode: horizontal-tb;
-  flex-shrink: 0;
-}
-
 .wanderer-run-layout .center-stage {
   display: grid;
-  grid-template-rows: minmax(0, 1fr) auto auto;
-  gap: 4px;
+  grid-template-rows: minmax(0, 1fr) auto;
+  gap: 8px;
   min-height: 0;
   min-width: 0;
   overflow: hidden;
   align-content: start;
 }
 
-.wanderer-run-layout .bottom-actions {
-  display: flex;
-  flex-wrap: nowrap;
+.wanderer-run-layout .story-month-title {
+  font-size: 30px;
+  letter-spacing: 2px;
+  padding-bottom: 6px;
+}
+
+.wanderer-command-deck {
+  display: grid;
+  grid-template-columns: 120px minmax(0, 1fr);
+  gap: 10px;
+  align-items: start;
+  min-height: 0;
+  min-width: 0;
+}
+
+.portrait-command.action-card {
+  width: 120px;
+  height: 128px;
+  min-width: 0;
+  min-height: 0;
+  padding: 0;
+  overflow: hidden;
+  border-width: 4px;
+}
+
+.portrait-command img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  image-rendering: pixelated;
+}
+
+.portrait-command span {
+  font-size: 48px;
+}
+
+.command-main {
+  display: grid;
+  grid-template-rows: auto auto;
   gap: 8px;
-  flex-shrink: 0;
-  overflow: visible;
-  padding-left: 12px;
+  min-width: 0;
+}
+
+.wanderer-run-layout .story-bars {
+  gap: 5px;
+  padding: 0;
+  border-top: 0;
+}
+
+.wanderer-run-layout .bottom-actions {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(74px, 1fr));
+  gap: 8px;
+  overflow: hidden;
+  padding-left: 0;
 }
 
 .wanderer-run-layout .bottom-actions .action-card {
-  flex: 0 0 auto;
-  min-width: 72px;
-  min-height: 56px;
+  min-width: 0;
+  min-height: 58px;
   font-size: 18px;
+  padding: 6px;
+}
+
+.wanderer-run-layout .bottom-actions .primary-action {
+  background: #d4a056;
+  border-color: #8a5a2b;
+  color: #1a1a2e;
 }
 
 .hero-status {
@@ -1872,10 +1911,47 @@ body.mobile-viewport .toast.toast-taunt {
    ============================================================ */
 body.mobile-viewport .wanderer-run-layout {
   height: calc(100% - 60px);
+  padding: 8px 14px 10px;
 }
 body.mobile-viewport .wanderer-run-layout .center-stage {
   align-content: start;
-  grid-template-rows: minmax(0, 1fr) auto auto;
+  grid-template-rows: minmax(0, 1fr) auto;
+  gap: 6px;
+}
+body.mobile-viewport .wanderer-run-layout .story-month-title {
+  font-size: 24px;
+  letter-spacing: 1px;
+  padding-bottom: 4px;
+}
+body.mobile-viewport .wanderer-run-layout .story-body {
+  font-size: 18px;
+  line-height: 1.55;
+  padding: 4px 2px;
+}
+body.mobile-viewport .wanderer-command-deck {
+  grid-template-columns: 86px minmax(0, 1fr);
+  gap: 8px;
+}
+body.mobile-viewport .portrait-command.action-card {
+  width: 86px;
+  height: 96px;
+}
+body.mobile-viewport .command-main {
+  gap: 5px;
+}
+body.mobile-viewport .wanderer-run-layout .story-bars {
+  gap: 3px;
+  padding: 0;
+}
+body.mobile-viewport .wanderer-run-layout .bottom-actions {
+  grid-template-columns: repeat(7, minmax(54px, 1fr));
+  gap: 5px;
+}
+body.mobile-viewport .wanderer-run-layout .bottom-actions .action-card {
+  min-height: 43px;
+  font-size: 14px;
+  padding: 4px 2px;
+  border-width: 2px;
 }
 
 /* ============================================================

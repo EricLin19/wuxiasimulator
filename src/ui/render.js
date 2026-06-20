@@ -276,10 +276,11 @@ function renderTopbar(run, actions) {
   const threatName = sl?.threatName || "";
   const threatColor = (run.mainThreat || 0) >= 6 ? "#e74c3c" : (run.mainThreat || 0) >= 3 ? "#f39c12" : "#888";
   const threatText = run.mainThreat > 0 ? `<span style="color:${threatColor};font-size:13px;margin-left:6px">${threatName}：${run.mainThreat}</span>` : "";
+  const apText = usesRouteLayout(run) ? "" : `行动力 ${run.ap}/${run.maxAp}`;
   const top = el("div", "topbar");
   top.innerHTML = `
     <div class="date">第${run.year}年·${run.month}月　${storylineName}${threatText}</div>
-    <div class="ap-wrap">行动力 ${run.ap}/${run.maxAp}</div>
+    <div class="ap-wrap">${apText}</div>
     <div class="topbar-right"><span class="money-display">◎${run.money}</span><button class="settings-btn" data-act="settings" title="设置">⚙</button></div>`;
   top.querySelector("[data-act=settings]").onclick = actions.openSettings;
   return top;
@@ -323,18 +324,11 @@ function renderWandererRun(state, actions) {
   root.appendChild(renderTopbar(run, actions));
   const screen = el("div", "screen wanderer-run-layout");
 
-  // 左侧导航
-  const leftNav = el("div", "left-nav");
-  leftNav.innerHTML = `<div class="nav-tile" data-modal="character">角色</div><div class="nav-tile" data-modal="backpack">背包</div><div class="nav-tile" data-modal="goals">目标</div>`;
-  leftNav.querySelectorAll("[data-modal]").forEach(node => { node.onclick = () => actions.openModal(node.dataset.modal); });
-
-  // 中央画布
   const center = el("div", "center-stage");
-
-  // 主线剧情画布（占满中间）
   const storyCanvas = el("div", "story-canvas");
   if (story) {
     storyCanvas.innerHTML = `
+      ${story.title ? `<div class="story-month-title">${escapeHtml(story.title)}</div>` : ""}
       <div class="story-body">${escapeHtml(story.text || "")}</div>`;
 
     // 最终Boss：只显示战斗按钮（结局在战后 run.storyEndings 中展示）
@@ -358,7 +352,7 @@ function renderWandererRun(state, actions) {
     // 纯结局展示（非战斗故事的结局）
   } else if (run.storyEndings) {
     // M36 战后结局选择（从 battle 结算回来）
-    storyCanvas.innerHTML = `<div class="story-body">太行之巅，风云变色。楚宗玄倒下后，武盟群龙无首——天下散人的命运，握在你手中。</div>`;
+    storyCanvas.innerHTML = `<div class="story-month-title">太行之巅</div><div class="story-body">太行之巅，风云变色。楚宗玄倒下后，武盟群龙无首——天下散人的命运，握在你手中。</div>`;
     const endingsDiv = el("div", "story-choices");
     endingsDiv.innerHTML = run.storyEndings.map(e => {
       const condNote = e.condition ? `<span style="font-size:10px;color:#999;display:block">条件：${e.condition}</span>` : "";
@@ -372,29 +366,34 @@ function renderWandererRun(state, actions) {
     storyCanvas.innerHTML = `<div class="story-no-event">江湖风平浪静，且待下回分晓……</div>`;
   }
 
-  // 血量和经验条（仅两条）
-  const barsDiv = el("div", "story-bars");
-  barsDiv.innerHTML = `
-    ${bar(run.hp, run.stats.hp + getArmorStats(run).hp, `${run.hp}/${run.stats.hp + getArmorStats(run).hp}`)}
-    ${bar(run.martialExp, expNeed(run.level), `经验 ${run.martialExp}/${expNeed(run.level)}｜${getRankTitle(run)}`, "exp-fill")}
-  `;
-
   center.appendChild(storyCanvas);
-  center.appendChild(barsDiv);
 
-  // 底部操作：5按钮（奇遇/修炼/武林商人/下回合/纪要）
-  const actionsDiv = el("div", "bottom-actions");
-  actionsDiv.innerHTML = `
-    <div class="action-card" data-modal="events">奇遇<br>${run.eventRemaining}/3</div>
-    <div class="action-card" data-modal="training">修炼</div>
-    <div class="action-card" data-modal="hall">武林商人</div>
-    <div class="action-card" data-action="next">下回合</div>
-    <div class="action-card" data-modal="journal">纪要</div>`;
-  actionsDiv.querySelectorAll("[data-modal]").forEach(node => { node.onclick = () => actions.openModal(node.dataset.modal); });
-  actionsDiv.querySelector("[data-action=next]").onclick = actions.endMonth;
-  center.appendChild(actionsDiv);
+  const commandDeck = el("div", "wanderer-command-deck");
+  const portrait = run.character.portraitImage
+    ? `<img src="${escapeHtml(run.character.portraitImage)}" alt="${escapeHtml(run.character.name)}" loading="lazy" decoding="async">`
+    : `<span>${escapeHtml(run.character.icon || "侠")}</span>`;
+  commandDeck.innerHTML = `
+    <div class="action-card portrait-command" data-modal="character">${portrait}</div>
+    <div class="command-main">
+      <div class="story-bars">
+        ${bar(run.hp, run.stats.hp + getArmorStats(run).hp, `气血 ${run.hp}/${run.stats.hp + getArmorStats(run).hp}`)}
+        ${bar(run.martialExp, expNeed(run.level), `阅历 ${run.martialExp}/${expNeed(run.level)}｜${getRankTitle(run)}`, "exp-fill")}
+      </div>
+      <div class="bottom-actions">
+        <div class="action-card" data-modal="backpack">背包</div>
+        <div class="action-card" data-modal="goals">目标</div>
+        <div class="action-card" data-modal="events">奇遇<br>${run.eventRemaining}/3</div>
+        <div class="action-card" data-modal="training">修炼<br>${run.ap}/${run.maxAp}</div>
+        <div class="action-card" data-modal="hall">武林商人</div>
+        <div class="action-card" data-modal="journal">纪要</div>
+        <div class="action-card primary-action" data-action="next">进入下月</div>
+      </div>
+    </div>`;
+  commandDeck.querySelectorAll("[data-modal]").forEach(node => { node.onclick = () => actions.openModal(node.dataset.modal); });
+  commandDeck.querySelector("[data-action=next]").onclick = actions.endMonth;
+  center.appendChild(commandDeck);
 
-  screen.append(leftNav, center);
+  screen.appendChild(center);
   root.appendChild(screen);
   return root;
 }
