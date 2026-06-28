@@ -146,6 +146,7 @@ export function applyMonthStart(run) {
   run.ap = run.maxAp;
   run.apUsedThisMonth = false;
   if (run.traits.includes("clearMind")) run.ap += 1;
+  if (run.traits.includes("constable_archive_mind")) run.ap += 1;
   if (run.treasure.effect === "monthRecover" || run.traits.includes("healer")) {
     const amount = run.treasure.effect === "monthRecover" ? 135 : 90;
     run.hp = Math.min(run.stats.hp + getArmorStats(run).hp, run.hp + amount);
@@ -1249,7 +1250,7 @@ function buildBossWithThreat(run, bossTemplate) {
   const boss = { ...bossTemplate };
   const threat = run.mainThreat || 0;
 
-  // 1. 武盟威视对Boss的增强buff
+  // 1. 路线威胁对 Boss 的增强 buff
   if (threat >= 9) {
     boss.hp = Math.floor(boss.hp * 1.3);
     boss.atk = Math.floor(boss.atk * 1.15);
@@ -1266,20 +1267,21 @@ function buildBossWithThreat(run, bossTemplate) {
     boss.bossTraitDesc = (boss.bossTraitDesc || "") + "【山雨欲来：HP+10%, 攻击+5%】";
   }
 
-  // 2. 路线决心对玩家的增强buff（mainThreat为负时积累，抵消Boss增强）
+  // 2. 路线决心对玩家的增强 buff，抵消 Boss 增强
   const resolve = getRouteResolve(run);
+  const resolveLabel = getRouteResolveLabel(run);
   if (resolve > 0) {
     if (resolve >= 9) {
       boss.hp = Math.floor(boss.hp * 0.85);
       boss.atk = Math.floor(boss.atk * 0.9);
-      boss.bossTraitDesc = (boss.bossTraitDesc || "") + "【散人齐心：Boss HP-15%, 攻击-10%】";
+      boss.bossTraitDesc = (boss.bossTraitDesc || "") + `【${resolveLabel}鼎盛：Boss HP-15%, 攻击-10%】`;
     } else if (resolve >= 6) {
       boss.hp = Math.floor(boss.hp * 0.9);
       boss.atk = Math.floor(boss.atk * 0.95);
-      boss.bossTraitDesc = (boss.bossTraitDesc || "") + "【散人暗助：Boss HP-10%, 攻击-5%】";
+      boss.bossTraitDesc = (boss.bossTraitDesc || "") + `【${resolveLabel}渐强：Boss HP-10%, 攻击-5%】`;
     } else if (resolve >= 3) {
       boss.atk = Math.floor(boss.atk * 0.95);
-      boss.bossTraitDesc = (boss.bossTraitDesc || "") + "【散人初聚：Boss 攻击-5%】";
+      boss.bossTraitDesc = (boss.bossTraitDesc || "") + `【${resolveLabel}初显：Boss 攻击-5%】`;
     }
   }
 

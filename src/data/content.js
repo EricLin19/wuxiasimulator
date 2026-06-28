@@ -35,6 +35,10 @@ export const STYLE_LABELS = {
   evasive: "高闪避",
   lowKick: "下盘",
   steal: "偷盗",
+  constableGuilt: "奉诏",
+  constableBind: "锁拿",
+  constableMechanism: "机簧",
+  constableFormation: "列阵",
   buff: "增益"
 };
 
@@ -136,6 +140,24 @@ export const DATA = {
     leg_steal_blue: qinggong("leg_steal_blue", "探囊腿", "blue", 3, gain(0, 1, 2, 0, 0.08), { id: "eightSteps", name: "步步抢先", desc: "命中+1，闪避+2，出手速度+0.08。", effects: { hit: 1, dodge: 2, speed: 0.08 } }, 0, "steal"),
     leg_steal_orange: qinggong("leg_steal_orange", "飞檐探云腿", "orange", 4, gain(0, 2, 4, 2, 0.16), { id: "cloudThief", name: "探云取利", desc: "命中+2，闪避+4，暴击+2，出手速度+0.16。", effects: { hit: 2, dodge: 4, crit: 2, speed: 0.16 } }, 0, "steal"),
     leg_steal_red: qinggong("leg_steal_red", "摘星无影腿", "red", 5, gain(0, 3, 8, 3, 0.22), { id: "starThief", name: "摘星掠影", desc: "命中+3，闪避+8，暴击+3，出手速度+0.22。", effects: { hit: 3, dodge: 8, crit: 3, speed: 0.22 } }, 0, "steal"),
+
+    // === 铁鹰入局专属外功 ===
+    constable_guilt_blue: skill("constable_guilt_blue", "点名刀", "blade", "blue", 62, 42, 1, 3, "guilt", 3, ["crit"], gain(0, 2, 0, 2, 0), { id: "constableGuiltEdge", name: "点名入册", desc: "命中+2，暴击+2。命中附加罪名。", effects: { hit: 2, crit: 2 } }, null, "诏"),
+    constable_guilt_orange: skill("constable_guilt_orange", "朱批追命斩", "blade", "orange", 120, 84, 2, 4, "guilt", 6, ["crit"], gain(0, 4, 0, 5, 0), { id: "constableRedInk", name: "朱批追命", desc: "命中+4，暴击+5。罪名越重，刀势越准。", effects: { hit: 4, crit: 5 } }, null, "诏"),
+    constable_guilt_red: skill("constable_guilt_red", "奉诏断罪刀", "blade", "red", 185, 135, 3, 5, "guilt", 10, ["crit"], gain(0, 6, 0, 8, 0), { id: "constableJudgement", name: "奉诏断罪", desc: "命中+6，暴击+8，暴击倍率提高。25层罪名触发明正典刑。", effects: { hit: 6, crit: 8, critPower: 0.35 } }, null, "诏"),
+
+    constable_bind_blue: skill("constable_bind_blue", "铁尺锁腕手", "fist", "blue", 54, 40, 1, 3, "bind", 3, ["combo"], gain(2, 2, 0, 0, 0), { id: "constableIronRuler", name: "铁尺锁腕", desc: "连击+2，命中+2。命中附加缉缚。", effects: { combo: 2, hit: 2 } }, null, "锁"),
+    constable_bind_orange: skill("constable_bind_orange", "黑门缚影拿", "fist", "orange", 104, 78, 2, 4, "bind", 6, ["combo"], gain(4, 4, 0, 1, 0), { id: "constableBlackGate", name: "黑门缚影", desc: "连击+4，命中+4，暴击+1。缉缚削护体更稳。", effects: { combo: 4, hit: 4, crit: 1 } }, null, "锁"),
+    constable_bind_red: skill("constable_bind_red", "诏狱断龙锁", "fist", "red", 162, 128, 3, 5, "bind", 10, ["combo"], gain(7, 6, 0, 3, 0), { id: "constableDragonLock", name: "断龙锁", desc: "连击+7，命中+6，暴击+3。25层缉缚触发铁锁封门。", effects: { combo: 7, hit: 6, crit: 3 } }, null, "锁"),
+
+    constable_mech_blue: skill("constable_mech_blue", "袖弩验身法", "hidden", "blue", 50, 38, 1, 3, "mechanism", 3, ["surehit"], gain(0, 4, 0, 0, 0), { id: "constableSleeveBolt", name: "袖弩验身", desc: "命中+4。命中后积累机括。", effects: { hit: 4 } }, null, "机"),
+    constable_mech_orange: skill("constable_mech_orange", "银线机簧匣", "hidden", "orange", 96, 80, 2, 4, "mechanism", 6, ["surehit"], gain(0, 7, 1, 1, 0), { id: "constableSilverSpring", name: "银线机簧", desc: "命中+7，闪避+1，暴击+1。机括提供固定伤害。", effects: { hit: 7, dodge: 1, crit: 1 } }, null, "机"),
+    constable_mech_red: skill("constable_mech_red", "九机缉凶匣", "hidden", "red", 150, 128, 3, 5, "mechanism", 10, ["surehit"], gain(0, 10, 2, 3, 0), { id: "constableNineGears", name: "九机缉凶", desc: "命中+10，闪避+2，暴击+3。25层机括触发百机齐发。", effects: { hit: 10, dodge: 2, crit: 3 } }, null, "机"),
+
+    constable_form_blue: qinggong("constable_form_blue", "京营立盾步", "blue", 3, gain(0, 0, 1, 0, 0.04, 0, 3, 70, 0), { id: "constableShieldStep", name: "京营立盾", desc: "防御+3，血量+70，闪避+1，出手速度+0.04。积累列阵。", effects: { dodge: 1, speed: 0.04 } }, 0, "constableFormation"),
+    constable_form_orange: qinggong("constable_form_orange", "宫门破阵步", "orange", 4, gain(0, 1, 2, 1, 0.08, 2, 5, 120, 0), { id: "constableGateStep", name: "宫门破阵", desc: "攻击+2，防御+5，血量+120，命中+1，闪避+2，暴击+1。", effects: { hit: 1, dodge: 2, crit: 1, speed: 0.08 } }, 80, "constableFormation"),
+    constable_form_red: qinggong("constable_form_red", "定国门阵诀", "red", 5, gain(0, 2, 3, 3, 0.12, 4, 8, 220, 0), { id: "constableCapitalFormation", name: "定国门阵", desc: "攻击+4，防御+8，血量+220，命中+2，闪避+3，暴击+3。25层列阵触发军阵反推。", effects: { hit: 2, dodge: 3, crit: 3, speed: 0.12 } }, 160, "constableFormation"),
+
     // === 攻击型秘籍（自用Buff，修炼后可在战斗中使用）===
     manual_speed: {
       id: "manual_speed", name: "唯快不破", icon: "速",
@@ -183,11 +205,18 @@ export const DATA = {
   wandererTraits: [
     { id: "wanderer", name: "浪游", desc: "战斗开始出手速度+0.12，金钱获取+8%。" },
     { id: "nightPoison", name: "夜行", desc: "暴击+8，中毒层数更高。" },
-    { id: "tieyi_blood_debt", name: "血偿", desc: "流血招式层数+3，无论武器类型均生效。" },
+    { id: "tieyi_blood_debt", name: "血偿", desc: "任意外功命中都会额外附加3层流血；流血刀本身也会获得这3层加成，且流血上限至少为25。" },
     { id: "tieyi_body_tempering", name: "铁衣锻体", desc: "每回合调息额外恢复5%最大血量。" },
     { id: "jingxi", name: "鲸息", desc: "每回合自动恢复5%最大内力。" }
   ],
-  constableTraits: [],
+  constableTraits: [
+    { id: "constable_bind_mentor", name: "镇狱手", desc: "缉缚触发锁拿时，优先压制Boss特性/技能。" },
+    { id: "constable_mech_mentor", name: "暗号入袖", desc: "战斗开始获得3层机括。" },
+    { id: "constable_archive_mind", name: "旧档明心", desc: "每月开始额外获得1行动力。" },
+    { id: "constable_border_bone", name: "边关铁骨", desc: "列阵护体量提高，血量和防御提升。" },
+    { id: "constable_edict_firm", name: "奉诏不疑", desc: "战斗开始给Boss附加3层罪名，攻击罪名目标暴击提高。" },
+    { id: "constable_gate_unbroken", name: "国门不退", desc: "低于20%血时获得一次护体并清除1种负面。" }
+  ],
   items: {
     pill: { id: "pill", name: "金疮药", icon: "药", type: "heal", price: 90, desc: "恢复20%最大血量。", hpPct: 0.2 },
     bigPill: { id: "bigPill", name: "大金疮药", icon: "药", type: "heal", price: 180, desc: "恢复35%最大血量。", hpPct: 0.35 },
@@ -366,7 +395,11 @@ export const STYLE_TRAITS = {
   coin: { id: "coinMastery", name: "漫天金雨", desc: "金钱暗器固定伤害提高，终极金钱暗器花费降低。每己方回合最多1次，不暴击。" },
   evasive: { id: "evasiveLegMastery", name: "凌波回息", desc: "闪避后减冷却与调息效果提高。每回合最多触发1次。" },
   lowKick: { id: "lowKickMastery", name: "地裂无声", desc: "下盘腿法真伤+100，失衡额外+1，失衡上限+7。真伤不暴击。" },
-  steal: { id: "stealLegMastery", name: "摘星夺魄", desc: "偷盗型腿法获得更多金钱，并提高出手速度。每己方回合最多1次。" }
+  steal: { id: "stealLegMastery", name: "摘星夺魄", desc: "偷盗型腿法获得更多金钱，并提高出手速度。每己方回合最多1次。" },
+  constableGuilt: { id: "constableGuiltMastery", name: "奉诏不疑", desc: "罪名上限+5；开战给Boss附加3层罪名；攻击罪名10层以上目标时暴击+8。" },
+  constableBind: { id: "constableBindMastery", name: "镇狱手", desc: "缉缚上限+5；锁拿优先压制Boss特性/技能；铁锁封门额外削护体。" },
+  constableMechanism: { id: "constableMechanismMastery", name: "机簧百出", desc: "机括上限+5；开战获得3层机括；机簧招式有概率返还机括。" },
+  constableFormation: { id: "constableFormationMastery", name: "京营阵法", desc: "列阵上限+5；开战获得3层列阵；被暴击时反加缉缚。" }
 };
 
 const SKILL_STYLES = {
@@ -405,7 +438,19 @@ const SKILL_STYLES = {
   leg_kick_red: ["lowKick", "ultimate", "碎岳沉桩腿", "下盘腿法终极式。碎岳真劲。"],
   leg_steal_blue: ["steal", "basic", "探囊腿", "偷盗型腿法基础式。高出手且能获取额外金钱。每回合最多1次。"],
   leg_steal_orange: ["steal", "advanced", "飞檐探云腿", "偷盗型腿法进阶式。出手更快。"],
-  leg_steal_red: ["steal", "ultimate", "摘星无影腿", "偷盗型腿法终极式。摘星取利。"]
+  leg_steal_red: ["steal", "ultimate", "摘星无影腿", "偷盗型腿法终极式。摘星取利。"],
+  constable_guilt_blue: ["constableGuilt", "basic", "点名刀", "奉诏断罪基础式。先点名，再定罪。"],
+  constable_guilt_orange: ["constableGuilt", "advanced", "朱批追命斩", "奉诏断罪进阶式。朱批落处，罪名加身。"],
+  constable_guilt_red: ["constableGuilt", "ultimate", "奉诏断罪刀", "奉诏断罪终极式。罪名25层触发明正典刑。"],
+  constable_bind_blue: ["constableBind", "basic", "铁尺锁腕手", "诏狱锁拿基础式。铁尺锁腕，缉缚其身。"],
+  constable_bind_orange: ["constableBind", "advanced", "黑门缚影拿", "诏狱锁拿进阶式。黑门一落，影也难逃。"],
+  constable_bind_red: ["constableBind", "ultimate", "诏狱断龙锁", "诏狱锁拿终极式。缉缚25层触发铁锁封门。"],
+  constable_mech_blue: ["constableMechanism", "basic", "袖弩验身法", "厂卫机簧基础式。袖中机括，先验其身。"],
+  constable_mech_orange: ["constableMechanism", "advanced", "银线机簧匣", "厂卫机簧进阶式。银线牵机，破盾见血。"],
+  constable_mech_red: ["constableMechanism", "ultimate", "九机缉凶匣", "厂卫机簧终极式。机括25层触发百机齐发。"],
+  constable_form_blue: ["constableFormation", "basic", "京营立盾步", "禁军列阵基础式。立盾成阵，稳住开场。"],
+  constable_form_orange: ["constableFormation", "advanced", "宫门破阵步", "禁军列阵进阶式。守门亦能破阵。"],
+  constable_form_red: ["constableFormation", "ultimate", "定国门阵诀", "禁军列阵终极式。列阵25层触发军阵反推。"]
 };
 
 const SKILL_DEBUFF_LABELS = {
@@ -416,7 +461,11 @@ const SKILL_DEBUFF_LABELS = {
   hamstring: "断筋",
   gu: "蛊",
   coin: "金钱",
-  breakDefense: "破防"
+  breakDefense: "破防",
+  guilt: "罪名",
+  bind: "缉缚",
+  mechanism: "机括",
+  formation: "列阵"
 };
 
 const SKILL_EFFECT_LABELS = {
@@ -487,7 +536,11 @@ for (const [id, [style, tier, name, desc]] of Object.entries(SKILL_STYLES)) {
     gu: "gu",
     poison: "poison",
     coin: "coin",
-    critPalm: "breakDefense"
+    critPalm: "breakDefense",
+    constableGuilt: "guilt",
+    constableBind: "bind",
+    constableMechanism: "mechanism",
+    constableFormation: "formation"
   }[style] || null;
   if (style === "coin") DATA.skills[id].tags = [...new Set([...(DATA.skills[id].tags || []), "surehit", "coin"])];
   DATA.skills[id].desc = buildSkillDesc(DATA.skills[id], tier, desc);
@@ -547,14 +600,14 @@ DATA.storylines = {
   },
   constable: {
     id: "constable",
-    resolveName: "朝廷威势",
+    resolveName: "铁鹰决心",
     name: "铁鹰入局",
-    threatName: "内廷疑云",
-    threatDesc: "内廷爪牙渗透日深",
+    threatName: "厂卫疑云",
+    threatDesc: "厂卫与朝堂暗流渗透日深",
     bosses: {
-      1: { id: "constable_boss_y1", name: "东厂档头·韩玉阙", icon: "镖", portraitImage: "assets/portraits_pixel/han_yuque_pixel_320.webp", year: 1, hp: 1850, qi: 700, atk: 100, def: 58, combo: 5, hit: 86, dodge: 10, crit: 10, speed: 1.60, boss: true, bossTraits: ["highHitPoison"], bossTraitDesc: "暗器命中高；毒层结算后自然衰减", taunt: "六扇门的鹰犬，也敢查厂公的事？" },
-      2: { id: "constable_boss_y2", name: "锦衣指挥使·沈镇岳", icon: "刀", portraitImage: "assets/portraits_pixel/shen_zhenyue_pixel_320.webp", year: 2, hp: 3600, qi: 980, atk: 165, def: 92, combo: 6, hit: 88, dodge: 12, crit: 20, speed: 1.62, boss: true, bossTraits: ["critBreakDef"], bossTraitDesc: "暴击破防；玩家防御最多被压到75%", taunt: "绣春刀下，没有破不了的案子——也没有杀不得的人。" },
-      3: { id: "constable_final", name: "司礼监掌印·魏承恩", icon: "魔", portraitImage: "assets/portraits_pixel/wei_chengen_pixel_320.webp", year: 3, hp: 7200, qi: 2300, atk: 210, def: 145, combo: 7, hit: 95, dodge: 20, crit: 18, speed: 1.82, boss: true, bossTraits: ["drainQiImmuneBurst"], bossTraitDesc: "每回合吸内；前3回合免疫负面；内力低时爆发", taunt: "咱家在这宫墙里活了四十年——你一个小捕快，也配来挡咱家的路？" }
+      1: { id: "constable_boss_y1", name: "东厂试刀局·三档头", icon: "厂", portraitImage: "assets/portraits_pixel/han_yuque_pixel_320.webp", year: 1, hp: 2200, qi: 760, atk: 105, def: 60, combo: 5, hit: 86, dodge: 12, crit: 12, speed: 1.60, boss: true, bossTraits: ["highHitPoison"], bossTraitDesc: "三档头轮番试刀；高命中控场", taunt: "撑过一炷香，咱家便信你不是来送死。" },
+      2: { id: "constable_boss_y2", name: "西厂提督·汪直仪", icon: "诏", portraitImage: "assets/portraits_pixel/wei_chengen_pixel_320.webp", year: 2, hp: 4200, qi: 1200, atk: 165, def: 95, combo: 6, hit: 90, dodge: 16, crit: 18, speed: 1.68, boss: true, bossTraits: ["shadowStep"], bossTraitDesc: "银丝拂尘；低血召番护驾；伪诏威压", taunt: "圣旨是真是假不重要，跪下的人会替它作证。" },
+      3: { id: "constable_final", name: "锦衣卫指挥使·纪扶危", icon: "刀", portraitImage: "assets/portraits_pixel/shen_zhenyue_pixel_320.webp", year: 3, hp: 7600, qi: 2200, atk: 230, def: 150, combo: 7, hit: 94, dodge: 18, crit: 22, speed: 1.82, boss: true, bossTraits: ["critBreakDef"], bossTraitDesc: "绣春刀反制；暴击破防；低血奉诏诛逆", taunt: "惊尘，你还认不认这身衣？" }
     },
     events: [
       { id: "constable_edict", name: "密诏夜传", category: "主线", icon: "诏", desc: "内廷密使深夜造访，传了一道密诏：要你秘密调查锦衣卫中的叛党。", type: "story", yearMin: 1, yearMax: 3 },
@@ -1002,6 +1055,109 @@ DATA.constableMonths = {
     battleReward: { exp:2400, money:1440, fame:480 } },
 };
 
+const CONSTABLE_PLACEHOLDER_STORY = "assets/story_guyun/m01_huorenbiangui.webp";
+const CONSTABLE_PLACEHOLDER_PORTRAIT = "assets/portraits_pixel/lu_jingchen_pixel_320.webp";
+const constableMonthRows = [
+  [1, "雨夜血诏", "户部主事陈伯钧死于家中，雨水冲不淡墙上血字：边饷不入关，十万魂无棺。你奉北镇抚司之命封锁现场，却发现东厂已经先到一步，案卷少了一页。"],
+  [2, "诏狱提人", "陈家遗孤在诏狱中反复说：账本在钟里。老锁吏常百川催你画押定案，你第一次觉得案卷上的字比刀更冷。", "诏狱锁吏·常百川"],
+  [3, "铜钟暗账", "你夜探陈府，从祠堂铜钟夹层取出半本边饷账册。账册末页有西厂暗记，墨迹未干。"],
+  [4, "东厂来客", "东厂档头陆怀霜索账不成，袖中短刃直取你咽喉。三十招后，她只留下一句：别以为镇抚司比东厂干净。", "东厂档头·陆怀霜"],
+  [5, "封口令下", "内阁发文，陈案定为畏罪自尽。沈照夜当众命你焚账，转身却把一页残纸塞进你袖中。"],
+  [6, "西厂番子", "你在城南义庄救下账房，话未说完，白灯齐亮，西厂白灯队已经围住棺木。", "西厂白灯队·素灯七番"],
+  [7, "诏狱灯冷", "账房被押回北镇抚司，当夜便死在牢中。绳结处的银线勒痕说明敌人也在你身后。"],
+  [8, "黑市军械", "你循线潜入京城鬼市，发现边军制式火铳被拆成零件贩卖。铁算盘莫三省拨响算盘，墙上火器同时转向你。", "铁算盘·莫三省"],
+  [9, "厂卫夺案", "东厂、西厂、镇抚司三方同时争抢证人。你救下证人，却被反扣劫囚罪名。"],
+  [10, "沈照夜挡刀", "沈照夜替你扛下劫囚罪名，被拖入诏狱。他经过你身边时低声说：查下去，查到你不敢查为止。", "北镇抚司副千户·顾连山"],
+  [11, "雪夜入宫", "陆怀霜递来东厂腰牌，约你雪夜入宫。宫墙深处巡灯如星，她说边关的雪欠她家两条命。"],
+  [12, "魏承恩", "东厂暖阁中，魏承恩隔帘听完陈案。灯影忽灭，三名东厂高手从暗处出手，撑过一炷香他才信你不是来送死。", "东厂试刀局·三档头"],
+  [13, "白纸黑印", "你被列为钦犯，通缉画像贴满九门。陆怀霜安排假死，从此你只是一把暂时无人承认的刀。"],
+  [14, "西厂密库", "你潜入西厂外库，满墙铁匣里藏着百官把柄。最深处红匣写着戚寒川三字，封泥压着内阁印。", "密库守档·曹不换"],
+  [15, "镇抚司内鬼", "顾连山跪在雨中供认，西厂用宫门旧案威胁沈照夜多年。你问他为何不报，他苦笑：谁来查锦衣卫？"],
+  [16, "诏狱救沈", "你夜闯诏狱，按沈照夜留下的旧暗号打开密门。他右手已废，却用左手刻满牢门换班和暗道位置。", "诏狱典狱·马敬"],
+  [17, "东厂夜宴", "魏承恩设宴，清流御史、边军旧部、内廷人物同坐一席。席上谈忠君，席下人人藏刀。"],
+  [18, "清流之死", "愿意上疏的御史死在上朝前，遗书字字认罪。你在窗缝里找到无声弩残簇，那是西厂内缉营的器物。", "内缉弩师·沈鸦"],
+  [19, "太液池谈刀", "太液池夜雾沉沉，陆怀霜终于说出父兄边饷旧案。她入东厂不是忠于魏承恩，只是想活到看清凶手。"],
+  [20, "罗织党狱", "西厂发动大狱，凡与陈案、边军、清流有关者皆以边党论罪。诏狱外白绳拖过雨水。", "罗织狱丞·白绳十三"],
+  [21, "一封边书", "戚寒川血书入京：三城缺粮，冬衣未发，敌骑已越狼牙口。他不求援，只问朝廷是否还记得北境是国土。"],
+  [22, "兵部假令", "你截获兵部调令，命戚寒川退守空城。票拟、兵部印、西厂押记俱全，唯独御批笔锋有异。", "兵部伪令使·卢廷璋"],
+  [23, "风雪斩使", "西厂使团携假圣旨赴边，要夺戚寒川兵权。风雪压得马蹄无声，你知道这一刀若出便回不了头。"],
+  [24, "汪直仪", "风雪关前，西厂提督汪直仪亲持伪旨逼边军下跪。你当众揭破伪旨，雪地上银丝如网。", "西厂提督·汪直仪"],
+  [25, "边火入京", "北境三城相继失守、戚寒川孤城苦撑的急报传入京城，朝臣却仍在争谁该担责。"],
+  [26, "密旨与明旨", "皇帝明旨命戚寒川退守，密旨却命他死守。两道旨意互相矛盾，印玺皆真。", "传旨监军·冯保礼"],
+  [27, "入阁偷章", "你潜入内阁值房，盗出原始票拟。灯下清楚写着调粮救边，却被人改成按兵待议。"],
+  [28, "严嵩甫", "首辅严嵩甫在值房等你，承认边饷被挪，却说一城枯骨可换十年太平。乌衣笔吏许砚臣奉命阻你。", "乌衣笔吏·许砚臣"],
+  [29, "京城兵变", "西厂余党与严党煽动禁军，称东厂、镇抚司、边军谋逆。九门关闭，百官被困奉天殿。"],
+  [30, "宫门血战", "你与陆怀霜、沈照夜联手闯宫门。禁军铁盾如墙，箭雨遮天，沈照夜用废手替你扯开一道门。", "禁军铁盾营·萧承甲"],
+  [31, "奉天殿前", "魏承恩率东厂残部站到皇帝身前。这个满手脏血的老太监，此刻却清楚底线在哪里。"],
+  [32, "陆怀霜断后", "西厂残党围住侧廊，陆怀霜把完整密账塞进你手里，转身封住追兵。", "西厂银线使·冷千丝"],
+  [33, "天子见账", "密账、伪旨、军械走私证据呈到御前。皇帝震怒，却在看到牵涉名单时沉默。"],
+  [34, "国门急报", "戚寒川最后军报传来：敌军破关在即，孤城只剩三百可战之兵。", "急报截杀者·贺兰缺"],
+  [35, "锦衣之刀", "锦衣卫指挥使纪扶危奉诏入宫。他是沈照夜的上官，也是你这一路刀法的源头。"],
+  [36, "相国与刀", "奉天殿偏阁，严嵩甫按着边关急报问你：这把刀究竟是朝廷的，还是百姓的？纪扶危缓步入殿。", "锦衣卫指挥使·纪扶危"],
+  [37, "天下诏明", "纪扶危败后，皇帝下诏平反陈案与戚寒川案，清查边饷。陆怀霜生死未明，只留一枚短刃印。"],
+  [38, "边关白骨", "你奉命赴北境核查军情。一路村镇荒废，井中有尸，墙上有冻裂的手印。", "白骨驿骑·罗断碑"],
+  [39, "戚寒川", "孤城仍在，城头旗帜只剩半幅。戚寒川没有责怪朝廷，只问粮什么时候到。"],
+  [40, "军粮沉河", "赈粮船队行至运河，半夜沉了七艘。你在河底捞出被刀砍断的缆绳。", "漕刀客·段横舟"],
+  [41, "清查反噬", "被清查官员联名上书，称你挟厂卫余威迫害士林。连皇帝看你的眼神也多了忌惮。"],
+  [42, "东厂旧债", "魏承恩自请入狱，临别前把一份东厂旧档交给你。别让他们把咱家的罪盖到边关死人头上。", "东厂清债人·岳无声"],
+  [43, "寒门新吏", "你扶持寒门清吏入边地查账。沈照夜说改革不是一道诏书，是一条吃人的路。"],
+  [44, "严党余孽", "严嵩甫旧部暗中串联，策划刺杀皇帝、嫁祸边军。密信落款竟是宗室藩王。", "严党死士·陆玄礼"],
+  [45, "藩王入局", "穆王打着清君侧旗号起兵，外敌也趁机南下。地图上的红点同时亮起。"],
+  [46, "京畿保卫", "你统合锦衣卫、东厂残部与戚寒川残军守京畿。昔日互相猜忌的人不得不并肩列阵。", "藩军破城将·穆青崖"],
+  [47, "万民灯火", "大战前夜，京城百姓自发送粮、修墙、抬伤兵。你看见万家灯火次第亮起。"],
+  [48, "终战·定国门", "定国门前，穆王世子朱承燧率藩军压境。今日之后朝廷未必清明，但今日国门不能破。", "穆王世子·朱承燧"]
+];
+
+DATA.constableMonths = Object.fromEntries(constableMonthRows.map(([month, title, text, bossName]) => {
+  const entry = { title, text, storyImage: CONSTABLE_PLACEHOLDER_STORY };
+  if (bossName) {
+    const exp = 260 + month * 45;
+    const money = 120 + month * 25;
+    entry.fightLabel = month === 48 ? "定国门决战" : "迎战";
+    entry.enemyId = `constable_m${month}_enemy`;
+    entry.hasBattle = true;
+    entry.isBoss = true;
+    entry.isFinalBoss = month === 48;
+    entry.battleDesc = bossName;
+    entry.battleReward = { exp, money, fame: month * 10 };
+    if (month === 48) entry.onWin = "m48Win";
+  }
+  return [month, entry];
+}));
+
+const constableBossNames = constableMonthRows.filter(row => row[3]).map(row => [row[0], row[3]]);
+const constableBossTraitsByMonth = {
+  2: ["sealMove"], 4: ["shadowStep"], 6: ["silverThread"], 8: ["evidenceBurn"],
+  10: ["disarm"], 12: ["sealMove"], 14: ["evidenceBurn"], 16: ["sealMove"],
+  18: ["ambushShot"], 20: ["edictPressure"], 22: ["edictPressure"], 24: ["falseEdict"],
+  26: ["falseEdict"], 28: ["edictPressure"], 30: ["ironFormation"], 32: ["silverThread"],
+  34: ["ambushShot"], 36: ["disarm", "falseEdict"], 38: ["borderFrost"], 40: ["ambushShot"],
+  42: ["sealMove"], 44: ["guardSwap"], 46: ["ironFormation"], 48: ["edictPressure", "guardSwap"]
+};
+DATA.enemies.push(...constableBossNames.map(([month, name], idx) => {
+  const rank = Math.max(1, Math.ceil(month / 6));
+  return {
+    id: `constable_m${month}_enemy`,
+    name,
+    icon: month === 48 ? "王" : "鹰",
+    portraitImage: CONSTABLE_PLACEHOLDER_PORTRAIT,
+    hp: 900 + month * 260 + idx * 60,
+    qi: 300 + month * 65,
+    atk: 65 + month * 6,
+    def: 28 + month * 3,
+    combo: 3 + Math.floor(month / 10),
+    hit: 68 + Math.floor(month / 2),
+    dodge: 5 + Math.floor(month / 8),
+    crit: 8 + Math.floor(month / 4),
+    speed: Number((1.2 + month * 0.018).toFixed(2)),
+    rank,
+    boss: true,
+    bossTraits: constableBossTraitsByMonth[month] || [],
+    bossTraitDesc: "铁鹰占位Boss机制；正式立绘与精调后续替换。",
+    taunt: month === 48 ? "清君侧，定乾坤。陆惊尘，你这把刀该换主人了。" : "奉命办差，挡路者死。"
+  };
+}));
+
 DATA.wandererGrowthEvents = {
   heritage: [
     {
@@ -1010,7 +1166,7 @@ DATA.wandererGrowthEvents = {
       category: "传功",
       unlockMonth: 10,
       desc: "龙井谷废墟的石壁上刻着韩铁衣最后的手迹。不是招式，而是一个命令：「散人不打花拳——打一刀要让对面流血三天。」你用手掌抚过石壁上的刻痕，每一条都入石三分。这是他死前用最后的力气刻上去的。",
-      effect: { traitGain: "tieyi_blood_debt", desc: "获得特性「血偿」：流血招式层数+3，无论武器类型均生效" }
+      effect: { traitGain: "tieyi_blood_debt", desc: "获得特性「血偿」：任意外功命中都会额外附加3层流血，流血上限至少为25" }
     },
     {
       id: "wanderer_heritage_meng",
@@ -1210,7 +1366,56 @@ DATA.wandererGrowthEvents = {
 // ============================================================
 // 铁鹰入局 成长事件池（待设计）
 // ============================================================
-DATA.constableGrowthEvents = [];
+DATA.constableGrowthEvents = {
+  heritage: [
+    { id: "constable_heritage_shen_prison", name: "沈照夜·诏狱旧印", category: "传功", unlockMonth: 10, desc: "沈照夜以废手在墙上画出诏狱锁拿关窍：铁尺不为伤人，只为让恶人再动不得一步。", effect: { traitGain: "constable_bind_mentor", hit: 4, desc: "获得特性「镇狱手」：缉缚更容易压制Boss特性/技能，命中+4。" } },
+    { id: "constable_heritage_lu_code", name: "陆怀霜·东厂暗号", category: "传功", unlockMonth: 12, desc: "陆怀霜把东厂夜行暗号拆给你看：机关不在袖里，在人以为你不敢动手的那一瞬。", effect: { traitGain: "constable_mech_mentor", dodge: 3, desc: "获得特性「暗号入袖」：开战获得机括，闪避+3。" } },
+    { id: "constable_heritage_wei_archive", name: "魏承恩·旧档批红", category: "传功", unlockMonth: 24, desc: "魏承恩把旧档批红推到你面前：咱家不教你干净，只教你看清谁在借干净杀人。", effect: { traitGain: "constable_archive_mind", qiUp: 90, desc: "获得特性「旧档明心」：每月行动力+1，内力+90。" } },
+    { id: "constable_heritage_qi_map", name: "戚寒川·守城阵图", category: "传功", unlockMonth: 34, desc: "戚寒川在残旗下摊开守城阵图：城门破不破，先看人心散不散。", effect: { traitGain: "constable_border_bone", hpUp: 260, defUp: 8, desc: "获得特性「边关铁骨」：列阵护体更强，血量+260，防御+8。" } },
+    { id: "constable_heritage_ji_lesson", name: "纪扶危·锦衣刀诫", category: "传功", unlockMonth: 36, desc: "纪扶危败后只留下一句刀诫：刀认不认朝廷，先看朝廷认不认百姓。", effect: { traitGain: "constable_edict_firm", crit: 6, desc: "获得特性「奉诏不疑」：开战给Boss附加罪名，暴击+6。" } },
+    { id: "constable_heritage_people_gate", name: "万民灯火·国门不退", category: "传功", unlockMonth: 47, desc: "定国门前，百姓自发送粮、修墙、抬伤兵。你终于明白，国门不是石头，是这些人。", effect: { traitGain: "constable_gate_unbroken", hpUp: 180, desc: "获得特性「国门不退」：低血时获得一次护体，血量+180。" } }
+  ],
+  item: [],
+  stat: [
+    { id: "constable_stat_archive", name: "案牍研判", category: "属性", unlockMonth: 1, desc: "你在案牍中反复比对供词、印信与票拟，疑点逐渐连成线。", autoReward: { type: "stat", stats: { hit: 3 }, desc: "命中+3" } },
+    { id: "constable_stat_patrol", name: "飞鱼夜巡", category: "属性", unlockMonth: 6, desc: "夜巡宫墙，灯影之间练身法。", autoReward: { type: "stat", stats: { dodge: 2, speed: 0.03 }, desc: "闪避+2，出手速度+0.03" } },
+    { id: "constable_stat_interrogate", name: "铁尺问供", category: "属性", unlockMonth: 10, desc: "铁尺落桌，不必伤人，先让人心乱。", autoReward: { type: "stat", stats: { atk: 3, hit: 2 }, desc: "攻击+3，命中+2" } }
+  ],
+  fight: [
+    { id: "constable_fight_factory", name: "厂卫截杀", category: "打斗", unlockMonth: 1, desc: "厂卫番子在巷口截杀证人，你不得不拔刀。", enemyByYear: { 1: "constable_grunt_ambush_yr1", 2: "constable_grunt_ambush_yr2", 3: "constable_grunt_ambush_yr3", 4: "constable_grunt_ambush_yr3" }, reward: { exp: 120, money: 80 } },
+    { id: "constable_fight_blackmarket", name: "黑市缉凶", category: "打斗", unlockMonth: 8, desc: "黑市军械贩听见风声就跑，账册不能让他们带走。", enemyByYear: { 1: "constable_grunt_bandit_yr1", 2: "constable_grunt_bandit_yr2", 3: "constable_grunt_bandit_yr3", 4: "constable_grunt_bandit_yr3" }, reward: { exp: 150, money: 120 } },
+    { id: "constable_fight_guard", name: "禁军试刀", category: "打斗", unlockMonth: 25, desc: "禁军校尉奉命试探你，宫门前没有退路。", enemyByYear: { 1: "constable_grunt_fighter_yr1", 2: "constable_grunt_fighter_yr2", 3: "constable_grunt_fighter_yr3", 4: "constable_grunt_fighter_yr3" }, reward: { exp: 180, money: 140 } }
+  ],
+  coin: [
+    { id: "constable_coin_seizure", name: "抄没赃银", category: "金钱", unlockMonth: 1, desc: "查封暗库时，你按例登记赃银，朝廷赏下一笔办案银。", reward: { y1: 150, y2: 230, y3: 340, y4: 420 } },
+    { id: "constable_coin_witness", name: "护送证人", category: "金钱", unlockMonth: 6, desc: "你连夜护送证人换押，天亮后领到一封赏银文书。", reward: { y1: 120, y2: 200, y3: 300, y4: 380 }, autoReward: { type: "stat", stats: { hit: 2 }, desc: "命中+2" } }
+  ]
+};
+
+Object.assign(DATA.internalArts, {
+  constable_art_blue_1: { id: "constable_art_blue_1", name: "北镇坐照功", rarity: "blue", icon: "照", cultivateCost: 3, desc: "镇抚司案前坐照之功。血量+160，命中+5；战斗开始给敌人附加1层罪名。", statGain: { hp: 160, hit: 5 }, combatEffect: "constableGuiltStart", combatDesc: "开战给敌人罪名+1" },
+  constable_art_blue_2: { id: "constable_art_blue_2", name: "飞鱼敛息功", rarity: "blue", icon: "鱼", cultivateCost: 3, desc: "飞鱼服潜行敛息。速度+0.08，闪避+6；开战前2回合速度小幅提升。", statGain: { speed: 0.08, dodge: 6 }, combatEffect: "constableSpeedStart", combatDesc: "开战短暂提速" },
+  constable_art_blue_3: { id: "constable_art_blue_3", name: "京营铁壁诀", rarity: "blue", icon: "盾", cultivateCost: 3, desc: "京营守门硬功。血量+220，防御+8；开战获得少量护体。", statGain: { hp: 220, def: 8 }, combatEffect: "constableGuardStart", combatDesc: "开战获得少量护体" },
+  constable_art_orange_1: { id: "constable_art_orange_1", name: "诏狱锁魂息", rarity: "orange", icon: "锁", cultivateCost: 4, desc: "诏狱拷问中传出的锁息法。内力+180，命中+8；缉缚触发锁拿时额外削内。", statGain: { qi: 180, hit: 8 }, combatEffect: "constableBindQi", combatDesc: "锁拿额外削内" },
+  constable_art_orange_2: { id: "constable_art_orange_2", name: "东厂听雪功", rarity: "orange", icon: "雪", cultivateCost: 4, desc: "东厂夜行听雪之功。速度+0.12，闪避+10；开战获得2层机括。", statGain: { speed: 0.12, dodge: 10 }, combatEffect: "constableMechanismStart", combatDesc: "开战机括+2" },
+  constable_art_red_1: { id: "constable_art_red_1", name: "镇抚玄鉴经", rarity: "red", icon: "鉴", cultivateCost: 5, desc: "镇抚司高阶心法。全属性提升；每4回合净化自身1种负面，并给敌人追加罪名。", statGain: { hp: 520, qi: 160, atk: 6, def: 6, hit: 6, dodge: 4, crit: 4, speed: 0.06 }, combatEffect: "constableCleanseGuilt", combatDesc: "周期净化并追加罪名" },
+  constable_art_red_2: { id: "constable_art_red_2", name: "天听照影录", rarity: "red", icon: "听", cultivateCost: 5, desc: "天听照影，辨奸破伪。命中+14，速度+0.10，内力+260；命中后小概率压制敌方可压制特性/技能。", statGain: { qi: 260, hit: 14, speed: 0.1 }, combatEffect: "constableSuppressOnHit", combatDesc: "命中小概率压制敌方特性/技能" }
+});
+
+Object.assign(DATA.weapons, {
+  constable_guilt_blue: { id: "constable_guilt_blue", name: "雁翎官刀", icon: "刀", school: "blade", rarity: "blue", style: "constableGuilt", price: 560, atk: 14, hit: 2, desc: "奉诏断罪。攻击+14，命中+2。" },
+  constable_guilt_orange: { id: "constable_guilt_orange", name: "朱批断案刀", icon: "刀", school: "blade", rarity: "orange", style: "constableGuilt", price: 1650, atk: 32, hit: 4, guiltBonus: 2, guiltCapBonus: 5, damagePct: 6, desc: "奉诏断罪。罪名+2，罪名上限+5，伤害+6%。" },
+  constable_guilt_red: { id: "constable_guilt_red", name: "御赐断罪刀", icon: "刀", school: "blade", rarity: "red", style: "constableGuilt", price: 4600, atk: 62, hit: 7, guiltBonus: 4, guiltCapBonus: 10, judgementBonus: 0.15, desc: "奉诏断罪。罪名+4，罪名上限+10，明正典刑伤害提高。" },
+  constable_bind_blue: { id: "constable_bind_blue", name: "镇狱铁尺", icon: "尺", school: "fist", rarity: "blue", style: "constableBind", price: 520, atk: 10, def: 6, hit: 2, desc: "诏狱锁拿。防御+6，命中+2。" },
+  constable_bind_orange: { id: "constable_bind_orange", name: "黑门锁魂尺", icon: "尺", school: "fist", rarity: "orange", style: "constableBind", price: 1550, atk: 24, def: 12, hit: 4, bindBonus: 2, bindCapBonus: 5, shieldBreakBonus: 80, desc: "诏狱锁拿。缉缚+2，缉缚上限+5，削护体提高。" },
+  constable_bind_red: { id: "constable_bind_red", name: "诏狱断龙锁", icon: "锁", school: "fist", rarity: "red", style: "constableBind", price: 4400, atk: 50, def: 18, hit: 8, bindBonus: 4, bindCapBonus: 10, sealBonusTurns: 1, shieldBreakBonus: 180, desc: "诏狱锁拿。缉缚+4，缉缚上限+10，铁锁封门更强。" },
+  constable_mech_blue: { id: "constable_mech_blue", name: "袖弩匣", icon: "弩", school: "hidden", rarity: "blue", style: "constableMechanism", price: 520, atk: 10, hit: 4, desc: "厂卫机簧。命中+4。" },
+  constable_mech_orange: { id: "constable_mech_orange", name: "银线机簧匣", icon: "匣", school: "hidden", rarity: "orange", style: "constableMechanism", price: 1500, atk: 24, hit: 7, mechanismBonus: 2, mechanismCapBonus: 5, fixedDamageBonus: 80, desc: "厂卫机簧。机括+2，机括上限+5，固定伤害提高。" },
+  constable_mech_red: { id: "constable_mech_red", name: "九机缉凶匣", icon: "匣", school: "hidden", rarity: "red", style: "constableMechanism", price: 4450, atk: 52, hit: 10, mechanismBonus: 4, mechanismCapBonus: 10, fixedDamageBonus: 220, shieldBreakBonus: 160, desc: "厂卫机簧。机括+4，机括上限+10，百机齐发额外削护体。" },
+  constable_form_blue: { id: "constable_form_blue", name: "京营皮盾", icon: "盾", school: "lightness", rarity: "blue", style: "constableFormation", price: 520, hp: 120, def: 8, desc: "禁军列阵。血量+120，防御+8。" },
+  constable_form_orange: { id: "constable_form_orange", name: "宫门铁盾", icon: "盾", school: "lightness", rarity: "orange", style: "constableFormation", price: 1550, hp: 260, def: 16, formationBonus: 2, formationCapBonus: 5, guardBonus: 0.06, desc: "禁军列阵。列阵+2，列阵上限+5，护体量提高。" },
+  constable_form_red: { id: "constable_form_red", name: "定国门阵牌", icon: "牌", school: "lightness", rarity: "red", style: "constableFormation", price: 4500, hp: 520, def: 28, formationBonus: 4, formationCapBonus: 10, guardBonus: 0.12, counterBonus: 160, desc: "禁军列阵。列阵+4，列阵上限+10，军阵反推更强。" }
+});
 
 // ============================================================
 // 孤云逐浪 武林商人货品池（精选江湖气质秘籍/兵器/防具/丹药）
@@ -1274,11 +1479,61 @@ DATA.wandererMerchantPool = {
   ]
 };
 DATA.constableMerchantPool = {
-  manuals: [],
-  weapons: [],
-  armors: [],
-  internalArts: [],
-  pills: []
+  manuals: [
+    { id: "constable_guilt_blue", name: "点名刀", school: "blade", rarity: "blue", style: "constableGuilt", price: 220, desc: "奉诏断罪基础式。先叠罪名，再奉诏裁决。" },
+    { id: "constable_guilt_orange", name: "朱批追命斩", school: "blade", rarity: "orange", style: "constableGuilt", price: 560, desc: "朱批落处，罪名加身。" },
+    { id: "constable_guilt_red", name: "奉诏断罪刀", school: "blade", rarity: "red", style: "constableGuilt", price: 1550, desc: "罪名25层触发明正典刑。" },
+    { id: "constable_bind_blue", name: "铁尺锁腕手", school: "fist", rarity: "blue", style: "constableBind", price: 220, desc: "诏狱锁拿基础式，附加缉缚。" },
+    { id: "constable_bind_orange", name: "黑门缚影拿", school: "fist", rarity: "orange", style: "constableBind", price: 560, desc: "黑门一落，影也难逃。" },
+    { id: "constable_bind_red", name: "诏狱断龙锁", school: "fist", rarity: "red", style: "constableBind", price: 1550, desc: "缉缚25层触发铁锁封门。" },
+    { id: "constable_mech_blue", name: "袖弩验身法", school: "hidden", rarity: "blue", style: "constableMechanism", price: 220, desc: "厂卫机簧基础式，积累机括。" },
+    { id: "constable_mech_orange", name: "银线机簧匣", school: "hidden", rarity: "orange", style: "constableMechanism", price: 560, desc: "银线牵机，破盾见血。" },
+    { id: "constable_mech_red", name: "九机缉凶匣", school: "hidden", rarity: "red", style: "constableMechanism", price: 1550, desc: "机括25层触发百机齐发。" },
+    { id: "constable_form_blue", name: "京营立盾步", school: "lightness", rarity: "blue", style: "constableFormation", price: 220, desc: "禁军列阵基础式，立盾成阵。" },
+    { id: "constable_form_orange", name: "宫门破阵步", school: "lightness", rarity: "orange", style: "constableFormation", price: 560, desc: "守门亦能破阵。" },
+    { id: "constable_form_red", name: "定国门阵诀", school: "lightness", rarity: "red", style: "constableFormation", price: 1550, desc: "列阵25层触发军阵反推。" },
+    { id: "manual_speed", name: "飞鱼急令", school: "none", rarity: "blue", style: "buff", price: 500, desc: "读条速度提升3倍，持续3回合。" },
+    { id: "manual_atk", name: "破门令", school: "none", rarity: "blue", style: "buff", price: 500, desc: "攻击力提升2倍，持续3回合。" },
+    { id: "manual_crit", name: "缉凶断罪", school: "none", rarity: "blue", style: "buff", price: 500, desc: "暴击/连击概率+100%，暴击倍率+1，持续3回合。" }
+  ],
+  weapons: [
+    { id: "constable_guilt_blue", name: "雁翎官刀", school: "blade", rarity: "blue", price: 560 },
+    { id: "constable_guilt_orange", name: "朱批断案刀", school: "blade", rarity: "orange", price: 1650 },
+    { id: "constable_guilt_red", name: "御赐断罪刀", school: "blade", rarity: "red", price: 4600 },
+    { id: "constable_bind_blue", name: "镇狱铁尺", school: "fist", rarity: "blue", price: 520 },
+    { id: "constable_bind_orange", name: "黑门锁魂尺", school: "fist", rarity: "orange", price: 1550 },
+    { id: "constable_bind_red", name: "诏狱断龙锁", school: "fist", rarity: "red", price: 4400 },
+    { id: "constable_mech_blue", name: "袖弩匣", school: "hidden", rarity: "blue", price: 520 },
+    { id: "constable_mech_orange", name: "银线机簧匣", school: "hidden", rarity: "orange", price: 1500 },
+    { id: "constable_mech_red", name: "九机缉凶匣", school: "hidden", rarity: "red", price: 4450 },
+    { id: "constable_form_blue", name: "京营皮盾", school: "lightness", rarity: "blue", price: 520 },
+    { id: "constable_form_orange", name: "宫门铁盾", school: "lightness", rarity: "orange", price: 1550 },
+    { id: "constable_form_red", name: "定国门阵牌", school: "lightness", rarity: "red", price: 4500 }
+  ],
+  armors: [
+    { id: "armor_heavy_blue", name: "皂隶软甲", rarity: "blue", price: 600, desc: "镇抚司皂隶常用软甲。" },
+    { id: "armor_guard_orange", name: "锦衣鳞甲", rarity: "orange", price: 1400, desc: "护心鳞甲，低血减伤。" },
+    { id: "armor_tianheng_red", name: "御赐飞鱼服", rarity: "red", price: 3000, desc: "暂用全局红甲效果。" }
+  ],
+  internalArts: [
+    { id: "constable_art_blue_1", name: "北镇坐照功", rarity: "blue", price: 500, desc: "开战给敌人罪名+1。" },
+    { id: "constable_art_blue_2", name: "飞鱼敛息功", rarity: "blue", price: 500, desc: "开战短暂提速。" },
+    { id: "constable_art_blue_3", name: "京营铁壁诀", rarity: "blue", price: 500, desc: "开战获得少量护体。" },
+    { id: "constable_art_orange_1", name: "诏狱锁魂息", rarity: "orange", price: 1600, desc: "锁拿额外削内。" },
+    { id: "constable_art_orange_2", name: "东厂听雪功", rarity: "orange", price: 1600, desc: "开战机括+2。" },
+    { id: "constable_art_red_1", name: "镇抚玄鉴经", rarity: "red", price: 5000, desc: "周期净化并追加罪名。" },
+    { id: "constable_art_red_2", name: "天听照影录", rarity: "red", price: 5000, desc: "命中小概率压制敌方特性/技能。" }
+  ],
+  pills: [
+    { id: "pill" },
+    { id: "bigPill" },
+    { id: "springPaste" },
+    { id: "qiWine" },
+    { id: "qiPill" },
+    { id: "yuanPowder" },
+    { id: "statPill" },
+    { id: "superPill" }
+  ]
 };
 
 

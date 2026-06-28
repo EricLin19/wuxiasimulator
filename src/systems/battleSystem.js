@@ -15,7 +15,11 @@ const DEBUFF_CAPS = {
   veinBreak: 15,
   gu: 6,
   imbalance: 15,
-  breakDefense: 15
+  breakDefense: 15,
+  guilt: 15,
+  bind: 15,
+  mechanism: 15,
+  formation: 15
 };
 const BLEED_DMG = 15;
 const POISON_DMG = 8;
@@ -174,6 +178,20 @@ export function createBattle(run, enemyTemplate, isBoss = false) {
   // v6.x 破防系统：记录双方原始 DEF 基准（用于破防清零后恢复）
   battle.player.defBase = battle.player.stats.def;
   battle.enemy.defBase = battle.enemy.stats.def;
+  (run.activeInternalArts || []).forEach(id => {
+    const art = DATA.internalArts[id];
+    const playerWeapon = run.equippedWeapon ? DATA.weapons[run.equippedWeapon] : null;
+    if (!art) return;
+    if (art.combatEffect === "constableGuiltStart") battle.enemy.guilt = Math.min(getDebuffCap(run, playerWeapon, "guilt"), battle.enemy.guilt + 2);
+    if (art.combatEffect === "constableSpeedStart") battle.player.tempBuffs.speed = { duration: 2, mult: 1.18 };
+    if (art.combatEffect === "constableGuardStart") battle.player.formation = Math.min(getDebuffCap(run, playerWeapon, "formation"), battle.player.formation + 3);
+    if (art.combatEffect === "constableBindQi") battle.enemy.bind = Math.min(getDebuffCap(run, playerWeapon, "bind"), battle.enemy.bind + 2);
+    if (art.combatEffect === "constableMechanismStart") battle.player.mechanism = Math.min(getDebuffCap(run, playerWeapon, "mechanism"), battle.player.mechanism + 3);
+  });
+  const playerWeaponForConstable = run.equippedWeapon ? DATA.weapons[run.equippedWeapon] : null;
+  if (run.traits.includes("constable_edict_firm")) battle.enemy.guilt = Math.min(getDebuffCap(run, playerWeaponForConstable, "guilt"), battle.enemy.guilt + 3);
+  if (run.traits.includes("constable_mech_mentor")) battle.player.mechanism = Math.min(getDebuffCap(run, playerWeaponForConstable, "mechanism"), battle.player.mechanism + 3);
+  if (run.traits.includes("constable_bind_mentor")) battle.enemy.bind = Math.min(getDebuffCap(run, playerWeaponForConstable, "bind"), battle.enemy.bind + 3);
   // v6.0.3 debug: 记录 Boss 特性初始化
   if (battle.bossTraits.length) {
     console.log(`[createBattle] ${enemyTemplate.name} bossTraits=`, battle.bossTraits, `isBoss=${isBoss}`);
@@ -274,7 +292,7 @@ function scaleEnemyStats(stats) {
 }
 
 function makeUnit(name, icon, stats, hp, qi, skills, items) {
-  return { name, icon, stats, hp, qi, gauge: 0, skills, items, cooldowns: {}, auto: false, bleed: 0, poison: 0, inner: 0, frost: 0, hamstring: 0, veinBreak: 0, gu: 0, imbalance: 0, guard: 0, cleanseShield: 0, dodgeHealCount: 0, frozen: 0, atkZero: 0, weakpointExposed: 0, imbalanceMult: 0, breakDefense: 0, breakDefenseShatter: 0, defBase: 0, tempBuffs: {}, weapon: null };
+  return { name, icon, stats, hp, qi, gauge: 0, skills, items, cooldowns: {}, auto: false, bleed: 0, poison: 0, inner: 0, frost: 0, hamstring: 0, veinBreak: 0, gu: 0, imbalance: 0, guilt: 0, bind: 0, mechanism: 0, formation: 0, guard: 0, cleanseShield: 0, dodgeHealCount: 0, frozen: 0, atkZero: 0, bleedBurst: 0, poisonBurst: 0, guiltyVulnerable: 0, sealedGate: 0, allMachines: 0, formationCounter: 0, weakpointExposed: 0, imbalanceMult: 0, breakDefense: 0, breakDefenseShatter: 0, defBase: 0, tempBuffs: {}, weapon: null };
 }
 
 export function tickBattle(battle, dt) {
@@ -843,6 +861,15 @@ function applyTurnStart(battle, unit) {
   // v6.x 破防结算：每层持续 -3% DEF（不递减，破防是 debuff 不自动 -1，引爆时才-25）
   // 破防仅在 25 层引爆时由引爆代码扣 25 层，平时不动
   // 破防引爆计时器
+  if (unit.breakDefense > 0) {
+    unit.breakDefense = Math.max(0, unit.breakDefense - 1);
+  }
+  if (unit.bleedBurst > 0) {
+    unit.bleedBurst--;
+  }
+  if (unit.poisonBurst > 0) {
+    unit.poisonBurst--;
+  }
   if (unit.breakDefenseShatter > 0) {
     unit.breakDefenseShatter--;
   }
@@ -856,6 +883,12 @@ function applyTurnStart(battle, unit) {
   }
 
   // 鲸息特性：每回合自动恢复 5% 内力（无论是否调息）
+  if (unit.guiltyVulnerable > 0) {
+    unit.guiltyVulnerable--;
+  }
+  if (unit.formationCounter > 0) {
+    unit.formationCounter--;
+  }
   if (unit === battle.player && battle.run?.traits?.includes("jingxi")) {
     const extraQi = Math.floor(unit.stats.qi * 0.05);
     unit.qi = Math.min(unit.stats.qi, unit.qi + extraQi);
@@ -916,9 +949,14 @@ function applySkillEffects(run, battle, actor, target, skill, damage, multiplier
     if (skill.debuff === "gu" && skill.style === "gu") stacks += weapon.guBonus || weapon.debuffBonus || 0;
     if (skill.debuff === "poison" && skill.style === "poison") stacks += weapon.poisonBonus || weapon.debuffBonus || 0;
     if (skill.debuff === "breakDefense" && skill.style === "critPalm") stacks += weapon.breakDefenseBonus || 0;
+    if (skill.debuff === "guilt" && skill.style === "constableGuilt") stacks += weapon.guiltBonus || 0;
+    if (skill.debuff === "bind" && skill.style === "constableBind") stacks += weapon.bindBonus || 0;
+    if (skill.debuff === "mechanism" && skill.style === "constableMechanism") stacks += weapon.mechanismBonus || 0;
+    if (skill.style === "constableFormation") stacks += weapon.formationBonus || 0;
   }
 
   if (hasStyleMastery(run, skill.style) && ["bleed", "frost", "hamstring", "gu", "poison"].includes(skill.style)) stacks += 1;
+  if (hasStyleMastery(run, skill.style) && ["constableGuilt", "constableBind", "constableMechanism", "constableFormation"].includes(skill.style)) stacks += 1;
   // critPalm 流派大师碎星连震没有大师额外+1（大师只加 cap=+7）
   if (run.traits.includes("nightPoison") && skill.debuff === "poison") stacks += 1;
   if (run.traits.includes("tieyi_blood_debt") && skill.style === "bleed") stacks += 3;
@@ -929,6 +967,19 @@ function applySkillEffects(run, battle, actor, target, skill, damage, multiplier
 
   // 连击额外攻击：所有stacks减半（取整）
   if (multiplier < 1) stacks = Math.max(0, Math.round(stacks * multiplier));
+
+  if (actor.allMachines > 0 && skill.style === "constableMechanism") {
+    const fixed = 80 + (weapon?.fixedDamageBonus || 0) + Math.floor(actor.stats.atk * 0.25);
+    target.hp = Math.max(0, target.hp - fixed);
+    if (target === battle.enemy && battle.bossShield > 0) {
+      const shieldBreak = Math.min(battle.bossShield, 80 + (weapon?.shieldBreakBonus || 0));
+      battle.bossShield -= shieldBreak;
+      if (shieldBreak > 0) addFloater(battle, "enemy", `破盾-${shieldBreak}`);
+    }
+    actor.allMachines = 0;
+    battleLog(battle, `百机齐发：${target.name}受到${fixed}点机关定伤。`);
+    addFloater(battle, sideOf(battle, target), `-${fixed}`, "normal");
+  }
 
   // 三主线Boss特性：免疫新负面（drainQiImmuneBurst）
   if (actor === battle.player && target === battle.enemy && battle.bossTraits.includes("drainQiImmuneBurst")) {
@@ -960,6 +1011,7 @@ function applySkillEffects(run, battle, actor, target, skill, damage, multiplier
       target.hp = Math.max(0, target.hp - burstDmg);
       addFloater(battle, sideOf(battle, target), "血流如注");
       addFloater(battle, sideOf(battle, target), `-${burstDmg}`, "bleed");
+      target.bleedBurst = 1;
       target.bleed -= 25;
       battleLog(battle, `血流如注！${target.name}流血崩裂，扣除${burstDmg}血量！`);
     }
@@ -982,6 +1034,7 @@ function applySkillEffects(run, battle, actor, target, skill, damage, multiplier
       const qiDmg = Math.floor(target.qi * qiPct);
       target.hp = Math.max(0, target.hp - hpDmg);
       target.qi = Math.max(0, target.qi - qiDmg);
+      target.poisonBurst = 1;
       target.poison -= 25;
       battleLog(battle, `毒素爆发！${target.name}毒发攻心，扣除${hpDmg}血量、${qiDmg}内力！`);
       addFloater(battle, sideOf(battle, target), "毒入骨髓");
@@ -1058,6 +1111,20 @@ function applySkillEffects(run, battle, actor, target, skill, damage, multiplier
     if (battle.turnTrackers.guDisrupts < 1) {
       for (const id of Object.keys(target.cooldowns)) target.cooldowns[id] += 1;
       battle.turnTrackers.guDisrupts++;
+    }
+  }
+  if (actor === battle.player && run.traits.includes("tieyi_blood_debt") && skill.style !== "bleed" && skill.school !== "none" && multiplier >= 1) {
+    const cap = getDebuffCap(run, weapon, "bleed");
+    target.bleed = Math.min(cap, target.bleed + 3);
+    addFloater(battle, sideOf(battle, target), "血偿+3", "bleed");
+    if (target.bleed >= 25) {
+      const burstDmg = Math.floor(target.hp * 0.15);
+      target.hp = Math.max(0, target.hp - burstDmg);
+      target.bleedBurst = 1;
+      target.bleed -= 25;
+      battleLog(battle, `血偿引爆！${target.name}流血崩裂，扣除${burstDmg}血量！`);
+      addFloater(battle, sideOf(battle, target), "血流如注");
+      addFloater(battle, sideOf(battle, target), `-${burstDmg}`, "bleed");
     }
   }
   if (skill.style === "qiBreak") {
@@ -1147,6 +1214,65 @@ function applySkillEffects(run, battle, actor, target, skill, damage, multiplier
       }
     }
   }
+  if (skill.debuff === "guilt" && skill.style === "constableGuilt") {
+    const cap = getDebuffCap(run, weapon, "guilt");
+    target.guilt = Math.min(cap, target.guilt + stacks);
+    addFloater(battle, sideOf(battle, target), `罪名+${stacks}`);
+    if (multiplier >= 1 && target.guilt >= 25) {
+      target.guilt -= 25;
+      target.guiltyVulnerable = 2;
+      const burstDmg = Math.max(40, Math.floor(damage * 0.75 + target.stats.hp * 0.04));
+      target.hp = Math.max(0, target.hp - burstDmg);
+      battleLog(battle, `明正典刑：${target.name}罪名坐实，额外受到${burstDmg}伤害并伏罪2回合。`);
+      addFloater(battle, sideOf(battle, target), "明正典刑");
+      addFloater(battle, sideOf(battle, target), `-${burstDmg}`, "normal");
+    }
+  }
+  if (skill.debuff === "bind" && skill.style === "constableBind") {
+    const cap = getDebuffCap(run, weapon, "bind");
+    target.bind = Math.min(cap, target.bind + stacks);
+    addFloater(battle, sideOf(battle, target), `缉缚+${stacks}`);
+    if (multiplier >= 1 && target.bind >= 25) {
+      target.bind -= 25;
+      target.sealedGate = 2 + (weapon?.sealBonusTurns || 0);
+      const crush = Math.max(30, Math.floor(damage * 0.35));
+      target.hp = Math.max(0, target.hp - crush);
+      if (target === battle.enemy && battle.bossShield > 0) {
+        const shieldBreak = Math.min(battle.bossShield, 120 + (weapon?.shieldBreakBonus || 0));
+        battle.bossShield -= shieldBreak;
+        if (shieldBreak > 0) addFloater(battle, "enemy", `破盾-${shieldBreak}`);
+      }
+      battleLog(battle, `铁锁封门：${target.name}被封住关节，Boss特性/附加技受抑${target.sealedGate}回合。`);
+      addFloater(battle, sideOf(battle, target), `铁锁封门${target.sealedGate}`);
+      addFloater(battle, sideOf(battle, target), `-${crush}`, "normal");
+    }
+  }
+  if (skill.debuff === "mechanism" && skill.style === "constableMechanism") {
+    const cap = getDebuffCap(run, weapon, "mechanism");
+    actor.mechanism = Math.min(cap, actor.mechanism + stacks);
+    addFloater(battle, sideOf(battle, actor), `机括+${stacks}`);
+    if (multiplier >= 1 && actor.mechanism >= 25) {
+      actor.mechanism -= 25;
+      actor.allMachines = 1;
+      battleLog(battle, `百机齐发：${actor.name}装填机关，下一次机簧攻击追加定伤并破盾。`);
+      addFloater(battle, sideOf(battle, actor), "百机齐发");
+    }
+  }
+  if (skill.style === "constableFormation") {
+    const baseFormationStacks = skill.rarity === "red" ? 10 : skill.rarity === "orange" ? 6 : 3;
+    const formationStacks = Math.max(baseFormationStacks, stacks);
+    const cap = getDebuffCap(run, weapon, "formation");
+    actor.formation = Math.min(cap, actor.formation + formationStacks);
+    actor.guard = 1;
+    addFloater(battle, sideOf(battle, actor), `列阵+${formationStacks}`);
+    if (multiplier >= 1 && actor.formation >= 25) {
+      actor.formation -= 25;
+      actor.formationCounter = 2;
+      actor.guard = 1;
+      battleLog(battle, `军阵反推：${actor.name}稳住阵脚，2回合内减伤并反制来敌。`);
+      addFloater(battle, sideOf(battle, actor), "军阵反推2");
+    }
+  }
 
   // 失衡：真伤腿法命中时叠失衡（蓝/橙/红都生效）
   if (multiplier >= 1 && skill.style === "lowKick") {
@@ -1191,6 +1317,15 @@ function applySkillEffects(run, battle, actor, target, skill, damage, multiplier
         actor.qi = Math.min(actor.stats.qi, actor.qi + drain);
         if (drain > 0) battleLog(battle, `【${art.name}】汲取${target.name}${drain}点内力！`);
       }
+      if (art.combatEffect === "constableCleanseGuilt") {
+        target.guilt = Math.min(getDebuffCap(run, weapon, "guilt"), target.guilt + 1);
+        addFloater(battle, sideOf(battle, target), "罪名+1");
+      }
+      if (art.combatEffect === "constableSuppressOnHit" && Math.random() < 0.18) {
+        target.sealedGate = Math.max(target.sealedGate || 0, 1);
+        battleLog(battle, `【${art.name}】照见破绽，${target.name}被封门1回合。`);
+        addFloater(battle, sideOf(battle, target), "封门1");
+      }
     });
   }
 }
@@ -1207,6 +1342,10 @@ function getDebuffCap(run, weapon, type, bossWeapon = null) {
     if (type === "poison" && weapon.poisonCapBonus) cap += weapon.poisonCapBonus;
     if (type === "imbalance" && weapon.imbalanceCapBonus) cap += weapon.imbalanceCapBonus;
     if (type === "breakDefense" && weapon.breakDefenseCapBonus) cap += weapon.breakDefenseCapBonus;
+    if (type === "guilt" && weapon.guiltCapBonus) cap += weapon.guiltCapBonus;
+    if (type === "bind" && weapon.bindCapBonus) cap += weapon.bindCapBonus;
+    if (type === "mechanism" && weapon.mechanismCapBonus) cap += weapon.mechanismCapBonus;
+    if (type === "formation" && weapon.formationCapBonus) cap += weapon.formationCapBonus;
   }
   // Boss weapon cap bonus
   if (bossWeapon) {
@@ -1224,6 +1363,14 @@ function getDebuffCap(run, weapon, type, bossWeapon = null) {
     if (type === "imbalance") cap += 7;  // v6.8：地裂无声失衡上限+7
     if (type === "breakDefense") cap += 7;  // v6.x：碎星连震破防上限+7
   }
+  if (type === "bleed" && run?.traits?.includes("tieyi_blood_debt")) cap = Math.max(cap, 25);
+  const constableMastery = {
+    guilt: "constableGuilt",
+    bind: "constableBind",
+    mechanism: "constableMechanism",
+    formation: "constableFormation"
+  }[type];
+  if (constableMastery && hasStyleMastery(run, constableMastery)) cap += 5;
   return cap;
 }
 
@@ -1251,6 +1398,9 @@ function calcDamage(run, battle, actor, target, skill) {
     battleLog(battle, `暴击！×${cm.toFixed(1)}倍`);
   }
   if (target.guard) dmg = Math.floor(dmg * 0.55);
+  if (target.formationCounter > 0) {
+    dmg = Math.floor(dmg * (target === battle.player && battle.run?.traits?.includes("constable_border_bone") ? 0.62 : 0.72));
+  }
   // v6.8：真伤腿法命中时，失衡>0 时真伤额外受到 2%/层 伤害
   if (skill.style === "lowKick" && target.imbalance > 0) {
     const imbPct = target.imbalance * 0.02;
@@ -1261,6 +1411,12 @@ function calcDamage(run, battle, actor, target, skill) {
     const imbMult = target.imbalanceMult || 2.0;
     dmg = dmg * imbMult;
     battleLog(battle, `【弱点暴露】${target.name}真伤受到${imbMult.toFixed(2)}倍伤害！`);
+  }
+  if (skill.style === "constableGuilt" && target.guilt > 0) {
+    dmg = Math.floor(dmg * (1 + Math.min(target.guilt, 25) * 0.012));
+  }
+  if (target.guiltyVulnerable > 0) {
+    dmg = Math.floor(dmg * 1.18);
   }
   return dmg;
 }
@@ -1358,12 +1514,13 @@ function effectiveDef(unit) {
   const n = unit.breakDefense || 0;
   const defMul = Math.pow(0.97, n);
   let def = (base - unit.poison * 2) * defMul;
+  if (unit.guiltyVulnerable > 0) def *= 0.75;
   return Math.max(0, Math.floor(def));
 }
 
 function effectiveHit(unit) {
   if (!unit || !unit.stats) { console.error("[effectiveHit] unit or unit.stats is undefined"); return 1; }
-  return Math.max(1, unit.stats.hit - unit.poison * 2);
+  return Math.max(1, unit.stats.hit - unit.poison * 2 - (unit.bind || 0));
 }
 
 function effectiveDodge(unit) {
@@ -1377,6 +1534,7 @@ function effectiveSpeed(unit, battle = null) {
   if (unit.poison > 0) spd -= unit.poison * 0.04;
   if (unit.frost > 0) spd -= unit.frost * FROST_SLOW;
   if (unit.hamstring > 0) spd -= unit.hamstring * HAMSTRING_SLOW;
+  if (unit.bind > 0) spd -= unit.bind * 0.015;
   if (unit.veinBreak > 0) spd -= unit.veinBreak * 0.02;
   if (unit.gu > 0) spd -= unit.gu * 0.02;
   // 临时Buff：速度加成
@@ -1505,6 +1663,12 @@ function applyBossTurnMechanics(battle) {
   const turn = battle.bossTurnCounter;
   // Boss武器
   const bossWeaponObj = e.weapon ? DATA.weapons[e.weapon] : null;
+  if (e.sealedGate > 0) {
+    e.sealedGate--;
+    battleLog(battle, `铁锁封门：${e.name}本回合Boss特性被压制。`);
+    addFloater(battle, "enemy", "封门");
+    return;
+  }
 
   for (const trait of traits) {
 
@@ -1728,6 +1892,7 @@ function applyBossTurnMechanics(battle) {
     if (p.bleed >= 25) {
       const burstDmg = Math.floor(p.hp * 0.15);
       p.hp = Math.max(0, p.hp - burstDmg);
+      p.bleedBurst = 1;
       p.bleed -= 25;
       battleLog(battle, `血流如注！${p.name}流血崩裂，扣除${burstDmg}血量！`);
       addFloater(battle, "player", "血流如注");
@@ -1752,6 +1917,7 @@ function applyBossTurnMechanics(battle) {
       const qiDmg = Math.floor(p.qi * 0.075);
       p.hp = Math.max(0, p.hp - hpDmg);
       p.qi = Math.max(0, p.qi - qiDmg);
+      p.poisonBurst = 1;
       p.poison -= 25;
       battleLog(battle, `毒入骨髓！${p.name}毒发攻心，扣除${hpDmg}血量、${qiDmg}内力！`);
       addFloater(battle, "player", "毒入骨髓");
@@ -1888,6 +2054,15 @@ function applyBossHitEffect(battle, target) {
   const traits = battle.bossTraits;
   const e = battle.enemy;
   if (!traits?.length || target !== battle.player) return;
+  if (target.formationCounter > 0) {
+    const counter = Math.max(35, Math.floor(target.stats.def * 0.8));
+    e.hp = Math.max(0, e.hp - counter);
+    e.bind = Math.min(getDebuffCap(battle.run, battle.run.equippedWeapon ? DATA.weapons[battle.run.equippedWeapon] : null, "bind"), e.bind + 2);
+    battleLog(battle, `军阵反推：${target.name}反制${e.name}，造成${counter}伤害并缉缚+2。`);
+    addFloater(battle, "enemy", `-${counter}`, "normal");
+    addFloater(battle, "enemy", "缉缚+2");
+  }
+  if (e.sealedGate > 0) return;
   // Boss武器
   const bossWeaponObj = e.weapon ? DATA.weapons[e.weapon] : null;
 

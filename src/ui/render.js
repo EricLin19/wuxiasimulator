@@ -45,6 +45,19 @@ const BOSS_TRAIT_META = {
 };
 
 // v5.10：战斗角色详情弹窗状态（避免被每帧重新渲染销毁）
+Object.assign(BOSS_TRAIT_META, {
+  sealMove: { name: "封步", desc: "限制走位，偏向压制速度与闪避。" },
+  silverThread: { name: "银线", desc: "厂卫暗线牵制，偏向命中与连携压迫。" },
+  evidenceBurn: { name: "焚证", desc: "毁证求生，阶段变化时会更凶。" },
+  disarm: { name: "缴械", desc: "压制兵器发挥，偏向削弱输出。" },
+  ambushShot: { name: "伏弩", desc: "暗伏弩机，命中后有额外压力。" },
+  edictPressure: { name: "诏压", desc: "借诏令压阵，持续施加战场压力。" },
+  falseEdict: { name: "伪诏", desc: "以假诏乱真，偏向干扰和阶段爆发。" },
+  ironFormation: { name: "铁阵", desc: "军阵护身，防御和护体更强。" },
+  borderFrost: { name: "边霜", desc: "边军寒劲，偏向减速压制。" },
+  guardSwap: { name: "换防", desc: "临阵换防，阶段变化时更难击破。" }
+});
+
 let _battleDetailSide = null; // "player" | "enemy" | null
 
 // ── 战斗浮字：独立于 render 循环，CSS 动画驱动 ──
@@ -513,7 +526,8 @@ function renderEventsModal(modal, run, actions, close) {
     const storyTag = e.type === "story" ? ` <span style="font-size:10px;color:#c0392b;margin-left:4px">【主线】</span>` : "";
     const sc = STORY_CHOICES[e.id];
     // 主线威胁值标注
-    const threatNote = sc ? `<p style="color:#e74c3c;font-weight:700;margin:6px 0 0 0">武盟威视+${sc.threat}（顺应）</p>` : "";
+    const routeThreatName = DATA.storylines?.[run.storylineId]?.threatName || "威胁";
+    const threatNote = sc ? `<p style="color:#e74c3c;font-weight:700;margin:6px 0 0 0">${routeThreatName}+${sc.threat}（顺应）</p>` : "";
     // 战斗难度标注（动态计算）
     let diffNote = "";
     const diff = computeEventDifficulty(run, e);
@@ -738,7 +752,7 @@ function renderCharacterModal(modal, run, actions, close) {
   // 路线决心名称由 storyline.resolveName 决定
   const routeResolve = getRouteResolve(run);
   const resolveLabel = getRouteResolveLabel(run);
-  const resolveLevel = routeResolve >= 9 ? "齐心" : routeResolve >= 6 ? "暗助" : routeResolve >= 3 ? "初聚" : "";
+  const resolveLevel = routeResolve >= 9 ? "鼎盛" : routeResolve >= 6 ? "渐强" : routeResolve >= 3 ? "初显" : "";
   const resolveInfo = DATA.storylines?.[run.storylineId] ? `<h3>${resolveLabel}</h3><p style="color:${routeResolve >= 6 ? '#2ecc71' : routeResolve >= 3 ? '#27ae60' : '#888'}">${routeResolve}/10${resolveLevel ? ` 【${resolveLabel}${resolveLevel}】` : ""}${routeResolve > 0 ? `　我方属性+${routeResolve * 5}%` : ""}</p><p style="font-size:12px;color:#999">每+1战斗中我方全属性+5%。主线"抗争"或路线Boss连胜增加${resolveLabel}。</p>` : "";
 
   modal.innerHTML = `
@@ -835,7 +849,7 @@ function renderGoalsModal(modal, run, close) {
   const bossIcon = yearBoss?.icon || "魔";
   const bossStats = yearBoss || { hp: 2000, qi: 600, atk: 100, def: 50, hit: 75, dodge: 8, crit: 12, speed: 1.5 };
   const bossTraitDesc = yearBoss?.bossTraitDesc || "";
-  const totalMonths = 36; // 3年
+  const totalMonths = 48;
   const progress = Math.min(100, Math.floor(currentMonth / totalMonths * 100));
   // 威胁值威胁度（维度缩放 + Boss档位加成）
   const threatLevel = threatVal >= 9 ? "【威势压人】" : threatVal >= 6 ? "【暗流涌动】" : threatVal >= 3 ? "【山雨欲来】" : "";
@@ -850,9 +864,9 @@ function renderGoalsModal(modal, run, close) {
     <p style="color:${threatColor};margin:6px 0">${threatName}：${threatVal} ${threatLevel}<span style="font-size:12px">${threatDimPct}</span></p>
     <p style="color:${resolveColor};margin:6px 0">${resolveLabel}：${resolve} ${resolveLevel}<span style="font-size:12px">${resolveDimPct}</span></p>
     <div style="background:#f5e6d3;padding:8px;margin:8px 0;border-left:3px solid #c0392b;font-size:13px;line-height:1.5">
-      <b>${threatName}：</b>每+1使战斗中<b>敌方全属性+5%</b>（武盟维度增强）。主线选择"顺应"增加威视。<br>
+      <b>${threatName}：</b>每+1使战斗中<b>敌方全属性+5%</b>。主线选择"顺应"增加${threatName}。<br>
       <b>${resolveLabel}：</b>每+1使战斗中<b>我方全属性+5%</b>。主线"抗争"或路线Boss连胜增加${resolveLabel}。<br>
-      <span style="font-size:12px;color:#999">属性加成四舍五入取整。威视越高，年底Boss额外获得档位加成；决心越高，年底Boss额外获得档位削弱。</span>
+      <span style="font-size:12px;color:#999">属性加成四舍五入取整。威胁越高，剧情Boss额外获得档位加成；决心越高，剧情Boss额外获得档位削弱。</span>
     </div>
     <h3>今年Boss：${bossName}</h3>
     ${bossTraitDesc ? `<p style="color:#e74c3c;font-style:italic">特性：${bossTraitDesc}</p>` : ""}
@@ -981,10 +995,23 @@ function debuffBadges(unit) {
   if (unit.hamstring) badges.push(`<span class="debuff-badge" title="断筋：每层攻击-2%+减速2%，回合后-1层。">断筋 ${unit.hamstring}</span>`);
   if (unit.veinBreak) badges.push(`<span class="debuff-badge" title="断脉：每层内力-2%+减速2%，回合后-1层。">断脉 ${unit.veinBreak}</span>`);
   if (unit.imbalance) badges.push(`<span class="debuff-badge" title="失衡：每层+2%真伤，回合后-1层；25层引爆：弱点暴露（真伤受到2~2.5倍伤害，2回合）。">失衡 ${unit.imbalance}</span>`);
-  if (unit.breakDefense) badges.push(`<span class="debuff-badge" title="破防：每层-3% DEF（累乘）；25层引爆：破防一击（DEF直接归零，2~3回合后恢复）。">破防 ${unit.breakDefense}</span>`);
+  if (unit.breakDefense) badges.push(`<span class="debuff-badge" title="破防：每层-3% DEF（累乘），行动开始后-1层；25层引爆：破防一击（DEF直接归零，2~3回合后恢复）。">破防 ${unit.breakDefense}</span>`);
   if (unit.breakDefenseShatter) badges.push(`<span class="debuff-badge" title="破防一击：DEF 已归零，剩余${unit.breakDefenseShatter}回合后恢复。">破防一击 ${unit.breakDefenseShatter}</span>`);
+  if (unit.guilt) badges.push(`<span class="debuff-badge" title="罪名：奉诏断罪层数。25层消耗并触发明正典刑。">罪名 ${unit.guilt}</span>`);
+  if (unit.guiltyVulnerable) badges.push(`<span class="debuff-badge" title="伏罪：防御降低，受到伤害提高。">伏罪 ${unit.guiltyVulnerable}</span>`);
+  if (unit.bind) badges.push(`<span class="debuff-badge" title="缉缚：降低命中与出手。25层消耗并触发铁锁封门。">缉缚 ${unit.bind}</span>`);
+  if (unit.sealedGate) badges.push(`<span class="debuff-badge" title="封门：Boss特性/附加技被压制。">封门 ${unit.sealedGate}</span>`);
+  if (unit.mechanism) badges.push(`<span class="buff-badge" title="机括：厂卫机簧层数。25层消耗并装填百机齐发。">机括 ${unit.mechanism}</span>`);
+  if (unit.allMachines) badges.push(`<span class="buff-badge" title="百机齐发：下一次机簧攻击追加定伤并破盾。">百机齐发</span>`);
+  if (unit.formation) badges.push(`<span class="buff-badge" title="列阵：禁军阵步层数。25层消耗并触发军阵反推。">列阵 ${unit.formation}</span>`);
+  if (unit.formationCounter) badges.push(`<span class="buff-badge" title="军阵反推：减伤，并在被Boss命中时反制。">军阵反推 ${unit.formationCounter}</span>`);
   if (unit.gu) badges.push(`<span class="debuff-badge" title="蛊：提高招式内力消耗，并扰乱气息。">蛊 ${unit.gu}</span>`);
   // 临时Buff显示（快/力/杀）
+  if (unit.bleedBurst) badges.push(`<span class="debuff-badge" title="血流如注：25层流血爆发造成了一次额外伤害。">血流如注</span>`);
+  if (unit.poisonBurst) badges.push(`<span class="debuff-badge" title="毒入骨髓：25层淬毒爆发造成了额外血量和内力伤害。">毒入骨髓</span>`);
+  if (unit.frozen) badges.push(`<span class="debuff-badge" title="冰封：25层寒气爆发，下回合无法行动。">冰封 ${unit.frozen}</span>`);
+  if (unit.atkZero) badges.push(`<span class="debuff-badge" title="筋断力竭：25层断筋爆发，攻击归零。">筋断力竭 ${unit.atkZero}</span>`);
+  if (unit.weakpointExposed) badges.push(`<span class="debuff-badge" title="弱点暴露：25层失衡爆发，真伤受到额外倍数伤害。">弱点暴露 ${unit.weakpointExposed}</span>`);
   if (unit.tempBuffs) {
     if (unit.tempBuffs.speed) badges.push(`<span class="buff-badge" title="唯快不破：读条速度${unit.tempBuffs.speed.mult}倍，剩余${unit.tempBuffs.speed.duration}回合">快${unit.tempBuffs.speed.duration}</span>`);
     if (unit.tempBuffs.atk) badges.push(`<span class="buff-badge" title="力大无穷：攻击力${unit.tempBuffs.atk.mult}倍，剩余${unit.tempBuffs.atk.duration}回合">力${unit.tempBuffs.atk.duration}</span>`);
