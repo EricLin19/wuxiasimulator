@@ -111,6 +111,27 @@ function showToast(text, isTaunt) {
 }
 if (typeof window !== "undefined") window.__showToast = showToast;
 
+function showToastSequence(messages, gapMs = 1450) {
+  messages.filter(Boolean).forEach((text, index) => {
+    setTimeout(() => showToast(text), index * gapMs);
+  });
+}
+
+function appendLogOnly(run, text) {
+  if (!run || !text) return;
+  run.log.unshift(`<p>${text}</p>`);
+  run.log = run.log.slice(0, 100);
+}
+
+function previewExpGain(run, amount) {
+  if (!amount) return 0;
+  let gained = amount;
+  if (run.treasure?.effect === "expBoost") gained = Math.floor(gained * 1.12);
+  if (run.traits?.includes("orthodox")) gained = Math.floor(gained * 1.08);
+  if (run.traits?.includes("constable")) gained += 8;
+  return gained;
+}
+
 function _cleanupToast(entry, immediate) {
   clearTimeout(entry.stayTimer);
   clearTimeout(entry.deadTimer);
@@ -311,11 +332,23 @@ function resolveBattleResult(result) {
 
     // === 故事战斗胜利处理 ===
     if (storyBattle) {
+      const isBossVictory = battle.isBoss || storyBattle.isBoss || storyBattle.isFinalBoss;
+      const rewardMessages = [];
+      let rewardExpShown = 0;
+      let rewardMoneyShown = 0;
+
       // 应用战斗奖励
       const rew = storyBattle.reward;
       if (rew) {
-        if (rew.money) state.run.money += rew.money;
-        if (rew.exp) { const leveled = gainExp(state.run, rew.exp); if (leveled) state.modal = { type: "reward", options: buildRewardChoices(state.run) }; }
+        if (rew.money) {
+          state.run.money += rew.money;
+          rewardMoneyShown += rew.money;
+        }
+        if (rew.exp) {
+          rewardExpShown += previewExpGain(state.run, rew.exp);
+          const leveled = gainExp(state.run, rew.exp);
+          if (leveled) state.modal = { type: "reward", options: buildRewardChoices(state.run) };
+        }
         if (rew.gainItem) state.run.items.push(rew.gainItem);
         if (rew.fame) state.run.fame = (state.run.fame || 0) + rew.fame;
         if (rew.atk) state.run.stats.atk += rew.atk;
@@ -333,11 +366,19 @@ function resolveBattleResult(result) {
         const dynMoney = scaleMoney(state.run, Math.floor(baseReward * perfMult * diff.moneyMult));
         const dynExp = Math.floor(baseReward * perfMult * diff.expMult);
         state.run.money += dynMoney;
+        rewardMoneyShown += dynMoney;
         if (dynExp > 0) {
+          rewardExpShown += previewExpGain(state.run, dynExp);
           const leveled = gainExp(state.run, dynExp);
-          log(state.run, `表现加成：+${dynMoney}◎ +${dynExp}武学阅历（剩余血量${Math.round(hpRatio*100)}%，${diff.label}难度）`);
+          appendLogOnly(state.run, `表现加成：+${dynMoney}◎ +${dynExp}武学阅历（剩余血量${Math.round(hpRatio*100)}%，${diff.label}难度）`);
           if (leveled && !state.modal) state.modal = { type: "reward", options: buildRewardChoices(state.run) };
         }
+      }
+      if (isBossVictory) {
+        rewardMessages.push(`战胜${battle.enemy.name}。`);
+        if (rewardExpShown > 0) rewardMessages.push(`获得经验+${rewardExpShown}。`);
+        if (rewardMoneyShown > 0) rewardMessages.push(`获得金钱+${rewardMoneyShown}。`);
+        rewardMessages.forEach(text => appendLogOnly(state.run, text));
       }
       // 赢：boss战胜利计数，每3场路线决心+1
       state.run.bossWinCount = (state.run.bossWinCount || 0) + 1;
@@ -345,10 +386,14 @@ function resolveBattleResult(result) {
         state.run.bossWinCount = 0;
         state.run.routeResolve = Math.min(10, getRouteResolve(state.run) + 1);
         const resolveLabel = getRouteResolveLabel(state.run);
-        log(state.run, `连胜3场Boss战！${resolveLabel}+1（当前：${state.run.routeResolve}/10）`);
+        const resolveText = `连胜3场Boss战！${resolveLabel}+1（当前：${state.run.routeResolve}/10）`;
+        appendLogOnly(state.run, resolveText);
+        if (isBossVictory) rewardMessages.push(resolveText);
+        else log(state.run, resolveText);
       } else {
-        log(state.run, `击败${battle.enemy.name}！Boss连胜（${state.run.bossWinCount}/3）。`);
+        appendLogOnly(state.run, `击败${battle.enemy.name}！Boss连胜（${state.run.bossWinCount}/3）。`);
       }
+      if (rewardMessages.length) showToastSequence(rewardMessages);
 
       // M36最终Boss：展示结局选择
       if (storyBattle.isFinalBoss && storyBattle.endings) {
