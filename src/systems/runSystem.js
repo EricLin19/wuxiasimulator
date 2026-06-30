@@ -1055,8 +1055,11 @@ export function resolveStoryChoice(run, eventId, choice, actions) {
       run.storyBattle = {
         month: story.month != null ? story.month : monthAbs(run),
         reward: story.battleReward || null,
+        isBoss: story.isBoss || false,
         isFinalBoss: story.isFinalBoss || false,
         endings: story.endings || null,
+        onWin: story.onWin || null,
+        onLose: story.onLose || null,
         battleDesc: story.battleDesc || ""
       };
       run.currentStory = null;

@@ -684,7 +684,7 @@ DATA.wandererMonths = {
     battleReward: { exp:280, gainItem:"vanguard_battle_flag", fame:40, int:1 } },
   9: { title: "血色黎明",
     storyImage: "assets/story_guyun/m09_xuese_liming.webp",
-    text: "黎明前，赵崇岳的大军压满山谷。韩铁衣端着一碗素面走到你身边，说：若不是你提前报信，谷里的人昨夜就死光了。他把面吃完，放下碗。山下号角响起，他笑了笑：扛旗的，别怕，先死的是我。" },
+    text: "黎明前，赵崇岳的大军压满山谷。韩铁衣端着一碗素面走到你身边，说：若不是你提前报信，谷里的人昨夜就死光了。他把面吃完，放下碗。山下号角响起，他笑了笑：沈兄弟，今日若我死了，谷里的人托你照看。" },
   10: { title: "龙井谷血战",
     storyImage: "assets/story_guyun/m10_longjinggu_xuezhan.webp",
     text: "这一日打到天黑。浓烟里，你找到韩铁衣。他浑身是伤，身边倒着一圈敌人。他抓住你的手，声音低得像风：散人的旗太沉，你接着扛。幸存者围上来，问往后怎么办。你站起身，把熏黑的旗插进焦土。",

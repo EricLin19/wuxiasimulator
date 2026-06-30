@@ -132,6 +132,15 @@ function previewExpGain(run, amount) {
   return gained;
 }
 
+function queueVictoryRewards(run, enemyName, expShown, moneyShown, extraMessages = []) {
+  const messages = [`战胜${enemyName}。`];
+  if (expShown > 0) messages.push(`获得经验+${expShown}。`);
+  if (moneyShown > 0) messages.push(`获得金钱+${moneyShown}。`);
+  messages.push(...extraMessages.filter(Boolean));
+  messages.forEach(text => appendLogOnly(run, text));
+  showToastSequence(messages);
+}
+
 function _cleanupToast(entry, immediate) {
   clearTimeout(entry.stayTimer);
   clearTimeout(entry.deadTimer);
@@ -333,7 +342,7 @@ function resolveBattleResult(result) {
     // === 故事战斗胜利处理 ===
     if (storyBattle) {
       const isBossVictory = battle.isBoss || storyBattle.isBoss || storyBattle.isFinalBoss;
-      const rewardMessages = [];
+      const extraRewardMessages = [];
       let rewardExpShown = 0;
       let rewardMoneyShown = 0;
 
@@ -374,26 +383,21 @@ function resolveBattleResult(result) {
           if (leveled && !state.modal) state.modal = { type: "reward", options: buildRewardChoices(state.run) };
         }
       }
-      if (isBossVictory) {
-        rewardMessages.push(`战胜${battle.enemy.name}。`);
-        if (rewardExpShown > 0) rewardMessages.push(`获得经验+${rewardExpShown}。`);
-        if (rewardMoneyShown > 0) rewardMessages.push(`获得金钱+${rewardMoneyShown}。`);
-        rewardMessages.forEach(text => appendLogOnly(state.run, text));
-      }
       // 赢：boss战胜利计数，每3场路线决心+1
-      state.run.bossWinCount = (state.run.bossWinCount || 0) + 1;
-      if (state.run.bossWinCount >= 3) {
-        state.run.bossWinCount = 0;
-        state.run.routeResolve = Math.min(10, getRouteResolve(state.run) + 1);
-        const resolveLabel = getRouteResolveLabel(state.run);
-        const resolveText = `连胜3场Boss战！${resolveLabel}+1（当前：${state.run.routeResolve}/10）`;
-        appendLogOnly(state.run, resolveText);
-        if (isBossVictory) rewardMessages.push(resolveText);
-        else log(state.run, resolveText);
+      if (isBossVictory) {
+        state.run.bossWinCount = (state.run.bossWinCount || 0) + 1;
+        if (state.run.bossWinCount >= 3) {
+          state.run.bossWinCount = 0;
+          state.run.routeResolve = Math.min(10, getRouteResolve(state.run) + 1);
+          const resolveLabel = getRouteResolveLabel(state.run);
+          extraRewardMessages.push(`连胜3场Boss战！${resolveLabel}+1（当前：${state.run.routeResolve}/10）`);
+        } else {
+          appendLogOnly(state.run, `击败${battle.enemy.name}！Boss连胜（${state.run.bossWinCount}/3）。`);
+        }
       } else {
-        appendLogOnly(state.run, `击败${battle.enemy.name}！Boss连胜（${state.run.bossWinCount}/3）。`);
+        appendLogOnly(state.run, `击败${battle.enemy.name}。`);
       }
-      if (rewardMessages.length) showToastSequence(rewardMessages);
+      queueVictoryRewards(state.run, battle.enemy.name, rewardExpShown, rewardMoneyShown, extraRewardMessages);
 
       // M36最终Boss：展示结局选择
       if (storyBattle.isFinalBoss && storyBattle.endings) {
@@ -415,7 +419,7 @@ function resolveBattleResult(result) {
       }
     } else if (battle.isBoss) {
       state.run.yearlyBossDefeated[battle.bossYear] = true;
-      log(state.run, `击败年末强敌：${battle.enemy.name}。`);
+      queueVictoryRewards(state.run, battle.enemy.name, 0, 0);
       if (battle.bossYear >= 3) {
         settleRun(state, "win", `你击败了${battle.enemy.name}，江湖传遍你的名号。`);
       } else {
@@ -433,9 +437,11 @@ function resolveBattleResult(result) {
       const exp = Math.floor(baseReward * diff.expMult);
       state.run.money += money;
       console.time("[Battle] gainExp");
+      const expShown = previewExpGain(state.run, exp);
       const leveled = gainExp(state.run, exp);
       console.timeEnd("[Battle] gainExp");
-      log(state.run, `击败${battle.enemy.name}，获得${money}金钱和${exp}武学阅历。（难度：${diff.label}）`);
+      queueVictoryRewards(state.run, battle.enemy.name, expShown, money);
+      appendLogOnly(state.run, `击败${battle.enemy.name}，获得${money}金钱和${exp}武学阅历。（难度：${diff.label}）`);
       state.screen = "run";
       // 战斗结束后清理battle相关状态，确保道具栏可正常点击
       // finishDeferredEvent 内部已调 saveRun，无需重复
